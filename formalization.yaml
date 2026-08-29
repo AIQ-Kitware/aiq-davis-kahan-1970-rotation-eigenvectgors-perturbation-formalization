@@ -1,0 +1,123 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+#
+# Thin-wrapper metadata for the Davis-Kahan Palomar entry.
+#
+# Before submitting, replace 09cdd30aeec523533abffc6d553196912c6be6ec in BOTH this file and
+# lakefile.toml with the same full 40-character lowercase commit of the
+# substantive repository that the entry was verified against.
+version: v0.4
+project:
+  name: 'Davis-Kahan 1970: the operator-norm sin-Theta theorem'
+  description: A machine-checked proof of the operator-norm sin-Theta theorem of Davis and
+    Kahan. For symmetric operators T and S on a finite-dimensional inner product space over
+    the reals or complexes, a T-invariant subspace U on which the quadratic form of T is at
+    least c + g, an S-invariant subspace V on which the form of S is at most c, and a perturbation
+    with |S - T| <= epsilon, the norm of the composite orthogonal projection P_V P_U -- the
+    largest sine of a principal angle between U and V -- is at most epsilon / g. The bound
+    is dimension-free, the separation is given by quadratic forms rather than by the spectra,
+    and the subspaces need not be spectral subspaces. This is the estimate that converts a
+    bound on an operator residual into a bound on a subspace angle, which is what makes computed
+    invariant subspaces trustworthy. This repository is a thin Comparator wrapper; the proof
+    lives in the substantive formalization pinned below.
+  authors:
+  - Jon Crall
+  - Edward Wang
+  license: Apache-2.0
+  responsible_maintainers:
+  - Jon Crall
+repository:
+  substantive_formalization:
+    id: AIQ-Kitware/aiq-dkps-formalization
+    revision: 09cdd30aeec523533abffc6d553196912c6be6ec
+classification:
+  arxiv:
+  - math.FA
+  - math.NA
+  msc2020:
+  - 47A55
+  - 47A15
+  - 15A42
+  - 65F15
+sources:
+- title: The rotation of eigenvectors by a perturbation. III
+  authors:
+  - Chandler Davis
+  - William M. Kahan
+  id: doi:10.1137/0707001
+  type: article
+  location: SIAM Journal on Numerical Analysis 7(1), 1970, 1-46
+  relationship: formalizes
+  note: 'The compared theorem is the operator-norm sin-Theta bound, with no added hypothesis
+    and no weakened conclusion. It is narrower than the paper, which states its results for
+    a separable Hilbert space, unbounded self-adjoint operators and arbitrary unitarily invariant
+    norms; the substantive repository formalizes that scope, but it cannot be stated in a
+    Challenge without importing a norm class and spectral-subspace API that Mathlib lacks.
+    Two disclosures about the wider formalization, neither part of this entry: printed Proposition
+    4.4 is false and carries a machine-checked counterexample together with the natural Q-norm
+    repair, and the Section 2 ambient tan-Theta theorem is not locally self-contained.'
+  author_endorsement: not-contacted
+status:
+  scope: 'Formalized and compared here: the operator-norm sin-Theta bound for symmetric operators
+    on a finite-dimensional inner product space, at the generality stated above. Not compared
+    here: the unbounded self-adjoint statement for arbitrary unitarily invariant norms, the
+    tangent-theta family, the direct-rotation theory, and the rest of the 1970 paper, all
+    of which are formalized in the substantive repository against a maintained source-order
+    census.'
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+automation:
+  methods:
+  - method: agent
+    models:
+    - claude-opus-5
+    - claude-opus-4-8
+    - claude-fable-5
+    - gpt-5.6-terra
+    - gpt-5.6-sol
+    framework: Claude Code
+    tool_setup: Agents worked directly in the repository with the Lean toolchain, running
+      `lake build` and the repository's own gate suite. Model attribution is recorded per
+      commit in Co-Authored-By trailers and per declaration in module provenance headers,
+      and measured token usage is accounted in the checked-in ledger under `.llm_resource_tally/`.
+    cost:
+      wall_time: not tracked as elapsed time; the ledger records 44657 assistant turns across
+        1591 accounted commits
+      spend_usd: subscription-based; not tracked per commit
+      hardware: API-only
+    prompting_notes: 'Work was directed by task, not by prompt template: a scope decision
+      from the maintainer, then autonomous proof and audit work against the source censuses.
+      Adversarial review prompts are checked in under `dev/` and are part of the audit record.'
+  - method: manual
+    framework: n/a
+    tool_setup: The human maintainer set scope and priorities, ran builds and audits, inspected
+      theorem interfaces, coordinated subject-matter discussion with the applied-paper authors,
+      adjudicated source-fidelity questions, accepted or rejected proposed repairs, and decided
+      repository policy.
+  spend_usd: subscription-based; not tracked
+  notes: This is a heavily agent-authored formalization with human direction and review. The
+    Lean kernel is the proof checker; the repository's mechanical gates additionally audit
+    dependency layering, axiom closure, census consistency and comparator statement equality.
+    Those checks do not establish that a Lean statement says what a paper says, which is why
+    every source paper carries a separate clause-by-clause semantic review.
+fidelity:
+  divergences: 'None for the compared theorem: it is the printed statement at the stated scope.
+    Divergences elsewhere in the source paper are recorded in the substantive repository and
+    are summarized in the source note above.'
+review:
+  status: self-assessed
+  reviewers:
+  - Jon Crall
+  notes: 'No external peer review. What has happened, and should be read as exactly that:
+    kernel verification of every claimed declaration by `lake build`; repository gates auditing
+    dependency layers, axiom closure, docstring coverage, comparator statement equality and
+    census consistency; repeated adversarial source audits in which an independent agent was
+    asked to find a discrepancy between a printed statement and its Lean rendering, several
+    of which found real defects that are recorded in the censuses; and human coordinator review
+    of scope, theorem interfaces and repair decisions.
+
+    For Davis–Kahan 1970, `python3 scripts/certify_davis_kahan_1970.py --clean` generates
+    a self-contained compiler-evidence bundle and source-order audit packet. That certificate
+    proves elaboration and declaration resolution. It does not prove source equivalence, and
+    the completion standard is deliberately three independent axes: source-facing implementation,
+    compiler verification, and hostile semantic acceptance.'

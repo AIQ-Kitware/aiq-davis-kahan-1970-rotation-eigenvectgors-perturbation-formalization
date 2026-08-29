@@ -1,0 +1,25 @@
+name = "dk-1970-palomar"
+version = "0.1.0"
+defaultTargets = ["Solution"]
+
+[leanOptions]
+pp.unicode.fun = true
+autoImplicit = false
+
+# The substantive formalization, pinned. Replace 09cdd30aeec523533abffc6d553196912c6be6ec with the
+# full 40-character lowercase commit of AIQ-Kitware/aiq-dkps-formalization that
+# this entry was verified against, and record the same value in
+# `formalization.yaml` under `repository.substantive_formalization.revision`.
+#
+# This is a plain Git dependency on purpose. Lake clones a dependency without
+# initialising submodules, which is why the substantive repository contains none.
+[[require]]
+name = "aiq_dkps_formalization"
+git = "https://github.com/AIQ-Kitware/aiq-dkps-formalization.git"
+rev = "09cdd30aeec523533abffc6d553196912c6be6ec"
+
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"

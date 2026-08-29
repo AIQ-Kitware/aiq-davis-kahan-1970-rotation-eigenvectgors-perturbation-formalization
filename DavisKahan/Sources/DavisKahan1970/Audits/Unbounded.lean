@@ -1,0 +1,152 @@
+/-
+Copyright (c) 2026 Kitware, Inc. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jon Crall, OpenAI GPT-5.6 Thinking
+-/
+import DavisKahan.SinTheta.Natural.SpectralSubspace
+import DavisKahan.SinTheta.Natural.Real
+import DavisKahan.Sylvester.Unbounded.OrderedEngineDirect
+import DavisKahan.Sylvester.RealUnbounded
+import DavisKahan.SinTheta.Real.Specializations
+import DavisKahan.Sources.DavisKahan1970.GeneralSinTheta
+import DavisKahan.Sources.DavisKahan1970.FullPartIII
+
+/-!
+# Full unbounded sine-theta trusted-dependency audit
+
+Compile this leaf directly to inspect the trusted dependencies of the two
+ordered engines, the genuine all-gap Sylvester theorem, and the final
+source-shaped sine-theta capstones.
+-/
+
+open scoped InnerProductSpace
+open TauCeti.RealComplexification
+-- the namespace is split across the two libraries: `Basic` is in `ForTauCeti`, `Subspace` here
+open TauCeti.DavisKahan.Foundation.RealComplexification
+
+namespace TauCeti
+namespace DavisKahan
+namespace ExactSinTheta
+
+#check sylvesterNeumannPartialSum_cauchy
+#check sylvesterNeumannSolution_mem
+#check sylvesterNeumannSolution_eq
+#check sylvester_mem_and_gauge_le_of_bound_inverse
+#check sylvester_mem_and_gauge_le_of_bound_inverse_swapped
+#check unbounded_sylvester_mem_and_gauge_le_direct
+#check unbounded_sylvester_mem_and_gauge_le_direct_swapped
+#check OrderedSylvesterEngine
+#check directOrderedSylvesterEngine
+#check canonicalOrderedSylvesterEngine
+#check davisKahan1970_sylvester_of_spectrumGap
+#check generalizedSinTheta_unbounded_exact_of_spectrumGap
+#check sinTheta_unbounded_exact_of_spectrumGap
+#check unboundedSinThetaDataOfSpectralSubspace
+#check spectralSubspace_orthogonalExactDecomposition
+#check sinTheta_unbounded_spectralSubspace_of_spectrumGap
+#check TauCeti.DavisKahanExt.PartialMap.reducingRestriction_isSelfAdjoint
+#check RealSpectralRestriction.conjugatePVM_spectralPVM
+#check RealSpectralRestriction.realSelfAdjointSpectralRestriction_isSelfAdjoint
+#check RealSpectralRestriction.complexifySubmodule_realSelfAdjointSpectralSubspace
+#check unboundedSinThetaDataOfRealSpectralSubspace
+#check realSpectralSubspace_orthogonalExactDecomposition
+#check sinTheta_unbounded_real_spectralSubspace
+#check generalizedSinTheta_unbounded_real_spectralSubspace
+#check SpectralGeneralSinThetaProblem.result
+#check SpectralIsometricSinThetaProblem.result
+#check TauCeti.LinearPMap.realResolventSet
+#check realSpectrum_eq_spectraSpectrum
+#check PartialMapComplexification.isSelfAdjoint_complexify
+#check PartialMapComplexification.unboundedSylvesterGap_complexify
+#check ComplexificationApproximation.approximationNumber_complexify
+#check ComplexificationApproximation.kyFanApproximationGauge_complexify
+#check TauCeti.RealComplexification.conjugateOperator_cfc_eq
+#check sylvesterIntervalExteriorGap_of_realSpectrum
+#check davisKahan1970_sylvester_complex
+#check sinTheta_unbounded_exact_complex
+#check generalizedSinTheta_unbounded_complex
+#check generalizedSinTheta_unbounded_exact_complex
+#check real_unbounded_sylvester_kyFan
+#check davisKahan1970_sylvester_real
+#check sinTheta_unbounded_exact_real
+#check lowerFramePolarData_real_nonempty
+#check generalizedSinTheta_unbounded_exact_real
+#check directedSinThetaOperatorReal_eq_of_isometry
+#check FormBoundedIsometricSinThetaProblem.result_complex
+#check FormBoundedIsometricSinThetaProblem.result_real
+#check FormBoundedGeneralSinThetaProblem.result
+#check RealGeneralSinThetaProblem.result
+#check BoundedGeneralSinThetaProblem.result
+#check RealBoundedGeneralSinThetaProblem.result
+#check TauCeti.DavisKahan1970.sinTheta
+#check TauCeti.DavisKahan1970.sinTheta_real
+#check TauCeti.DavisKahan1970.sinTheta_real_spectralSubspace
+#check TauCeti.DavisKahan1970.generalizedSinTheta_real_spectralSubspace
+#check TauCeti.DavisKahan1970.generalizedSinTheta
+#check TauCeti.DavisKahan1970.generalizedSinTheta_real
+#check TauCeti.DavisKahan1970.generalizedSinTheta_boundedSpecialization
+#check TauCeti.DavisKahan1970.generalizedSinTheta_boundedSpecialization_real
+
+#print axioms sylvesterNeumannPartialSum_cauchy
+#print axioms sylvesterNeumannSolution_mem
+#print axioms sylvesterNeumannSolution_eq
+#print axioms sylvester_mem_and_gauge_le_of_bound_inverse
+#print axioms sylvester_mem_and_gauge_le_of_bound_inverse_swapped
+#print axioms unbounded_sylvester_mem_and_gauge_le_direct
+#print axioms unbounded_sylvester_mem_and_gauge_le_direct_swapped
+#print axioms directOrderedSylvesterEngine
+#print axioms canonicalOrderedSylvesterEngine
+#print axioms davisKahan1970_sylvester_of_spectrumGap
+#print axioms generalizedSinTheta_unbounded_exact_of_spectrumGap
+#print axioms sinTheta_unbounded_exact_of_spectrumGap
+#print axioms sinTheta_unbounded_spectralSubspace_of_spectrumGap
+#print axioms TauCeti.DavisKahanExt.PartialMap.reducingRestriction_isSelfAdjoint
+#print axioms RealSpectralRestriction.conjugatePVM_spectralPVM
+#print axioms RealSpectralRestriction.realSelfAdjointSpectralRestriction_isSelfAdjoint
+#print axioms RealSpectralRestriction.complexifySubmodule_realSelfAdjointSpectralSubspace
+#print axioms unboundedSinThetaDataOfRealSpectralSubspace
+#print axioms realSpectralSubspace_orthogonalExactDecomposition
+#print axioms sinTheta_unbounded_real_spectralSubspace
+#print axioms generalizedSinTheta_unbounded_real_spectralSubspace
+#print axioms SpectralGeneralSinThetaProblem.result
+#print axioms SpectralIsometricSinThetaProblem.result
+#print axioms TauCeti.LinearPMap.realSpectrum
+#print axioms realSpectrum_eq_spectraSpectrum
+#print axioms PartialMapComplexification.isSelfAdjoint_complexify
+#print axioms PartialMapComplexification.unboundedSylvesterGap_complexify
+#print axioms ComplexificationApproximation.approximationNumber_complexify
+#print axioms ComplexificationApproximation.kyFanApproximationGauge_complexify
+#print axioms TauCeti.RealComplexification.conjugateOperator_cfc_eq
+#print axioms sylvesterIntervalExteriorGap_of_realSpectrum
+#print axioms davisKahan1970_sylvester_complex
+#print axioms sinTheta_unbounded_exact_complex
+#print axioms generalizedSinTheta_unbounded_complex
+#print axioms generalizedSinTheta_unbounded_exact_complex
+#print axioms real_unbounded_sylvester_kyFan
+#print axioms davisKahan1970_sylvester_real
+#print axioms sinTheta_unbounded_exact_real
+#print axioms lowerFramePolarData_real_nonempty
+#print axioms generalizedSinTheta_unbounded_exact_real
+#print axioms directedSinThetaOperatorReal_eq_of_isometry
+#print axioms FormBoundedIsometricSinThetaProblem.result_complex
+#print axioms FormBoundedIsometricSinThetaProblem.result_real
+#print axioms FormBoundedGeneralSinThetaProblem.result
+#print axioms RealGeneralSinThetaProblem.result
+#print axioms BoundedGeneralSinThetaProblem.result
+#print axioms RealBoundedGeneralSinThetaProblem.result
+#print axioms TauCeti.DavisKahan1970.sinTheta
+#print axioms TauCeti.DavisKahan1970.sinTheta_real
+#print axioms TauCeti.DavisKahan1970.sinTheta_real_spectralSubspace
+#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_real_spectralSubspace
+#print axioms TauCeti.DavisKahan1970.generalizedSinTheta
+#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_real
+#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_boundedSpecialization
+#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_boundedSpecialization_real
+#check TauCeti.DavisKahan1970.banach_sylvester_lower_bound_interchanged
+#check TauCeti.DavisKahan1970.banach_sylvester_lower_bound_unboundedA
+#print axioms TauCeti.DavisKahan1970.banach_sylvester_lower_bound_interchanged
+#print axioms TauCeti.DavisKahan1970.banach_sylvester_lower_bound_unboundedA
+
+end ExactSinTheta
+end DavisKahan
+end TauCeti

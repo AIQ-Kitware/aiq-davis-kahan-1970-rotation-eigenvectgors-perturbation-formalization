@@ -38,28 +38,60 @@ weakened conclusion.
 
 It is deliberately narrower than the paper. Davis and Kahan state their results for
 a separable Hilbert space, unbounded self-adjoint operators, and arbitrary
-unitarily invariant norms, and the substantive repository formalizes them at that
+unitarily invariant norms, and the `DavisKahan` library included here formalizes them at that
 scope. That general statement cannot be written in a Palomar Challenge today: it
 needs a unitarily invariant norm class and a spectral-subspace API that Mathlib does
 not have, and importing the local ones would put the whole development inside the
 trusted statement surface, which is exactly what a Challenge is supposed to avoid.
 
 Two disclosures about the wider formalization, neither part of this entry: printed
-Proposition 4.4 of the paper is false, and the substantive repository carries a
+Proposition 4.4 of the paper is false, and the `DavisKahan` library carries a
 machine-checked counterexample satisfying its printed hypotheses together with the
 natural Q-norm repair; and the Section 2 ambient tan-Θ theorem is not locally
 self-contained, since its printed statement omits a crossed-defect condition the
 paper introduces later and then treats as standing.
 
-## Structure
+## Where this comes from
 
-`Challenge.lean` states the theorem against Mathlib alone, with a deliberate
-statement-side hole. `Solution.lean` supplies the same declaration from the
-substantive development, pinned as a Lake dependency. Comparator checks that the
-two agree and that the proof uses only `propext`, `Quot.sound` and
-`Classical.choice`.
+This repository is an **extraction**, not a fork with a life of its own.
+[`AIQ-Kitware/aiq-dkps-formalization`](https://github.com/AIQ-Kitware/aiq-dkps-formalization)
+is authoritative: mathematics is developed, reviewed and audited there, and this
+repository is a snapshot of the `ForTauCeti` and `DavisKahan` packages taken from it, without the surrounding history and
+without the packages that are not needed here. It exists so the entry can be read,
+built and checked on its own, and so a reader is not asked to clone a much larger
+multi-paper development to see one theorem's proof.
 
-The proof extends `T` and `S` to globally coercive and globally bounded operators
-using the invariance of `U`, `V` and their orthogonal complements, derives a
-Sylvester relation for `P_U ∘ P_V`, and applies a Sylvester norm bound. It stays in
-the substantive repository rather than being copied here.
+The practical consequence: **send changes upstream.** A fix made here and not made
+there is lost at the next extraction. When the upstream packages move, this snapshot
+is refreshed from them.
+
+What is deliberately *not* extracted: the source-order census, the distilled source
+specification, the semantic-audit apparatus and the gate scripts. Those track coverage
+of the whole 1970 paper and are maintenance machinery for the authoritative repository;
+duplicating them here would create a second copy to keep honest. Accordingly **this
+repository makes no completion claim about the paper** -- it presents a proved theorem
+and the development it lives in.
+
+The extraction is a copy of the package directories, so every module keeps its
+upstream path, namespace and provenance header. The libraries build against a pinned
+Mathlib and a pinned Tau Ceti, recorded in `lakefile.toml` and `lake-manifest.json`.
+
+## Layout
+
+```
+Challenge.lean      the Palomar statement, against Mathlib alone, with a
+                    deliberate statement-side hole
+Solution.lean       the same declaration, supplied from the libraries below
+comparator.json     what Comparator compares, and the permitted axioms
+formalization.yaml  registry metadata
+ForTauCeti/         reusable mathematics, in its final `TauCeti.*` namespaces
+DavisKahan/         the Davis--Kahan development
+```
+
+`lake build` builds the entry. `lake build ForTauCeti` and `lake build DavisKahan` build the libraries.
+
+## Status
+
+Preparation. Nothing here claims registration, acceptance, or peer review by the
+Palomar Registry.
+

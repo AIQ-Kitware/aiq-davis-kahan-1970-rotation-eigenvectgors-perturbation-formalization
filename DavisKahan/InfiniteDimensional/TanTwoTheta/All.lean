@@ -1,0 +1,22 @@
+/-
+Copyright (c) 2026 Kitware, Inc. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jon Crall, OpenAI GPT-5.6 Thinking
+-/
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalDegenerate
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalEstimate
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalHalfLine
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalOrderedGap
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalOrderedSets
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalRestrictionSpectrum
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalReverseGap
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalRiccati
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalSpectrumNonempty
+import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedRiccatiShift
+import DavisKahan.InfiniteDimensional.TanTwoTheta.CanonicalTangentBridge
+import DavisKahan.InfiniteDimensional.TanTwoTheta.OffDiagonalSpectralRepulsion
+import DavisKahan.InfiniteDimensional.TanTwoTheta.PaperFaithfulUINorm
+import DavisKahan.InfiniteDimensional.TanTwoTheta.QuarterAcuteFormGap
+import DavisKahan.InfiniteDimensional.TanTwoTheta.RealPaperFaithful
+
+/-! # `DavisKahan/InfiniteDimensional/TanTwoTheta` -/

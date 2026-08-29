@@ -1,23 +1,45 @@
-name = "dk-1970-palomar"
+name = "dk_1970_formalization"
 version = "0.1.0"
+# The Palomar entry is what this repository exists to present, so it is the only
+# default target. The extracted libraries build on demand: `lake build ForTauCeti`,
+# `lake build DavisKahan`.
 defaultTargets = ["Solution"]
 
 [leanOptions]
 pp.unicode.fun = true
+# Avoid accidental free variables in theorem statements.
 autoImplicit = false
 
-# The substantive formalization, pinned. Replace 09cdd30aeec523533abffc6d553196912c6be6ec with the
-# full 40-character lowercase commit of AIQ-Kitware/aiq-dkps-formalization that
-# this entry was verified against, and record the same value in
-# `formalization.yaml` under `repository.substantive_formalization.revision`.
-#
-# This is a plain Git dependency on purpose. Lake clones a dependency without
-# initialising submodules, which is why the substantive repository contains none.
+# Tau Ceti, pinned. `ForTauCeti` below is the reusable-mathematics package whose
+# declarations already carry their final `TauCeti.*` namespaces; this dependency is
+# the released upstream it is written against.
 [[require]]
-name = "aiq_dkps_formalization"
-git = "https://github.com/AIQ-Kitware/aiq-dkps-formalization.git"
-rev = "09cdd30aeec523533abffc6d553196912c6be6ec"
+name = "TauCeti"
+git = "https://github.com/TauCetiProject/TauCeti.git"
+rev = "1b39d420ac84ed9a5a7d536ce19b37818ad29c39"
 
+# Keep Mathlib last so this workspace owns the pin used by every library here and
+# by the Tau Ceti checkout. The revision is the one the extraction was verified at
+# and is recorded in `lake-manifest.json`.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+
+# The reusable-mathematics layer. A ForTauCeti module imports only `Mathlib.*`,
+# `TauCeti.*` and `ForTauCeti.*`. The option set mirrors the one Tau Ceti applies to
+# its own libraries, so a warning here is a warning upstream would see too.
+[[lean_lib]]
+name = "ForTauCeti"
+globs = ["ForTauCeti.*"]
+leanOptions = { warningAsError = true, weak.linter.mathlibStandardSet = true, weak.linter.style.longFile = 1500, weak.linter.style.longFileDefValue = 1500, weak.linter.style.header = false }
+
+# The Davis--Kahan development.
+[[lean_lib]]
+name = "DavisKahan"
+
+# The Palomar entry. `Challenge` states the theorem against Mathlib alone and
+# contains a deliberate statement-side hole; `Solution` supplies the same
+# declaration from the libraries above. Comparator checks that the two agree.
 [[lean_lib]]
 name = "Challenge"
 

@@ -1,10 +1,10 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
 #
-# Thin-wrapper metadata for the Davis-Kahan Palomar entry.
+# Metadata for the Davis-Kahan 1970 extraction.
 #
-# Before submitting, replace 09cdd30aeec523533abffc6d553196912c6be6ec in BOTH this file and
-# lakefile.toml with the same full 40-character lowercase commit of the
-# substantive repository that the entry was verified against.
+# This repository carries the proof. It is an extraction of the corresponding
+# packages from AIQ-Kitware/aiq-dkps-formalization, which remains authoritative;
+# see README.md for what that means for updates.
 version: v0.4
 project:
   name: 'Davis-Kahan 1970: the operator-norm sin-Theta theorem'
@@ -17,8 +17,9 @@ project:
     is dimension-free, the separation is given by quadratic forms rather than by the spectra,
     and the subspaces need not be spectral subspaces. This is the estimate that converts a
     bound on an operator residual into a bound on a subspace angle, which is what makes computed
-    invariant subspaces trustworthy. This repository is a thin Comparator wrapper; the proof
-    lives in the substantive formalization pinned below.
+    invariant subspaces trustworthy. The compared statement is one theorem; the repository
+    carries the wider Davis-Kahan development it is proved in, extracted from the authoritative
+    repository named in the README.
   authors:
   - Jon Crall
   - Edward Wang
@@ -26,9 +27,7 @@ project:
   responsible_maintainers:
   - Jon Crall
 repository:
-  substantive_formalization:
-    id: AIQ-Kitware/aiq-dkps-formalization
-    revision: 09cdd30aeec523533abffc6d553196912c6be6ec
+  role: substantive-development
 classification:
   arxiv:
   - math.FA
@@ -61,8 +60,12 @@ status:
     on a finite-dimensional inner product space, at the generality stated above. Not compared
     here: the unbounded self-adjoint statement for arbitrary unitarily invariant norms, the
     tangent-theta family, the direct-rotation theory, and the rest of the 1970 paper, all
-    of which are formalized in the substantive repository against a maintained source-order
-    census.'
+    of which are formalized in the `DavisKahan` library included here. The source-order census
+    and the semantic-audit apparatus that track that wider coverage stay in the authoritative
+    repository and are deliberately not duplicated here; this repository does not make a
+    completion claim about the 1970 paper. `Challenge.lean` carries the deliberate
+    statement-side hole the Comparator convention requires, and no library declaration in
+    `ForTauCeti` or `DavisKahan` is left incomplete.'
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []

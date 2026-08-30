@@ -128,10 +128,30 @@ for entry in "${ENTRIES[@]}"; do
             echo "    pass without it. See the header of this script."
             ok=0
         else
-            if [[ $FAKE_LANDRUN -eq 1 ]]; then
+            if [[ $FAKE_LANDRUN -eq 1 && -z "${COMPARATOR_LANDRUN:-}" ]]; then
                 echo "    landrun is bypassed (--fake-landrun): the exporter runs"
                 echo "    unsandboxed. That is a weaker sandbox, not a weaker check."
-                export COMPARATOR_LANDRUN="${COMPARATOR_LANDRUN:-$(command -v env)}"
+                # Comparator invokes landrun with its own flags, so the bypass has
+                # to be a shim that discards them rather than a bare `env`.
+                SHIM="$(mktemp)"
+                cat > "$SHIM" <<'SHIM_EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+value_flags=(--ro --rox --rw --rwx --bind-tcp --connect-tcp --log-level --env)
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --) shift; break ;;
+    -*) for vf in "${value_flags[@]}"; do [[ "$1" == "$vf" ]] && shift && break; done; shift ;;
+    *) break ;;
+  esac
+done
+[[ $# -gt 0 ]] || { echo "landrun shim: no command given" >&2; exit 2; }
+echo "NOT LANDRUN: running unsandboxed: $*" >&2
+exec "$@"
+SHIM_EOF
+                chmod +x "$SHIM"
+                export COMPARATOR_LANDRUN="$SHIM"
+                trap 'rm -f "$SHIM"' EXIT
             fi
             # `lake env` is required: the exporter needs the Lake search path to
             # find this repository's compiled modules.

@@ -6,6 +6,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 import DavisKahan.Sources.DavisKahan1970.TanThetaWholeSpace
 import DavisKahan.TanTheta.Theorem63UnboundedInfiniteTrial
 import DavisKahan.TanTheta.Theorem63UnboundedCompression
+import DavisKahan.TanTheta.RitzPair
 
 /-!
 # Unbounded ambient single-angle tangent assembly
@@ -484,6 +485,50 @@ theorem tanTheta_unbounded_ambient_paperUINorm_exact
   · intro z
     exact crossed_lower_of_reducing A D V hVdom hVcomm hUnwanted z
   · exact hResidual
+
+/-! ### The constructor-first interface
+
+`tanTheta_unboundedCompression_ambient_paperUINorm_exact` above is the most
+general form, and it asks the caller for four separate facts that are not
+Davis--Kahan mathematics: two saying the compression data is `A`'s Ritz pair on
+`U`, and two saying `Vᗮ` reduces `A`.  `DavisKahan.UnboundedRitzPair` and
+`DavisKahan.ReducingComplement` hold those, and
+`UnboundedRitzPair.ofTrialBlock` builds the first from the bounded-compression
+bundle a caller usually has.
+
+What stays a hypothesis is what the theorem is about: the semiboundedness of the
+compression, the coercivity on the unwanted subspace, and the crossed-defect
+standing condition (3.5). -/
+
+/-- **Davis--Kahan 1970, `tan Θ`, unbounded ambient form, taking the Ritz pair and
+the reducing complement as objects.**
+
+`tanTheta_unboundedCompression_ambient_paperUINorm_exact` with its four
+structural arguments replaced by `DavisKahan.UnboundedRitzPair A U` and
+`DavisKahan.ReducingComplement A V`.  The mathematics -- semiboundedness,
+coercivity on the unwanted subspace, and the crossed-defect condition (3.5) --
+is unchanged and still supplied by the caller. -/
+theorem tanTheta_unbounded_ambient_ritz_paperUINorm
+    (N : PaperUnitaryInvariantNorm)
+    {A : E →ₗ.[ℂ] E}
+    {U V : Submodule ℂ E}
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace U]
+    (D : DavisKahan.UnboundedRitzPair A U)
+    (hV : DavisKahan.ReducingComplement A V)
+    (H : E →L[ℂ] E) (hH : IsSelfAdjoint H)
+    {alpha delta : ℝ} (hdelta : 0 < delta)
+    (hupper : TauCeti.LinearPMap.SemiboundedAbove D.trial.compression alpha)
+    (hUnwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
+      (alpha + delta) * ‖y‖ ^ 2 ≤
+        RCLike.re ⟪A ⟨y, hy⟩, y⟫_ℂ)
+    (h35 : DavisKahan.CrossedDefectsEquivalent U V)
+    (hResidual : D.trial.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
+    (hMem : N.Mem H) :
+    N.Mem (paperTanAngleOperatorC U V) ∧
+      delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge H :=
+  tanTheta_unboundedCompression_ambient_paperUINorm_exact N D.trial A H hH hdelta
+    D.mem_domain D.action_eq hV.mapsDomain hV.commutes hupper hUnwanted h35
+    hResidual hMem
 
 end
 

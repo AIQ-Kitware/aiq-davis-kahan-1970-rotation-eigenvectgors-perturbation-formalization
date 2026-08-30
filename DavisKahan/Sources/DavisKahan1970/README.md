@@ -22,6 +22,28 @@ python3 scripts/check_davis_kahan_1970_source_census.py
 When Lean is available, use the compile-backed census/probe tooling for declaration
 reachability rather than copying a current count into this document.
 
+## The four Section 2 theorems
+
+`SectionTwo.lean` is the public inventory of the paper's four unnumbered headline
+theorems, over both scalar fields:
+
+```
+TauCeti.DavisKahan1970.SectionTwo.sinTheta       sinTheta_real
+TauCeti.DavisKahan1970.SectionTwo.tanTheta       tanTheta_real
+TauCeti.DavisKahan1970.SectionTwo.sinTwoTheta    sinTwoTheta_real
+TauCeti.DavisKahan1970.SectionTwo.tanTwoTheta    tanTwoTheta_real
+```
+
+Each is at the accepted full source scope in its own type: unbounded self-adjoint
+`LinearPMap` ambient operator, arbitrary Hilbert dimension, a
+`PaperUnitaryInvariantNorm`, and both printed conclusions. `SectionTwoUsage.lean`
+shows each being called from ordinary operator-theory hypotheses.
+
+The scalar-generic presentation forms, directed and whole-space variants, finite
+specializations, operator-norm statements and bundled-problem entry points remain
+where they are and are unaffected; they are simply not the inventory a reader
+should have to assemble.
+
 ## Production source aggregate
 
 `DavisKahan/Sources/DavisKahan1970/All.lean` is the stable aggregate for the

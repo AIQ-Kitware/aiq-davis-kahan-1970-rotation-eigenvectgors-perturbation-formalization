@@ -79,10 +79,12 @@ automation:
     - gpt-5.6-terra
     - gpt-5.6-sol
     framework: Claude Code
-    tool_setup: Agents worked directly in the repository with the Lean toolchain, running
-      `lake build` and the repository's own gate suite. Model attribution is recorded per
-      commit in Co-Authored-By trailers and per declaration in module provenance headers,
-      and measured token usage is accounted in the checked-in ledger under `.llm_resource_tally/`.
+    tool_setup: Agents worked directly in the authoritative repository with the Lean
+      toolchain, running `lake build` and that repository's gate suite; the libraries here
+      are the extraction of the result. Model attribution is recorded per declaration in the
+      module provenance headers carried into this repository, and per commit in Co-Authored-By
+      trailers and in the measured token ledger, both of which stay in the authoritative
+      repository along with the gate suite.
     cost:
       wall_time: not tracked as elapsed time; the ledger records 44657 assistant turns across
         1591 accounted commits
@@ -99,10 +101,12 @@ automation:
       repository policy.
   spend_usd: subscription-based; not tracked
   notes: This is a heavily agent-authored formalization with human direction and review. The
-    Lean kernel is the proof checker; the repository's mechanical gates additionally audit
-    dependency layering, axiom closure, census consistency and comparator statement equality.
-    Those checks do not establish that a Lean statement says what a paper says, which is why
-    every source paper carries a separate clause-by-clause semantic review.
+    Lean kernel is the proof checker, and it checks the libraries here exactly as it checks
+    them upstream. The mechanical gates that additionally audit dependency layering, axiom
+    closure, census consistency and comparator statement equality run in the authoritative
+    repository and are deliberately not duplicated here. Those checks do not establish that a
+    Lean statement says what a paper says, which is why every source paper carries a separate
+    clause-by-clause semantic review, also maintained there.
 fidelity:
   divergences: 'None for the compared theorem: it is the printed statement at the stated scope.
     Divergences elsewhere in the source paper are recorded in the substantive repository and
@@ -119,8 +123,10 @@ review:
     of which found real defects that are recorded in the censuses; and human coordinator review
     of scope, theorem interfaces and repair decisions.
 
-    For Davis–Kahan 1970, `python3 scripts/certify_davis_kahan_1970.py --clean` generates
-    a self-contained compiler-evidence bundle and source-order audit packet. That certificate
-    proves elaboration and declaration resolution. It does not prove source equivalence, and
-    the completion standard is deliberately three independent axes: source-facing implementation,
-    compiler verification, and hostile semantic acceptance.'
+    For Davis–Kahan 1970 the authoritative repository generates a self-contained
+    compiler-evidence bundle and source-order audit packet. That certificate proves elaboration
+    and declaration resolution. It does not prove source equivalence, and the completion
+    standard is deliberately three independent axes: source-facing implementation, compiler
+    verification, and hostile semantic acceptance. The census and audit apparatus that carries
+    those axes is not extracted here; this repository makes no completion claim about the
+    1970 paper.'

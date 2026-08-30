@@ -174,12 +174,13 @@ private theorem inverse_comm_reflection {a x : A} (ha : IsUnit a)
 end ReflectionRing
 
 /-- The signed doubled cosine `1 - 2(P_V-P_U)^2`. -/
-private def signedCosTwo (U V : Submodule ℂ E)
+def signedCosTwo (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[ℂ] E :=
   1 - 2 * (paperProjectorDifference U V * paperProjectorDifference U V)
 
 omit [CompleteSpace E] in
-private theorem signedCosTwo_comm_starProjection
+/-- The signed doubled cosine commutes with the projection onto `U`. -/
+theorem signedCosTwo_comm_starProjection
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     signedCosTwo U V * U.starProjection = U.starProjection * signedCosTwo U V := by
   have hsq := proj_comm_sq_reflection
@@ -202,7 +203,8 @@ private theorem signedCosTwo_comm_starProjection
   rw [htwo, htwo', hsq]
 
 omit [CompleteSpace E] in
-private theorem signedCosTwo_comm_starProjection_orthogonal
+/-- The signed doubled cosine commutes with the projection onto `Uᗮ`. -/
+theorem signedCosTwo_comm_starProjection_orthogonal
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     signedCosTwo U V * Uᗮ.starProjection = Uᗮ.starProjection * signedCosTwo U V := by
   rw [Submodule.starProjection_orthogonal']
@@ -215,7 +217,9 @@ private theorem signedCosTwo_comm_starProjection_orthogonal
     _ = (1 - U.starProjection) * signedCosTwo U V := by
       noncomm_ring
 
-private theorem signedCosTwo_selfAdjoint
+/-- The signed doubled cosine is self-adjoint: it is `1 - 2 D²` with `D` a difference of
+orthogonal projections. -/
+theorem signedCosTwo_selfAdjoint
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     IsSelfAdjoint (signedCosTwo U V) := by
   have hD := isSelfAdjoint_paperProjectorDifference (U := U) (V := V)
@@ -228,7 +232,7 @@ omit [CompleteSpace E] in
 /-- The diagonal block of the reflection through `V`, relative to `U`, is the
 reflection through `U` times the signed doubled cosine.  Squaring therefore
 removes the harmless reflection factor. -/
-private theorem diagonalPart_reflection_eq_reflection_mul_signedCosTwo
+theorem diagonalPart_reflection_eq_reflection_mul_signedCosTwo
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     U.diagonalPart V.reflectionOperator = U.reflectionOperator * signedCosTwo U V := by
   unfold signedCosTwo

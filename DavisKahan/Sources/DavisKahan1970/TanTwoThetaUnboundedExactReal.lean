@@ -6,6 +6,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedAmbientExact
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedGramReal
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.ComplexificationGauge
+import DavisKahan.DoubleAngle.TangentTransport
 
 /-!
 # Exact real unbounded `tan 2Theta` source wrappers
@@ -460,6 +461,99 @@ theorem tanTwoTheta_unbounded_ambient_paperUINorm_real_exact
       N.Mem (unboundedReflectionTangent U Z) ∧
       (b - a) * N.gauge (unboundedReflectionTangent U Z) ≤ 2 * N.gauge B
   exact ⟨hCC, hTmem, hineq⟩
+
+/-! ## The subspace-taking real endpoints
+
+The two theorems below are the real mirror of
+`tanTwoTheta_unbounded_ambient_subspace_paperUINorm` and
+`tanTwoTheta_unbounded_ambient_paperAngle_paperUINorm`.  A caller supplies the
+operator, the perturbation, the selected subspace, the ordered gap and the ideal
+membership; the reflection, its self-adjointness, its involutivity and the block
+tangent are all supplied by the library, and no pole certificate is asked for. -/
+
+/-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form over `ℝ`, taking the
+reducing subspace rather than a reflection witness.**
+
+`tanTwoTheta_unbounded_ambient_paperUINorm_real_exact` with `Z = V.reflectionOperator`
+and with `Z` self-adjoint and involutive supplied by the library. -/
+theorem tanTwoTheta_unbounded_ambient_subspace_paperUINorm_real
+    (N : PaperUnitaryInvariantNorm)
+    {A : E →ₗ.[ℝ] E} {B : E →L[ℝ] E} {a b c : ℝ}
+    (V : Submodule ℝ E) [V.HasOrthogonalProjection]
+    (hA : _root_.IsSelfAdjoint A)
+    (hBsa : IsSelfAdjoint B)
+    (hB : TauCeti.IsOddFor
+      (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic) B)
+    (hV : DavisKahan.ReflectionIntertwines A B V)
+    (hUa : ∀ x : A.domain,
+      (x : E) ∈ TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic →
+      ⟪A x, (x : E)⟫_ℝ ≤ a * ‖(x : E)‖ ^ 2)
+    (hUb : ∀ x : A.domain,
+      (x : E) ∈
+        (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic)ᗮ →
+      b * ‖(x : E)‖ ^ 2 ≤ ⟪A x, (x : E)⟫_ℝ)
+    (hab : a < b) (hBmem : N.Mem B) :
+    IsUnit
+        ((TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic).diagonalPart
+            (V.reflectionOperator) *
+          (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic).diagonalPart
+            (V.reflectionOperator)) ∧
+      N.Mem (unboundedReflectionTangent
+        (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic)
+        (V.reflectionOperator)) ∧
+      (b - a) * N.gauge (unboundedReflectionTangent
+        (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic)
+        (V.reflectionOperator)) ≤
+        2 * N.gauge B :=
+  tanTwoTheta_unbounded_ambient_paperUINorm_real_exact N hA hBsa hB
+    (TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V)
+    (TauCeti.DavisKahan.reflectionOperator_mul_self_complex V)
+    hV.mapsDomain hV.commutes hUa hUb hab hBmem
+
+/-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form over `ℝ`, on the paper's
+angle operator.**
+
+The same theorem as `tanTwoTheta_unbounded_ambient_subspace_paperUINorm_real`,
+with the proof's block tangent replaced by the paper's real ambient `|tan 2Θ|`;
+see `DavisKahan.extendedGauge_unboundedReflectionTangent_real`.
+
+**No pole hypothesis is asked of the caller.**  The ordered gap already forces the
+reflection's diagonal block to be invertible -- the first component of the theorem
+above -- and that unit is exactly what excludes the quarter-turn poles.  No branch
+is chosen either: principal angles may exceed `π/4`, and `|tan 2Θ|` is what a norm
+sees there. -/
+theorem tanTwoTheta_unbounded_ambient_paperAngle_paperUINorm_real
+    (N : PaperUnitaryInvariantNorm)
+    {A : E →ₗ.[ℝ] E} {B : E →L[ℝ] E} {a b c : ℝ}
+    (V : Submodule ℝ E) [V.HasOrthogonalProjection]
+    (hA : _root_.IsSelfAdjoint A)
+    (hBsa : IsSelfAdjoint B)
+    (hB : TauCeti.IsOddFor
+      (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic) B)
+    (hV : DavisKahan.ReflectionIntertwines A B V)
+    (hUa : ∀ x : A.domain,
+      (x : E) ∈ TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic →
+      ⟪A x, (x : E)⟫_ℝ ≤ a * ‖(x : E)‖ ^ 2)
+    (hUb : ∀ x : A.domain,
+      (x : E) ∈
+        (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic)ᗮ →
+      b * ‖(x : E)‖ ^ 2 ≤ ⟪A x, (x : E)⟫_ℝ)
+    (hab : a < b) (hBmem : N.Mem B) :
+    N.Mem (TauCeti.DavisKahanExt.paperAbsTanTwoAngleOperatorR
+        (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic) V) ∧
+      (b - a) * N.gauge (TauCeti.DavisKahanExt.paperAbsTanTwoAngleOperatorR
+        (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic) V) ≤
+        2 * N.gauge B := by
+  obtain ⟨hunit, hmem, hle⟩ :=
+    tanTwoTheta_unbounded_ambient_subspace_paperUINorm_real N V hA hBsa hB hV hUa
+      hUb hab hBmem
+  have hgauge := DavisKahan.extendedGauge_unboundedReflectionTangent_real
+    (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic) V N hunit
+  refine ⟨?_, ?_⟩
+  · unfold PaperUnitaryInvariantNorm.Mem at hmem ⊢
+    rwa [← hgauge]
+  · unfold PaperUnitaryInvariantNorm.gauge at hle ⊢
+    rwa [← hgauge]
 
 end
 

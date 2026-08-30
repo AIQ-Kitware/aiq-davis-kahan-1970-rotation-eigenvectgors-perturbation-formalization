@@ -44,6 +44,25 @@ needs a unitarily invariant norm class and a spectral-subspace API that Mathlib 
 not have, and importing the local ones would put the whole development inside the
 trusted statement surface, which is exactly what a Challenge is supposed to avoid.
 
+The general theorems are easy to find in the included library. Davis and Kahan open
+with four unnumbered theorems, and
+`DavisKahan/Sources/DavisKahan1970/SectionTwo.lean` is the inventory of all four
+over both scalar fields:
+
+```
+TauCeti.DavisKahan1970.SectionTwo.sinTheta       sinTheta_real
+TauCeti.DavisKahan1970.SectionTwo.tanTheta       tanTheta_real
+TauCeti.DavisKahan1970.SectionTwo.sinTwoTheta    sinTwoTheta_real
+TauCeti.DavisKahan1970.SectionTwo.tanTwoTheta    tanTwoTheta_real
+```
+
+Each states its result at that full scope in its own type — unbounded self-adjoint
+`LinearPMap` ambient operator, arbitrary Hilbert dimension, an arbitrary source
+unitarily invariant norm, and both printed conclusions. `SectionTwoUsage.lean`
+beside it calls each from ordinary operator-theory hypotheses. Read those to see
+what the paper actually claims; the entry compared here is the one corner of it
+that Mathlib's vocabulary can state.
+
 Two disclosures about the wider formalization, neither part of this entry: printed
 Proposition 4.4 of the paper is false, and the `DavisKahan` library carries a
 machine-checked counterexample satisfying its printed hypotheses together with the
@@ -85,7 +104,9 @@ Solution.lean       the same declaration, supplied from the libraries below
 comparator.json     what Comparator compares, and the permitted axioms
 formalization.yaml  registry metadata
 ForTauCeti/         reusable mathematics, in its final `TauCeti.*` namespaces
-DavisKahan/         the Davis--Kahan development
+DavisKahan/         the Davis--Kahan development, whose four Section 2 theorems
+                    are inventoried in
+                    DavisKahan/Sources/DavisKahan1970/SectionTwo.lean
 ```
 
 `lake build` builds the entry. `lake build ForTauCeti` and `lake build DavisKahan` build the libraries.

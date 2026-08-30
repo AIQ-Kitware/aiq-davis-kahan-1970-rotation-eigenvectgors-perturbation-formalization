@@ -370,6 +370,44 @@ theorem tanTheta_unboundedCompression_ambient_paperUINorm_real_exact
   simpa using D.crossed_lower_of_reducing V A hZA haction hVdom hVcomm
     (fun y hy hydom => by simpa using hUnwanted y hy hydom) z
 
+/-! ### The constructor-first interface, over `ℝ`
+
+The real mirror of `tanTheta_unbounded_ambient_ritz_paperUINorm`.  The four
+structural facts that tie the compression data to the ambient operator and say
+that `Vᗮ` reduces it are replaced by the two objects that carry them,
+`DavisKahan.UnboundedRitzPair` and `DavisKahan.ReducingComplement`; both are
+scalar-generic, so no real-specific vocabulary is introduced. -/
+
+/-- **Davis--Kahan 1970, `tan Θ`, unbounded ambient form over `ℝ`, taking the Ritz
+pair and the reducing complement as objects.**
+
+`tanTheta_unboundedCompression_ambient_paperUINorm_real_exact` with its four
+structural arguments replaced by `DavisKahan.UnboundedRitzPair A U` and
+`DavisKahan.ReducingComplement A V`.  The mathematics -- semiboundedness of the
+compression, coercivity on the unwanted subspace, and the crossed-defect standing
+condition (3.5) -- is unchanged and still supplied by the caller.
+
+Everything here is real: the space, the operator, the subspaces, the
+perturbation, the ambient tangent `paperTanAngleOperatorR U V`, and the gauge. -/
+theorem tanTheta_unbounded_ambient_ritz_paperUINorm_real
+    (N : PaperUnitaryInvariantNorm)
+    {A : E →ₗ.[ℝ] E}
+    (D : DavisKahan.UnboundedRitzPair A U)
+    (hV : DavisKahan.ReducingComplement A V)
+    (H : E →L[ℝ] E) (hH : IsSelfAdjoint H)
+    {alpha delta : ℝ} (hdelta : 0 < delta)
+    (hupper : TauCeti.LinearPMap.SemiboundedAbove D.trial.compression alpha)
+    (hUnwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
+      (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪A ⟨y, hy⟩, y⟫_ℝ)
+    (h35 : DavisKahan.CrossedDefectsEquivalent U V)
+    (hResidual : D.trial.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
+    (hMem : N.Mem H) :
+    N.Mem (paperTanAngleOperatorR U V) ∧
+      delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H :=
+  tanTheta_unboundedCompression_ambient_paperUINorm_real_exact N D.trial A H hH
+    hdelta D.mem_domain D.action_eq hV.mapsDomain hV.commutes hupper hUnwanted h35
+    hResidual hMem
+
 end
 
 end DavisKahan1970

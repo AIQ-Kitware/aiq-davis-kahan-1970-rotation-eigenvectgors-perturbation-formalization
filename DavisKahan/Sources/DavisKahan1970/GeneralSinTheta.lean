@@ -50,6 +50,10 @@ alias generalizedSinTheta_finiteInterval :=
 alias generalizedSinTheta_finiteInterval_complementaryBlock :=
   DavisKahan.ExactSinTheta.FiniteIntervalGeneralSinThetaProblem.complementaryBlock_result
 
+/-- The bundled-problem entry point for the complex sine theorem: it takes a
+`FormBoundedIsometricSinThetaProblem` record rather than an argument list.  The
+direct-argument statement of the same result is
+`TauCeti.DavisKahan1970.SectionTwo.sinTheta`, which is the one to cite. -/
 alias sinTheta :=
   DavisKahan.ExactSinTheta.FormBoundedIsometricSinThetaProblem.result_complex
 

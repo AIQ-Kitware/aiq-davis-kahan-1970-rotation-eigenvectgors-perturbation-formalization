@@ -133,6 +133,18 @@ def paperTanTwoAngleOperatorR : E →L[ℝ] E :=
   realPartOperator
     (paperTanTwoAngleOperatorC (complexifySubmodule U) (complexifySubmodule V))
 
+/-- The paper's branch-free ambient `|tan 2Θ|` for a pair of **real** closed
+subspaces.
+
+The real counterpart of `paperAbsTanTwoAngleOperatorC`, and the object the real
+double-angle tangent theorem concludes on: a unitarily invariant norm sees a
+self-adjoint operator through its singular values, so it cannot tell `tan 2Θ`
+from `|tan 2Θ|`, and only the latter is defined without a quarter-acute branch
+hypothesis. -/
+def paperAbsTanTwoAngleOperatorR : E →L[ℝ] E :=
+  realPartOperator
+    (paperAbsTanTwoAngleOperatorC (complexifySubmodule U) (complexifySubmodule V))
+
 /-! ### The descent identities -/
 
 /-- Complexifying the real sine-angle operator recovers the complex one. -/
@@ -172,6 +184,14 @@ theorem complexify_paperTanAngleOperatorR :
 theorem complexify_paperTanTwoAngleOperatorR :
     complexify (paperTanTwoAngleOperatorR U V) =
       paperTanTwoAngleOperatorC (complexifySubmodule U) (complexifySubmodule V) :=
+  complexify_realPartOperator
+    (conjugateOperator_cfc_paperAngleOperatorC_complexifySubmodule U V _)
+
+/-- Complexifying the real `|tan 2Θ|` recovers the complex one. -/
+@[simp]
+theorem complexify_paperAbsTanTwoAngleOperatorR :
+    complexify (paperAbsTanTwoAngleOperatorR U V) =
+      paperAbsTanTwoAngleOperatorC (complexifySubmodule U) (complexifySubmodule V) :=
   complexify_realPartOperator
     (conjugateOperator_cfc_paperAngleOperatorC_complexifySubmodule U V _)
 

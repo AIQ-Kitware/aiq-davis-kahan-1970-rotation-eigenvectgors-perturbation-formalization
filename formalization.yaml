@@ -26,8 +26,12 @@ project:
   license: Apache-2.0
   responsible_maintainers:
   - Jon Crall
-repository:
-  role: substantive-development
+# `repository` is omitted deliberately. Current Palomar policy omits it when the
+# submitted repository contains the substantive development, and records that
+# default as `substantive-development` in the mechanical report; the explicit
+# `repository.role` spelling is still accepted but unnecessary. This repository
+# physically contains the proof -- ForTauCeti and DavisKahan, copied verbatim and
+# built here -- so it is a substantive development, not a thin wrapper.
 classification:
   arxiv:
   - math.FA
@@ -43,7 +47,7 @@ sources:
   - Chandler Davis
   - William M. Kahan
   id: doi:10.1137/0707001
-  type: article
+  type: paper
   location: SIAM Journal on Numerical Analysis 7(1), 1970, 1-46
   relationship: formalizes
   note: 'The compared theorem is the operator-norm sin-Theta bound, with no added hypothesis

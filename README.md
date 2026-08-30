@@ -111,6 +111,30 @@ DavisKahan/         the Davis--Kahan development, whose four Section 2 theorems
 
 `lake build` builds the entry. `lake build ForTauCeti` and `lake build DavisKahan` build the libraries.
 
+## Verifying locally
+
+```bash
+python3 scripts/check_palomar_readiness.py        # static preflight, seconds
+scripts/verify_palomar.sh                         # + build + Comparator + NanoDa
+scripts/verify_palomar.sh --fake-landrun          # if landrun is unavailable
+```
+
+The preflight checks what can be checked without Lean: no submodules, no LFS
+pointers, no committed build artifacts, one root licence, every dependency pinned
+to a credential-free GitHub URL at a full SHA, the metadata shape, the Comparator
+configuration keys, and — the one that matters — that the Challenge's *transitive*
+import closure reaches no module in this repository. `verify_palomar.sh` then
+builds every declared library, including the `Challenge` library that the default
+build deliberately excludes because it carries statement-side holes, and runs the
+real Comparator with the independent NanoDa kernel.
+
+Both scripts live here rather than upstream because they ask whether *this*
+repository verifies. That is not a question the development repository can answer
+about itself.
+
+That is local verification only. It is not Palomar verification, not acceptance,
+and not registration.
+
 ## Status
 
 Preparation. Nothing here claims registration, acceptance, or peer review by the

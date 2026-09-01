@@ -1044,8 +1044,8 @@ left is the paper's directed `tan 2Θ₀` corner representative and the operator
 the right is the directed residual corner.  Pole exclusion is still an explicit
 input at this layer; the source-facing theorem below derives it from the printed
 ordered spectral gap and off-diagonal hypotheses. -/
-theorem tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {a b : ℝ}
@@ -1127,8 +1127,8 @@ theorem tanTwoTheta_ambient_bounded_branchFree_orderedForm_kyFan_complex
       hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos)
 
 /-- **M30: source unitarily-invariant-norm form.** -/
-theorem tanTwoTheta_ambient_bounded_branchFree_orderedForm_paperUINorm_complex_of_poleExclusion
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_bounded_branchFree_orderedForm_symmetricNorming_complex_of_poleExclusion
+    (N : SymmetricNormingFunction)
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {a b : ℝ}
@@ -1142,7 +1142,7 @@ theorem tanTwoTheta_ambient_bounded_branchFree_orderedForm_paperUINorm_complex_o
     (hHmem : N.Mem H) :
     N.Mem (paperAbsTanTwoAngleOperatorC U V) ∧
       (b - a) * N.gauge (paperAbsTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
-  exact tanTwoTheta_ambient_bounded_branchFree_paperUINorm_complex_of_corner N hH hab hcos
+  exact tanTwoTheta_ambient_bounded_branchFree_symmetricNorming_complex_of_corner N hH hab hcos
     (tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex_upperCorner
       hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos) hHmem
 
@@ -1161,8 +1161,8 @@ singular data seen by the paper's norm.  There is deliberately no caller
 supplied quarter-angle branch, no `cos (2θ) ≠ 0` hypothesis, and no placement
 hypothesis on the blocks of `A+H`; pole exclusion is derived internally by the
 Section 7 reflection argument. -/
-theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {β α δ : ℝ}
@@ -1259,10 +1259,10 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_pap
     simpa using h
   have hRnegMem : N.Mem (paperProjectionBlock Uᗮ U (-H)) := by
     rw [hRneg]
-    unfold PaperUnitaryInvariantNorm.Mem at hRmem ⊢
+    unfold SymmetricNormingFunction.Mem at hRmem ⊢
     rwa [hRnegExt]
   obtain ⟨hmem, hbound⟩ :=
-    tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_paperUINorm_complex N
+    tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_symmetricNorming_complex N
       (A := -A) (H := -H) (U := U) (V := V)
       (a := -(α + δ)) (b := -α)
       hAneg hHneg hAUneg hAplusH_V_neg hnegGap hUhighNeg hUperpLowNeg
@@ -1271,7 +1271,7 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_pap
   have hRnegGauge :
       N.gauge (-(paperProjectionBlock Uᗮ U H)) =
         N.gauge (paperProjectionBlock Uᗮ U H) := by
-    unfold PaperUnitaryInvariantNorm.gauge
+    unfold SymmetricNormingFunction.gauge
     rw [hRnegExt]
   rw [hRneg, hRnegGauge] at hbound
   have hgapEq : (-α) - (-(α + δ)) = δ := by ring
@@ -1298,8 +1298,8 @@ exclusion is derived above from the same ordered gap by the Section 7
 reflection argument.  The proof uses the branch-free positive representative
 internally, then the modulus identity in `TanTwoThetaWholeSpace` transfers the
 result back to the paper's literal signed `tan 2Θ`. -/
-theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {β α δ : ℝ}
@@ -1384,10 +1384,10 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex
     have h := N.extendedGauge_smul (-1 : ℂ) H
     simpa using h
   have hnegMem : N.Mem (-H) := by
-    unfold PaperUnitaryInvariantNorm.Mem at hHmem ⊢
+    unfold SymmetricNormingFunction.Mem at hHmem ⊢
     rwa [hnegExt]
   obtain ⟨habsMem, habsBound⟩ :=
-    tanTwoTheta_ambient_bounded_branchFree_orderedForm_paperUINorm_complex_of_poleExclusion N
+    tanTwoTheta_ambient_bounded_branchFree_orderedForm_symmetricNorming_complex_of_poleExclusion N
       (A := -A) (H := -H) (U := U) (V := V)
       (a := -(α + δ)) (b := -α)
       hAneg hHneg hAUneg hAplusH_V_neg hnegGap hUhighNeg hUperpLowNeg
@@ -1399,7 +1399,7 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex
         ((-α) - (-(α + δ))) * N.gauge (paperAbsTanTwoAngleOperatorC U V) := by ring
     _ ≤ 2 * N.gauge (-H) := habsBound
     _ = 2 * N.gauge H := by
-      unfold PaperUnitaryInvariantNorm.gauge
+      unfold SymmetricNormingFunction.gauge
       rw [hnegExt]
   have habsMod : paperAbsTanTwoAngleOperatorC U V =
       (paperTanTwoAngleOperatorC U V).modulus :=
@@ -1411,13 +1411,13 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex
           N.extendedGauge ((paperTanTwoAngleOperatorC U V).modulus) := by
             rw [habsMod]
       _ = N.extendedGauge (paperTanTwoAngleOperatorC U V) :=
-        paperNorm_modulus_eq N (paperTanTwoAngleOperatorC U V)
+        normingFunction_modulus_eq N (paperTanTwoAngleOperatorC U V)
   have htanMem : N.Mem (paperTanTwoAngleOperatorC U V) := by
-    unfold PaperUnitaryInvariantNorm.Mem at habsMem ⊢
+    unfold SymmetricNormingFunction.Mem at habsMem ⊢
     rwa [← hext]
   have hgauge : N.gauge (paperAbsTanTwoAngleOperatorC U V) =
       N.gauge (paperTanTwoAngleOperatorC U V) := by
-    unfold PaperUnitaryInvariantNorm.gauge
+    unfold SymmetricNormingFunction.gauge
     rw [hext]
   refine ⟨htanMem, ?_⟩
   rwa [hgauge] at habsBound'

@@ -257,7 +257,7 @@ theorem paperPlanarComplementMap_norm_rank :
 /-- Equality in Theorem 6.1 is attained simultaneously for every normalized
 source norm. -/
 theorem paperTheorem61_planar_equality_every_norm
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {delta theta : ℝ} (hdelta : 0 ≤ delta) :
     N.gauge (paperPlanarResidual (𝕜 := 𝕜) delta theta) =
       delta * N.gauge (paperPlanarSineBlock (𝕜 := 𝕜) theta) := by
@@ -271,7 +271,7 @@ theorem paperTheorem61_planar_equality_every_norm
 /-- At every nonzero acute angle the sine block has strictly positive source
 norm. -/
 theorem paperPlanarSineBlock_gauge_pos
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {theta : ℝ} (h0 : 0 < theta) (h1 : theta < Real.pi) :
     0 < N.gauge (paperPlanarSineBlock (𝕜 := 𝕜) theta) := by
   have hV := paperPlanarComplementMap_norm_rank (𝕜 := 𝕜)
@@ -283,7 +283,7 @@ theorem paperPlanarSineBlock_gauge_pos
 /-- No constant strictly below one can replace the source constant in the
 single-angle theorem. -/
 theorem paperSinTheta_constant_one_optimal
-    (N : PaperUnitaryInvariantNorm) :
+    (N : SymmetricNormingFunction) :
     ∀ c : ℝ, c < 1 →
       ∃ delta theta : ℝ,
         0 < delta ∧ 0 < theta ∧ theta < Real.pi / 2 ∧
@@ -303,7 +303,7 @@ theorem paperSinTheta_constant_one_optimal
 This is a supporting identity for a future finite-multiplicity extremal model;
 it is not itself that model. -/
 theorem paperFiniteDimensional_scalar_homogeneity
-    {m : ℕ} (N : PaperUnitaryInvariantNorm)
+    {m : ℕ} (N : SymmetricNormingFunction)
     (S : EuclideanSpace 𝕜 (Fin m) →L[𝕜] EuclideanSpace 𝕜 (Fin m))
     {delta : ℝ} (hdelta : 0 ≤ delta) (hS : N.Mem S) :
     N.gauge (((delta : ℝ) : 𝕜) • S) = delta * N.gauge S := by

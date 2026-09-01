@@ -35,7 +35,7 @@ TauCeti.DavisKahan1970.SectionTwo.tanTwoTheta_complex    tanTwoTheta_real
 ```
 
 Each *type* displays an unbounded self-adjoint `LinearPMap` ambient operator,
-arbitrary Hilbert dimension, a `PaperUnitaryInvariantNorm`, and both printed
+arbitrary Hilbert dimension, a `SymmetricNormingFunction`, and both printed
 conclusions. `SectionTwoUsage.lean` shows each being called from ordinary
 operator-theory hypotheses.
 

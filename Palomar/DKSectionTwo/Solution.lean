@@ -104,7 +104,7 @@ def zeroPad {n : ℕ} (x : Fin n → ℝ) : Fin (n + 1) → ℝ :=
   Fin.lastCases 0 x
 
 /-- **A unitarily invariant norm in Davis and Kahan's sense.** -/
-structure UINorm where
+structure SymmetricNormingFunction where
   /-- A unitarily invariant seminorm in each finite dimension. -/
   finiteNorm : ∀ n : ℕ, UISeminorm (EuclideanSpace ℂ (Fin n))
   /-- Normalisation on a single unit singular value. -/
@@ -119,16 +119,16 @@ structure UINorm where
 /-- **The extended value of a unitarily invariant norm on a scalar sequence**:
 the supremum over the sequence's prefixes.  This is the primitive; a norm of
 `tan Θ` is the norm of the sequence `tan θ₁, tan θ₂, …`. -/
-noncomputable def UINorm.evalSeq (N : UINorm) (s : ℕ → ℝ) : ℝ≥0∞ :=
+noncomputable def SymmetricNormingFunction.evalSeq (N : SymmetricNormingFunction) (s : ℕ → ℝ) : ℝ≥0∞ :=
   ⨆ n : ℕ, ENNReal.ofReal
     ((N.finiteNorm n).gauge (EuclideanSpace.basisFun (Fin n) ℂ)
       (fun i => s (i : ℕ)))
 
 /-- The sequence lies in the norm's ideal. -/
-def UINorm.SeqFinite (N : UINorm) (s : ℕ → ℝ) : Prop := N.evalSeq s ≠ ⊤
+def SymmetricNormingFunction.SeqFinite (N : SymmetricNormingFunction) (s : ℕ → ℝ) : Prop := N.evalSeq s ≠ ⊤
 
 /-- The real-valued norm of a sequence, meaningful on the ideal. -/
-noncomputable def UINorm.seqNorm (N : UINorm) (s : ℕ → ℝ) : ℝ :=
+noncomputable def SymmetricNormingFunction.seqNorm (N : SymmetricNormingFunction) (s : ℕ → ℝ) : ℝ :=
   (N.evalSeq s).toReal
 
 section NormEval
@@ -139,14 +139,14 @@ variable {F : Type v} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [Complet
 
 /-- The norm's extended value on an operator: its value on the singular-value
 sequence, and `⊤` exactly off the norm's ideal. -/
-noncomputable def UINorm.eval (N : UINorm) (T : E →L[𝕜] F) : ℝ≥0∞ :=
+noncomputable def SymmetricNormingFunction.eval (N : SymmetricNormingFunction) (T : E →L[𝕜] F) : ℝ≥0∞ :=
   N.evalSeq (fun n => singularValue T n)
 
 /-- The operator lies in the norm's ideal. -/
-def UINorm.Finite (N : UINorm) (T : E →L[𝕜] F) : Prop := N.eval T ≠ ⊤
+def SymmetricNormingFunction.Finite (N : SymmetricNormingFunction) (T : E →L[𝕜] F) : Prop := N.eval T ≠ ⊤
 
 /-- The real-valued norm, meaningful on the ideal. -/
-noncomputable def UINorm.norm (N : UINorm) (T : E →L[𝕜] F) : ℝ := (N.eval T).toReal
+noncomputable def SymmetricNormingFunction.norm (N : SymmetricNormingFunction) (T : E →L[𝕜] F) : ℝ := (N.eval T).toReal
 
 end NormEval
 
@@ -504,7 +504,7 @@ Rayleigh--Ritz data, needing only the *residual* in the norm's ideal, and
 `δ ‖tan Θ‖ ≤ ‖H‖` for a bounded self-adjoint perturbation with vanishing trial
 diagonal block, needing the *perturbation*.  Each clause also concludes that its
 tangent has no pole. -/
-structure TanThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
+structure TanThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection] (α δ : ℝ) : Prop where
   /-- `δ ‖tan Θ₀‖ ≤ ‖R‖`: the directed conclusion, on the residual alone. -/
   directed : ∀ {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
@@ -538,7 +538,7 @@ subspace reducing the perturbed operator, needing the perturbation.
 The factor two is the paper's, and is sharp.  Unlike `tan Θ` no Rayleigh--Ritz
 condition is imposed, and unlike `tan Θ` the Appendix does not extend this
 theorem to an unbounded trial compression. -/
-structure SinTwoThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
+structure SinTwoThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection] (δ : ℝ) : Prop where
   /-- `δ ‖sin 2Θ₀‖ ≤ 2 ‖R‖`: the directed conclusion, on the residual alone. -/
   directed : ∀ {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
@@ -566,7 +566,7 @@ Section 7 derives the nonvanishing of the relevant `cos 2θⱼ`, which appears h
 as `TangentDefined` of the double-angle sine -- the quarter-turn exclusion
 `‖sin 2Θ‖ < 1`, uniform over the whole angle rather than read off a
 singular-value sequence of the single angle. -/
-structure TanTwoThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
+structure TanTwoThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (H : E →L[𝕜] E) (δ : ℝ) : Prop where
   /-- `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖`: the directed conclusion, on the residual corner. -/
@@ -647,7 +647,8 @@ theorem UISeminorm.gauge_eq {n : ℕ} {G : Type v} [NormedAddCommGroup G]
 Field for field: the finite seminorms, the normalisation and the zero-padding
 condition transfer with no adjustment, because the two definitions are the same
 definition. -/
-def UINorm.toPaper (N : UINorm) : PaperUnitaryInvariantNorm where
+def SymmetricNormingFunction.toSourceNorm (N : SymmetricNormingFunction) :
+    TauCeti.DavisKahan.ExactSinTheta.SymmetricNormingFunction where
   finiteNorm n := (N.finiteNorm n).toTauCeti
   normalized := N.normalized
   zero_pad := N.zero_pad
@@ -657,21 +658,21 @@ def UINorm.toPaper (N : UINorm) : PaperUnitaryInvariantNorm where
 The Challenge evaluates its norm on the *sequence* of singular values and the
 development on the operator, so this equation is also the statement that the
 sequence-level and operator-level readings agree. -/
-theorem UINorm.eval_eq (N : UINorm) (T : E →L[𝕜] F) :
-    N.eval T = N.toPaper.extendedGauge T := rfl
+theorem SymmetricNormingFunction.eval_eq (N : SymmetricNormingFunction) (T : E →L[𝕜] F) :
+    N.eval T = N.toSourceNorm.extendedGauge T := rfl
 
 /-- The sequence norm of an operator's singular values is the operator norm --
-which is what makes `UINorm.seqNorm` the right home for `‖tan Θ‖`. -/
-theorem UINorm.evalSeq_singularValue (N : UINorm) (T : E →L[𝕜] F) :
-    N.evalSeq (fun n => singularValue T n) = N.toPaper.extendedGauge T := rfl
+which is what makes `SymmetricNormingFunction.seqNorm` the right home for `‖tan Θ‖`. -/
+theorem SymmetricNormingFunction.evalSeq_singularValue (N : SymmetricNormingFunction) (T : E →L[𝕜] F) :
+    N.evalSeq (fun n => singularValue T n) = N.toSourceNorm.extendedGauge T := rfl
 
 /-- **A sequence that is an operator's singular-value sequence is measured by
 the operator's norm.**  This is the bridge every tangent conclusion needs: a
 representative with the right approximation numbers turns a sequence norm into
 an operator norm. -/
-theorem UINorm.evalSeq_eq_of_approximationNumber (N : UINorm) (s : ℕ → ℝ)
+theorem SymmetricNormingFunction.evalSeq_eq_of_approximationNumber (N : SymmetricNormingFunction) (s : ℕ → ℝ)
     (T : E →L[𝕜] F) (h : ∀ n, T.approximationNumber n = s n) :
-    N.evalSeq s = N.toPaper.extendedGauge T := by
+    N.evalSeq s = N.toSourceNorm.extendedGauge T := by
   refine iSup_congr fun n => ?_
   congr 1
   exact congrArg _ (funext fun i => (h (i : ℕ)).symm)
@@ -711,7 +712,7 @@ theorem tanSeq_congr {𝕂 : Type w} [RCLike 𝕂] {X Y : Type v}
 
 omit [CompleteSpace E] [CompleteSpace F] in
 /-- The norm's extended value depends only on the singular values. -/
-theorem UINorm.eval_congr (N : UINorm) {𝕂 : Type w} [RCLike 𝕂] {X Y : Type v}
+theorem SymmetricNormingFunction.eval_congr (N : SymmetricNormingFunction) {𝕂 : Type w} [RCLike 𝕂] {X Y : Type v}
     [NormedAddCommGroup X] [InnerProductSpace 𝕂 X]
     [NormedAddCommGroup Y] [InnerProductSpace 𝕂 Y]
     {S : E →L[𝕜] F} {S' : X →L[𝕂] Y}
@@ -719,12 +720,12 @@ theorem UINorm.eval_congr (N : UINorm) {𝕂 : Type w} [RCLike 𝕂] {X Y : Type
   congrArg N.evalSeq (funext h)
 
 /-- The two ideals are the same ideal. -/
-theorem UINorm.finite_iff (N : UINorm) (T : E →L[𝕜] F) :
-    N.Finite T ↔ N.toPaper.Mem T := Iff.rfl
+theorem SymmetricNormingFunction.finite_iff (N : SymmetricNormingFunction) (T : E →L[𝕜] F) :
+    N.Finite T ↔ N.toSourceNorm.Mem T := Iff.rfl
 
 /-- The two real-valued norms agree. -/
-theorem UINorm.norm_eq (N : UINorm) (T : E →L[𝕜] F) :
-    N.norm T = N.toPaper.gauge T := rfl
+theorem SymmetricNormingFunction.norm_eq (N : SymmetricNormingFunction) (T : E →L[𝕜] F) :
+    N.norm T = N.toSourceNorm.gauge T := rfl
 
 end NormBridge
 
@@ -958,7 +959,7 @@ field, proved by transport through `TauCeti.ScalarTransport`.  So this is the
 Challenge's `sinTheta` statement with nothing assumed beyond the source
 hypotheses. -/
 theorem sinTheta_proof
-    (N : UINorm)
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} {A₀ : F →ₗ.[𝕜] F} {Λ₁ : G →ₗ.[𝕜] G}
     {E₀ : F →L[𝕜] E} {F₀ : K →L[𝕜] E} {F₁ : G →L[𝕜] E} {R : F →L[𝕜] E}
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
@@ -966,8 +967,8 @@ theorem sinTheta_proof
     {δ : ℝ} (hδ : 0 < δ) (hgap : SylvesterGap A₀ Λ₁ δ) (hR : N.Finite R) :
     N.Finite (directedSine E₀ F₀) ∧
       δ * N.norm (directedSine E₀ F₀) ≤ N.norm R :=
-  _root_.DavisKahan1970.sinTheta_unbounded_formGap_paperUINorm_rclike
-    N.toPaper A A₀ Λ₁ E₀ F₀ F₁ R hA hA₀ hΛ₁
+  _root_.DavisKahan1970.sinTheta_unbounded_formGap_symmetricNorming_rclike
+    N.toSourceNorm A A₀ Λ₁ E₀ F₀ F₁ R hA hA₀ hΛ₁
     ((isTrialResidual_iff A A₀ E₀ R).1 hres)
     ((isExactDecomposition_iff A Λ₁ F₀ F₁).1 hdec)
     hδ ((sylvesterGap_iff A₀ Λ₁ δ).1 hgap) hR
@@ -995,7 +996,7 @@ development**, at an arbitrary reducing subspace and the full source gap.
 `U` and its mirror image in `V` -- which is exactly the Challenge's
 `ambientDoubleSine`. -/
 theorem sinTwoTheta_ambient_proof
-    (N : UINorm) {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
+    (N : SymmetricNormingFunction) {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ)
@@ -1013,8 +1014,8 @@ theorem sinTwoTheta_ambient_proof
       (TauCeti.LinearPMap.reducingRestriction A Uᗮ hUred.orthogonal) δ := by
     rw [block_eq A U hU, block_eq A Uᗮ hU.orthogonal] at hgap
     exact (sylvesterGap_iff _ _ _).1 hgap
-  refine TauCeti.DavisKahan1970.sinTwoTheta_ambient_reflection_projectorDifference_paperUINorm
-    N.toPaper hA H hHsym hUred hRI.mapsDomain ?_ hδ hgap' hHmem
+  refine TauCeti.DavisKahan1970.sinTwoTheta_ambient_reflection_projectorDifference_symmetricNorming
+    N.toSourceNorm hA H hHsym hUred hRI.mapsDomain ?_ hδ hgap' hHmem
   intro x
   have hc := hRI.commutes x
   have hD : TauCeti.DavisKahan.reflectionPerturbation V H
@@ -1080,10 +1081,10 @@ theorem tangentDefined_ambientSine
 
 /-- **The Challenge's ambient tangent sequence norm is the development's paper norm of
 `tan Θ`.**  This is the bridge the ambient `tan Θ` clause consumes. -/
-theorem evalSeq_tanSeq_ambientSine (N : UINorm)
+theorem evalSeq_tanSeq_ambientSine (N : SymmetricNormingFunction)
     (htr : ‖TauCeti.DavisKahanExt.sinAngleOperatorC U V‖ < 1) :
     N.evalSeq (tanSeq (ambientSine U V)) =
-      N.toPaper.extendedGauge (TauCeti.DavisKahanExt.paperTanAngleOperatorC U V) :=
+      N.toSourceNorm.extendedGauge (TauCeti.DavisKahanExt.paperTanAngleOperatorC U V) :=
   N.evalSeq_eq_of_approximationNumber _ _
     (fun n => (tanSeq_ambientSine_eq_approximationNumber U V htr n).symm)
 
@@ -1095,7 +1096,7 @@ The directed clause is the one whose left-hand side is a *sequence* norm with no
 in sight, so it is the clearest test of the Challenge's tangent convention.  The
 development supplies all three parts of it at the Appendix's own scope — the pole
 exclusion, a representative with exactly the paper's approximation numbers, and the
-inequality — in `tanTheta_directed_unboundedRitz_paperUINorm_exists_complex`.  What is
+inequality — in `tanTheta_directed_unboundedRitz_symmetricNorming_exists_complex`.  What is
 left here is the translation, and the scalar field. -/
 
 section DirectedTangent
@@ -1116,7 +1117,7 @@ All three printed parts: the tangent has no pole, the tangent sequence lies in t
 ideal, and `δ ‖tan Θ₀‖ ≤ ‖R‖`.  The compression is a partial map, the ambient operator is
 an unbounded self-adjoint partial map, only the residual is bounded, the dimension is
 arbitrary, the separation is the half-infinite ordered one, and the norm is arbitrary. -/
-theorem tanTheta_directed_proof_complex (N : UINorm)
+theorem tanTheta_directed_proof_complex (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℂ] E} {V : Submodule ℂ E} [V.HasOrthogonalProjection]
     (hV : Reduces A V) {α δ : ℝ} (hδ : 0 < δ)
     (hunwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
@@ -1128,15 +1129,15 @@ theorem tanTheta_directed_proof_complex (N : UINorm)
       δ * N.seqNorm (tanSeq (directedSineBlock U V)) ≤ N.norm D.residual := by
   have hUnwanted := hunwanted
   obtain ⟨hlt, tanTheta0, htan, hmem, hbound⟩ :=
-    TauCeti.DavisKahan1970.tanTheta_directed_unboundedRitz_paperUINorm_exists_complex
-      N.toPaper D.toUnboundedRitzPair
+    TauCeti.DavisKahan1970.tanTheta_directed_unboundedRitz_symmetricNorming_exists_complex
+      N.toSourceNorm D.toUnboundedRitzPair
       (TauCeti.DavisKahan.ReducingComplement.ofReducesSubspace ((reduces_iff A V).1 hV))
       hδ ((semiboundedAbove_iff _ _).1 hupper) hUnwanted hR
   -- the Challenge's sequence is the representative's approximation-number sequence
   have hseq : ∀ n, (tanTheta0.approximationNumber n) = tanSeq (directedSineBlock U V) n :=
     fun n => htan n
   have heval : N.evalSeq (tanSeq (directedSineBlock U V)) =
-      N.toPaper.extendedGauge tanTheta0 :=
+      N.toSourceNorm.extendedGauge tanTheta0 :=
     N.evalSeq_eq_of_approximationNumber _ _ hseq
   refine ⟨?_, ?_, ?_⟩
   · intro n
@@ -1171,7 +1172,7 @@ standing condition (3.5) by
 `DavisKahan1970.norm_sinAngleOperatorC_lt_one_of_unboundedRitz`, and the sequence is
 identified with the development's operator `tan Θ` by
 `DavisKahan1970.approximationNumber_paperTanAngleOperatorC`. -/
-theorem tanTheta_ambient_proof_complex (N : UINorm)
+theorem tanTheta_ambient_proof_complex (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℂ] E} {V : Submodule ℂ E} [V.HasOrthogonalProjection]
     (hV : Reduces A V) {α δ : ℝ} (hδ : 0 < δ)
     (hunwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
@@ -1193,8 +1194,8 @@ theorem tanTheta_ambient_proof_complex (N : UINorm)
     TauCeti.DavisKahan1970.norm_sinAngleOperatorC_lt_one_of_unboundedRitz
       D.toUnboundedRitzPair hVc hδ hupper' hUnwanted h35
   obtain ⟨hmem, hbound⟩ :=
-    TauCeti.DavisKahan1970.tanTheta_ambient_unboundedRitz_paperUINorm_complex
-      N.toPaper D.toUnboundedRitzPair hVc H hH hδ hupper' hUnwanted h35 hres hHmem
+    TauCeti.DavisKahan1970.tanTheta_ambient_unboundedRitz_symmetricNorming_complex
+      N.toSourceNorm D.toUnboundedRitzPair hVc H hH hδ hupper' hUnwanted h35 hres hHmem
   have heval := evalSeq_tanSeq_ambientSine U V N htr
   refine ⟨tangentDefined_ambientSine U V htr, ?_, ?_⟩
   · show N.evalSeq (tanSeq (ambientSine U V)) ≠ ⊤
@@ -1217,7 +1218,7 @@ The development supplies both halves.  For the ambient clause,
 `approximationNumber_paperAbsTanTwoAngleOperatorC_projectorDifference` says the
 paper's `|tan 2Θ|` has exactly the sequence `tan (arcsin aₙ(sin 2Θ))`; for the
 directed clause,
-`tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_paperUINorm_complex`
+`tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_symmetricNorming_complex`
 says the same of the directed corner against `sin 2Θ₀`, with each directed
 principal angle counted once. -/
 
@@ -1247,7 +1248,7 @@ the development over `ℂ`.**
 `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖` on the residual corner alone, with the pole exclusion as a
 conclusion and each directed principal angle counted once.  The trial subspace is
 any subspace reducing `A` with the ordered separation; no spectral selection. -/
-theorem tanTwoTheta_directed_proof_complex (N : UINorm)
+theorem tanTwoTheta_directed_proof_complex (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℂ] E} (hA : IsSelfAdjoint A)
     {U : Submodule ℂ E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[ℂ] E)
@@ -1267,40 +1268,40 @@ theorem tanTwoTheta_directed_proof_complex (N : UINorm)
         2 * N.norm (Uᗮ.starProjection ∘L H ∘L U.starProjection) := by
   have hblk : TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H =
       Uᗮ.starProjection ∘L H ∘L U.starProjection := rfl
-  have hgap : N.toPaper.extendedGauge
+  have hgap : N.toSourceNorm.extendedGauge
       (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) =
-      N.toPaper.extendedGauge (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) :=
-    N.toPaper.extendedGauge_eq_of_hasSameApproximationNumbers
+      N.toSourceNorm.extendedGauge (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) :=
+    N.toSourceNorm.extendedGauge_eq_of_hasSameApproximationNumbers
       (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock_same_compression Uᗮ U H)
-  have hRmem0 : N.toPaper.Mem
+  have hRmem0 : N.toSourceNorm.Mem
       (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) := by
     rw [hblk]
     exact (N.finite_iff _).1 hRmem
-  have hRmem' : N.toPaper.Mem
+  have hRmem' : N.toSourceNorm.Mem
       (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) := by
-    unfold PaperUnitaryInvariantNorm.Mem at hRmem0 ⊢
+    unfold TauCeti.DavisKahan.ExactSinTheta.SymmetricNormingFunction.Mem at hRmem0 ⊢
     rwa [← hgap]
   obtain ⟨hlt, hseq, hmem, hle⟩ :=
-    TauCeti.DavisKahan1970.tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_paperUINorm_complex
-      N.toPaper V hA ((reduces_iff A U).1 hU)
+    TauCeti.DavisKahan1970.tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_symmetricNorming_complex
+      N.toSourceNorm V hA ((reduces_iff A U).1 hU)
       (isOddFor_of_offDiagonal hoffdiag₀ hoffdiag₁)
       (reflectionIntertwines_of_reduces hV)
       hlow hhigh (by linarith) hRmem'
   have heval : N.evalSeq (tanSeq (directedDoubleSine U V)) =
-      N.toPaper.extendedGauge (TauCeti.DavisKahan1970.reflectionTangentCorner U
+      N.toSourceNorm.extendedGauge (TauCeti.DavisKahan1970.reflectionTangentCorner U
         V.reflectionOperator) :=
     N.evalSeq_eq_of_approximationNumber _ _ hseq
   refine ⟨tangentDefined_of_approximationNumber_lt_one _ hlt, ?_, ?_⟩
   · show N.evalSeq (tanSeq (directedDoubleSine U V)) ≠ ⊤
     rw [heval]; exact hmem
-  · have hg : N.toPaper.gauge (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) =
-        N.toPaper.gauge (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) := by
-      unfold PaperUnitaryInvariantNorm.gauge
+  · have hg : N.toSourceNorm.gauge (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) =
+        N.toSourceNorm.gauge (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) := by
+      unfold TauCeti.DavisKahan.ExactSinTheta.SymmetricNormingFunction.gauge
       rw [hgap]
     have hδeq : α + δ - α = δ := by ring
     rw [hδeq] at hle
     have hgoal : δ * (N.evalSeq (tanSeq (directedDoubleSine U V))).toReal ≤
-        2 * N.toPaper.gauge
+        2 * N.toSourceNorm.gauge
           (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) := by
       rw [heval, hg]
       exact hle
@@ -1312,7 +1313,7 @@ development over `ℂ`.**
 
 `δ ‖tan 2Θ‖ ≤ 2 ‖H‖` on the whole perturbation, with each ambient principal angle
 counted with its ambient multiplicity, and the quarter-turn exclusion derived. -/
-theorem tanTwoTheta_ambient_proof_complex (N : UINorm)
+theorem tanTwoTheta_ambient_proof_complex (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℂ] E} (hA : IsSelfAdjoint A)
     {U : Submodule ℂ E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[ℂ] E) (hH : IsSelfAdjoint H)
@@ -1329,8 +1330,8 @@ theorem tanTwoTheta_ambient_proof_complex (N : UINorm)
       N.SeqFinite (tanSeq (ambientDoubleSine U V)) ∧
       δ * N.seqNorm (tanSeq (ambientDoubleSine U V)) ≤ 2 * N.norm H := by
   obtain ⟨hcos, hmem, hle⟩ :=
-    TauCeti.DavisKahan1970.tanTwoTheta_ambient_unbounded_reducing_paperUINorm_complex
-      N.toPaper V hA ((reduces_iff A U).1 hU) hH
+    TauCeti.DavisKahan1970.tanTwoTheta_ambient_unbounded_reducing_symmetricNorming_complex
+      N.toSourceNorm V hA ((reduces_iff A U).1 hU) hH
       (isOddFor_of_offDiagonal hoffdiag₀ hoffdiag₁)
       (reflectionIntertwines_of_reduces hV)
       hlow hhigh (by linarith) hHmem
@@ -1340,7 +1341,7 @@ theorem tanTwoTheta_ambient_proof_complex (N : UINorm)
     TauCeti.DavisKahan1970.approximationNumber_paperAbsTanTwoAngleOperatorC_projectorDifference
       U V hcos n
   have heval : N.evalSeq (tanSeq (ambientDoubleSine U V)) =
-      N.toPaper.extendedGauge
+      N.toSourceNorm.extendedGauge
         (TauCeti.DavisKahanExt.paperAbsTanTwoAngleOperatorC U V) :=
     N.evalSeq_eq_of_approximationNumber _ _ hseq
   refine ⟨tangentDefined_of_approximationNumber_lt_one _ (fun n =>
@@ -1350,7 +1351,7 @@ theorem tanTwoTheta_ambient_proof_complex (N : UINorm)
   · have hδeq : α + δ - α = δ := by ring
     rw [hδeq] at hle
     have hgoal : δ * (N.evalSeq (tanSeq (ambientDoubleSine U V))).toReal ≤
-        2 * N.toPaper.gauge H := by
+        2 * N.toSourceNorm.gauge H := by
       rw [heval]; exact hle
     exact hgoal
 
@@ -1366,7 +1367,7 @@ the development over `ℝ`.**
 `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖` on the residual corner alone, with the pole exclusion as a
 conclusion and each directed principal angle counted once.  The trial subspace is
 any subspace reducing `A` with the ordered separation; no spectral selection. -/
-theorem tanTwoTheta_directed_proof_real (N : UINorm)
+theorem tanTwoTheta_directed_proof_real (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E} (hA : IsSelfAdjoint A)
     {U : Submodule ℝ E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[ℝ] E)
@@ -1386,18 +1387,18 @@ theorem tanTwoTheta_directed_proof_real (N : UINorm)
         2 * N.norm (Uᗮ.starProjection ∘L H ∘L U.starProjection) := by
   have hblk : TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H =
       Uᗮ.starProjection ∘L H ∘L U.starProjection := rfl
-  have hgap : N.toPaper.extendedGauge
+  have hgap : N.toSourceNorm.extendedGauge
       (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) =
-      N.toPaper.extendedGauge (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) :=
-    N.toPaper.extendedGauge_eq_of_hasSameApproximationNumbers
+      N.toSourceNorm.extendedGauge (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) :=
+    N.toSourceNorm.extendedGauge_eq_of_hasSameApproximationNumbers
       (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock_same_compression Uᗮ U H)
-  have hRmem0 : N.toPaper.Mem
+  have hRmem0 : N.toSourceNorm.Mem
       (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) := by
     rw [hblk]
     exact (N.finite_iff _).1 hRmem
-  have hRmem' : N.toPaper.Mem
+  have hRmem' : N.toSourceNorm.Mem
       (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) := by
-    unfold PaperUnitaryInvariantNorm.Mem at hRmem0 ⊢
+    unfold TauCeti.DavisKahan.ExactSinTheta.SymmetricNormingFunction.Mem at hRmem0 ⊢
     rwa [← hgap]
   have hlow' : ∀ x : A.domain, (x : E) ∈ U →
       ⟪A x, (x : E)⟫_ℝ ≤ α * ‖(x : E)‖ ^ 2 := by
@@ -1406,26 +1407,26 @@ theorem tanTwoTheta_directed_proof_real (N : UINorm)
       (α + δ) * ‖(x : E)‖ ^ 2 ≤ ⟪A x, (x : E)⟫_ℝ := by
     intro x hx; simpa using hhigh x hx
   obtain ⟨hlt, hseq, hmem, hle⟩ :=
-    TauCeti.DavisKahan1970.tanTwoTheta_directed_unboundedResidual_reducing_sineSequence_paperUINorm_real
-      N.toPaper V hA ((reduces_iff A U).1 hU)
+    TauCeti.DavisKahan1970.tanTwoTheta_directed_unboundedResidual_reducing_sineSequence_symmetricNorming_real
+      N.toSourceNorm V hA ((reduces_iff A U).1 hU)
       (isOddFor_of_offDiagonal hoffdiag₀ hoffdiag₁)
       (reflectionIntertwines_of_reduces hV)
       hlow' hhigh' (by linarith) hRmem'
   have heval : N.evalSeq (tanSeq (directedDoubleSine U V)) =
-      N.toPaper.extendedGauge (TauCeti.DavisKahan1970.reflectionTangentCorner U
+      N.toSourceNorm.extendedGauge (TauCeti.DavisKahan1970.reflectionTangentCorner U
         V.reflectionOperator) :=
     N.evalSeq_eq_of_approximationNumber _ _ hseq
   refine ⟨tangentDefined_of_approximationNumber_lt_one _ hlt, ?_, ?_⟩
   · show N.evalSeq (tanSeq (directedDoubleSine U V)) ≠ ⊤
     rw [heval]; exact hmem
-  · have hg : N.toPaper.gauge (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) =
-        N.toPaper.gauge (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) := by
-      unfold PaperUnitaryInvariantNorm.gauge
+  · have hg : N.toSourceNorm.gauge (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) =
+        N.toSourceNorm.gauge (TauCeti.DavisKahan.ExactSinTheta.paperBlockCompression Uᗮ U H) := by
+      unfold TauCeti.DavisKahan.ExactSinTheta.SymmetricNormingFunction.gauge
       rw [hgap]
     have hδeq : α + δ - α = δ := by ring
     rw [hδeq] at hle
     have hgoal : δ * (N.evalSeq (tanSeq (directedDoubleSine U V))).toReal ≤
-        2 * N.toPaper.gauge
+        2 * N.toSourceNorm.gauge
           (TauCeti.DavisKahan.ExactSinTheta.paperProjectionBlock Uᗮ U H) := by
       rw [heval, hg]
       exact hle
@@ -1441,7 +1442,7 @@ end TanTwoThetaDirectedReal
 The clause the Appendix bounds by a **bounded** trial compression: `V` sits
 inside `dom A`, so `M` is bounded by the closed-graph theorem and the two are the
 same hypothesis.  What is *not* assumed is that `U` was selected spectrally --
-`sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_paperUINorm_complex`
+`sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_symmetricNorming_complex`
 takes any subspace reducing `A`, which is the source's own hypothesis. -/
 
 section SinTwoThetaDirected
@@ -1454,7 +1455,7 @@ the development over `ℂ`.**
 `δ ‖sin 2Θ₀‖ ≤ 2 ‖R‖` on the residual alone, at an arbitrary reducing `U` and
 the full form-bounded gap, so the separating interval may be half-infinite. -/
 theorem sinTwoTheta_directed_proof_complex
-    (N : UINorm) {A : E →ₗ.[ℂ] E} (hA : IsSelfAdjoint A)
+    (N : SymmetricNormingFunction) {A : E →ₗ.[ℂ] E} (hA : IsSelfAdjoint A)
     {U : Submodule ℂ E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ)
@@ -1471,8 +1472,8 @@ theorem sinTwoTheta_directed_proof_complex
   have hres : ∀ v : V, A ⟨(v : E), D.mem_domain v⟩ =
       D.residual v + ((D.compression v : V) : E) := fun v =>
     (D.action_eq v).trans (add_comm _ _)
-  exact TauCeti.DavisKahan1970.sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_paperUINorm_complex
-    N.toPaper hA hUred D.mem_domain hres hδ hgap' hRmem
+  exact TauCeti.DavisKahan1970.sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_symmetricNorming_complex
+    N.toSourceNorm hA hUred D.mem_domain hres hδ hgap' hRmem
 
 end SinTwoThetaDirected
 
@@ -1507,23 +1508,23 @@ theorem clm_zero : clm (e := e) (0 : E →L[𝕜] F) = 0 := rfl
 omit [CompleteSpace E] [CompleteSpace F] in
 /-- **The transport preserves every value a unitarily invariant norm takes.**
 Both sides read the same singular-value sequence. -/
-theorem UINorm.eval_clm (N : UINorm) (T : E →L[𝕜] F) :
+theorem SymmetricNormingFunction.eval_clm (N : SymmetricNormingFunction) (T : E →L[𝕜] F) :
     N.eval (clm (e := e) T) = N.eval T :=
   congrArg N.evalSeq (funext fun n => approximationNumber_clm (e := e) T n)
 
 omit [CompleteSpace E] [CompleteSpace F] in
 /-- Ideal membership is unchanged by the transport. -/
-theorem UINorm.finite_clm_iff (N : UINorm) (T : E →L[𝕜] F) :
+theorem SymmetricNormingFunction.finite_clm_iff (N : SymmetricNormingFunction) (T : E →L[𝕜] F) :
     N.Finite (clm (e := e) T) ↔ N.Finite T := by
-  unfold UINorm.Finite
-  rw [UINorm.eval_clm]
+  unfold SymmetricNormingFunction.Finite
+  rw [SymmetricNormingFunction.eval_clm]
 
 omit [CompleteSpace E] [CompleteSpace F] in
 /-- The real-valued norm is unchanged by the transport. -/
-theorem UINorm.norm_clm (N : UINorm) (T : E →L[𝕜] F) :
+theorem SymmetricNormingFunction.norm_clm (N : SymmetricNormingFunction) (T : E →L[𝕜] F) :
     N.norm (clm (e := e) T) = N.norm T := by
-  unfold UINorm.norm
-  rw [UINorm.eval_clm]
+  unfold SymmetricNormingFunction.norm
+  rw [SymmetricNormingFunction.eval_clm]
 
 omit [CompleteSpace E] [CompleteSpace F] in
 /-- The Challenge's reducing predicate transports. -/
@@ -1817,9 +1818,9 @@ section TanTwoThetaAmbientGeneric
 /-- **The ambient clause of the Challenge's `tan 2Θ` theorem, over `ℝ`.**
 
 The real sibling of `tanTwoTheta_ambient_proof_complex`, discharged from
-`tanTwoTheta_ambient_unbounded_reducing_sineSequence_paperUINorm_real`, whose
+`tanTwoTheta_ambient_unbounded_reducing_sineSequence_symmetricNorming_real`, whose
 proof is the complex one applied to the complexification. -/
-theorem tanTwoTheta_ambient_proof_real (N : UINorm)
+theorem tanTwoTheta_ambient_proof_real (N : SymmetricNormingFunction)
     {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
     {A : E →ₗ.[ℝ] E} (hA : IsSelfAdjoint A)
     {U : Submodule ℝ E} [U.HasOrthogonalProjection] (hU : Reduces A U)
@@ -1845,16 +1846,16 @@ theorem tanTwoTheta_ambient_proof_real (N : UINorm)
     intro x hx
     simpa using hhigh x hx
   obtain ⟨hlt, hseq, hmem, hle⟩ :=
-    TauCeti.DavisKahan1970.tanTwoTheta_ambient_unbounded_reducing_sineSequence_paperUINorm_real
+    TauCeti.DavisKahan1970.tanTwoTheta_ambient_unbounded_reducing_sineSequence_symmetricNorming_real
       hA ((reduces_iff A U).1 hU) (isOddFor_of_offDiagonal hoffdiag₀ hoffdiag₁)
-      hlow' hhigh' (by linarith : α < α + δ) N.toPaper V hH
+      hlow' hhigh' (by linarith : α < α + δ) N.toSourceNorm V hH
       (reflectionIntertwines_of_reduces hV) hHmem
   have hlt' : ∀ n, (ambientDoubleSine U V).approximationNumber n < 1 := hlt
   have hseq' : ∀ n,
       (TauCeti.DavisKahanExt.paperAbsTanTwoAngleOperatorR U V).approximationNumber n =
         tanSeq (ambientDoubleSine U V) n := hseq
   have heval : N.evalSeq (tanSeq (ambientDoubleSine U V)) =
-      N.toPaper.extendedGauge
+      N.toSourceNorm.extendedGauge
         (TauCeti.DavisKahanExt.paperAbsTanTwoAngleOperatorR U V) :=
     N.evalSeq_eq_of_approximationNumber _ _ hseq'
   refine ⟨tangentDefined_of_approximationNumber_lt_one _ hlt', ?_, ?_⟩
@@ -1863,7 +1864,7 @@ theorem tanTwoTheta_ambient_proof_real (N : UINorm)
   · have hδeq : α + δ - α = δ := by ring
     rw [hδeq] at hle
     have hgoal : δ * (N.evalSeq (tanSeq (ambientDoubleSine U V))).toReal ≤
-        2 * N.toPaper.gauge H := by
+        2 * N.toSourceNorm.gauge H := by
       rw [heval]; exact hle
     exact hgoal
 
@@ -1945,7 +1946,7 @@ subspaces and operators, all of which the transport carries verbatim; every
 conclusion is a function of one operator's singular-value sequence, which it also
 carries.  So the case split of `RCLike.I_eq_zero_or_im_I_eq_one` is the whole
 argument. -/
-theorem tanTwoTheta_ambient_proof (N : UINorm)
+theorem tanTwoTheta_ambient_proof (N : SymmetricNormingFunction)
     {𝕜 : Type u} [RCLike 𝕜]
     {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
@@ -1975,7 +1976,7 @@ theorem tanTwoTheta_ambient_proof (N : UINorm)
         δ * N.seqNorm (tanSeq (ambientDoubleSine U V)) ≤ 2 * N.norm H := by
     intro 𝕂 _ e h
     rw [ambientDoubleSine_pmap (e := e) U V, tanSeq_clm, tangentDefined_clm_iff,
-      UINorm.norm_clm] at h
+      SymmetricNormingFunction.norm_clm] at h
     exact h
   rcases RCLike.I_eq_zero_or_im_I_eq_one (K := 𝕜) with hI | hI
   · set e := TauCeti.RCLikeIso.real (𝕜 := 𝕜) hI with he
@@ -1983,13 +1984,13 @@ theorem tanTwoTheta_ambient_proof (N : UINorm)
       orderedGap_hypotheses_pmap e hA hU H hoffdiag₀ hoffdiag₁ hlow hhigh hV
     exact key (𝕂 := ℝ) e
       (tanTwoTheta_ambient_proof_real N h1 h2 _ ((isSelfAdjoint_clm_iff (e := e)).mpr hH)
-        h4 h5 hδ h6 h7 h8 ((UINorm.finite_clm_iff (e := e) N H).mpr hHmem))
+        h4 h5 hδ h6 h7 h8 ((SymmetricNormingFunction.finite_clm_iff (e := e) N H).mpr hHmem))
   · set e := TauCeti.RCLikeIso.complex (𝕜 := 𝕜) hI with he
     obtain ⟨h1, h2, h4, h5, h6, h7, h8⟩ :=
       orderedGap_hypotheses_pmap e hA hU H hoffdiag₀ hoffdiag₁ hlow hhigh hV
     exact key (𝕂 := ℂ) e
       (tanTwoTheta_ambient_proof_complex N h1 h2 _ ((isSelfAdjoint_clm_iff (e := e)).mpr hH)
-        h4 h5 hδ h6 h7 h8 ((UINorm.finite_clm_iff (e := e) N H).mpr hHmem))
+        h4 h5 hδ h6 h7 h8 ((SymmetricNormingFunction.finite_clm_iff (e := e) N H).mpr hHmem))
 
 
 open TauCeti.ScalarTransport in
@@ -2007,7 +2008,7 @@ theorem residualCorner_pmap {𝕜 : Type u} {𝕂 : Type} [RCLike 𝕜] [RCLike 
 open TauCeti.ScalarTransport in
 /-- **The directed clause of the Challenge's `tan 2Θ` theorem, at an arbitrary
 `RCLike` field.** -/
-theorem tanTwoTheta_directed_proof (N : UINorm)
+theorem tanTwoTheta_directed_proof (N : SymmetricNormingFunction)
     {𝕜 : Type u} [RCLike 𝕜]
     {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
@@ -2041,14 +2042,14 @@ theorem tanTwoTheta_directed_proof (N : UINorm)
           2 * N.norm (Uᗮ.starProjection ∘L H ∘L U.starProjection) := by
     intro 𝕂 _ e h
     rw [directedDoubleSine_pmap (e := e) U V, tanSeq_clm, tangentDefined_clm_iff,
-      residualCorner_pmap (e := e) U H, UINorm.norm_clm] at h
+      residualCorner_pmap (e := e) U H, SymmetricNormingFunction.norm_clm] at h
     exact h
   have pushR : ∀ {𝕂 : Type} [RCLike 𝕂] (e : TauCeti.RCLikeIso 𝕜 𝕂),
       N.Finite ((submodule (e := e) U)ᗮ.starProjection ∘L clm (e := e) H ∘L
         (submodule (e := e) U).starProjection) := by
     intro 𝕂 _ e
     rw [residualCorner_pmap (e := e) U H]
-    exact (UINorm.finite_clm_iff (e := e) N _).mpr hRmem
+    exact (SymmetricNormingFunction.finite_clm_iff (e := e) N _).mpr hRmem
   rcases RCLike.I_eq_zero_or_im_I_eq_one (K := 𝕜) with hI | hI
   · set e := TauCeti.RCLikeIso.real (𝕜 := 𝕜) hI with he
     obtain ⟨h1, h2, h4, h5, h6, h7, h8⟩ :=
@@ -2078,7 +2079,7 @@ theorem directedSineBlock_eq_real (U V : Submodule ℝ E)
       TauCeti.DavisKahan1970.theorem63DirectedSineBlockReal U V := rfl
 
 /-- **The directed clause of the Challenge's `tan Θ` theorem, over `ℝ`.** -/
-theorem tanTheta_directed_proof_real (N : UINorm)
+theorem tanTheta_directed_proof_real (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E} {V : Submodule ℝ E} [V.HasOrthogonalProjection]
     (hV : Reduces A V) {α δ : ℝ} (hδ : 0 < δ)
     (hunwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
@@ -2092,14 +2093,14 @@ theorem tanTheta_directed_proof_real (N : UINorm)
       (α + δ) * ‖y‖ ^ 2 ≤ ⟪A ⟨y, hy⟩, y⟫_ℝ := by
     intro y hyV hy; simpa using hunwanted y hyV hy
   obtain ⟨hlt, tanTheta0, htan, hmem, hbound⟩ :=
-    TauCeti.DavisKahan1970.tanTheta_directed_unboundedRitz_paperUINorm_exists_real
-      N.toPaper D.toUnboundedRitzPair
+    TauCeti.DavisKahan1970.tanTheta_directed_unboundedRitz_symmetricNorming_exists_real
+      N.toSourceNorm D.toUnboundedRitzPair
       (TauCeti.DavisKahan.ReducingComplement.ofReducesSubspace ((reduces_iff A V).1 hV))
       hδ ((semiboundedAbove_iff _ _).1 hupper) hUnwanted hR
   have hseq : ∀ n, tanTheta0.approximationNumber n = tanSeq (directedSineBlock U V) n :=
     fun n => htan n
   have heval : N.evalSeq (tanSeq (directedSineBlock U V)) =
-      N.toPaper.extendedGauge tanTheta0 :=
+      N.toSourceNorm.extendedGauge tanTheta0 :=
     N.evalSeq_eq_of_approximationNumber _ _ hseq
   refine ⟨tangentDefined_of_approximationNumber_lt_one _ (fun n => hlt n), ?_, ?_⟩
   · show N.evalSeq (tanSeq (directedSineBlock U V)) ≠ ⊤
@@ -2109,7 +2110,7 @@ theorem tanTheta_directed_proof_real (N : UINorm)
 
 
 /-- **The ambient clause of the Challenge's `tan Θ` theorem, over `ℝ`.** -/
-theorem tanTheta_ambient_proof_real (N : UINorm)
+theorem tanTheta_ambient_proof_real (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E} {V : Submodule ℝ E} [V.HasOrthogonalProjection]
     (hV : Reduces A V) {α δ : ℝ} (hδ : 0 < δ)
     (hunwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
@@ -2136,14 +2137,14 @@ theorem tanTheta_ambient_proof_real (N : UINorm)
         D.toUnboundedRitzPair.mem_domain D.toUnboundedRitzPair.action_eq
         hVc.mapsDomain hVc.commutes hUnwanted) h35
   obtain ⟨hmem, hbound⟩ :=
-    TauCeti.DavisKahan1970.tanTheta_ambient_unboundedRitz_paperUINorm_real
-      N.toPaper D.toUnboundedRitzPair hVc H hH hδ hupper' hUnwanted h35 hres hHmem
+    TauCeti.DavisKahan1970.tanTheta_ambient_unboundedRitz_symmetricNorming_real
+      N.toSourceNorm D.toUnboundedRitzPair hVc H hH hδ hupper' hUnwanted h35 hres hHmem
   have hseq : ∀ n,
       (TauCeti.DavisKahanExt.paperTanAngleOperatorR U V).approximationNumber n =
         tanSeq (ambientSine U V) n := fun n =>
     TauCeti.DavisKahan1970.approximationNumber_paperTanAngleOperatorR U V htr n
   have heval : N.evalSeq (tanSeq (ambientSine U V)) =
-      N.toPaper.extendedGauge (TauCeti.DavisKahanExt.paperTanAngleOperatorR U V) :=
+      N.toSourceNorm.extendedGauge (TauCeti.DavisKahanExt.paperTanAngleOperatorR U V) :=
     N.evalSeq_eq_of_approximationNumber _ _ hseq
   refine ⟨tangentDefined_of_approximationNumber_lt_one _ (fun n =>
     TauCeti.DavisKahan1970.approximationNumber_projectorDifference_lt_one_real U V htr n),
@@ -2158,7 +2159,7 @@ end TanThetaReal
 open TauCeti.ScalarTransport in
 /-- **The directed clause of the Challenge's `tan Θ` theorem, at an arbitrary
 `RCLike` field.** -/
-theorem tanTheta_directed_proof (N : UINorm)
+theorem tanTheta_directed_proof (N : SymmetricNormingFunction)
     {𝕜 : Type u} [RCLike 𝕜]
     {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     {A : E →ₗ.[𝕜] E} {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
@@ -2196,7 +2197,7 @@ theorem tanTheta_directed_proof (N : UINorm)
       rw [← htan]; exact h2
     · show δ * (N.evalSeq (tanSeq (directedSineBlock U V))).toReal ≤ N.norm D.residual
       have hn : N.norm (clm (e := e) D.residual) = N.norm D.residual := by
-        unfold UINorm.norm
+        unfold SymmetricNormingFunction.norm
         rw [N.eval_congr hres]
       rw [← htan, ← hn]
       exact h3
@@ -2220,19 +2221,19 @@ theorem tanTheta_directed_proof (N : UINorm)
       (tanTheta_directed_proof_real N ((reduces_pmap_iff (e := e)).mpr hV) hδ
         (unw (𝕂 := ℝ) e) (RitzData.pmap (e := e) D)
         (semiboundedAbove_pmap' (e := e) hupper)
-        ((UINorm.finite_clm_iff (e := e) N D.residual).mpr hR))
+        ((SymmetricNormingFunction.finite_clm_iff (e := e) N D.residual).mpr hR))
   · set e := TauCeti.RCLikeIso.complex (𝕜 := 𝕜) hI with he
     exact key (𝕂 := ℂ) e
       (tanTheta_directed_proof_complex N ((reduces_pmap_iff (e := e)).mpr hV) hδ
         (unw (𝕂 := ℂ) e) (RitzData.pmap (e := e) D)
         (semiboundedAbove_pmap' (e := e) hupper)
-        ((UINorm.finite_clm_iff (e := e) N D.residual).mpr hR))
+        ((SymmetricNormingFunction.finite_clm_iff (e := e) N D.residual).mpr hR))
 
 
 open TauCeti.ScalarTransport in
 /-- **The ambient clause of the Challenge's `tan Θ` theorem, at an arbitrary
 `RCLike` field.** -/
-theorem tanTheta_ambient_proof (N : UINorm)
+theorem tanTheta_ambient_proof (N : SymmetricNormingFunction)
     {𝕜 : Type u} [RCLike 𝕜]
     {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     {A : E →ₗ.[𝕜] E} {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
@@ -2257,7 +2258,7 @@ theorem tanTheta_ambient_proof (N : UINorm)
         δ * N.seqNorm (tanSeq (ambientSine U V)) ≤ N.norm H := by
     intro 𝕂 _ e h
     rw [ambientSine_pmap (e := e) U V, tanSeq_clm, tangentDefined_clm_iff,
-      UINorm.norm_clm] at h
+      SymmetricNormingFunction.norm_clm] at h
     exact h
   have unw : ∀ {𝕂 : Type} [RCLike 𝕂] (e : TauCeti.RCLikeIso 𝕜 𝕂),
       ∀ y ∈ (submodule (e := e) V)ᗮ, ∀ hy : y ∈ (pmap (e := e) A).domain,
@@ -2292,7 +2293,7 @@ theorem tanTheta_ambient_proof (N : UINorm)
         (semiboundedAbove_pmap' (e := e) hupper) _
         ((isSelfAdjoint_clm_iff (e := e)).mpr hH) (hres' (𝕂 := ℝ) e)
         (crossedDefectsEquivalent_pmap (e := e) h35)
-        ((UINorm.finite_clm_iff (e := e) N H).mpr hHmem))
+        ((SymmetricNormingFunction.finite_clm_iff (e := e) N H).mpr hHmem))
   · set e := TauCeti.RCLikeIso.complex (𝕜 := 𝕜) hI with he
     exact key (𝕂 := ℂ) e
       (tanTheta_ambient_proof_complex N ((reduces_pmap_iff (e := e)).mpr hV) hδ
@@ -2300,7 +2301,7 @@ theorem tanTheta_ambient_proof (N : UINorm)
         (semiboundedAbove_pmap' (e := e) hupper) _
         ((isSelfAdjoint_clm_iff (e := e)).mpr hH) (hres' (𝕂 := ℂ) e)
         (crossedDefectsEquivalent_pmap (e := e) h35)
-        ((UINorm.finite_clm_iff (e := e) N H).mpr hHmem))
+        ((SymmetricNormingFunction.finite_clm_iff (e := e) N H).mpr hHmem))
 
 
 section SinTwoThetaDirectedReal
@@ -2313,7 +2314,7 @@ the development over `ℝ`.**
 `δ ‖sin 2Θ₀‖ ≤ 2 ‖R‖` on the residual alone, at an arbitrary reducing `U` and
 the full form-bounded gap, so the separating interval may be half-infinite. -/
 theorem sinTwoTheta_directed_proof_real
-    (N : UINorm) {A : E →ₗ.[ℝ] E} (hA : IsSelfAdjoint A)
+    (N : SymmetricNormingFunction) {A : E →ₗ.[ℝ] E} (hA : IsSelfAdjoint A)
     {U : Submodule ℝ E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ)
@@ -2330,8 +2331,8 @@ theorem sinTwoTheta_directed_proof_real
   have hres : ∀ v : V, A ⟨(v : E), D.mem_domain v⟩ =
       D.residual v + ((D.compression v : V) : E) := fun v =>
     (D.action_eq v).trans (add_comm _ _)
-  exact TauCeti.DavisKahan1970.sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_paperUINorm_real
-    N.toPaper hA hUred D.mem_domain hres hδ hgap' hRmem
+  exact TauCeti.DavisKahan1970.sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_symmetricNorming_real
+    N.toSourceNorm hA hUred D.mem_domain hres hδ hgap' hRmem
 
 
 end SinTwoThetaDirectedReal
@@ -2340,7 +2341,7 @@ open TauCeti.ScalarTransport in
 /-- **The directed clause of the Challenge's `sin 2Θ` theorem, at an arbitrary
 `RCLike` field.** -/
 theorem sinTwoTheta_directed_proof
-    (N : UINorm) {𝕜 : Type u} [RCLike 𝕜]
+    (N : SymmetricNormingFunction) {𝕜 : Type u} [RCLike 𝕜]
     {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
@@ -2384,7 +2385,7 @@ theorem sinTwoTheta_directed_proof
           (hU' := (reduces_pmap_iff (e := e)).mpr hU)
           (hUc' := (reduces_pmap_iff (e := e)).mpr hU.orthogonal) hgap))
       (BoundedTrialBlock.pmap (e := e) D)
-      ((UINorm.finite_clm_iff (e := e) N D.residual).mpr hRmem))
+      ((SymmetricNormingFunction.finite_clm_iff (e := e) N D.residual).mpr hRmem))
   · set e := TauCeti.RCLikeIso.complex (𝕜 := 𝕜) hI with he
     refine key (𝕂 := ℂ) e (sinTwoTheta_directed_proof_complex N
       ((isSelfAdjoint_pmap_iff (e := e)).mpr hA) ((reduces_pmap_iff (e := e)).mpr hU) hδ
@@ -2393,7 +2394,7 @@ theorem sinTwoTheta_directed_proof
           (hU' := (reduces_pmap_iff (e := e)).mpr hU)
           (hUc' := (reduces_pmap_iff (e := e)).mpr hU.orthogonal) hgap))
       (BoundedTrialBlock.pmap (e := e) D)
-      ((UINorm.finite_clm_iff (e := e) N D.residual).mpr hRmem))
+      ((SymmetricNormingFunction.finite_clm_iff (e := e) N D.residual).mpr hRmem))
 
 /-! ## 13. The four theorems
 
@@ -2409,7 +2410,7 @@ variable {E F G K : Type v}
   [NormedAddCommGroup K] [InnerProductSpace 𝕜 K] [CompleteSpace K]
 
 /-- **Davis--Kahan 1970, Section 2, the `sin Θ` theorem.** -/
-theorem sinTheta_solution (N : UINorm)
+theorem sinTheta_solution (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} {A₀ : F →ₗ.[𝕜] F} {Λ₁ : G →ₗ.[𝕜] G}
     {E₀ : F →L[𝕜] E} {F₀ : K →L[𝕜] E} {F₁ : G →L[𝕜] E} {R : F →L[𝕜] E}
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
@@ -2426,7 +2427,7 @@ theorem sinTheta_solution (N : UINorm)
 set_option linter.unusedVariables false in
 /-- **Davis--Kahan 1970, Section 2, the `tan Θ` theorem**, both printed
 conclusions. -/
-theorem tanTheta_solution (N : UINorm)
+theorem tanTheta_solution (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : Reduces A V)
     {α δ : ℝ} (hδ : 0 < δ)
@@ -2441,7 +2442,7 @@ theorem tanTheta_solution (N : UINorm)
 
 /-- **Davis--Kahan 1970, Section 2, the `sin 2Θ` theorem**, both printed
 conclusions. -/
-theorem sinTwoTheta_solution (N : UINorm)
+theorem sinTwoTheta_solution (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     {δ : ℝ} (hδ : 0 < δ)
@@ -2453,7 +2454,7 @@ theorem sinTwoTheta_solution (N : UINorm)
 
 /-- **Davis--Kahan 1970, Section 2, the `tan 2Θ` theorem**, both printed
 conclusions. -/
-theorem tanTwoTheta_solution (N : UINorm)
+theorem tanTwoTheta_solution (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)
@@ -2545,7 +2546,7 @@ invariant norm.  The ambient operator may be unbounded, the trial block may be
 unbounded, the space may have any dimension, and the separating interval may be
 half-infinite.  This is the one Section 2 theorem with a single conclusion. -/
 
-theorem sinTheta (N : UINorm)
+theorem sinTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} {A₀ : F →ₗ.[𝕜] F} {Λ₁ : G →ₗ.[𝕜] G}
     {E₀ : F →L[𝕜] E} {F₀ : K →L[𝕜] E} {F₁ : G →L[𝕜] E} {R : F →L[𝕜] E}
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
@@ -2568,7 +2569,7 @@ diagonal block, the Rayleigh--Ritz condition `H₀ = 0` carried by `RitzData` an
 by `D.residual = P_{Uᗮ} H|_U`.  Then `δ ‖tan Θ₀‖ ≤ ‖R‖` and `δ ‖tan Θ‖ ≤ ‖H‖`,
 with the sharp factor one.  `V` is any subspace reducing `A`. -/
 
-theorem tanTheta (N : UINorm)
+theorem tanTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : Reduces A V)
     {α δ : ℝ} (hδ : 0 < δ)
@@ -2585,7 +2586,7 @@ theorem tanTheta (N : UINorm)
 may be half-infinite, the ambient operator may be unbounded, and `U` is any
 subspace reducing `A` whose two blocks the separation puts a gap `δ` between. -/
 
-theorem sinTwoTheta (N : UINorm)
+theorem sinTwoTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     {δ : ℝ} (hδ : 0 < δ)
@@ -2600,7 +2601,7 @@ ordered on the two blocks of `A` and the perturbation is *off-diagonal* for the
 splitting -- `H₀ = H₁ = 0`.  Then `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖` and
 `δ ‖tan 2Θ‖ ≤ 2 ‖H‖`. -/
 
-theorem tanTwoTheta (N : UINorm)
+theorem tanTwoTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)

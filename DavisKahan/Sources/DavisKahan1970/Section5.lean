@@ -68,12 +68,12 @@ alias Inequality5_1 :=
 *bound* (operator) norm and not the trace norm.
 
 Stated against an upper bound `r` for `rank C`, which is what an arbitrary-dimensional
-statement can carry; `paperOperatorNorm_sylvester_le_finrank_range` is the same conclusion
+statement can carry; `operatorNormingFunction_sylvester_le_finrank_range` is the same conclusion
 with the genuine rank in finite dimensions.  The source's own `2 × 2` witness that the
 constant `1` cannot replace `√(rank C)` is compiled as `sharp52_constant_one_too_small`.
 Whether `rank C` may be replaced by a constant is the source's open question. -/
 alias Inequality5_2 :=
-  DavisKahan.ExactSinTheta.paperOperatorNorm_sylvester_le_of_pairwiseSpectrumGap
+  DavisKahan.ExactSinTheta.operatorNormingFunction_sylvester_le_of_pairwiseSpectrumGap
 
 end DavisKahan1970
 end TauCeti

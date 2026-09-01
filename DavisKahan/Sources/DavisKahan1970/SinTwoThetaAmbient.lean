@@ -57,7 +57,7 @@ of the two operators, under which `‖H‖` is unchanged.
 
 * `TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_kyFan_complex`: the Ky Fan form,
   `δ · kyFan_k (sin 2Θ) ≤ 2 · kyFan_k (B - A)` for every `k`.
-* `TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_complex`: the source form,
+* `TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_symmetricNorming_complex`: the source form,
   `δ · N (sin 2Θ) ≤ 2 · N (B - A)` for every unitarily invariant norm `N` in the
   paper's sense.
 
@@ -558,8 +558,8 @@ homogeneous Fan-dominance adapter, extend the residual by zero on `Vᗮ` using
 `V.subtypeL.adjoint`.  This preserves its complete approximation-singular
 sequence, hence every paper norm, and keeps the norm comparison within one
 operator type. -/
-theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -577,7 +577,7 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_com
   let R0 : E →L[ℂ] E := R ∘L V.subtypeL.adjoint
   have hsameR : SameApproximationSingularSequence R0 R := by
     exact sameApproximationSingularValues_extendDomainByZero V R
-  have htransport := hsameR.paperMem_iff_and_gauge_eq N
+  have htransport := hsameR.normingMem_iff_and_gauge_eq N
   have hMem0 : N.Mem R0 := htransport.1.mpr hMem
   have hgauge : N.gauge R0 = N.gauge R := htransport.2
   have htwo : ‖((2 : ℝ) : ℂ)‖ = 2 := by norm_num
@@ -603,8 +603,8 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_com
 /-- **The whole-space `sin 2Θ` theorem for every source unitarily invariant
 norm**: `δ ‖sin 2Θ‖ ≤ 2 ‖H‖`, the second conclusion of the Section 2 `sin 2Θ`
 theorem and equation (7.5) of Section 7. -/
-theorem sinTwoTheta_ambient_bounded_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_ambient_bounded_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     (hU : Reduces A U) (hV : Reduces B V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)

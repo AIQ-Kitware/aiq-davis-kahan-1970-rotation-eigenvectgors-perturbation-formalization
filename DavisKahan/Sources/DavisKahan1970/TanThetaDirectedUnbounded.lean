@@ -19,11 +19,11 @@ directed:  δ ‖tan Θ₀‖ ≤ ‖R‖
 ambient:   δ ‖tan Θ‖  ≤ ‖H‖
 ```
 
-The ambient clause is `tanTheta_ambient_unboundedRitz_paperUINorm_complex` and its
+The ambient clause is `tanTheta_ambient_unboundedRitz_symmetricNorming_complex` and its
 real sibling.  This module supplies the **directed** clause at the same scope: an
 unbounded self-adjoint ambient operator, an arbitrary complete trial subspace,
 the source residual on the right-hand side, and an arbitrary
-`PaperUnitaryInvariantNorm`.
+`SymmetricNormingFunction`.
 
 ## Why this was missing
 
@@ -85,14 +85,14 @@ source unitarily invariant norm.**
 
 `δ N(tan Θ₀) ≤ N(R)`, with `R` the trial residual, for an unbounded self-adjoint
 ambient operator, an arbitrary complete trial subspace, arbitrary Hilbert
-dimension, and an arbitrary `PaperUnitaryInvariantNorm`.
+dimension, and an arbitrary `SymmetricNormingFunction`.
 
 The gap is the source's ordered configuration: the trial compression is bounded
 above by `α` in form and `A` has no spectrum in `(α, α + δ)`, so the exact space
 is the spectral subspace for `(-∞, α]`.  Both separating intervals are
 half-infinite, which is the scope the source states for this theorem. -/
-theorem tanTheta_directed_unboundedTrial_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_unboundedTrial_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
     (D : TanTheta.UnboundedTrialBlock A Z)
@@ -133,9 +133,9 @@ open TauCeti.DavisKahan.RealSpectralRestriction
 
 /-- **Davis--Kahan 1970, the Section 2 `tan Θ` directed clause, over `ℝ`, at every
 source unitarily invariant norm.**  The real sibling of
-`tanTheta_directed_unboundedTrial_paperUINorm_complex`. -/
-theorem tanTheta_directed_unboundedTrial_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+`tanTheta_directed_unboundedTrial_symmetricNorming_complex`. -/
+theorem tanTheta_directed_unboundedTrial_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (A : E →ₗ.[ℝ] E) (hA : IsSelfAdjoint A)
     {Z : Submodule ℝ E} [Z.HasOrthogonalProjection] [CompleteSpace Z]
     (D : TanTheta.UnboundedTrialBlock A Z)
@@ -197,7 +197,7 @@ own scope, over `ℂ`, at every source unitarily invariant norm.**
 self-adjoint operator on the trial space -- **not** a bounded one -- the ambient
 operator `A` is an unbounded self-adjoint partial map, only the residual `R` is
 bounded, the Hilbert dimension is arbitrary, and `N` is an arbitrary
-`PaperUnitaryInvariantNorm`.
+`SymmetricNormingFunction`.
 
 The hypotheses are the printed ordered ones with both intervals half-infinite:
 `hupper` is `A₀ ≤ α` as a form bound on the *partial* compression, and
@@ -209,8 +209,8 @@ evaluates the Ky Fan estimate at every index and an existential could return a
 different representative at each one; `htan` is the paper's own characterization
 of `tan Θ₀`, that its approximation numbers are `tan θⱼ` of the directed sine
 block. -/
-theorem tanTheta_directed_unboundedRitz_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_unboundedRitz_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : H →ₗ.[ℂ] H}
     {Z V : Submodule ℂ H}
     [Z.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace Z]
@@ -249,12 +249,12 @@ variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [Complete
 
 /-- **Davis--Kahan 1970, the Section 2 `tan Θ` directed clause at the Appendix's
 own scope, over `ℝ`.**  The real sibling of
-`tanTheta_directed_unboundedRitz_paperUINorm_complex`: the Ritz compression is a
+`tanTheta_directed_unboundedRitz_symmetricNorming_complex`: the Ritz compression is a
 densely defined self-adjoint *partial* operator on the trial space, the ambient
 operator is an unbounded self-adjoint partial map, only the residual is bounded,
-and the norm is an arbitrary `PaperUnitaryInvariantNorm`. -/
-theorem tanTheta_directed_unboundedRitz_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+and the norm is an arbitrary `SymmetricNormingFunction`. -/
+theorem tanTheta_directed_unboundedRitz_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E}
     {Z V : Submodule ℝ E}
     [Z.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace Z]
@@ -329,8 +329,8 @@ approximation numbers `tan θⱼ` exists, and it satisfies `δ N(tan Θ₀) ≤ 
 source unitarily invariant norm.  The Ritz compression is a densely defined self-adjoint
 partial operator, the ambient operator is an unbounded self-adjoint partial map, and only
 the residual is bounded. -/
-theorem tanTheta_directed_unboundedRitz_paperUINorm_exists_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_unboundedRitz_symmetricNorming_exists_complex
+    (N : SymmetricNormingFunction)
     {A : H →ₗ.[ℂ] H}
     {Z V : Submodule ℂ H}
     [Z.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace Z]
@@ -350,7 +350,7 @@ theorem tanTheta_directed_unboundedRitz_paperUINorm_exists_complex
     D hV hdelta hupper hUnwanted
   obtain ⟨tanTheta0, htan⟩ :=
     exists_hasTheorem63DirectedTangentApproximationNumbersInfinite Z V hlt
-  obtain ⟨hmem, hbound⟩ := tanTheta_directed_unboundedRitz_paperUINorm_complex N D hV
+  obtain ⟨hmem, hbound⟩ := tanTheta_directed_unboundedRitz_symmetricNorming_complex N D hV
     hdelta hupper hUnwanted tanTheta0 htan hResidual
   exact ⟨hlt, tanTheta0, htan, hmem, hbound⟩
 
@@ -381,8 +381,8 @@ theorem approximationSingularValue_directedSineBlock_lt_one_unboundedRitz_real
 
 /-- **The Section 2 `tan Θ` directed clause at the Appendix's scope, over `ℝ`, with the
 tangent representative exhibited and the pole excluded.** -/
-theorem tanTheta_directed_unboundedRitz_paperUINorm_exists_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_unboundedRitz_symmetricNorming_exists_real
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E}
     {Z V : Submodule ℝ E}
     [Z.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace Z]
@@ -402,7 +402,7 @@ theorem tanTheta_directed_unboundedRitz_paperUINorm_exists_real
     D hV hdelta hupper hUnwanted
   obtain ⟨tanTheta0, htan⟩ :=
     exists_hasTheorem63DirectedTangentApproximationNumbersReal Z V hlt
-  obtain ⟨hmem, hbound⟩ := tanTheta_directed_unboundedRitz_paperUINorm_real N D hV
+  obtain ⟨hmem, hbound⟩ := tanTheta_directed_unboundedRitz_symmetricNorming_real N D hV
     hdelta hupper hUnwanted tanTheta0 htan hResidual
   exact ⟨hlt, tanTheta0, htan, hmem, hbound⟩
 

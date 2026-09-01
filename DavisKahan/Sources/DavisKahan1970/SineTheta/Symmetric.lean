@@ -381,7 +381,7 @@ theorem symmetric_all_kyFan
 invariant norm in the source sense. -/
 theorem result_every_unitarilyInvariantNorm
     (P : PaperSymmetricSinThetaProblem (E := E))
-    (N : PaperUnitaryInvariantNorm) (hH : N.Mem P.perturbation) :
+    (N : SymmetricNormingFunction) (hH : N.Mem P.perturbation) :
     N.Mem (TauCeti.DavisKahanExt.paperSinAngleOperatorC P.U P.V) ∧
       P.gap * N.gauge
           (TauCeti.DavisKahanExt.paperSinAngleOperatorC P.U P.V) ≤

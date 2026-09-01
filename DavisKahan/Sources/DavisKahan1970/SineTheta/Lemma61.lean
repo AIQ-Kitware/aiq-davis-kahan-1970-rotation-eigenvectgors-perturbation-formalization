@@ -166,7 +166,7 @@ theorem paperLemma61_all_kyFan
 /-- Lemma 6.1 for every source-defined unitarily invariant norm. -/
 theorem paperLemma61_every_unitarilyInvariantNorm
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K Ktilde L Ltilde : E →L[𝕜] E)

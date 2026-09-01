@@ -117,8 +117,8 @@ Absent from the hypotheses, and this is the point:
 
 `[U.HasOrthogonalProjection]` is the formal encoding of the paper's "closed
 subspace". -/
-theorem tanTwoTheta_branchFree_bounded_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_branchFree_bounded_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     {A H T : E →L[ℝ] E} {U : Submodule ℝ E} [U.HasOrthogonalProjection]
     {a b : ℝ}
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
@@ -136,7 +136,7 @@ theorem tanTwoTheta_branchFree_bounded_paperUINorm_real
     N.Mem tanTwoTheta ∧
       (b - a) * N.gauge tanTwoTheta ≤ 2 * N.gauge H := by
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTwoTheta_branchFree_bounded_paperUINorm_complex N
+    tanTwoTheta_branchFree_bounded_symmetricNorming_complex N
       (A := complexify A) (H := complexify H) (T := complexify T)
       (U := complexifySubmodule U)
       ((complexify_isSelfAdjoint_iff A).2 hA)
@@ -157,10 +157,10 @@ theorem tanTwoTheta_branchFree_bounded_paperUINorm_real
         rw [ComplexificationApproximation.approximationSingularValue_complexify,
           ComplexificationApproximation.approximationSingularValue_complexify]
         exact htan n)
-      ((PaperUnitaryInvariantNorm.mem_complexify_iff N H).2 hHmem)
-  refine ⟨(PaperUnitaryInvariantNorm.mem_complexify_iff N tanTwoTheta).1 hmemC, ?_⟩
-  rwa [PaperUnitaryInvariantNorm.gauge_complexify,
-    PaperUnitaryInvariantNorm.gauge_complexify] at hboundC
+      ((SymmetricNormingFunction.mem_complexify_iff N H).2 hHmem)
+  refine ⟨(SymmetricNormingFunction.mem_complexify_iff N tanTwoTheta).1 hmemC, ?_⟩
+  rwa [SymmetricNormingFunction.gauge_complexify,
+    SymmetricNormingFunction.gauge_complexify] at hboundC
 
 end
 

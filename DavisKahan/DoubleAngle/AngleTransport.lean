@@ -329,25 +329,25 @@ source unitarily invariant norm**, and one lies in the norm's ideal exactly when
 the other does.
 
 This is the statement the unbounded theorems consume: it upgrades the old
-operator-norm identification to every `PaperUnitaryInvariantNorm` at once,
+operator-norm identification to every `SymmetricNormingFunction` at once,
 because a paper norm's extended gauge is determined by the approximation
 singular-value sequence and the two sequences are equal. -/
-theorem extendedGauge_sinTwoThetaIdealBlock_complex (N : PaperUnitaryInvariantNorm) :
+theorem extendedGauge_sinTwoThetaIdealBlock_complex (N : SymmetricNormingFunction) :
     N.extendedGauge (sinTwoThetaIdealBlock U V)
       = N.extendedGauge (sinTwoAngleOperatorC U V) :=
   N.gauge_eq_of_sameApproximationSingularValues
     (sinTwoThetaIdealBlock_hasSameApproximationNumbers U V)
 
 /-- Ideal membership transfers between the block and the paper's operator. -/
-theorem mem_sinTwoAngleOperatorC_iff (N : PaperUnitaryInvariantNorm) :
+theorem mem_sinTwoAngleOperatorC_iff (N : SymmetricNormingFunction) :
     N.Mem (sinTwoAngleOperatorC U V) ↔ N.Mem (sinTwoThetaIdealBlock U V) := by
-  unfold PaperUnitaryInvariantNorm.Mem
+  unfold SymmetricNormingFunction.Mem
   rw [extendedGauge_sinTwoThetaIdealBlock_complex U V N]
 
 /-- The gauge transfers between the block and the paper's operator. -/
-theorem gauge_sinTwoAngleOperatorC (N : PaperUnitaryInvariantNorm) :
+theorem gauge_sinTwoAngleOperatorC (N : SymmetricNormingFunction) :
     N.gauge (sinTwoAngleOperatorC U V) = N.gauge (sinTwoThetaIdealBlock U V) := by
-  unfold PaperUnitaryInvariantNorm.gauge
+  unfold SymmetricNormingFunction.gauge
   rw [extendedGauge_sinTwoThetaIdealBlock_complex U V N]
 
 end NormTransport

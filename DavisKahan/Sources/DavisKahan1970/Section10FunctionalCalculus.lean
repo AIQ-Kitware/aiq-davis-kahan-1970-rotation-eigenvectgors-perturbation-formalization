@@ -196,7 +196,7 @@ difference.**
 
 `f(A + H) − f(A) = Q − P`, whence `‖f(A+H) − f(A)‖ = ‖Q − P‖ = ‖sin Θ‖` in every unitarily
 invariant norm.  The source's `tan 2θ` bound `δ‖tan 2Θ‖ ≤ 2‖H‖` then applies to the right
-side; it is already proved as `tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex`. -/
+side; it is already proved as `tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_complex`. -/
 theorem Question10_4_ambient_functionalChange_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
@@ -239,7 +239,7 @@ sine.**
 `(f(A + H) − f(A))E₀ = −P_{Q^⊥}|_U`, whose norm is the source's `‖Q^⊥E₀‖ = ‖sin Θ₀‖` —
 `TauCeti.principalSineOperator U V` is the directed sine operator by definition.  The source's
 `tan 2θ` residual bound `δ‖tan 2Θ₀‖ ≤ 2‖R‖` applies to the right side and is already proved
-as `tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_complex`. -/
+as `tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_symmetricNorming_complex`. -/
 theorem Question10_4_directed_functionalChange_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
@@ -294,7 +294,7 @@ theorem Question10_4_directed_functionalChange_paperForm_complex
 
 Davis and Kahan work on a real *or* complex Hilbert space, and the `tan 2θ` estimates these
 identities feed into already have real endpoints
-(`tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real` and the directed sibling).  The same five
+(`tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_real` and the directed sibling).  The same five
 claims over `ℝ`, on `TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap_real`.
 
 The ambient identity is stated as `Q − P` directly rather than through

@@ -29,7 +29,7 @@ fixed field.
 Only the finite Ky Fan gauges appear.  That is the weakest form that still
 generates the rest: wherever a `KyFanDominantIdealFamily` is in hand, Fan
 dominance recovers the arbitrary-ideal conclusion, which is how both
-`davisKahan1970_sylvester_real` and the source-facing `PaperUnitaryInvariantNorm`
+`davisKahan1970_sylvester_real` and the source-facing `SymmetricNormingFunction`
 statements are already built.
 -/
 

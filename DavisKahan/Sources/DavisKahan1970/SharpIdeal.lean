@@ -96,8 +96,8 @@ theorem sharp_standardSymmetricIdeal_scaled
     _ = I.gauge B.B01 := I.gauge_adjoint B.B01
 
 /-- Maximal/Fatou source-norm endpoint in the paper's conventional scaling. -/
-theorem sharp_paperUnitaryInvariantNorm
-    (N : PaperUnitaryInvariantNorm)
+theorem sharp_symmetricNormingFunction
+    (N : SymmetricNormingFunction)
     (B : BlockOperatorData (𝕜 := ℂ) (E0 := E0) (E1 := E1))
     {d : ℝ} (hd : 0 < d)
     (hA0 : ∀ z : E0, RCLike.re ⟪B.A0 z, z⟫_ℂ ≤ 0)
@@ -140,14 +140,14 @@ theorem sharp_schattenMaximal
     (hA1 : ∀ z : E1, d * ‖z‖ ^ 2 ≤ RCLike.re ⟪B.A1 z, z⟫_ℂ)
     {X : E0 →L[ℂ] E1} (hX : SolvesRiccati B X)
     (hcontractive : ‖X‖ < 1)
-    (hB : (TauCeti.SymmetricIdeal.paperLpNorm p hp).Mem B.B01) :
-    (TauCeti.SymmetricIdeal.paperLpNorm p hp).Mem
+    (hB : (TauCeti.SymmetricIdeal.lpNormingFunction p hp).Mem B.B01) :
+    (TauCeti.SymmetricIdeal.lpNormingFunction p hp).Mem
         (TauCeti.DavisKahan.doubleAngleTangentOperator X hcontractive) ∧
-      d * (TauCeti.SymmetricIdeal.paperLpNorm p hp).gauge
+      d * (TauCeti.SymmetricIdeal.lpNormingFunction p hp).gauge
           (TauCeti.DavisKahan.doubleAngleTangentOperator X hcontractive) ≤
-        2 * (TauCeti.SymmetricIdeal.paperLpNorm p hp).gauge B.B01 :=
-  sharp_paperUnitaryInvariantNorm
-    (TauCeti.SymmetricIdeal.paperLpNorm p hp)
+        2 * (TauCeti.SymmetricIdeal.lpNormingFunction p hp).gauge B.B01 :=
+  sharp_symmetricNormingFunction
+    (TauCeti.SymmetricIdeal.lpNormingFunction p hp)
     B hd hA0 hA1 hX hcontractive hB
 
 /-- Trace/nuclear specialization. -/
@@ -158,13 +158,13 @@ theorem sharp_nuclear
     (hA1 : ∀ z : E1, d * ‖z‖ ^ 2 ≤ RCLike.re ⟪B.A1 z, z⟫_ℂ)
     {X : E0 →L[ℂ] E1} (hX : SolvesRiccati B X)
     (hcontractive : ‖X‖ < 1)
-    (hB : paperNuclearNorm.Mem B.B01) :
-    paperNuclearNorm.Mem
+    (hB : nuclearNormingFunction.Mem B.B01) :
+    nuclearNormingFunction.Mem
         (TauCeti.DavisKahan.doubleAngleTangentOperator X hcontractive) ∧
-      d * paperNuclearNorm.gauge
+      d * nuclearNormingFunction.gauge
           (TauCeti.DavisKahan.doubleAngleTangentOperator X hcontractive) ≤
-        2 * paperNuclearNorm.gauge B.B01 :=
-  sharp_paperUnitaryInvariantNorm paperNuclearNorm
+        2 * nuclearNormingFunction.gauge B.B01 :=
+  sharp_symmetricNormingFunction nuclearNormingFunction
     B hd hA0 hA1 hX hcontractive hB
 
 /-! ### Branch selection, so the caller supplies no branch
@@ -179,7 +179,7 @@ arbitrary complex Hilbert space with **no branch supplied by the caller**.
 
 The hypotheses are the printed ones: the wanted block's spectrum sits in
 `[left, 0]`, the unwanted block's in `[d, ∞)`, and the coupling is small
-relative to the gap.  The form bounds `sharp_paperUnitaryInvariantNorm` wants
+relative to the gap.  The form bounds `sharp_symmetricNormingFunction` wants
 are read off from those spectral containments by
 `SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic` and its lower
 companion; the interval/exterior shape the Riccati selection wants is the same
@@ -196,12 +196,12 @@ Spectral separation (`spectrum A₀ ⊆ [left, 0]`, `spectrum A₁ ⊆ [d, ∞)`
 with smallness of the coupling (`2‖B₀₁‖ < d`) produces a contractive Riccati
 solution — unique among contractive solutions — and the bound
 `d · N(tan 2Θ) ≤ 2 · N(B₀₁)` for it, in an arbitrary complex Hilbert space and
-for every `PaperUnitaryInvariantNorm`.
+for every `SymmetricNormingFunction`.
 
 The caller supplies no branch: that is the difference from
-`sharp_paperUnitaryInvariantNorm`, which takes `X` as data. -/
-theorem sharp_paperUnitaryInvariantNorm_selectedBranch
-    (N : PaperUnitaryInvariantNorm)
+`sharp_symmetricNormingFunction`, which takes `X` as data. -/
+theorem sharp_symmetricNormingFunction_selectedBranch
+    (N : SymmetricNormingFunction)
     (B : BlockOperatorData (𝕜 := ℂ) (E0 := E0) (E1 := E1))
     {left d : ℝ} (hd : 0 < d) (hleft : left ≤ 0)
     (hA0spec : spectrum ℝ B.A0 ⊆ Set.Icc left 0)
@@ -233,7 +233,7 @@ theorem sharp_paperUnitaryInvariantNorm_selectedBranch
       hsmall,
     canonicalContractiveRiccatiSolution_solves B hd hleft hA0spec hA1spec'
       hsmall, ?_, ?_⟩ <;>
-  · have h := sharp_paperUnitaryInvariantNorm N B hd hA0 hA1
+  · have h := sharp_symmetricNormingFunction N B hd hA0 hA1
       (canonicalContractiveRiccatiSolution_solves B hd hleft hA0spec hA1spec'
         hsmall)
       (canonicalContractiveRiccatiSolution_norm_lt_one B hd hleft hA0spec

@@ -18,10 +18,10 @@ The Section 2 `sin 2Θ` theorem has two printed conclusions,
 
 the first directed and the second *ambient*.  The directed conclusion is proved
 for an unbounded self-adjoint operator, a bounded self-adjoint perturbation and
-an arbitrary `PaperUnitaryInvariantNorm` in
+an arbitrary `SymmetricNormingFunction` in
 `DavisKahan/Sources/DavisKahan1970/SinTwoTheta.lean`.  The ambient conclusion was
 available only for **bounded** ambient operators
-(`sinTwoTheta_ambient_bounded_paperUINorm_complex` and its real sibling), which is
+(`sinTwoTheta_ambient_bounded_symmetricNorming_complex` and its real sibling), which is
 a specialization of the printed theorem and not the printed theorem.  This module
 proves the ambient conclusion at the same scope as the directed one.
 
@@ -60,12 +60,12 @@ argument establishes about `A + (H − J H J)` say exactly that it *equals*
 
 ## Main results
 
-* `sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_complex`;
-* `sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_real`.
+* `sinTwoTheta_ambient_unbounded_addBounded_symmetricNorming_complex`;
+* `sinTwoTheta_ambient_unbounded_addBounded_symmetricNorming_real`.
 
 Both take an unbounded self-adjoint `A`, a bounded self-adjoint `H`, arbitrary
 measurable spectral selections, the full `FormBoundedSylvesterGap` — half-infinite
-separating intervals included — and an arbitrary `PaperUnitaryInvariantNorm`, and
+separating intervals included — and an arbitrary `SymmetricNormingFunction`, and
 conclude ideal membership together with `δ N(sin 2Θ) ≤ 2 N(H)` on the genuine
 ambient angle operator.
 
@@ -119,10 +119,10 @@ The single separation hypothesis is the source's: a form-bounded gap between the
 two reducing restrictions of the *unperturbed* operator.  Both of Proposition
 6.1's crossed gaps are obtained from it by conjugating one block, which is why no
 second separation assumption appears. -/
-theorem sinTheta_ambient_unitaryConj_projectorDifference_paperUINorm
+theorem sinTheta_ambient_unitaryConj_projectorDifference_symmetricNorming
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     [HasUnboundedSylvesterKyFan.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A B : H →ₗ.[𝕜] H} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U : Submodule 𝕜 H} [U.HasOrthogonalProjection]
     (hUred : TauCeti.LinearPMap.ReducesSubspace A U)
@@ -173,11 +173,11 @@ norm.**
 
 `D = H − J H J` with `J` unitary, so each Ky Fan gauge of `D` is at most twice
 that of `H`; Fan dominance turns that into the same statement for an arbitrary
-`PaperUnitaryInvariantNorm`.  This is where the printed constant `2` enters the
+`SymmetricNormingFunction`.  This is where the printed constant `2` enters the
 ambient conclusion, and it is the only constant in the proof. -/
-theorem reflectionPerturbation_paperMem_and_gauge_le
+theorem reflectionPerturbation_normingMem_and_gauge_le
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
     (Eop : H →L[𝕜] H) (hEmem : N.Mem Eop) :
     N.Mem (DavisKahan.reflectionPerturbation V Eop) ∧
@@ -216,10 +216,10 @@ perturbed spectral subspace.
 
 The two hypotheses are exactly what the spectral development supplies over each
 field — `J` preserves `dom A`, and `(A + (H − J H J)) J = J A` there. -/
-theorem sinTwoTheta_ambient_reflection_projectorDifference_paperUINorm
+theorem sinTwoTheta_ambient_reflection_projectorDifference_symmetricNorming
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     [HasUnboundedSylvesterKyFan.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A : H →ₗ.[𝕜] H} (hA : IsSelfAdjoint A)
     (Eop : H →L[𝕜] H) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     {U V : Submodule 𝕜 H} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -241,14 +241,14 @@ theorem sinTwoTheta_ambient_reflection_projectorDifference_paperUINorm
   set D : H →L[𝕜] H := DavisKahan.reflectionPerturbation V Eop with hD
   have hDsa : DavisKahan.IsSelfAdjointOperator D :=
     DavisKahan.reflectionPerturbation_isSelfAdjoint V Eop hEop
-  have hDideal := reflectionPerturbation_paperMem_and_gauge_le N V Eop hEmem
+  have hDideal := reflectionPerturbation_normingMem_and_gauge_le N V Eop hEmem
   have hBeq : TauCeti.LinearPMap.addBounded A D =
       TauCeti.LinearPMap.unitaryConj V.reflection A :=
     DavisKahan.addBounded_reflectionPerturbation_eq_unitaryConj V Eop hmem hint
   have hBsa : IsSelfAdjoint (TauCeti.LinearPMap.addBounded A D) :=
     DavisKahan.addBounded_isSelfAdjoint A hA D hDsa
   obtain ⟨hmemD, hleD⟩ :=
-    sinTheta_ambient_unitaryConj_projectorDifference_paperUINorm N hA hBsa hUred
+    sinTheta_ambient_unitaryConj_projectorDifference_symmetricNorming N hA hBsa hUred
       V.reflection hBeq D rfl
       (by
         intro x hxA hxB
@@ -280,11 +280,11 @@ separation is the full `FormBoundedSylvesterGap`, so the separating interval may
 be half-infinite.
 
 This is the printed second conclusion of the Section 2 `sin 2Θ` theorem;
-`sinTwoTheta_directed_unbounded_addBounded_paperUINorm_complex` is the first.
-`sinTwoTheta_ambient_bounded_paperUINorm_complex` is this statement's bounded
+`sinTwoTheta_directed_unbounded_addBounded_symmetricNorming_complex` is the first.
+`sinTwoTheta_ambient_bounded_symmetricNorming_complex` is this statement's bounded
 specialization, kept as an alternative proof. -/
-theorem sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_ambient_unbounded_addBounded_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
     (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -319,7 +319,7 @@ theorem sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_complex
       (DavisKahan.selfAdjointSpectralSubspace_reducing A hA Bᶜ hB.compl)
       hUred.orthogonal hgap
   obtain ⟨hmem, hle⟩ :=
-    sinTwoTheta_ambient_reflection_projectorDifference_paperUINorm
+    sinTwoTheta_ambient_reflection_projectorDifference_symmetricNorming
       (𝕜 := ℂ) (H := Hc) N hA Eop hEop
       (U := DavisKahan.selfAdjointSpectralSubspace A hA B hB)
       (V := DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
@@ -335,7 +335,7 @@ theorem sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_complex
             hS).reflection.toLinearEquiv : Hc →ₗ[ℂ] Hc)).starProjection -
       (DavisKahan.selfAdjointSpectralSubspace A hA B hB).starProjection with hX
   obtain ⟨hiff, hgauge⟩ :=
-    SameApproximationSingularSequence.paperMem_iff_and_gauge_eq N
+    SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N
       (A := X.modulus) (B := X)
       (ContinuousLinearMap.modulus_hasSameApproximationNumbers X)
   rw [TauCeti.DavisKahanExt.paperSinTwoAngleOperatorC_eq_modulus_starProjection_sub]
@@ -407,19 +407,19 @@ open DavisKahan DavisKahan.RealSpectralRestriction
 norm.**
 
 The real sibling of
-`sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_complex`, at exactly the
+`sinTwoTheta_ambient_unbounded_addBounded_symmetricNorming_complex`, at exactly the
 same strength: unbounded self-adjoint `A`, bounded self-adjoint `H`, arbitrary
 real Hilbert dimension, genuine real spectral subspaces, the full
 `FormBoundedSylvesterGap` including its half-infinite configurations, an
-arbitrary `PaperUnitaryInvariantNorm`, and the exact factor `2`.
+arbitrary `SymmetricNormingFunction`, and the exact factor `2`.
 
 This is a canonical source witness in its own right.  The analytic content is
 the scalar-generic reflected-pair theorem at `ℝ`, not a complexification of the
 complex endpoint; complexification enters only to name the real ambient angle
 operator, since `paperSinTwoAngleOperatorR` is defined as the real part of the
 complex one. -/
-theorem sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_ambient_unbounded_addBounded_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er) (hA : IsSelfAdjoint A)
     (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -450,7 +450,7 @@ theorem sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_real
       (realSelfAdjointSpectralSubspace_reducing A hA Bᶜ hB.compl)
       hUred.orthogonal hgap
   obtain ⟨hmem, hle⟩ :=
-    sinTwoTheta_ambient_reflection_projectorDifference_paperUINorm
+    sinTwoTheta_ambient_reflection_projectorDifference_symmetricNorming
       (𝕜 := ℝ) (H := Er) N hA Eop hEop
       (U := realSelfAdjointSpectralSubspace A hA B hB)
       (V := realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
@@ -460,15 +460,15 @@ theorem sinTwoTheta_ambient_unbounded_addBounded_paperUINorm_real
       (real_add_reflectionPerturbation_intertwines A hA Eop hEop S hS)
       hδ hgap' hEmem
   obtain ⟨hiff, hgauge⟩ :=
-    SameApproximationSingularSequence.paperMem_iff_and_gauge_eq N
+    SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N
       (sameSingular_paperSinTwoAngleOperatorR_reflectedProjectorDifference
         (realSelfAdjointSpectralSubspace A hA B hB)
         (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS))
-  rw [PaperUnitaryInvariantNorm.mem_complexify_iff,
-    PaperUnitaryInvariantNorm.mem_complexify_iff] at hiff
-  rw [PaperUnitaryInvariantNorm.gauge_complexify,
-    PaperUnitaryInvariantNorm.gauge_complexify] at hgauge
+  rw [SymmetricNormingFunction.mem_complexify_iff,
+    SymmetricNormingFunction.mem_complexify_iff] at hiff
+  rw [SymmetricNormingFunction.gauge_complexify,
+    SymmetricNormingFunction.gauge_complexify] at hgauge
   exact ⟨hiff.mpr hmem, by rw [hgauge]; exact hle⟩
 
 end Real

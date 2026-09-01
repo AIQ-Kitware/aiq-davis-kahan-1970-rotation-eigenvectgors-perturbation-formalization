@@ -135,7 +135,7 @@ theorem result_every_unitarilyInvariantNorm_across
       (E := E) (F := F) (G := G) (H := H))
     (S : PaperSinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.toPaperTheorem61Data.canonicalSinTheta)
-    (N : PaperUnitaryInvariantNorm) (hR : N.Mem P.source.R) :
+    (N : SymmetricNormingFunction) (hR : N.Mem P.source.R) :
     N.Mem S.operator ∧
       P.gap * P.epsilon * N.gauge S.operator ≤ N.gauge P.source.R := by
   simpa [toPaperTheorem61Data,
@@ -243,7 +243,7 @@ theorem result_every_unitarilyInvariantNorm_across
       (E := E) (F := F) (G := G) (H := H))
     (S : PaperSinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.toPaperRealTheorem61Data.canonicalSinTheta)
-    (N : PaperUnitaryInvariantNorm) (hR : N.Mem P.source.R) :
+    (N : SymmetricNormingFunction) (hR : N.Mem P.source.R) :
     N.Mem S.operator ∧
       P.gap * P.epsilon * N.gauge S.operator ≤ N.gauge P.source.R := by
   simpa [toPaperRealTheorem61Data,

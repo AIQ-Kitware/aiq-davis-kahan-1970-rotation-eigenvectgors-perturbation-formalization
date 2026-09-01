@@ -137,8 +137,8 @@ those rules out.
   8.2 inherits, specialized to its configuration and stated with its
   hypotheses, so the exported Section 8.2 surface carries them rather than
   merely pointing at Section 7, at the operator norm;
-* `theorem8_2_sinTwoTheta_perturbation_source_paperUINorm` and
-  `theorem8_2_sinTwoTheta_residual_source_paperUINorm` -- both of those at the
+* `theorem8_2_sinTwoTheta_perturbation_source_symmetricNorming` and
+  `theorem8_2_sinTwoTheta_residual_source_symmetricNorming` -- both of those at the
   printed norm scope, every unitarily invariant norm in the paper's own sense,
   the residual one at the printed *directed* `sin 2Θ₀` and with the printed
   factor `2`; `theorem8_2_sinTwoTheta_residual_source_all_kyFan` is the same
@@ -339,8 +339,8 @@ theorem theorem8_2_sinTwoTheta_residual_source_complex
 The printed `sin 2Θ` theorem concludes "for every unitary-invariant norm", so
 that is the scope at which Theorem 8.2 inherits it; the two theorems above are
 its operator-norm reading.  The perturbation alternative is restated here over
-the paper's own class `PaperUnitaryInvariantNorm`, inherited from equation (7.5)
-(`DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_complex`) with nothing re-proved.
+the paper's own class `SymmetricNormingFunction`, inherited from equation (7.5)
+(`DavisKahan1970.sinTwoTheta_ambient_bounded_symmetricNorming_complex`) with nothing re-proved.
 
 The conclusion names the paper's literal `sin 2Θ`, the positive operator
 `paperSinTwoAngleOperatorC Q P`, rather than the modulus-free
@@ -354,7 +354,7 @@ unitarily invariant norm reads.
 **CORRECTED 2026-08-11.**  This passage used to be headed "Why the residual
 alternative is not here" and concluded that the printed constant `2` was out of
 reach at a general unitarily invariant norm.  It is contradicted by
-`theorem8_2_sinTwoTheta_residual_source_paperUINorm` below, which is here and
+`theorem8_2_sinTwoTheta_residual_source_symmetricNorming` below, which is here and
 which carries the printed `2`.  The measurement itself was correct and is kept;
 what was wrong was the inference drawn from it, because it measured the
 **ambient** reading and the printed statement is the **directed** one.
@@ -369,7 +369,7 @@ the reflection defect have the *same* operator norm -- that is
 fails.  Writing `C` for the `P`-to-`Pᗮ` block of `A + K`, the singular values of
 `C + C⋆` are those of `C` doubled, so a symmetric gauge sees
 `N(C + C⋆) = 2 N(C)` in general (the trace norm does).  Every route through
-`sinTwoTheta_ambient_bounded_paperUINorm_complex` has to supply a comparison operator reduced
+`sinTwoTheta_ambient_bounded_symmetricNorming_complex` has to supply a comparison operator reduced
 by `P`, i.e. block-diagonal, so its displacement from `A + K` is exactly
 `-(C + C⋆)` for the best such choice; with `N(C) ≤ N(R)` this yields the
 constant `4`, not the printed `2`.  So the **ambient** `sin 2Θ` at a general
@@ -382,7 +382,7 @@ printed constant needs the singular-value identification of `sin 2Θ₀` with
 decomposition.  It does not.  The printed conclusion is about `Θ₀`, so the route
 that works never forms the ambient sum at all: state the conclusion at the
 canonical directed block `sinTwoThetaIdealBlock Q P`, and the constant `2` comes
-out of `sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_complex`'s own chain -- the paper
+out of `sinTwoTheta_directed_boundedResidual_blockRepresentative_symmetricNorming_complex`'s own chain -- the paper
 projection block dominates `δ` times the ideal block, the block defect costs the
 factor `2`, and the residual is extended by zero along `P.subtypeL.adjoint`,
 which preserves the whole approximation-singular sequence and hence every paper
@@ -390,7 +390,7 @@ norm.  No generic decomposition is used anywhere in it.
 
 *What is therefore available below.*
 `theorem8_2_sinTwoTheta_residual_source_all_kyFan` at every Ky Fan level and
-`theorem8_2_sinTwoTheta_residual_source_paperUINorm` at every norm in the
+`theorem8_2_sinTwoTheta_residual_source_symmetricNorming` at every norm in the
 paper's own class, both at the directed `sin 2Θ₀` and both with the printed
 factor `2`.  The negative knowledge that survives is exactly one sentence: the
 **ambient** `sin 2Θ` reading of the residual alternative does not reach the
@@ -424,11 +424,11 @@ at Theorem 8.2's own hypotheses.  `theorem8_2_sinTwoTheta_perturbation_source_co
 is the operator-norm reading of the same inheritance.
 
 Nothing is re-proved.  This is equation (7.5) of the paper's Section 7,
-`DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_complex`, read with `A + K` carrying
+`DavisKahan1970.sinTwoTheta_ambient_bounded_symmetricNorming_complex`, read with `A + K` carrying
 the printed gap on `Q` and with `A` — which `P` reduces by hypothesis — as the
 comparison operator, so that the displacement is `-K`. -/
-theorem theorem8_2_sinTwoTheta_perturbation_source_paperUINorm
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm)
+theorem theorem8_2_sinTwoTheta_perturbation_source_symmetricNorming
+    (N : ExactSinTheta.SymmetricNormingFunction)
     {A K : H →L[ℂ] H} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℂ H} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -462,7 +462,7 @@ theorem theorem8_2_sinTwoTheta_perturbation_source_paperUINorm
     · exact absurd h (by simp)
   have hgaugeNeg : N.gauge (A - (A + K)) = N.gauge K := by
     rw [hneg, N.gauge_smul _ hKmem, hone, one_mul]
-  obtain ⟨hmem, hle⟩ := DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_complex N
+  obtain ⟨hmem, hle⟩ := DavisKahan1970.sinTwoTheta_ambient_bounded_symmetricNorming_complex N
     hAKsa hAsa hQred hPred hdelta hab hUspec hUspec' hMemNeg
   exact ⟨hmem, by rwa [hgaugeNeg] at hle⟩
 
@@ -503,8 +503,8 @@ The conclusion is the directed canonical `sin 2Θ₀` block, not the ambient
 `sin 2Θ`: at general symmetric gauges the latter carries the same nonzero
 singular data twice.  The source-level residual theorem performs the paper's
 matching-multiplicity argument and therefore retains the printed factor `2`. -/
-theorem theorem8_2_sinTwoTheta_residual_source_paperUINorm
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm)
+theorem theorem8_2_sinTwoTheta_residual_source_symmetricNorming
+    (N : ExactSinTheta.SymmetricNormingFunction)
     {A K : H →L[ℂ] H} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℂ H} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -526,7 +526,7 @@ theorem theorem8_2_sinTwoTheta_residual_source_paperUINorm
   have hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Qᗮ (A + K)),
       x ≤ beta - delta ∨ alpha + delta ≤ x :=
     fun _ hx => spectrum_compressOperator_subset_of_spectrumIn hQperp hx
-  exact DavisKahan1970.sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_complex
+  exact DavisKahan1970.sinTwoTheta_directed_boundedResidual_blockRepresentative_symmetricNorming_complex
     (A := A + K) (U := Q) (V := P) N hAKsa hQred hdelta hab
     hUspec hUspec' (compressOperator P A) hRmem
 

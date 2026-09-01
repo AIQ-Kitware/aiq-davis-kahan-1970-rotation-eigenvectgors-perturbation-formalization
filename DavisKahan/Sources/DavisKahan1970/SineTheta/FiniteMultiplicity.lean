@@ -263,9 +263,9 @@ theorem finiteMultiplicityComplementMap_eq_sum_coordinateColumn (m : ℕ) :
 The gauge triangle inequality is what makes this true, and it is available for
 the real and complex scalar fields; it is a property of the field, not an
 assumption about the operators involved. -/
-theorem PaperUnitaryInvariantNorm.mem_add
+theorem SymmetricNormingFunction.mem_add
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, u} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {E F : Type u}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
@@ -277,9 +277,9 @@ theorem PaperUnitaryInvariantNorm.mem_add
   exact (ENNReal.add_ne_top.mpr ⟨hA, hB⟩) (top_le_iff.mp hle)
 
 /-- Membership in a source ideal is closed under finite sums. -/
-theorem PaperUnitaryInvariantNorm.mem_finset_sum
+theorem SymmetricNormingFunction.mem_finset_sum
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, u} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {E F : Type u}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
@@ -295,9 +295,9 @@ theorem PaperUnitaryInvariantNorm.mem_finset_sum
   | @insert i s hi ih =>
       rw [Finset.sum_insert hi]
       -- These live in the source-facade namespace, not the implementation
-      -- namespace of `PaperUnitaryInvariantNorm`, so dot notation cannot find
+      -- namespace of `SymmetricNormingFunction`, so dot notation cannot find
       -- them.
-      exact PaperUnitaryInvariantNorm.mem_add N
+      exact SymmetricNormingFunction.mem_add N
         (hA i (Finset.mem_insert_self i s))
         (ih fun j hj => hA j (Finset.mem_insert_of_mem hj))
 
@@ -305,11 +305,11 @@ theorem PaperUnitaryInvariantNorm.mem_finset_sum
 unitarily invariant ideal. -/
 theorem finiteMultiplicityComplementMap_mem
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, u} 𝕜]
-    (m : ℕ) (N : PaperUnitaryInvariantNorm) :
+    (m : ℕ) (N : SymmetricNormingFunction) :
     N.Mem (finiteMultiplicityComplementMap (𝕜 := 𝕜) m) := by
   rw [finiteMultiplicityComplementMap_eq_sum_coordinateColumn]
   simpa using
-    PaperUnitaryInvariantNorm.mem_finset_sum N
+    SymmetricNormingFunction.mem_finset_sum N
       (s := Finset.univ)
       (A := fun i => finiteMultiplicityCoordinateColumn (𝕜 := 𝕜) m i)
       (fun i _ => N.mem_rankOne
@@ -321,9 +321,9 @@ theorem finiteMultiplicityComplementMap_mem
 /-- The sine block belongs to every source ideal. -/
 theorem finiteMultiplicitySineBlock_mem
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, u} 𝕜]
-    (m : ℕ) (theta : ℝ) (N : PaperUnitaryInvariantNorm) :
+    (m : ℕ) (theta : ℝ) (N : SymmetricNormingFunction) :
     N.Mem (finiteMultiplicitySineBlock (𝕜 := 𝕜) m theta) := by
-  unfold finiteMultiplicitySineBlock PaperUnitaryInvariantNorm.Mem
+  unfold finiteMultiplicitySineBlock SymmetricNormingFunction.Mem
   rw [N.extendedGauge_smul]
   exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top
     (finiteMultiplicityComplementMap_mem (𝕜 := 𝕜) m N)
@@ -332,7 +332,7 @@ theorem finiteMultiplicitySineBlock_mem
 for every normalized source norm. -/
 theorem Theorem6_1_finiteMultiplicity_equality_every_norm
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, u} 𝕜]
-    (m : ℕ) (N : PaperUnitaryInvariantNorm)
+    (m : ℕ) (N : SymmetricNormingFunction)
     {delta theta : ℝ} (hdelta : 0 ≤ delta) :
     N.gauge (finiteMultiplicityResidual (𝕜 := 𝕜) m delta theta) =
       delta * N.gauge (finiteMultiplicitySineBlock (𝕜 := 𝕜) m theta) := by

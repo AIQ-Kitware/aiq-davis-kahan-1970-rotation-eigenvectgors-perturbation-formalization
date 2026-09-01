@@ -133,21 +133,21 @@ theorem section7SwapSinTwoTheta0_eq_complement :
   simp
 
 /-- Every normalized source unitary-invariant norm gives residual norm one. -/
-theorem section7SwapResidual_gauge (N : PaperUnitaryInvariantNorm) :
+theorem section7SwapResidual_gauge (N : SymmetricNormingFunction) :
     N.gauge section7SwapResidual = 1 := by
   have hV := paperPlanarComplementMap_norm_rank (𝕜 := ℂ)
   exact N.gauge_rankOne hV.1 hV.2
 
 /-- Every normalized source unitary-invariant norm gives the doubled directed
 sine block norm one. -/
-theorem section7SwapSinTwoTheta0_gauge (N : PaperUnitaryInvariantNorm) :
+theorem section7SwapSinTwoTheta0_gauge (N : SymmetricNormingFunction) :
     N.gauge section7SwapSinTwoTheta0 = 1 := by
   rw [section7SwapSinTwoTheta0_eq_complement]
   have hV := paperPlanarComplementMap_norm_rank (𝕜 := ℂ)
   exact N.gauge_rankOne hV.1 hV.2
 
 /-- The two sides highlighted by Davis--Kahan are exactly `2` and `delta`. -/
-theorem section7Swap_source_quantities (N : PaperUnitaryInvariantNorm) (delta : ℝ) :
+theorem section7Swap_source_quantities (N : SymmetricNormingFunction) (delta : ℝ) :
     2 * N.gauge section7SwapResidual = 2 ∧
       delta * N.gauge section7SwapSinTwoTheta0 = delta := by
   rw [section7SwapResidual_gauge, section7SwapSinTwoTheta0_gauge]
@@ -159,7 +159,7 @@ illegitimate swap fails: `2 ||R|| < delta ||sin 2 Theta_0||`.  Since `delta`
 is arbitrary, the left side of the proposed estimate can be made as large as
 desired while `2 ||R|| = 2`. -/
 theorem section7_residual_inference_cannot_be_swapped
-    (N : PaperUnitaryInvariantNorm) {delta : ℝ} (hdelta : 2 < delta) :
+    (N : SymmetricNormingFunction) {delta : ℝ} (hdelta : 2 < delta) :
     2 * N.gauge section7SwapResidual <
       delta * N.gauge section7SwapSinTwoTheta0 := by
   rw [section7SwapResidual_gauge, section7SwapSinTwoTheta0_gauge]

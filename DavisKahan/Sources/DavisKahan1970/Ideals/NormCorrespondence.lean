@@ -142,12 +142,12 @@ theorem singularValues_smul_complex {n : ℕ} (a : ℂ)
   TauCeti.RectangularUnitarilyInvariantSeminorm.singularValues_smul_rect
     a A i
 
-namespace PaperUnitaryInvariantNorm
+namespace SymmetricNormingFunction
 
 /-- **Normalization forces definiteness**: every coordinate of a vector is
 dominated by its source gauge.  Only `normalized` and `zero_pad` are used, via
 the gauge value one of a coordinate indicator. -/
-theorem abs_le_finiteGauge (N : PaperUnitaryInvariantNorm) {n : ℕ}
+theorem abs_le_finiteGauge (N : SymmetricNormingFunction) {n : ℕ}
     (x : Fin n → ℝ) (j : Fin n) : |x j| ≤ N.finiteGauge n x := by
   match n, x, j with
   | 0, _, j => exact j.elim0
@@ -200,7 +200,7 @@ theorem abs_le_finiteGauge (N : PaperUnitaryInvariantNorm) {n : ℕ}
         (EuclideanSpace.basisFun (Fin (m + 1)) ℂ) x)
 
 /-- The source gauge vanishes only on the zero vector. -/
-theorem finiteGauge_eq_zero_iff (N : PaperUnitaryInvariantNorm) {n : ℕ}
+theorem finiteGauge_eq_zero_iff (N : SymmetricNormingFunction) {n : ℕ}
     (x : Fin n → ℝ) : N.finiteGauge n x = 0 ↔ x = 0 := by
   constructor
   · intro hx
@@ -212,11 +212,11 @@ theorem finiteGauge_eq_zero_iff (N : PaperUnitaryInvariantNorm) {n : ℕ}
   · rintro rfl
     exact uinGauge_zero _ _
 
-end PaperUnitaryInvariantNorm
+end SymmetricNormingFunction
 
 /-- A dimension-coherent normalized symmetric norming function, in the exact
 finite-list sense used in the paper. -/
-structure PaperSymmetricNormingFunction where
+structure SymmetricNormingFunction.Axiomatic where
   gauge : ∀ n : ℕ, (Fin n → ℝ) → ℝ
   nonneg : ∀ {n} (x : Fin n → ℝ), 0 ≤ gauge n x
   definite : ∀ {n} (x : Fin n → ℝ), gauge n x = 0 ↔ x = 0
@@ -229,7 +229,7 @@ structure PaperSymmetricNormingFunction where
   abs : ∀ {n} (x : Fin n → ℝ),
     gauge n (fun i => |x i|) = gauge n x
   zero_pad : ∀ {n} (x : Fin n → ℝ),
-    gauge (n + 1) (paperZeroPad x) = gauge n x
+    gauge (n + 1) (zeroPad x) = gauge n x
   normalized : gauge 1 (fun _ => 1) = 1
   weak_majorization : ∀ {n} {x y : Fin n → ℝ},
     Antitone x → (∀ i, 0 ≤ x i) → (∀ i, 0 ≤ y i) →
@@ -238,10 +238,10 @@ structure PaperSymmetricNormingFunction where
       (∑ i ∈ Finset.univ.filter (fun i : Fin n => (i : ℕ) < m), y i)) →
     gauge n x ≤ gauge n y
 
-namespace PaperSymmetricNormingFunction
+namespace SymmetricNormingFunction.Axiomatic
 
 /-- Two source symmetric norming functions with the same gauge agree. -/
-theorem ext {Φ Ψ : PaperSymmetricNormingFunction}
+theorem ext {Φ Ψ : SymmetricNormingFunction.Axiomatic}
     (h : ∀ n x, Φ.gauge n x = Ψ.gauge n x) : Φ = Ψ := by
   cases Φ
   cases Ψ
@@ -250,8 +250,8 @@ theorem ext {Φ Ψ : PaperSymmetricNormingFunction}
   exact h n x
 
 /-- The symmetric norming function extracted from the coherent operator norms. -/
-noncomputable def ofPaperNorm (N : PaperUnitaryInvariantNorm) :
-    PaperSymmetricNormingFunction where
+noncomputable def ofNormingFunction (N : SymmetricNormingFunction) :
+    SymmetricNormingFunction.Axiomatic where
   gauge := N.finiteGauge
   nonneg := N.finiteGauge_nonneg
   definite := N.finiteGauge_eq_zero_iff
@@ -273,13 +273,13 @@ noncomputable def ofPaperNorm (N : PaperUnitaryInvariantNorm) :
       (EuclideanSpace.basisFun (Fin n) ℂ) hx h0x h0y hpre
 
 /-- Operator value determined by a symmetric norming function. -/
-def finiteOperatorValue (Φ : PaperSymmetricNormingFunction) (n : ℕ)
+def finiteOperatorValue (Φ : SymmetricNormingFunction.Axiomatic) (n : ℕ)
     (A : EuclideanSpace ℂ (Fin n) →ₗ[ℂ] EuclideanSpace ℂ (Fin n)) : ℝ :=
   Φ.gauge n (fun i => A.singularValues (i : ℕ))
 
 /-- A source symmetric gauge induces the finite-dimensional unitarily
 invariant norm used by the implementation. -/
-noncomputable def finiteNorm (Φ : PaperSymmetricNormingFunction) (n : ℕ) :
+noncomputable def finiteNorm (Φ : SymmetricNormingFunction.Axiomatic) (n : ℕ) :
     TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n)) where
   toFun := Φ.finiteOperatorValue n
   add_le' A B := by
@@ -349,7 +349,7 @@ noncomputable def finiteNorm (Φ : PaperSymmetricNormingFunction) (n : ℕ) :
 /-- **The induced finite norm has exactly the source gauge.**  Both the
 normalization and the zero-padding law of the reconstructed family reduce to
 the corresponding source law through this identity. -/
-theorem finiteNorm_gauge (Φ : PaperSymmetricNormingFunction) (n : ℕ)
+theorem finiteNorm_gauge (Φ : SymmetricNormingFunction.Axiomatic) (n : ℕ)
     (x : Fin n → ℝ) :
     (Φ.finiteNorm n).gauge (EuclideanSpace.basisFun (Fin n) ℂ) x =
       Φ.gauge n x := by
@@ -367,8 +367,8 @@ theorem finiteNorm_gauge (Φ : PaperSymmetricNormingFunction) (n : ℕ)
 
 /-- Reconstruct the coherent operator-norm family from a source symmetric
 norming function. -/
-noncomputable def toPaperNorm (Φ : PaperSymmetricNormingFunction) :
-    PaperUnitaryInvariantNorm where
+noncomputable def toNormingFunction (Φ : SymmetricNormingFunction.Axiomatic) :
+    SymmetricNormingFunction where
   finiteNorm := Φ.finiteNorm
   normalized := by
     rw [Φ.finiteNorm_gauge]
@@ -380,22 +380,22 @@ noncomputable def toPaperNorm (Φ : PaperSymmetricNormingFunction) :
 
 /-- The transported paper norm has finite gauge, so it lands in the ideal. -/
 @[simp]
-theorem toPaperNorm_finiteGauge (Φ : PaperSymmetricNormingFunction) (n : ℕ)
+theorem toNormingFunction_finiteGauge (Φ : SymmetricNormingFunction.Axiomatic) (n : ℕ)
     (x : Fin n → ℝ) :
-    Φ.toPaperNorm.finiteGauge n x = Φ.gauge n x :=
+    Φ.toNormingFunction.finiteGauge n x = Φ.gauge n x :=
   Φ.finiteNorm_gauge n x
 
 /-- Extracting the source gauge after reconstruction returns it exactly. -/
-theorem ofPaperNorm_toPaperNorm (Φ : PaperSymmetricNormingFunction) :
-    ofPaperNorm Φ.toPaperNorm = Φ :=
+theorem ofNormingFunction_toNormingFunction (Φ : SymmetricNormingFunction.Axiomatic) :
+    ofNormingFunction Φ.toNormingFunction = Φ :=
   ext fun n x => Φ.finiteNorm_gauge n x
 
 /-- The finite operator values of the reconstructed family agree with the
 original coherent family. -/
-theorem toPaperNorm_ofPaperNorm_finite_apply
-    (N : PaperUnitaryInvariantNorm) (n : ℕ)
+theorem toNormingFunction_ofNormingFunction_finite_apply
+    (N : SymmetricNormingFunction) (n : ℕ)
     (A : EuclideanSpace ℂ (Fin n) →ₗ[ℂ] EuclideanSpace ℂ (Fin n)) :
-    ((ofPaperNorm N).toPaperNorm.finiteNorm n) A = (N.finiteNorm n) A :=
+    ((ofNormingFunction N).toNormingFunction.finiteNorm n) A = (N.finiteNorm n) A :=
   ((N.finiteNorm n).apply_eq_gauge finrank_euclideanSpace_fin
     (EuclideanSpace.basisFun (Fin n) ℂ) A).symm
 
@@ -411,8 +411,8 @@ private theorem uin_ext {n : ℕ}
 
 /-- The coherent finite operator family is completely determined by its source
 symmetric norming function. -/
-theorem paperNorm_ext
-    {N M : PaperUnitaryInvariantNorm}
+theorem ext_finiteGauge
+    {N M : SymmetricNormingFunction}
     (h : ∀ n x, N.finiteGauge n x = M.finiteGauge n x) : N = M := by
   cases N with
   | mk Nf Nnorm Nz =>
@@ -430,17 +430,17 @@ theorem paperNorm_ext
 
 /-- The current paper norm object and normalized symmetric norming functions
 are equivalent, so the universal theorem excludes no norm in the source class. -/
-noncomputable def paperNormEquiv :
-    PaperUnitaryInvariantNorm ≃ PaperSymmetricNormingFunction where
-  toFun := ofPaperNorm
-  invFun := toPaperNorm
+noncomputable def equiv :
+    SymmetricNormingFunction ≃ SymmetricNormingFunction.Axiomatic where
+  toFun := ofNormingFunction
+  invFun := toNormingFunction
   left_inv N := by
-    apply paperNorm_ext
+    apply ext_finiteGauge
     intro n x
-    exact (ofPaperNorm N).finiteNorm_gauge n x
-  right_inv := ofPaperNorm_toPaperNorm
+    exact (ofNormingFunction N).finiteNorm_gauge n x
+  right_inv := ofNormingFunction_toNormingFunction
 
-end PaperSymmetricNormingFunction
+end SymmetricNormingFunction.Axiomatic
 
 end
 

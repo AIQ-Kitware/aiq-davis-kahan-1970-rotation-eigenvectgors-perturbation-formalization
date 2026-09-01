@@ -35,7 +35,7 @@ proves their real-Hilbert-space counterparts with **no** loss:
 * ideal membership is *concluded*, exactly as in the complex statements, not
   assumed;
 * every source unitarily invariant norm is covered at once, because
-  `PaperUnitaryInvariantNorm.gauge_complexify` says the gauge of a real operator
+  `SymmetricNormingFunction.gauge_complexify` says the gauge of a real operator
   and of its complexification agree.
 
 ## How the transport works
@@ -55,10 +55,10 @@ kinds of hypothesis have to travel, and all three were already available:
 
 ## Main results
 
-* `TauCeti.DavisKahan1970.tanTheta_ambient_bounded_paperUINorm_real_of_transversality`
-* `TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_real`
-* `TauCeti.DavisKahan1970.tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_real`
-* `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real`
+* `TauCeti.DavisKahan1970.tanTheta_ambient_bounded_symmetricNorming_real_of_transversality`
+* `TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_symmetricNorming_real`
+* `TauCeti.DavisKahan1970.tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_symmetricNorming_real`
+* `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_real`
 
 ## References
 
@@ -169,7 +169,7 @@ end Compression
 
 As with `paperSourceDirectedAngleR`, the real source geometry is represented on
 its canonical complexification.  This loses no source information: every
-`PaperUnitaryInvariantNorm` is defined from singular values and complexification
+`SymmetricNormingFunction` is defined from singular values and complexification
 preserves those values exactly.  Keeping the representative here avoids
 introducing a second real functional-calculus implementation solely for an
 operator whose only source use is through a unitarily invariant norm. -/
@@ -207,8 +207,8 @@ is the formal encoding of the paper's "closed subspace".  As in the complex
 statement, uniform transversality `‖sin Θ‖ < 1` is assumed — that is what makes
 `tan Θ` the tangent — and membership of `tan Θ` in the norm's ideal is
 concluded. -/
-theorem tanTheta_ambient_bounded_paperUINorm_real_of_transversality
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_bounded_symmetricNorming_real_of_transversality
+    (N : SymmetricNormingFunction)
     (hT : IsSelfAdjoint T) (hA : IsSelfAdjoint A)
     (hV : T.Reduces V) (hAU : ∀ x ∈ U, A x ∈ U)
     {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -224,9 +224,9 @@ theorem tanTheta_ambient_bounded_paperUINorm_real_of_transversality
     rwa [← complexify_paperSinAngleOperatorR U V, norm_complexify]
   have hMemC : N.Mem (complexify T - complexify A) := by
     rw [← complexify_sub]
-    exact (PaperUnitaryInvariantNorm.mem_complexify_iff N (T - A)).2 hMem
+    exact (SymmetricNormingFunction.mem_complexify_iff N (T - A)).2 hMem
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTheta_ambient_bounded_paperUINorm_complex_of_transversality (E := RealComplexification E) N
+    tanTheta_ambient_bounded_symmetricNorming_complex_of_transversality (E := RealComplexification E) N
       (T := complexify T) (A := complexify A)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
       (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.1
@@ -242,15 +242,15 @@ theorem tanTheta_ambient_bounded_paperUINorm_real_of_transversality
       htrC hMemC
   rw [← complexify_paperTanAngleOperatorR U V] at hmemC hboundC
   rw [← complexify_sub] at hboundC
-  refine ⟨(PaperUnitaryInvariantNorm.mem_complexify_iff N _).1 hmemC, ?_⟩
-  rwa [PaperUnitaryInvariantNorm.gauge_complexify,
-    PaperUnitaryInvariantNorm.gauge_complexify] at hboundC
+  refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
+  rwa [SymmetricNormingFunction.gauge_complexify,
+    SymmetricNormingFunction.gauge_complexify] at hboundC
 
 /-- **Davis--Kahan 1970, the whole-space `sin 2Θ` theorem over a REAL Hilbert
 space, for every source unitarily invariant norm**: `δ ‖sin 2Θ‖ ≤ 2‖H‖`, the
 second conclusion of the Section 2 `sin 2Θ` theorem and equation (7.5). -/
-theorem sinTwoTheta_ambient_bounded_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_ambient_bounded_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
@@ -262,9 +262,9 @@ theorem sinTwoTheta_ambient_bounded_paperUINorm_real
       d * N.gauge (paperSinTwoAngleOperatorR U V) ≤ 2 * N.gauge (B - A) := by
   have hMemC : N.Mem (complexify B - complexify A) := by
     rw [← complexify_sub]
-    exact (PaperUnitaryInvariantNorm.mem_complexify_iff N (B - A)).2 hMem
+    exact (SymmetricNormingFunction.mem_complexify_iff N (B - A)).2 hMem
   obtain ⟨hmemC, hboundC⟩ :=
-    sinTwoTheta_ambient_bounded_paperUINorm_complex (E := RealComplexification E) N
+    sinTwoTheta_ambient_bounded_symmetricNorming_complex (E := RealComplexification E) N
       (A := complexify A) (B := complexify B)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
       ((complexify_isSelfAdjoint_iff A).2 hA)
@@ -290,9 +290,9 @@ theorem sinTwoTheta_ambient_bounded_paperUINorm_real
       hMemC
   rw [← complexify_paperSinTwoAngleOperatorR U V] at hmemC hboundC
   rw [← complexify_sub] at hboundC
-  refine ⟨(PaperUnitaryInvariantNorm.mem_complexify_iff N _).1 hmemC, ?_⟩
-  rwa [PaperUnitaryInvariantNorm.gauge_complexify,
-    PaperUnitaryInvariantNorm.gauge_complexify] at hboundC
+  refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
+  rwa [SymmetricNormingFunction.gauge_complexify,
+    SymmetricNormingFunction.gauge_complexify] at hboundC
 
 /-- A useful stronger-placement specialization of the whole-space `tan 2Θ`
 theorem over a real Hilbert space.
@@ -300,9 +300,9 @@ theorem over a real Hilbert space.
 This older endpoint assumes ordered form bounds on both the unperturbed `U`
 blocks and the perturbed `V` blocks.  It is retained as reusable infrastructure;
 the literal Section 2 source signature, which does **not** assume the `V`-block
-placement, is `tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real` below. -/
-theorem tanTwoTheta_ambient_bounded_orderedForm_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm) {a b : ℝ}
+placement, is `tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_real` below. -/
+theorem tanTwoTheta_ambient_bounded_orderedForm_symmetricNorming_real
+    (N : SymmetricNormingFunction) {a b : ℝ}
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     (hab : a < b)
@@ -317,7 +317,7 @@ theorem tanTwoTheta_ambient_bounded_orderedForm_paperUINorm_real
   have hsum : complexify A + complexify H = complexify (A + H) :=
     (complexify_add A H).symm
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTwoTheta_ambient_bounded_orderedForm_paperUINorm_complex (E := RealComplexification E) N
+    tanTwoTheta_ambient_bounded_orderedForm_symmetricNorming_complex (E := RealComplexification E) N
       (A := complexify A) (H := complexify H)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
       ((complexify_isSelfAdjoint_iff A).2 hA)
@@ -340,17 +340,17 @@ theorem tanTwoTheta_ambient_bounded_orderedForm_paperUINorm_real
         exact re_inner_le_of_mem_complexifySubmodule hVperpLow hz)
       (fun z hz => mapsTo_orthogonal_complexifySubmodule U hHU hz)
       (fun z hz => mapsTo_of_mem_orthogonal_complexifySubmodule U hHUperp hz)
-      ((PaperUnitaryInvariantNorm.mem_complexify_iff N H).2 hHmem)
+      ((SymmetricNormingFunction.mem_complexify_iff N H).2 hHmem)
   rw [← complexify_paperTanTwoAngleOperatorR U V] at hmemC hboundC
-  refine ⟨(PaperUnitaryInvariantNorm.mem_complexify_iff N _).1 hmemC, ?_⟩
-  rwa [PaperUnitaryInvariantNorm.gauge_complexify,
-    PaperUnitaryInvariantNorm.gauge_complexify] at hboundC
+  refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
+  rwa [SymmetricNormingFunction.gauge_complexify,
+    SymmetricNormingFunction.gauge_complexify] at hboundC
 
 /-- **Davis--Kahan 1970, Section 2 `tan 2Θ₀`, directed residual
 conclusion over a REAL Hilbert space, exactly from the printed hypotheses.**
 
 This is the real-scalar counterpart of
-`tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_complex`.  It assumes only the
+`tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_symmetricNorming_complex`.  It assumes only the
 paper's interval/half-line separation for the two blocks of `A`, positivity of
 `δ`, `H₀ = H₁ = 0`, and invariance of the comparison subspace for `A+H`.
 There is no quarter-angle branch, no caller-supplied pole exclusion, and no
@@ -359,8 +359,8 @@ spectral-placement hypothesis on the `A+H` blocks.
 The left side uses `paperTanTwoDirectedCornerR`, the same canonical
 complexification convention already used for the paper's real directed angle.
 The residual norm on the right is genuinely real. -/
-theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     {A H : E →L[ℝ] E} {U V : Submodule ℝ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {β α δ : ℝ}
@@ -385,9 +385,9 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_pap
       (paperProjectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
         (complexify H)) := by
     rw [hRblock]
-    exact (PaperUnitaryInvariantNorm.mem_complexify_iff N _).2 hRmem
+    exact (SymmetricNormingFunction.mem_complexify_iff N _).2 hRmem
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_complex
+    tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_symmetricNorming_complex
       (E := RealComplexification E) N
       (A := complexify A) (H := complexify H)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
@@ -418,20 +418,20 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_pap
       2 * N.gauge
         (paperProjectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
           (complexify H)) at hboundC
-  rw [hRblock, PaperUnitaryInvariantNorm.gauge_complexify] at hboundC
+  rw [hRblock, SymmetricNormingFunction.gauge_complexify] at hboundC
   exact ⟨hmemC, hboundC⟩
 
 /-- **Davis--Kahan 1970, Section 2 `tan 2Θ`, ambient conclusion over a REAL
 Hilbert space, exactly from the printed hypotheses.**
 
 This is the real-scalar counterpart of
-`tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex`.  In particular it assumes only the
+`tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_complex`.  In particular it assumes only the
 paper's interval/half-line separation for the two blocks of `A`, positivity of
 `δ`, `H₀ = H₁ = 0`, and invariance of the comparison subspace for `A+H`.
 There is no quarter-angle branch, no pole-exclusion hypothesis, and no
 spectral-placement hypothesis for the blocks of `A+H`. -/
-theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     {β α δ : ℝ}
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
@@ -447,9 +447,9 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real
   -- Keep these spectrum transports inline.  On a complex operator there are
   -- multiple elaboration paths for `spectrum ℝ`; the expected argument type of
   -- the complex theorem selects the native `realSpectrum` path, avoiding the
-  -- real-algebra diamond (as in `sinTwoTheta_ambient_bounded_paperUINorm_real`).
+  -- real-algebra diamond (as in `sinTwoTheta_ambient_bounded_symmetricNorming_real`).
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex (E := RealComplexification E) N
+    tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_complex (E := RealComplexification E) N
       (A := complexify A) (H := complexify H)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
       ((complexify_isSelfAdjoint_iff A).2 hA)
@@ -473,11 +473,11 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real
         exact hA1spec hr')
       (fun z hz => mapsTo_orthogonal_complexifySubmodule U hHU hz)
       (fun z hz => mapsTo_of_mem_orthogonal_complexifySubmodule U hHUperp hz)
-      ((PaperUnitaryInvariantNorm.mem_complexify_iff N H).2 hHmem)
+      ((SymmetricNormingFunction.mem_complexify_iff N H).2 hHmem)
   rw [← complexify_paperTanTwoAngleOperatorR U V] at hmemC hboundC
-  refine ⟨(PaperUnitaryInvariantNorm.mem_complexify_iff N _).1 hmemC, ?_⟩
-  rwa [PaperUnitaryInvariantNorm.gauge_complexify,
-    PaperUnitaryInvariantNorm.gauge_complexify] at hboundC
+  refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
+  rwa [SymmetricNormingFunction.gauge_complexify,
+    SymmetricNormingFunction.gauge_complexify] at hboundC
 
 end
 

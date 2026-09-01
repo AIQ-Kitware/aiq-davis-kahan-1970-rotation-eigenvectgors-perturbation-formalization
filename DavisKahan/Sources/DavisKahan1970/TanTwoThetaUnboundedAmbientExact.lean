@@ -260,8 +260,8 @@ reducing reflection `Z` of `A+B`, and the separated form bounds.  Membership of
 
 The canonical spectral cutoffs, pole exclusion, directed residual estimate,
 and both-corner Lemma-6.1 assembly are all internal. -/
-theorem tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : G →ₗ.[ℂ] G} {B Z : G →L[ℂ] G} {a b c : ℝ}
     (hA : IsSelfAdjoint A)
     (hBsa : IsSelfAdjoint B)
@@ -419,10 +419,10 @@ include hA hred hB hZsa hZ2 hZdom hZcomm hUa hUb hab
 reducing subspace**, on the block representative.
 
 `δ N(tan 2Θ) ≤ 2 N(B)` with the whole perturbation on the right.  This is
-`tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex` with the
+`tanTwoTheta_ambient_unbounded_blockRepresentative_symmetricNorming_complex` with the
 spectral selection of `U` removed. -/
-theorem tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm) (hBsa : IsSelfAdjoint B) (hBmem : N.Mem B) :
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_symmetricNorming_complex
+    (N : SymmetricNormingFunction) (hBsa : IsSelfAdjoint B) (hBmem : N.Mem B) :
     IsUnit (U.diagonalPart Z * U.diagonalPart Z) ∧
       N.Mem (unboundedReflectionTangent U Z) ∧
       (b - a) * N.gauge (unboundedReflectionTangent U Z) ≤ 2 * N.gauge B := by
@@ -516,8 +516,8 @@ for every source unitarily invariant norm, with `Θ` the angle between `U` and
 The first component is the **derived** pole exclusion `cos 2θ ≠ 0` on the angle
 spectrum, which Section 7 proves rather than assumes; no branch is selected, and
 `|tan 2Θ|` is what a unitarily invariant norm sees past a quarter turn. -/
-theorem tanTwoTheta_ambient_unbounded_reducing_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_unbounded_reducing_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : G →ₗ.[ℂ] G} {B : G →L[ℂ] G} {a b : ℝ}
     {U : Submodule ℂ G} [U.HasOrthogonalProjection]
     (V : Submodule ℂ G) [V.HasOrthogonalProjection]
@@ -536,7 +536,7 @@ theorem tanTwoTheta_ambient_unbounded_reducing_paperUINorm_complex
           (TauCeti.DavisKahanExt.paperAbsTanTwoAngleOperatorC U V) ≤
         2 * N.gauge B := by
   obtain ⟨hunit, hmem, hle⟩ :=
-    tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_complex
+    tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_symmetricNorming_complex
       hA hred hB (TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V)
       (TauCeti.DavisKahan.reflectionOperator_mul_self_complex V)
       hV.mapsDomain hV.commutes hUa hUb hab N hBsa hBmem
@@ -545,9 +545,9 @@ theorem tanTwoTheta_ambient_unbounded_reducing_paperUINorm_complex
   have hgauge := DavisKahan.extendedGauge_unboundedReflectionTangent_complex
     U V N hcos
   refine ⟨hcos, ?_, ?_⟩
-  · unfold PaperUnitaryInvariantNorm.Mem at hmem ⊢
+  · unfold SymmetricNormingFunction.Mem at hmem ⊢
     rwa [← hgauge]
-  · unfold PaperUnitaryInvariantNorm.gauge at hle ⊢
+  · unfold SymmetricNormingFunction.gauge at hle ⊢
     rwa [← hgauge]
 
 /-! ### The subspace-first interface
@@ -573,10 +573,10 @@ proved here. -/
 /-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form, taking the reducing
 subspace rather than a reflection witness.**
 
-`tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex` with `Z = V.reflectionOperator`
+`tanTwoTheta_ambient_unbounded_blockRepresentative_symmetricNorming_complex` with `Z = V.reflectionOperator`
 and with `Z` self-adjoint and involutive supplied by the library. -/
-theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : G →ₗ.[ℂ] G} {B : G →L[ℂ] G} {a b c : ℝ}
     (V : Submodule ℂ G) [V.HasOrthogonalProjection]
     (hA : IsSelfAdjoint A)
@@ -604,7 +604,7 @@ theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_pape
         (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic)
         (V.reflectionOperator)) ≤
         2 * N.gauge B :=
-  tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex N hA hBsa hB
+  tanTwoTheta_ambient_unbounded_blockRepresentative_symmetricNorming_complex N hA hBsa hB
     (TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V)
     (TauCeti.DavisKahan.reflectionOperator_mul_self_complex V)
     hV.mapsDomain hV.commutes hUa hUb hab hBmem
@@ -612,7 +612,7 @@ theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_pape
 /-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form, on the paper's angle
 operator.**
 
-The same theorem as `tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex`, with the
+The same theorem as `tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_symmetricNorming_complex`, with the
 proof's block tangent replaced by the paper's ambient `|tan 2Θ|`.  The two have
 the same approximation numbers -- `unboundedReflectionTangent U J_V = Ξ · J_U`
 with `J_U` a self-adjoint unitary, and `|Ξ| = |tan 2Θ|` -- so every source
@@ -623,12 +623,12 @@ unitarily invariant norm sees them identically; see
 on the angle spectrum, but that is not an independent assumption here: the
 ordered gap already forces the reflection's diagonal block to be invertible --
 that is the first component of
-`tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex` -- and
+`tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_symmetricNorming_complex` -- and
 `DavisKahan.cos_two_ne_zero_of_isUnit_diagonalPart_reflection_sq` turns that unit
 into pole exclusion.  No branch is chosen either: principal angles may exceed
 `π/4`, and `|tan 2Θ|` is what a norm sees there. -/
-theorem tanTwoTheta_ambient_unbounded_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_unbounded_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : G →ₗ.[ℂ] G} {B : G →L[ℂ] G} {a b c : ℝ}
     (V : Submodule ℂ G) [V.HasOrthogonalProjection]
     (hA : IsSelfAdjoint A)
@@ -650,16 +650,16 @@ theorem tanTwoTheta_ambient_unbounded_paperUINorm_complex
         (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) V) ≤
         2 * N.gauge B := by
   obtain ⟨hunit, hmem, hle⟩ :=
-    tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex N V hA hBsa hB hV hUa hUb
+    tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_symmetricNorming_complex N V hA hBsa hB hV hUa hUb
       hab hBmem
   have hcos := DavisKahan.cos_two_ne_zero_of_isUnit_diagonalPart_reflection_sq
     (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) V hunit
   have hgauge := DavisKahan.extendedGauge_unboundedReflectionTangent_complex
     (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) V N hcos
   refine ⟨?_, ?_⟩
-  · unfold PaperUnitaryInvariantNorm.Mem at hmem ⊢
+  · unfold SymmetricNormingFunction.Mem at hmem ⊢
     rwa [← hgauge]
-  · unfold PaperUnitaryInvariantNorm.gauge at hle ⊢
+  · unfold SymmetricNormingFunction.gauge at hle ⊢
     rwa [← hgauge]
 
 end

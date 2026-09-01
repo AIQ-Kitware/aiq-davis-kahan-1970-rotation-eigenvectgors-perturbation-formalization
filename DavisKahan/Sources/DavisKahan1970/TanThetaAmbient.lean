@@ -86,7 +86,7 @@ which the printed right-hand side can be finite.
   `|Ξ| = tan Θ`.
 * `TauCeti.DavisKahan1970.tanTheta_ambient_bounded_kyFan_complex_of_transversality`: the Ky Fan form,
   `δ · kyFan_k (tan Θ) ≤ kyFan_k H` for every `k`.
-* `TauCeti.DavisKahan1970.tanTheta_ambient_bounded_paperUINorm_complex_of_transversality`: the source form,
+* `TauCeti.DavisKahan1970.tanTheta_ambient_bounded_symmetricNorming_complex_of_transversality`: the source form,
   `δ N(tan Θ) ≤ N(H)` for every unitarily invariant norm `N` in the paper's
   sense.
 
@@ -1173,8 +1173,8 @@ theorem tanTheta_ambient_bounded_kyFan_complex_of_transversality
 /-- **The whole-space `tan Θ` theorem for every source unitarily invariant
 norm**: `δ ‖tan Θ‖ ≤ ‖H‖`, the second conclusion of the Section 2 tangent
 theorem and the assertion the paper settles just after equation (7.6). -/
-theorem tanTheta_ambient_bounded_paperUINorm_complex_of_transversality
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_bounded_symmetricNorming_complex_of_transversality
+    (N : SymmetricNormingFunction)
     (hT : T.IsSymmetric) (hA : IsSelfAdjoint A)
     (hV : T.Reduces V) (hAU : ∀ x ∈ U, A x ∈ U)
     {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -1260,10 +1260,10 @@ theorem tanTheta_ambient_bounded_kyFan_complex_of_crossedDefects
 /-- **Davis--Kahan 1970, the whole-space `tan Θ` theorem for every source unitarily
 invariant norm, under the printed standing assumptions only.**
 
-Identical to `tanTheta_ambient_bounded_paperUINorm_complex_of_transversality` except that uniform transversality is no
+Identical to `tanTheta_ambient_bounded_symmetricNorming_complex_of_transversality` except that uniform transversality is no
 longer a hypothesis: it is derived from the form bounds and the printed (3.5). -/
-theorem tanTheta_ambient_bounded_paperUINorm_complex_of_crossedDefects
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_bounded_symmetricNorming_complex_of_crossedDefects
+    (N : SymmetricNormingFunction)
     (hT : T.IsSymmetric) (hA : IsSelfAdjoint A)
     (hV : T.Reduces V) (hAU : ∀ x ∈ U, A x ∈ U)
     {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -1275,7 +1275,7 @@ theorem tanTheta_ambient_bounded_paperUINorm_complex_of_crossedDefects
     (hMem : N.Mem (T - A)) :
     N.Mem (paperTanAngleOperatorC U V) ∧
       delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge (T - A) :=
-  tanTheta_ambient_bounded_paperUINorm_complex_of_transversality N hT hA hV hAU hdelta hCompressionUpper hUnwantedLower
+  tanTheta_ambient_bounded_symmetricNorming_complex_of_transversality N hT hA hV hAU hdelta hCompressionUpper hUnwantedLower
     (norm_sinAngleOperatorC_lt_one_of_crossedDefectsEquivalent hT hV hdelta
       hCompressionUpper hUnwantedLower h35) hMem
 

@@ -31,13 +31,13 @@ changes here are the three `have`s that were spectral.
 
 ## Main results
 
-* `tanTwoTheta_directed_unboundedResidual_reducing_paperUINorm_complex` and its
+* `tanTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_complex` and its
   subspace-first form
-  `tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_paperUINorm_complex`,
+  `tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_symmetricNorming_complex`,
   which also identifies the corner's singular values with the tangents of the
   directed doubled angles.
-* `tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_complex`
-  and `tanTwoTheta_ambient_unbounded_reducing_paperUINorm_complex`, in
+* `tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_symmetricNorming_complex`
+  and `tanTwoTheta_ambient_unbounded_reducing_symmetricNorming_complex`, in
   `TanTwoThetaUnboundedAmbientExact.lean`, which owns the block-assembly lemmas.
 
 ## References
@@ -137,10 +137,10 @@ arbitrary reducing subspace.**
 subspace reducing `A` on which the form is at most `a` while it is at least `b`
 on `Uᗮ`.  The pole exclusion is a conclusion, not a hypothesis.
 
-This is `tanTwoTheta_directed_unboundedResidual_blockRepresentative_paperUINorm_complex`
+This is `tanTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNorming_complex`
 with the spectral selection of `U` removed. -/
-theorem tanTwoTheta_directed_unboundedResidual_reducing_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (hRmem : N.Mem (paperBlockCompression Uᗮ U B)) :
     IsUnit (U.diagonalPart Z * U.diagonalPart Z) ∧
       N.Mem (reflectionTangentCorner U Z) ∧
@@ -184,8 +184,8 @@ single-angle sine by `sin 2θ = 2 sin θ cos θ` would be wrong at arbitrary
 dimension: `θ ↦ sin 2θ` is not monotone on `[0, π/2]`, so applying it index by
 index to an ordered singular-value sequence need not give an ordered sequence
 (principal angles `75°` and `30°` already invert the order). -/
-theorem tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : G →ₗ.[ℂ] G} {B : G →L[ℂ] G} {a b : ℝ}
     {U : Submodule ℂ G} [U.HasOrthogonalProjection]
     (V : Submodule ℂ G) [V.HasOrthogonalProjection]
@@ -217,7 +217,7 @@ theorem tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_paperU
       ((reflectionSineCorner U V.reflectionOperator).approximationNumber_le_norm n)
       (lt_of_le_of_lt norm_reflectionSineCorner_le hS1)
   obtain ⟨-, hmem, hle⟩ :=
-    tanTwoTheta_directed_unboundedResidual_reducing_paperUINorm_complex hA hred hB
+    tanTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_complex hA hred hB
       hZsa hZ2 hV.mapsDomain hV.commutes hUa hUb hab N hRmem
   refine ⟨fun n => ?_, fun n => ?_, hmem, hle⟩
   · rw [← hsame n]; exact hcorner n

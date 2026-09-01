@@ -58,7 +58,7 @@ ingredients do that, and no perturbation theory is re-run for either:
   projections, each of which complexifies, so the operator-norm estimates
   transport;
 * the paper's own unitarily invariant norm scope needs no new transport at all:
-  `sinTwoTheta_ambient_bounded_paperUINorm_real` is already stated over `ℝ`, and the
+  `sinTwoTheta_ambient_bounded_symmetricNorming_real` is already stated over `ℝ`, and the
   only missing piece was the real spectral dictionary
   `spectrum_compressOperatorReal_subset_of_spectrumIn`, the real counterpart of
   `spectrum_compressOperator_subset_of_spectrumIn`.
@@ -83,8 +83,8 @@ sequence back without loss.
 * `theorem8_2_sinTwoTheta_perturbation_source_real` and
   `theorem8_2_sinTwoTheta_residual_source_real` -- the inherited `sin 2Θ`
   estimates at the operator norm;
-* `theorem8_2_sinTwoTheta_perturbation_source_real_paperUINorm` and
-  `theorem8_2_sinTwoTheta_residual_source_real_paperUINorm` -- both inherited
+* `theorem8_2_sinTwoTheta_perturbation_source_real_symmetricNorming` and
+  `theorem8_2_sinTwoTheta_residual_source_real_symmetricNorming` -- both inherited
   `sin 2Θ` estimates at every source unitarily invariant norm;
 * `theorem8_2_source_real` -- the whole printed theorem over `ℝ`.
 
@@ -503,7 +503,7 @@ theorem theorem8_2_sinTwoTheta_residual_source_real
 
 /-! ### 5. The same estimate at every source unitarily invariant norm, over `ℝ`
 
-`sinTwoTheta_ambient_bounded_paperUINorm_real` is equation (7.5) over a real Hilbert
+`sinTwoTheta_ambient_bounded_symmetricNorming_real` is equation (7.5) over a real Hilbert
 space, for every norm in the paper's own class.  Reading it at Theorem 8.2's
 configuration needs exactly one thing the complex descent also needed: the
 dictionary between `Foundation.SpectrumIn` and `spectrum ℝ` of the compression.
@@ -537,11 +537,11 @@ a REAL Hilbert space, for every source unitarily invariant norm.**
 `δ N(sin 2Θ) ≤ 2 N(H)`, at the paper's own class of unitarily invariant norms
 and at Theorem 8.2's own hypotheses.
 `theorem8_2_sinTwoTheta_perturbation_source_real` is the operator-norm reading of
-the same inheritance, and `theorem8_2_sinTwoTheta_perturbation_source_paperUINorm`
+the same inheritance, and `theorem8_2_sinTwoTheta_perturbation_source_symmetricNorming`
 is the complex one.
 
 Nothing is re-proved.  This is equation (7.5) over a real Hilbert space,
-`DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_real`, read with `A + K`
+`DavisKahan1970.sinTwoTheta_ambient_bounded_symmetricNorming_real`, read with `A + K`
 carrying the printed gap on `Q` and with `A` — which `P` reduces by hypothesis —
 as the comparison operator, so that the displacement is `-K`.
 
@@ -549,8 +549,8 @@ The conclusion names the paper's literal `sin 2Θ`, the real positive operator
 `paperSinTwoAngleOperatorR Q P`, rather than the modulus-free
 `sinTwoAngleOperator` of the operator-norm statement: only the former carries the
 whole singular-value list that a general unitarily invariant norm reads. -/
-theorem theorem8_2_sinTwoTheta_perturbation_source_real_paperUINorm
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm)
+theorem theorem8_2_sinTwoTheta_perturbation_source_real_symmetricNorming
+    (N : ExactSinTheta.SymmetricNormingFunction)
     {A K : E →L[ℝ] E} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℝ E} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -585,7 +585,7 @@ theorem theorem8_2_sinTwoTheta_perturbation_source_real_paperUINorm
     · exact absurd h (by simp)
   have hgaugeNeg : N.gauge (A - (A + K)) = N.gauge K := by
     rw [hneg, N.gauge_smul _ hKmem, hone, one_mul]
-  obtain ⟨hmem, hle⟩ := DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_real N
+  obtain ⟨hmem, hle⟩ := DavisKahan1970.sinTwoTheta_ambient_bounded_symmetricNorming_real N
     hAKsa hAsa hQred hPred hdelta hab hUspec hUspec' hMemNeg
   exact ⟨hmem, by rwa [hgaugeNeg] at hle⟩
 
@@ -593,7 +593,7 @@ theorem theorem8_2_sinTwoTheta_perturbation_source_real_paperUINorm
 a REAL Hilbert space, for every source unitarily invariant norm.**
 
 This is the real source-fidelity counterpart of
-`theorem8_2_sinTwoTheta_residual_source_paperUINorm`:
+`theorem8_2_sinTwoTheta_residual_source_symmetricNorming`:
 
 `δ N(sin 2Θ₀) ≤ 2 N(R)`.
 
@@ -601,11 +601,11 @@ The analytic estimate is not reproved over `ℝ`.  Complexification carries the
 directed doubled-angle block exactly, while `residual_complexify_equiv` carries
 the printed rectangular residual through the canonical trial-space isometry.
 Those identities preserve the complete approximation-singular sequences, so
-`PaperUnitaryInvariantNorm.mem_complexify_iff`, `gauge_complexify`, and the
+`SymmetricNormingFunction.mem_complexify_iff`, `gauge_complexify`, and the
 heterogeneous singular-sequence transport return both membership and the norm
 inequality to the real spaces with no loss in the constant. -/
-theorem theorem8_2_sinTwoTheta_residual_source_real_paperUINorm
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm)
+theorem theorem8_2_sinTwoTheta_residual_source_real_symmetricNorming
+    (N : ExactSinTheta.SymmetricNormingFunction)
     {A K : E →L[ℝ] E} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℝ E} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -617,17 +617,17 @@ theorem theorem8_2_sinTwoTheta_residual_source_real_paperUINorm
       delta * N.gauge (TauCeti.DavisKahan.sinTwoThetaIdealBlock Q P) ≤
         2 * N.gauge (residual (A + K) P.subtypeL (compressOperator P A)) := by
   have hseq := sameApproximationSingularSequence_residual_complexify A K P hPred.1
-  have htransport := hseq.paperMem_iff_and_gauge_eq N
+  have htransport := hseq.normingMem_iff_and_gauge_eq N
   have hRmemComplexified :
       N.Mem (complexify (residual (A + K) P.subtypeL (compressOperator P A))) :=
-    (ExactSinTheta.PaperUnitaryInvariantNorm.mem_complexify_iff N _).2 hRmem
+    (ExactSinTheta.SymmetricNormingFunction.mem_complexify_iff N _).2 hRmem
   have hRmemC :
       N.Mem
         (residual (complexify A + complexify K) (complexifySubmodule P).subtypeL
           (compressOperator (complexifySubmodule P) (complexify A))) :=
     htransport.1.mp hRmemComplexified
   obtain ⟨hBlockMemC, hboundC⟩ :=
-    theorem8_2_sinTwoTheta_residual_source_paperUINorm N
+    theorem8_2_sinTwoTheta_residual_source_symmetricNorming N
       (complexify_isSelfAdjointOperator hA) (complexify_isSelfAdjointOperator hK)
       hdelta hab (spectrumIn_complexify_add hQ)
       (spectrumIn_orthogonal_complexify_add hQperp)
@@ -637,7 +637,7 @@ theorem theorem8_2_sinTwoTheta_residual_source_real_paperUINorm
   rw [← hBlockEq] at hBlockMemC hboundC
   have hBlockMem :
       N.Mem (TauCeti.DavisKahan.sinTwoThetaIdealBlock Q P) :=
-    (ExactSinTheta.PaperUnitaryInvariantNorm.mem_complexify_iff N _).1 hBlockMemC
+    (ExactSinTheta.SymmetricNormingFunction.mem_complexify_iff N _).1 hBlockMemC
   refine ⟨hBlockMem, ?_⟩
   have hResidualGauge :
       N.gauge
@@ -652,8 +652,8 @@ theorem theorem8_2_sinTwoTheta_residual_source_real_paperUINorm
             (complexify (residual (A + K) P.subtypeL (compressOperator P A))) :=
         htransport.2.symm
       _ = N.gauge (residual (A + K) P.subtypeL (compressOperator P A)) :=
-        ExactSinTheta.PaperUnitaryInvariantNorm.gauge_complexify N _
-  rw [ExactSinTheta.PaperUnitaryInvariantNorm.gauge_complexify, hResidualGauge] at hboundC
+        ExactSinTheta.SymmetricNormingFunction.gauge_complexify N _
+  rw [ExactSinTheta.SymmetricNormingFunction.gauge_complexify, hResidualGauge] at hboundC
   exact hboundC
 
 /-! ### 6. The whole printed theorem over `ℝ` -/
@@ -671,7 +671,7 @@ complex Hilbert space, and Theorem 8.2 supplies both subspaces as data, so the
 descent introduces no hypothesis of its own.
 
 `‖·‖₁` is the bound norm throughout Theorem 8.2, which is what the operator
-norms here are; `theorem8_2_sinTwoTheta_perturbation_source_real_paperUINorm`
+norms here are; `theorem8_2_sinTwoTheta_perturbation_source_real_symmetricNorming`
 carries the perturbation estimate at the printed norm scope. -/
 theorem theorem8_2_source_real [FiniteDimensional ℝ E]
     {A K : E →L[ℝ] E} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)

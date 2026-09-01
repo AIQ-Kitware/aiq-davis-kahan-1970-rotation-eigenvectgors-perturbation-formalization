@@ -74,8 +74,8 @@ directed `tan 2Theta` corner, and the sharp source inequality
 
 In particular, the spectral cutoff family and its convergence are derived
 internally rather than appearing in the theorem statement. -/
-theorem tanTwoTheta_directed_unboundedResidual_blockRepresentative_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : G →ₗ.[ℂ] G} {B Z : G →L[ℂ] G} {a b c : ℝ}
     (hA : IsSelfAdjoint A)
     (hB : TauCeti.IsOddFor

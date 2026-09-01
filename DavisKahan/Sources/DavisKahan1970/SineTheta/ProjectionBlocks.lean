@@ -21,7 +21,7 @@ paper's proof of the symmetric sine theorem.
   operators have identical complete approximation-singular-value sequences.
 
 The results are proved both for the existing ideal-family interface and for the
-literal paper norm represented by `PaperUnitaryInvariantNorm`.
+literal paper norm represented by `SymmetricNormingFunction`.
 -/
 
 namespace TauCeti
@@ -126,9 +126,9 @@ theorem paperDiagonalPair_all_kyFan_le
       KyFanDominantIdealFamily.kyFan_gauge] using h
 
 /-- Literal source-norm form of Davis--Kahan Lemma 6.2. -/
-theorem paperDiagonalPair_paperNorm_le
+theorem paperDiagonalPair_symmetricNorming_le
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (K : E →L[𝕜] E) :
@@ -137,15 +137,15 @@ theorem paperDiagonalPair_paperNorm_le
     (paperDiagonalPair_all_kyFan_le U V K)
 
 /-- Real-valued source-norm form on the canonical ideal. -/
-theorem paperDiagonalPair_paperGauge_le
+theorem paperDiagonalPair_normingGauge_le
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {K : E →L[𝕜] E} (hK : N.Mem K) :
     N.Mem (paperDiagonalPair U V K) ∧
       N.gauge (paperDiagonalPair U V K) ≤ N.gauge K := by
-  have hle := paperDiagonalPair_paperNorm_le N U V K
+  have hle := paperDiagonalPair_symmetricNorming_le N U V K
   have hB : N.Mem (paperDiagonalPair U V K) := by
     intro htop
     rw [htop] at hle

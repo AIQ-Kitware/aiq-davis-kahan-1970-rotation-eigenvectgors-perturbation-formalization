@@ -32,47 +32,47 @@ theorem paperPrefixGauge_eq
     [NormedAddCommGroup F₁] [InnerProductSpace 𝕜 F₁] [CompleteSpace F₁]
     [NormedAddCommGroup E₂] [InnerProductSpace 𝕜 E₂] [CompleteSpace E₂]
     [NormedAddCommGroup F₂] [InnerProductSpace 𝕜 F₂] [CompleteSpace F₂]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A : E₁ →L[𝕜] F₁} {B : E₂ →L[𝕜] F₂}
     (h : SameApproximationSingularSequence A B) (n : ℕ) :
     N.prefixGauge n A = N.prefixGauge n B := by
-  unfold PaperUnitaryInvariantNorm.prefixGauge
+  unfold SymmetricNormingFunction.prefixGauge
   congr 1
   funext i
   exact h i
 
 /-- Equal complete singular data gives equal source extended values. -/
-theorem paperExtendedGauge_eq
+theorem normingExtendedGauge_eq
     {𝕜 : Type u} [RCLike 𝕜]
     {E₁ F₁ E₂ F₂ : Type v}
     [NormedAddCommGroup E₁] [InnerProductSpace 𝕜 E₁] [CompleteSpace E₁]
     [NormedAddCommGroup F₁] [InnerProductSpace 𝕜 F₁] [CompleteSpace F₁]
     [NormedAddCommGroup E₂] [InnerProductSpace 𝕜 E₂] [CompleteSpace E₂]
     [NormedAddCommGroup F₂] [InnerProductSpace 𝕜 F₂] [CompleteSpace F₂]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A : E₁ →L[𝕜] F₁} {B : E₂ →L[𝕜] F₂}
     (h : SameApproximationSingularSequence A B) :
     N.extendedGauge A = N.extendedGauge B := by
-  unfold PaperUnitaryInvariantNorm.extendedGauge
+  unfold SymmetricNormingFunction.extendedGauge
   apply iSup_congr
   intro n
   rw [h.paperPrefixGauge_eq N n]
 
 /-- Equal complete singular data gives equivalent membership and equal source
 norms, even across different coordinate spaces. -/
-theorem paperMem_iff_and_gauge_eq
+theorem normingMem_iff_and_gauge_eq
     {𝕜 : Type u} [RCLike 𝕜]
     {E₁ F₁ E₂ F₂ : Type v}
     [NormedAddCommGroup E₁] [InnerProductSpace 𝕜 E₁] [CompleteSpace E₁]
     [NormedAddCommGroup F₁] [InnerProductSpace 𝕜 F₁] [CompleteSpace F₁]
     [NormedAddCommGroup E₂] [InnerProductSpace 𝕜 E₂] [CompleteSpace E₂]
     [NormedAddCommGroup F₂] [InnerProductSpace 𝕜 F₂] [CompleteSpace F₂]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A : E₁ →L[𝕜] F₁} {B : E₂ →L[𝕜] F₂}
     (h : SameApproximationSingularSequence A B) :
     (N.Mem A ↔ N.Mem B) ∧ N.gauge A = N.gauge B := by
-  have heq := h.paperExtendedGauge_eq N
-  exact ⟨by simp [PaperUnitaryInvariantNorm.Mem, heq],
+  have heq := h.normingExtendedGauge_eq N
+  exact ⟨by simp [SymmetricNormingFunction.Mem, heq],
     congrArg ENNReal.toReal heq⟩
 
 end SameApproximationSingularSequence
@@ -81,18 +81,18 @@ namespace PaperSinThetaRepresentativeAcross
 
 /-- Source norm membership and value transport across arbitrary coordinate
 spaces. -/
-theorem paperMem_iff_and_gauge_eq
+theorem normingMem_iff_and_gauge_eq
     {𝕜 : Type u} [RCLike 𝕜]
     {E F E₀ F₀ : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace 𝕜 F₀] [CompleteSpace F₀]
-    (N : PaperUnitaryInvariantNorm) {canonical : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {canonical : E →L[𝕜] F}
     (S : PaperSinThetaRepresentativeAcross (E₀ := E₀) (F₀ := F₀) canonical) :
     (N.Mem S.operator ↔ N.Mem canonical) ∧
       N.gauge S.operator = N.gauge canonical :=
-  S.same_singular_sequence.paperMem_iff_and_gauge_eq N
+  S.same_singular_sequence.normingMem_iff_and_gauge_eq N
 
 end PaperSinThetaRepresentativeAcross
 

@@ -33,7 +33,7 @@ and it is the same proof the complex file runs:
 The one substitution is in step 1--2:
 `davisKahan1970_sylvester_complex` becomes `real_unbounded_sylvester_kyFan`.
 Everything else -- `paperLemma61_all_kyFan`, `paperDiagonalPair_all_kyFan_le`,
-the ambient/subspace singular-value transport, and `PaperUnitaryInvariantNorm`
+the ambient/subspace singular-value transport, and `SymmetricNormingFunction`
 -- is already `RCLike`-generic and is reused verbatim.
 
 ## Why the conclusion is stated on `paperCrossSineSum`
@@ -49,7 +49,7 @@ whole-space sine singular-value sequence.
 `paperCrossSineSum U V` is such an operator, and that is compiled rather than
 asserted: `paperCrossSineSum_same_projectionDiff` gives it exactly the complete
 approximation-singular-value sequence of `P_V - P_U`, which is the paper's
-whole-space `sin Theta` sequence.  `crossSineSum_paperMem_iff_and_gauge_eq`
+whole-space `sin Theta` sequence.  `crossSineSum_normingMem_iff_and_gauge_eq`
 below records the resulting norm identity, and
 `result_every_unitarilyInvariantNorm_representative_real` states the theorem for
 an arbitrary operator with that sequence, which is the precise sense in which
@@ -119,10 +119,10 @@ It is stated as a raw equality of approximation numbers rather than as a
 field for both operands and `paperSourceFullSinR` is by construction an operator
 over `ℂ` on complexified coordinates.  Approximation numbers are real, so the
 comparison itself is unproblematic; only the relation's binders are too narrow.
-Lifting this to a `PaperUnitaryInvariantNorm` equality would need a cross-field
-counterpart of `SameApproximationSingularSequence.paperExtendedGauge_eq`, which
+Lifting this to a `SymmetricNormingFunction` equality would need a cross-field
+counterpart of `SameApproximationSingularSequence.normingExtendedGauge_eq`, which
 is deliberately not added here -- the norm-level dictionary the theorem below
-actually uses is `crossSineSum_paperMem_iff_and_gauge_eq`, entirely over `ℝ`. -/
+actually uses is `crossSineSum_normingMem_iff_and_gauge_eq`, entirely over `ℝ`. -/
 theorem approximationNumber_paperSourceFullSinR_eq_paperCrossSineSum
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
@@ -385,7 +385,7 @@ theorem reverse_all_kyFan
 
 /-- Ky Fan form of the real symmetric sine theorem, before universal Fan
 dominance.  The left-hand operator is the paper's whole-space sine
-representative; see `crossSineSum_paperMem_iff_and_gauge_eq`. -/
+representative; see `crossSineSum_normingMem_iff_and_gauge_eq`. -/
 theorem symmetric_all_kyFan_real
     (P : PaperRealSymmetricSinThetaProblem (E := E)) :
     ∀ k,
@@ -468,7 +468,7 @@ theorem symmetric_all_kyFan_real
 normalized unitarily invariant norm in the source sense. -/
 theorem result_every_unitarilyInvariantNorm_real
     (P : PaperRealSymmetricSinThetaProblem (E := E))
-    (N : PaperUnitaryInvariantNorm) (hH : N.Mem P.perturbation) :
+    (N : SymmetricNormingFunction) (hH : N.Mem P.perturbation) :
     N.Mem (paperCrossSineSum P.U P.V) ∧
       P.gap * N.gauge (paperCrossSineSum P.U P.V) ≤ N.gauge P.perturbation :=
   N.mul_gauge_le_of_all_mul_kyFan_le P.gap_pos hH P.symmetric_all_kyFan_real
@@ -478,14 +478,14 @@ appearing in `result_every_unitarilyInvariantNorm_real` exactly as it evaluates
 the paper's whole-space sine singular-value list, which is the complete
 approximation-singular-value sequence of the projector difference
 `P_V - P_U`. -/
-theorem crossSineSum_paperMem_iff_and_gauge_eq
+theorem crossSineSum_normingMem_iff_and_gauge_eq
     (P : PaperRealSymmetricSinThetaProblem (E := E))
-    (N : PaperUnitaryInvariantNorm) :
+    (N : SymmetricNormingFunction) :
     (N.Mem (paperCrossSineSum P.U P.V) ↔
         N.Mem (P.V.starProjection - P.U.starProjection)) ∧
       N.gauge (paperCrossSineSum P.U P.V) =
         N.gauge (P.V.starProjection - P.U.starProjection) :=
-  SameApproximationSingularSequence.paperMem_iff_and_gauge_eq N
+  SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N
     (paperCrossSineSum_same_projectionDiff P.U P.V)
 
 /-- Proposition 6.1 for an arbitrary source realization of `sin Theta`: any
@@ -495,12 +495,12 @@ on the source singular sequence and not on a chosen functional calculus. -/
 theorem result_every_unitarilyInvariantNorm_representative_real
     (P : PaperRealSymmetricSinThetaProblem (E := E))
     (S : PaperSinThetaRepresentative (paperCrossSineSum P.U P.V))
-    (N : PaperUnitaryInvariantNorm) (hH : N.Mem P.perturbation) :
+    (N : SymmetricNormingFunction) (hH : N.Mem P.perturbation) :
     N.Mem S.operator ∧
       P.gap * N.gauge S.operator ≤ N.gauge P.perturbation := by
   obtain ⟨hmem, hbound⟩ := P.result_every_unitarilyInvariantNorm_real N hH
   obtain ⟨hiff, hgauge⟩ :=
-    SameApproximationSingularSequence.paperMem_iff_and_gauge_eq N
+    SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N
       S.same_singular_values
   exact ⟨hiff.mpr hmem, by rw [hgauge]; exact hbound⟩
 

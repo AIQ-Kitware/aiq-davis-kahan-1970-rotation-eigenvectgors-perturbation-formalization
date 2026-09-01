@@ -51,9 +51,9 @@ alongside this file:
   `re_inner_le_of_mem_complexifySubmodule`,
   `mapsTo_orthogonal_complexifySubmodule`,
   `mapsTo_of_mem_orthogonal_complexifySubmodule`,
-  `PaperUnitaryInvariantNorm.mem_complexify_iff`;
+  `SymmetricNormingFunction.mem_complexify_iff`;
 * conclusion -- `isQuarterAcute_complexifySubmodule_iff` and
-  `PaperUnitaryInvariantNorm.gauge_complexify`.
+  `SymmetricNormingFunction.gauge_complexify`.
 
 Crucially the transport is *lossless*: the form constants `a` and `b` and the
 gauge values are preserved exactly, so the real conclusion carries the same
@@ -103,7 +103,7 @@ with the sharp constant, for every `N`.
 The quarter-acuteness is genuinely concluded here, not assumed: it comes back
 from the complex theorem through `isQuarterAcute_complexifySubmodule_iff`. -/
 theorem paperFaithful_tanTwoTheta_uiNorm_real
-    (N : PaperUnitaryInvariantNorm) (A H : E →L[ℝ] E) (U V : Submodule ℝ E)
+    (N : SymmetricNormingFunction) (A H : E →L[ℝ] E) (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] {a b : ℝ}
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U)
@@ -140,9 +140,9 @@ theorem paperFaithful_tanTwoTheta_uiNorm_real
         exact re_inner_le_of_mem_complexifySubmodule hVperpHigh hz)
       (fun z hz => mapsTo_orthogonal_complexifySubmodule U hHU hz)
       (fun z hz => mapsTo_of_mem_orthogonal_complexifySubmodule U hHUperp hz)
-      ((PaperUnitaryInvariantNorm.mem_complexify_iff N H).2 hHmem)
+      ((SymmetricNormingFunction.mem_complexify_iff N H).2 hHmem)
   refine ⟨(isQuarterAcute_complexifySubmodule_iff U V).1 hqc, hmemc, ?_⟩
-  rwa [PaperUnitaryInvariantNorm.gauge_complexify] at hboundc
+  rwa [SymmetricNormingFunction.gauge_complexify] at hboundc
 
 end DavisKahan
 end TauCeti

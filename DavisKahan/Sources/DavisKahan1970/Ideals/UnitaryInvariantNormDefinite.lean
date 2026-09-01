@@ -8,7 +8,7 @@ import DavisKahan.Sources.DavisKahan1970.Ideals.RankOneNormalization
 /-!
 # Definiteness of the source-defined norm
 
-The finite operator objects used to construct `PaperUnitaryInvariantNorm` are
+The finite operator objects used to construct `SymmetricNormingFunction` are
 formulated as seminorms because Fan dominance does not need definiteness.
 Source normalization removes that apparent extra generality: the first prefix
 is exactly the operator norm, so the canonical extension is a genuine norm on
@@ -26,7 +26,7 @@ noncomputable section
 
 universe u v
 
-namespace PaperUnitaryInvariantNorm
+namespace SymmetricNormingFunction
 
 /-- The one-term source gauge is exactly operator norm. -/
 theorem prefixGauge_one_eq_opNorm
@@ -34,7 +34,7 @@ theorem prefixGauge_one_eq_opNorm
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) (A : E →L[𝕜] F) :
+    (N : SymmetricNormingFunction) (A : E →L[𝕜] F) :
     N.prefixGauge 1 A = ‖A‖ := by
   unfold prefixGauge approximationPrefix
   have hvec : (fun i : Fin 1 => approximationSingularValue (i : ℕ) A) =
@@ -51,7 +51,7 @@ theorem opNorm_le_gauge
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A : E →L[𝕜] F} (hA : N.Mem A) :
+    (N : SymmetricNormingFunction) {A : E →L[𝕜] F} (hA : N.Mem A) :
     ‖A‖ ≤ N.gauge A := by
   have hprefix : ENNReal.ofReal ‖A‖ ≤ N.extendedGauge A := by
     rw [← N.prefixGauge_one_eq_opNorm A]
@@ -65,7 +65,7 @@ theorem gauge_eq_zero_iff
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A : E →L[𝕜] F} (hA : N.Mem A) :
+    (N : SymmetricNormingFunction) {A : E →L[𝕜] F} (hA : N.Mem A) :
     N.gauge A = 0 ↔ A = 0 := by
   constructor
   · intro hzero
@@ -81,13 +81,13 @@ theorem gauge_pos
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {A : E →L[𝕜] F}
     (hA : N.Mem A) (hA0 : A ≠ 0) :
     0 < N.gauge A := by
   have hnonneg : 0 ≤ N.gauge A := ENNReal.toReal_nonneg
   exact lt_of_le_of_ne hnonneg (fun h => hA0 ((N.gauge_eq_zero_iff hA).1 h.symm))
 
-end PaperUnitaryInvariantNorm
+end SymmetricNormingFunction
 
 end
 

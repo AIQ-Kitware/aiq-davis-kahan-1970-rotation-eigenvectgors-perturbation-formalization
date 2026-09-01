@@ -28,7 +28,7 @@ The directed conclusion at that unbounded scope is what this module proves.  The
 repository already had
 
 * the bounded directed trial-residual theorem
-  `sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_complex`, and
+  `sinTwoTheta_directed_boundedResidual_blockRepresentative_symmetricNorming_complex`, and
 * an unbounded directed theorem whose right-hand side is a **reflection**
   residual — a bounded self-adjoint `R` with `(A + R) J_V = J_V A` — which is a
   different operator from the printed `R` and therefore does not certify the
@@ -197,7 +197,7 @@ source claims for it:
 
 `δ N(sin 2Θ₀) ≤ 2 N(R)`,  `R = A E₀ - E₀ A₀`,
 
-for every `PaperUnitaryInvariantNorm`, with the printed spectral separation, the
+for every `SymmetricNormingFunction`, with the printed spectral separation, the
 printed residual, the printed factor two, and no hypothesis beyond the printed
 ones: `A` self-adjoint and possibly unbounded, the trial subspace inside its
 domain, and the residual bounded — which is exactly the source's own
@@ -205,8 +205,8 @@ requirement for a useful unbounded conclusion.
 
 The reflected system is built internally from the trial data; no reflection
 residual appears in the statement. -/
-theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_spectrumGap_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_spectrumGap_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A)
     (B : Set ℝ) (hB : MeasurableSet B)
     (hVdom : ∀ v : V, (v : H) ∈ A.domain)
@@ -225,7 +225,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_spectrumGap_p
   let R0 : H →L[ℂ] H := R ∘L V.subtypeL.adjoint
   have hsameR : SameApproximationSingularSequence R0 R :=
     sameApproximationSingularValues_extendDomainByZero V R
-  have htransport := hsameR.paperMem_iff_and_gauge_eq N
+  have htransport := hsameR.normingMem_iff_and_gauge_eq N
   have hMem0 : N.Mem R0 := htransport.1.mpr hRmem
   have hgauge : N.gauge R0 = N.gauge R := htransport.2
   have htwo : ‖((2 : ℝ) : ℂ)‖ = 2 := by norm_num
@@ -359,7 +359,7 @@ the full source gap.**
 
 `δ N(sin 2Θ₀) ≤ 2 N(R)`,  `R = A E₀ - E₀ A₀`,
 
-for every `PaperUnitaryInvariantNorm`, with the printed residual, the printed
+for every `SymmetricNormingFunction`, with the printed residual, the printed
 factor two, and the separating interval allowed to be half-infinite.  `A` is
 self-adjoint and possibly unbounded, the trial subspace lies inside its domain,
 and the residual is bounded -- which is exactly the source's own requirement for
@@ -367,8 +367,8 @@ a useful unbounded conclusion.
 
 The reflected system is built internally from the trial data; no reflection
 residual appears in the statement. -/
-theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A)
     (B : Set ℝ) (hB : MeasurableSet B)
     (hVdom : ∀ v : V, (v : H) ∈ A.domain)
@@ -385,7 +385,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_paperUINorm_c
   let R0 : H →L[ℂ] H := R ∘L V.subtypeL.adjoint
   have hsameR : SameApproximationSingularSequence R0 R :=
     sameApproximationSingularValues_extendDomainByZero V R
-  have htransport := hsameR.paperMem_iff_and_gauge_eq N
+  have htransport := hsameR.normingMem_iff_and_gauge_eq N
   have hMem0 : N.Mem R0 := htransport.1.mpr hRmem
   have hgauge : N.gauge R0 = N.gauge R := htransport.2
   have htwo : ‖((2 : ℝ) : ℂ)‖ = 2 := by norm_num
@@ -520,8 +520,8 @@ an arbitrary reducing subspace.**
 
 `δ N(sin 2Θ₀) ≤ 2 N(R)` with the printed residual and the printed factor two.
 The trial subspace need only reduce `A`; nothing selects it spectrally. -/
-theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A)
     {U : Submodule ℂ H} [U.HasOrthogonalProjection]
     (hred : TauCeti.LinearPMap.ReducesSubspace A U)
@@ -539,7 +539,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_pape
   let R0 : H →L[ℂ] H := R ∘L V.subtypeL.adjoint
   have hsameR : SameApproximationSingularSequence R0 R :=
     sameApproximationSingularValues_extendDomainByZero V R
-  have htransport := hsameR.paperMem_iff_and_gauge_eq N
+  have htransport := hsameR.normingMem_iff_and_gauge_eq N
   have hMem0 : N.Mem R0 := htransport.1.mpr hRmem
   have hgauge : N.gauge R0 = N.gauge R := htransport.2
   have htwo : ‖((2 : ℝ) : ℂ)‖ = 2 := by norm_num

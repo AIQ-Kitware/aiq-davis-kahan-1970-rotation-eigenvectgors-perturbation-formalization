@@ -8,13 +8,13 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
 /-!
 # Operator laws for the source-defined unitarily invariant norms
 
-`PaperUnitaryInvariantNorm` is the literal coherent symmetric-gauge object used
+`SymmetricNormingFunction` is the literal coherent symmetric-gauge object used
 in Davis--Kahan 1970.  This file proves that its canonical prefix-supremum
 extension has all of the operator properties used in the paper: normalization,
 absolute homogeneity, triangle inequality, adjoint invariance, two-sided
 unitary invariance, contraction compatibility, and the ideal property.
 
-Thus the universal theorem quantified over `PaperUnitaryInvariantNorm` does not
+Thus the universal theorem quantified over `SymmetricNormingFunction` does not
 hide an independently postulated operator ideal.  The ideal and its norm are
 constructed from the single source gauge exactly as in the paper.
 -/
@@ -29,7 +29,7 @@ noncomputable section
 
 universe u v
 
-namespace PaperUnitaryInvariantNorm
+namespace SymmetricNormingFunction
 
 variable {𝕜 : Type u} [RCLike 𝕜]
 variable {E F G : Type v}
@@ -38,14 +38,14 @@ variable {E F G : Type v}
   [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
 
 /-- Every finite gauge kills the zero vector. -/
-theorem finiteGauge_zero (N : PaperUnitaryInvariantNorm) (n : ℕ) :
+theorem finiteGauge_zero (N : SymmetricNormingFunction) (n : ℕ) :
     N.finiteGauge n (0 : Fin n → ℝ) = 0 := by
   have h := N.finiteGauge_smul (n := n) 0 (0 : Fin n → ℝ)
   simpa only [smul_zero, abs_zero, zero_mul] using h
 
 /-- The source norm of the zero operator is zero. -/
 @[simp]
-theorem extendedGauge_zero (N : PaperUnitaryInvariantNorm) :
+theorem extendedGauge_zero (N : SymmetricNormingFunction) :
     N.extendedGauge (0 : E →L[𝕜] F) = 0 := by
   have hzero : ∀ n : ℕ, N.prefixGauge n (0 : E →L[𝕜] F) = 0 := by
     intro n
@@ -57,7 +57,7 @@ theorem extendedGauge_zero (N : PaperUnitaryInvariantNorm) :
   simp only [extendedGauge, hzero, ENNReal.ofReal_zero, iSup_const]
 
 /-- Absolute homogeneity of the extended source norm. -/
-theorem extendedGauge_smul (N : PaperUnitaryInvariantNorm)
+theorem extendedGauge_smul (N : SymmetricNormingFunction)
     (c : 𝕜) (A : E →L[𝕜] F) :
     N.extendedGauge (c • A) = ENNReal.ofReal ‖c‖ * N.extendedGauge A := by
   by_cases hc : c = 0
@@ -85,7 +85,7 @@ The Ky Fan triangle inequality in infinite dimensions is proved from the min--ma
 bound, so what is carried here is the class asserting that bound over the scalar field,
 `ContinuousLinearMap.HasMinMaxLowerBoundEverywhere`, instantiated for `ℝ` and `ℂ`. -/
 theorem prefixGauge_add_le [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (n : ℕ) (A B : E →L[𝕜] F) :
     N.prefixGauge n (A + B) ≤ N.prefixGauge n A + N.prefixGauge n B := by
   have hmajor :
@@ -129,7 +129,7 @@ theorem prefixGauge_add_le [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u
 
 /-- Triangle inequality of the canonical infinite-dimensional extension. -/
 theorem extendedGauge_add_le [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A B : E →L[𝕜] F) :
     N.extendedGauge (A + B) ≤ N.extendedGauge A + N.extendedGauge B := by
   apply iSup_le
@@ -154,7 +154,7 @@ This is a genuinely *heterogeneous* statement: `A.adjoint : F →L[𝕜] E` whil
 between the *same* pair of spaces.  It is proved directly from the equality of
 the two approximation singular-value prefixes, which live in the same real
 vector space `Fin n → ℝ` regardless of the operators' domains. -/
-theorem extendedGauge_adjoint (N : PaperUnitaryInvariantNorm)
+theorem extendedGauge_adjoint (N : SymmetricNormingFunction)
     (A : E →L[𝕜] F) :
     N.extendedGauge A.adjoint = N.extendedGauge A := by
   simp only [extendedGauge, N.prefixGauge_adjoint]
@@ -164,18 +164,18 @@ theorem extendedGauge_adjoint (N : PaperUnitaryInvariantNorm)
 Together with `gauge_adjoint` this is what lets a Fan-dominance estimate proved
 against one off-diagonal block be read off against its transpose partner, which
 lives between the *opposite* pair of spaces. -/
-theorem mem_adjoint_iff (N : PaperUnitaryInvariantNorm) (A : E →L[𝕜] F) :
+theorem mem_adjoint_iff (N : SymmetricNormingFunction) (A : E →L[𝕜] F) :
     N.Mem A.adjoint ↔ N.Mem A := by
   rw [Mem, Mem, extendedGauge_adjoint]
 
 /-- The real-valued source norm is invariant under adjoint. -/
-theorem gauge_adjoint (N : PaperUnitaryInvariantNorm) (A : E →L[𝕜] F) :
+theorem gauge_adjoint (N : SymmetricNormingFunction) (A : E →L[𝕜] F) :
     N.gauge A.adjoint = N.gauge A := by
   rw [gauge, gauge, extendedGauge_adjoint]
 
 /-- Unitary equivalences on either side preserve the complete source norm. -/
 theorem extendedGauge_unitary
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (U : F ≃ₗᵢ[𝕜] F) (V : E ≃ₗᵢ[𝕜] E) (A : E →L[𝕜] F) :
     N.extendedGauge
       (U.toContinuousLinearEquiv.toContinuousLinearMap ∘L A ∘L
@@ -186,13 +186,13 @@ theorem extendedGauge_unitary
 
 /-- Finite Fan dominance between operators with **different codomains**.
 
-`PaperUnitaryInvariantNorm.prefixGauge_le_of_all_kyFan_le` compares two
+`SymmetricNormingFunction.prefixGauge_le_of_all_kyFan_le` compares two
 operators between the same pair of spaces.  A two-sided ideal estimate
 inherently compares `L ∘L A ∘L R : E →L[𝕜] G` with a rescaling of
 `A : E →L[𝕜] F`, so the homogeneous form is not applicable.  Only the real
 singular-value prefixes are compared, and those live in `Fin n → ℝ` whatever
 the operators' codomains are, so the statement generalizes verbatim. -/
-theorem prefixGauge_le_of_all_kyFan_le_hetero (N : PaperUnitaryInvariantNorm)
+theorem prefixGauge_le_of_all_kyFan_le_hetero (N : SymmetricNormingFunction)
     {A : E →L[𝕜] G} {B : E →L[𝕜] F}
     (h : ∀ k : ℕ, kyFanApproximationGauge k A ≤
       kyFanApproximationGauge k B) (n : ℕ) :
@@ -228,7 +228,7 @@ theorem prefixGauge_le_of_all_kyFan_le_hetero (N : PaperUnitaryInvariantNorm)
 
 /-- Universal Fan dominance between operators with different codomains. -/
 theorem extendedGauge_le_of_all_kyFan_le_hetero
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A : E →L[𝕜] G} {B : E →L[𝕜] F}
     (h : ∀ k : ℕ, kyFanApproximationGauge k A ≤
       kyFanApproximationGauge k B) :
@@ -241,7 +241,7 @@ theorem extendedGauge_le_of_all_kyFan_le_hetero
     (le_iSup (fun m : ℕ => ENNReal.ofReal (N.prefixGauge m B)) n)
 
 /-- The two-sided ideal estimate at the extended-value level. -/
-theorem extendedGauge_comp_le (N : PaperUnitaryInvariantNorm)
+theorem extendedGauge_comp_le (N : SymmetricNormingFunction)
     (L : F →L[𝕜] G) (A : E →L[𝕜] F) (R : E →L[𝕜] E) :
     N.extendedGauge (L ∘L A ∘L R) ≤
       ENNReal.ofReal ‖L‖ * N.extendedGauge A * ENNReal.ofReal ‖R‖ := by
@@ -265,7 +265,7 @@ theorem extendedGauge_comp_le (N : PaperUnitaryInvariantNorm)
   ring
 
 /-- Membership is a two-sided operator ideal. -/
-theorem comp_mem (N : PaperUnitaryInvariantNorm)
+theorem comp_mem (N : SymmetricNormingFunction)
     {A : E →L[𝕜] F} (hA : N.Mem A)
     (L : F →L[𝕜] G) (R : E →L[𝕜] E) :
     N.Mem (L ∘L A ∘L R) := by
@@ -282,7 +282,7 @@ theorem comp_mem (N : PaperUnitaryInvariantNorm)
   exact hfinite (top_le_iff.mp hle)
 
 /-- The real gauge is absolutely homogeneous on its ideal. -/
-theorem gauge_smul (N : PaperUnitaryInvariantNorm)
+theorem gauge_smul (N : SymmetricNormingFunction)
     (c : 𝕜) {A : E →L[𝕜] F} (_hA : N.Mem A) :
     N.gauge (c • A) = ‖c‖ * N.gauge A := by
   simp only [gauge]
@@ -291,7 +291,7 @@ theorem gauge_smul (N : PaperUnitaryInvariantNorm)
 
 /-- The real gauge is subadditive on its canonical ideal. -/
 theorem gauge_add_le [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A B : E →L[𝕜] F} (hA : N.Mem A) (hB : N.Mem B) :
     N.gauge (A + B) ≤ N.gauge A + N.gauge B := by
   have hsum : N.extendedGauge A + N.extendedGauge B ≠ ⊤ :=
@@ -307,7 +307,7 @@ theorem gauge_add_le [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} �
   exact hto
 
 /-- Exact ideal inequality for the real-valued source norm. -/
-theorem gauge_comp_le (N : PaperUnitaryInvariantNorm)
+theorem gauge_comp_le (N : SymmetricNormingFunction)
     {A : E →L[𝕜] F} (hA : N.Mem A)
     (L : F →L[𝕜] G) (R : E →L[𝕜] E) :
     N.gauge (L ∘L A ∘L R) ≤ ‖L‖ * N.gauge A * ‖R‖ := by
@@ -325,7 +325,7 @@ theorem gauge_comp_le (N : PaperUnitaryInvariantNorm)
 
 /-- The canonical source norm satisfies the contraction-compatibility law
 used in the paper. -/
-theorem gauge_comp_le_of_contractions (N : PaperUnitaryInvariantNorm)
+theorem gauge_comp_le_of_contractions (N : SymmetricNormingFunction)
     {A : E →L[𝕜] F} (hA : N.Mem A)
     (L : F →L[𝕜] G) (R : E →L[𝕜] E)
     (hL : ‖L‖ ≤ 1) (hR : ‖R‖ ≤ 1) :
@@ -338,7 +338,7 @@ theorem gauge_comp_le_of_contractions (N : PaperUnitaryInvariantNorm)
     _ ≤ 1 * N.gauge A := mul_le_mul_of_nonneg_right hL hnonneg
     _ = N.gauge A := one_mul _
 
-end PaperUnitaryInvariantNorm
+end SymmetricNormingFunction
 
 end
 

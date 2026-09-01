@@ -17,7 +17,7 @@ reviewer-facing declarations over a generic `RCLike` scalar field.
 
 The goal is semantic auditability rather than a new proof route.  The wrappers
 promote existing scalar-generic Ky Fan/UI-norm engines to the literal
-`PaperUnitaryInvariantNorm` used by the source census, and spell out source
+`SymmetricNormingFunction` used by the source census, and spell out source
 spectral hypotheses instead of hiding them in local gap structures whenever
 that can be done without weakening the theorem.
 
@@ -70,8 +70,8 @@ unwanted exact spectrum lies in `[alpha + delta, infinity)`.
 The theorem is finite-dimensional only because this wrapper reuses the
 scalar-generic singular-value engine.  The source census separately points to
 the arbitrary-dimensional/unbounded source theorems as scope companions. -/
-theorem tanTheta_directed_finiteDimensional_paperUINorm_rclike
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_finiteDimensional_symmetricNorming_rclike
+    (N : SymmetricNormingFunction)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
     (hU : IsInvariant A U)
@@ -108,8 +108,8 @@ unitary-invariant norm:
 As for the tangent wrapper above, this particular scalar-generic facade uses
 the finite-dimensional singular-value engine; arbitrary-dimensional and
 unbounded scope remains certified by the source-specific companion theorems. -/
-theorem sinTwoTheta_directed_finiteDimensional_paperUINorm_rclike
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_finiteDimensional_symmetricNorming_rclike
+    (N : SymmetricNormingFunction)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
     (hU : IsInvariant A U)

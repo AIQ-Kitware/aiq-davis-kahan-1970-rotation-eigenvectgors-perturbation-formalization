@@ -415,8 +415,8 @@ Fan level, where approximation numbers are preserved on the nose, so no
 scalar-fixed ideal family is compared across fields; the tangent representative
 is then constructed over the real trial space itself, in either dimension; and
 Fan dominance supplies the source norm. -/
-theorem tanTheta_directed_bounded_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_bounded_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (T : E →L[ℝ] E) (hT : IsSelfAdjoint T)
     (V Z : Submodule ℝ E) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
     (hV : T.Reduces V) {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -452,10 +452,10 @@ theorem tanTheta_directed_bounded_paperUINorm_real
 unitarily invariant norm, for an arbitrary infinite-dimensional trial space.
 
 The infinite-dimensional trial restriction is no longer needed; this is the
-recorded specialization of `tanTheta_directed_bounded_paperUINorm_real`, kept because it
+recorded specialization of `tanTheta_directed_bounded_symmetricNorming_real`, kept because it
 is the form the census cites. -/
-theorem tanTheta_directed_bounded_arbitraryDimension_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_bounded_arbitraryDimension_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (T : E →L[ℝ] E) (hT : IsSelfAdjoint T)
     (V Z : Submodule ℝ E) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
     (_hinf : Not (FiniteDimensional ℝ Z))
@@ -467,7 +467,7 @@ theorem tanTheta_directed_bounded_arbitraryDimension_paperUINorm_real
       And (HasTheorem63DirectedTangentApproximationNumbersInfiniteReal Z V tanTheta0)
         (And (N.Mem tanTheta0)
           (delta * N.gauge tanTheta0 <= N.gauge (theorem63ResidualReal T Z)))) :=
-  tanTheta_directed_bounded_paperUINorm_real N T hT V Z hV hdelta hCompressionUpper
+  tanTheta_directed_bounded_symmetricNorming_real N T hT V Z hV hdelta hCompressionUpper
     hUnwantedLower hResidual
 
 /-! ### The printed spectral orientation over a real Hilbert space
@@ -486,11 +486,11 @@ unwanted exact subspace lies in `[α + δ, ∞)`, and the conclusion is `δ N(ta
 the paper's norm class, with the tangent representative exhibited and its membership
 concluded.  Real Hilbert space of arbitrary dimension, arbitrary closed real trial subspace.
 
-Grounded on `tanTheta_directed_bounded_paperUINorm_real`; the spectral placement is converted to the
+Grounded on `tanTheta_directed_bounded_symmetricNorming_real`; the spectral placement is converted to the
 form bounds by the two `TauCeti.SpectralOrder.Real` bridges, exactly as
-`tanTheta_directed_bounded_spectralGap_paperUINorm_complex` uses their complex twins. -/
-theorem tanTheta_directed_bounded_spectralGap_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+`tanTheta_directed_bounded_spectralGap_symmetricNorming_complex` uses their complex twins. -/
+theorem tanTheta_directed_bounded_spectralGap_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (T : E →L[ℝ] E) (hT : IsSelfAdjoint T)
     (V Z : Submodule ℝ E) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
     (hV : T.Reduces V)
@@ -517,7 +517,7 @@ theorem tanTheta_directed_bounded_spectralGap_paperUINorm_real
   have hUnwantedLower : ∀ y ∈ Vᗮ, (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪T y, y⟫_ℝ :=
     SpectralOrder.Real.lowerFormBoundOn_of_restriction_spectrum_subset_Ici
       hTsym hV.2 hUnwantedSpectrum
-  exact tanTheta_directed_bounded_paperUINorm_real N T hT V Z hV hdelta hCompressionUpper
+  exact tanTheta_directed_bounded_symmetricNorming_real N T hT V Z hV hdelta hCompressionUpper
     hUnwantedLower hResidual
 
 /-! ### The perturbation companion over a real Hilbert space
@@ -593,7 +593,7 @@ theorem approximationSingularValue_theorem63ResidualReal_le_of_invariant
 norm.**
 
 If the real trial space `Z` is invariant for the perturbed operator `T + P`, and `T` reduces
-`V` with the source gap, then `δ N(tan Θ₀) ≤ N(P|_Z)` for every `PaperUnitaryInvariantNorm`,
+`V` with the source gap, then `δ N(tan Θ₀) ≤ N(P|_Z)` for every `SymmetricNormingFunction`,
 with the tangent representative exhibited and its membership concluded.  Real Hilbert space
 of arbitrary dimension, arbitrary closed real trial subspace.
 
@@ -604,8 +604,8 @@ what the estimate controls and the sharper statement.
 This is the real counterpart of
 `Experimental.MathAhead.Section2.theorem6_3_perturbation_infiniteTrial`, at the paper's own
 norm class rather than at a scalar-fixed ideal family. -/
-theorem tanTheta_directed_bounded_perturbation_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_bounded_perturbation_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (T P : E →L[ℝ] E) (hT : IsSelfAdjoint T)
     (V Z : Submodule ℝ E) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
     (hV : T.Reduces V) {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -686,10 +686,10 @@ theorem norm_paperSinAngleOperatorR_lt_one_of_crossedDefectsEquivalent
 /-- **The whole-space `tan Θ` theorem over a REAL Hilbert space, for every source unitarily
 invariant norm, under the printed standing assumptions only.**
 
-Identical to `tanTheta_ambient_bounded_paperUINorm_real_of_transversality` except that uniform transversality is no
+Identical to `tanTheta_ambient_bounded_symmetricNorming_real_of_transversality` except that uniform transversality is no
 longer a hypothesis: it is derived from the form bounds and the printed (3.5). -/
-theorem tanTheta_ambient_bounded_paperUINorm_real_of_crossedDefects
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_bounded_symmetricNorming_real_of_crossedDefects
+    (N : SymmetricNormingFunction)
     {A T : E →L[ℝ] E} {U V : Submodule ℝ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hT : IsSelfAdjoint T) (hA : IsSelfAdjoint A)
@@ -701,7 +701,7 @@ theorem tanTheta_ambient_bounded_paperUINorm_real_of_crossedDefects
     (hMem : N.Mem (T - A)) :
     N.Mem (paperTanAngleOperatorR U V) ∧
       delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge (T - A) :=
-  tanTheta_ambient_bounded_paperUINorm_real_of_transversality N hT hA hV hAU hdelta hCompressionUpper
+  tanTheta_ambient_bounded_symmetricNorming_real_of_transversality N hT hA hV hAU hdelta hCompressionUpper
     hUnwantedLower
     (norm_paperSinAngleOperatorR_lt_one_of_crossedDefectsEquivalent T hT U V hV hdelta
       hCompressionUpper hUnwantedLower h35) hMem

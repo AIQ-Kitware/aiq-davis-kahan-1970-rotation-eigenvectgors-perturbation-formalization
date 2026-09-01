@@ -15,7 +15,7 @@ paper-facing production surface.  The analytic engine is scalar-generic through
 `HasUnboundedSylvesterKyFan`; that class has instances for both scalar fields of
 the paper, `R` and `C`.
 
-The public theorem `sinTheta_unbounded_intervalExterior_paperUINorm_rclike` avoids the historical bundled
+The public theorem `sinTheta_unbounded_intervalExterior_symmetricNorming_rclike` avoids the historical bundled
 problem records.  It displays the operators, coordinate maps, residual
 identity, exact-space decomposition, interval/exterior spectral separation,
 and universal source unitary-invariant norm directly in its type.
@@ -101,17 +101,17 @@ the factor-one inequality.
 matters for source fidelity rather than for generality alone: the printed
 theorem separates the spectra by an interval and its exterior, and the source
 also permits those intervals to be half-infinite, which is what the two
-semibounded constructors carry.  `sinTheta_unbounded_intervalExterior_paperUINorm_rclike` below is this theorem
+semibounded constructors carry.  `sinTheta_unbounded_intervalExterior_symmetricNorming_rclike` below is this theorem
 with the bounded-interval branch spelled out, and
-`DavisKahan1970.sinTheta_unbounded_formGap_paperUINorm_rclike` is it again with the
+`DavisKahan1970.sinTheta_unbounded_formGap_symmetricNorming_rclike` is it again with the
 structural hypotheses bundled as `IsTrialResidual` and `IsExactSpectralDecomposition`.
 
 The two class hypotheses are analytic capabilities of the scalar field, proved
 for `R` and `C`; they are present only because `RCLike` is an open class. -/
-theorem sinTheta_unbounded_formGap_paperUINorm_ofComponents_rclike
+theorem sinTheta_unbounded_formGap_symmetricNorming_ofComponents_rclike
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     [HasUnboundedSylvesterKyFan.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A : E →ₗ.[𝕜] E)
     (A₀ : F →ₗ.[𝕜] F)
     (Λ₁ : G →ₗ.[𝕜] G)
@@ -180,10 +180,10 @@ explicitly instead of hiding it in a local problem structure.
 The interval/exterior hypothesis is written literally: one of `A0` and
 `Lambda1` has real spectrum in `[beta, alpha]`, while the other avoids the open
 `delta`-neighborhood of that interval. -/
-theorem sinTheta_unbounded_intervalExterior_paperUINorm_rclike
+theorem sinTheta_unbounded_intervalExterior_symmetricNorming_rclike
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     [HasUnboundedSylvesterKyFan.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A : E →ₗ.[𝕜] E)
     (A₀ : F →ₗ.[𝕜] F)
     (Λ₁ : G →ₗ.[𝕜] G)
@@ -220,7 +220,7 @@ theorem sinTheta_unbounded_intervalExterior_paperUINorm_rclike
     N.Mem ((ContinuousLinearMap.id 𝕜 E - F₀ ∘L F₀.adjoint) ∘L E₀) ∧
       δ * N.gauge ((ContinuousLinearMap.id 𝕜 E - F₀ ∘L F₀.adjoint) ∘L E₀) ≤
         N.gauge R :=
-  sinTheta_unbounded_formGap_paperUINorm_ofComponents_rclike N A A₀ Λ₁ E₀ F₀ F₁ R
+  sinTheta_unbounded_formGap_symmetricNorming_ofComponents_rclike N A A₀ Λ₁ E₀ F₀ F₁ R
     hA hA₀ hΛ₁ hE₀ hF₀ hF₁ horth hdecomp hE₀dom hF₁dom hresidual hintertwines
     hδ (FormBoundedSylvesterGap.intervalExterior hβα hspectral) hR
 

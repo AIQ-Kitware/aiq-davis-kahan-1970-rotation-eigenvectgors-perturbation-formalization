@@ -27,16 +27,27 @@ open DavisKahan.ExactSinTheta
 
 /-! ## Source norm class -/
 
-alias UnitaryInvariantNorm := PaperUnitaryInvariantNorm
-alias SymmetricNormingFunction := PaperSymmetricNormingFunction
-alias unitaryInvariantNorm_equiv_symmetricNormingFunction :=
-  PaperSymmetricNormingFunction.paperNormEquiv
-alias unitaryInvariantNorm_operator_laws :=
-  PaperUnitaryInvariantNorm.gauge_comp_le
-alias unitaryInvariantNorm_definite :=
-  PaperUnitaryInvariantNorm.gauge_eq_zero_iff
-alias nuclearNorm := paperNuclearNorm
-alias unitaryInvariantNorm_nonempty := paperUnitaryInvariantNorm_nonempty
+-- `SymmetricNormingFunction` and its `.Axiomatic` presentation are named
+-- directly; the former `UnitaryInvariantNorm` / `SymmetricNormingFunction`
+-- aliases duplicated the canonical names and are gone.
+/-- The dimension-coherent and axiomatic presentations of a normalized symmetric
+norming function are equivalent, so quantifying over the former excludes no norm
+in the source class. -/
+alias symmetricNormingFunction_equiv_axiomatic :=
+  SymmetricNormingFunction.Axiomatic.equiv
+
+/-- The induced norm is submultiplicative under composition with bounded
+operators, which is what makes its finiteness locus an operator ideal. -/
+alias symmetricNormingFunction_operator_laws :=
+  SymmetricNormingFunction.gauge_comp_le
+
+/-- The induced norm is definite on its ideal: it vanishes only at zero. -/
+alias symmetricNormingFunction_definite :=
+  SymmetricNormingFunction.gauge_eq_zero_iff
+alias nuclearNorm := nuclearNormingFunction
+/-- The source norm class is inhabited, so the universally quantified Section 2
+theorems are not vacuous. -/
+alias sourceNormClass_nonempty := symmetricNormingFunction_nonempty
 
 /-! ## Literal angle objects -/
 
@@ -76,7 +87,7 @@ alias fullSinAngleCoordinates_real := paperSourceFullSinR
 alias lemma6_1_kyFan := paperLemma61_all_kyFan
 alias lemma6_1 := paperLemma61_every_unitarilyInvariantNorm
 alias lemma6_1_converse := paperLemma61_converse
-alias lemma6_2 := paperDiagonalPair_paperGauge_le
+alias lemma6_2 := paperDiagonalPair_normingGauge_le
 alias lemma6_2_kyFan := paperDiagonalPair_all_kyFan_le
 
 /-! ## Original and generalized sine theorems -/
@@ -143,7 +154,7 @@ alias Proposition6_1_real :=
 alias Proposition6_1_real_kyFan :=
   PaperRealSymmetricSinThetaProblem.symmetric_all_kyFan_real
 alias Proposition6_1_real_sinTheta_singularValues :=
-  PaperRealSymmetricSinThetaProblem.crossSineSum_paperMem_iff_and_gauge_eq
+  PaperRealSymmetricSinThetaProblem.crossSineSum_normingMem_iff_and_gauge_eq
 alias Proposition6_1_real_sinTheta_eq_literalFullSinAngle :=
   approximationNumber_paperSourceFullSinR_eq_paperCrossSineSum
 alias Proposition6_1_real_representative :=
@@ -207,7 +218,7 @@ alias Proposition6_1_commonDomain_crossSineSum :=
 alias Proposition6_1_commonDomain_crossSineSum_kyFan :=
   PaperCommonDomainSymmetricSinThetaProblem.symmetric_all_kyFan_crossSineSum
 alias Proposition6_1_commonDomain_sinTheta_singularValues :=
-  PaperCommonDomainSymmetricSinThetaProblem.crossSineSum_paperMem_iff_and_gauge_eq
+  PaperCommonDomainSymmetricSinThetaProblem.crossSineSum_normingMem_iff_and_gauge_eq
 alias Proposition6_1_real_commonDomain :=
   PaperCommonDomainSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_real
 alias Proposition6_1_real_commonDomain_kyFan :=

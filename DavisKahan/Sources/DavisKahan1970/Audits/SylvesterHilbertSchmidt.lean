@@ -33,8 +33,8 @@ namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
 
-#check paperNuclearNorm
-#check paperUnitaryInvariantNorm_nonempty
+#check nuclearNormingFunction
+#check symmetricNormingFunction_nonempty
 #check TauCeti.HilbertSchmidt.ofLp
 #check isPaperHilbertSchmidt_iff_existsUnique_tensor
 #check paperHilbertSchmidtNorm_toOperator
@@ -52,7 +52,7 @@ namespace ExactSinTheta
 #check paperHilbertSchmidt_sylvester_le_of_pairwiseSpectrumGap_direct
 #check paperHilbertSchmidt_sylvester_real_le_of_pairwiseSpectrumGap_direct
 
-#print axioms paperUnitaryInvariantNorm_nonempty
+#print axioms symmetricNormingFunction_nonempty
 #print axioms isPaperHilbertSchmidt_iff_existsUnique_tensor
 #print axioms paperHilbertSchmidtNorm_toOperator
 #print axioms TauCeti.HilbertSchmidt.generator_sylvesterGroup_apply

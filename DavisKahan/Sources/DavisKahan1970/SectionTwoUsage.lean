@@ -25,8 +25,10 @@ What the four ask for, in the vocabulary of the subject:
   restrictions, or the printed ordered/interval separation written out;
 * **the residual or perturbation** is a bounded operator: `R` in the `sin Θ`
   theorem, `H` in `tan Θ`, `E` in `sin 2Θ`, `B` in `tan 2Θ`;
-* **the norm** is a `PaperUnitaryInvariantNorm`, the paper's symmetric gauge, and
-  ideal membership of the perturbation (`N.Mem`) is a hypothesis while ideal
+* **the norm** is a `SymmetricNormingFunction`: a normalized symmetric norming
+  function, which induces a unitarily invariant norm on singular values and with
+  it a symmetrically normed ideal.  `N.gauge` is that norm and `N.Mem` is
+  membership of that ideal.  Membership of the perturbation is a hypothesis while
   membership of the angle is part of the conclusion -- in infinite dimension that
   is a statement, not a side condition;
 * **the angle** in the conclusion is a paper object:
@@ -78,10 +80,10 @@ variable {E F G H : Type v}
 inside `[β, α]`, the complementary spectrum outside `(β - δ, α + δ)`.
 
 `FormBoundedSylvesterGap.intervalExterior` turns that into the gap the theorem
-takes, and `_root_.DavisKahan1970.sinTheta_unbounded_intervalExterior_paperUINorm_complex` packages
+takes, and `_root_.DavisKahan1970.sinTheta_unbounded_intervalExterior_symmetricNorming_complex` packages
 the same step; this spells it out so the seam is visible. -/
 theorem sinTheta_from_printed_separation
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A : E →ₗ.[ℂ] E) (A₀ : F →ₗ.[ℂ] F) (Λ₁ : G →ₗ.[ℂ] G)
     (E₀ : F →L[ℂ] E) (F₀ : H →L[ℂ] E) (F₁ : G →L[ℂ] E) (R : F →L[ℂ] E)
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
@@ -115,7 +117,7 @@ theorem sinTheta_from_printed_separation_rclike
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
     [NormedAddCommGroup H] [InnerProductSpace 𝕜 H] [CompleteSpace H]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A : E →ₗ.[𝕜] E) (A₀ : F →ₗ.[𝕜] F) (Λ₁ : G →ₗ.[𝕜] G)
     (E₀ : F →L[𝕜] E) (F₀ : H →L[𝕜] E) (F₁ : G →L[𝕜] E) (R : F →L[𝕜] E)
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
@@ -148,7 +150,7 @@ theorem's projection-commutation clauses.
 `DavisKahan.ReducingComplement.ofReducesSubspace` is the only step; everything
 else is the mathematics the theorem is about. -/
 theorem tanTheta_from_reducingSubspace
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℂ] E}
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace U]
@@ -173,7 +175,7 @@ theorem tanTheta_from_reducingSubspace
 `UnboundedTrialBlock` bundle, so neither of the two structural objects has to be
 assembled by hand. -/
 theorem tanTheta_from_trialBlock
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℂ] E}
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace U]
@@ -216,7 +218,7 @@ both half-infinite configurations.  `sinTwoTheta_from_halfInfinite_separation`
 below exercises one of the latter, which is the case the endpoint could not be
 written at until the complex full-gap route landed. -/
 theorem sinTwoTheta_from_printed_separation
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A : E →ₗ.[ℂ] E) (hA : IsSelfAdjoint A)
     (Eop : E →L[ℂ] E) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -246,7 +248,7 @@ half-infinite", and this is that configuration: `[c + δ, ∞)` against `(-∞, 
 The caller supplies the two form bounds and nothing else — no finite `β ≤ α`, no
 spectrum-avoidance certificate. -/
 theorem sinTwoTheta_from_halfInfinite_separation
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A : E →ₗ.[ℂ] E) (hA : IsSelfAdjoint A)
     (Eop : E →L[ℂ] E) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -286,7 +288,7 @@ its commutation; the caller never builds a spectral reflection, never proves it
 self-adjoint or involutive, and never certifies that `cos 2θ` avoids zero -- the
 ordered gap already forces that. -/
 theorem tanTwoTheta_from_reducingSubspace
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℂ] E} {B : E →L[ℂ] E} {a b c : ℝ}
     (V : Submodule ℂ E) [V.HasOrthogonalProjection]
     (hA : IsSelfAdjoint A)

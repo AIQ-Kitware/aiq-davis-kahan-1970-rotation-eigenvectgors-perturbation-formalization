@@ -29,7 +29,7 @@ singular-value sequence.
 
 ## Main results
 
-* `tanTwoTheta_ambient_unbounded_reducing_sineSequence_paperUINorm_real`.
+* `tanTwoTheta_ambient_unbounded_reducing_sineSequence_symmetricNorming_real`.
 
 ## References
 
@@ -130,8 +130,8 @@ sine.**
 left-hand side a statement about the sequence `|tan 2θⱼ|`: no doubled angle is a
 quarter turn, and the operator's singular values are exactly
 `tan (arcsin aₙ(sin 2Θ))`.  Both are derived from the ordered gap. -/
-theorem tanTwoTheta_ambient_unbounded_reducing_sineSequence_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_unbounded_reducing_sineSequence_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (V : Submodule ℝ E) [V.HasOrthogonalProjection]
     (hBsa : IsSelfAdjoint B) (hV : DavisKahan.ReflectionIntertwines A B V)
     (hBmem : N.Mem B) :
@@ -144,7 +144,7 @@ theorem tanTwoTheta_ambient_unbounded_reducing_sineSequence_paperUINorm_real
       N.Mem (paperAbsTanTwoAngleOperatorR U V) ∧
       (b - a) * N.gauge (paperAbsTanTwoAngleOperatorR U V) ≤ 2 * N.gauge B := by
   obtain ⟨hunit, hmem, hle⟩ :=
-    tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_real
+    tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_symmetricNorming_real
       hA hred hB (TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V)
       (TauCeti.DavisKahan.reflectionOperator_mul_self_complex V)
       hV.mapsDomain hV.commutes hUa hUb hab N hBsa hBmem
@@ -174,9 +174,9 @@ theorem tanTwoTheta_ambient_unbounded_reducing_sineSequence_paperUINorm_real
       complexify_paperAbsTanTwoAngleOperatorR]
     exact approximationNumber_paperAbsTanTwoAngleOperatorC_projectorDifference
       (complexifySubmodule U) (complexifySubmodule V) hcos n
-  · unfold PaperUnitaryInvariantNorm.Mem at hmem ⊢
+  · unfold SymmetricNormingFunction.Mem at hmem ⊢
     rwa [← hgauge]
-  · unfold PaperUnitaryInvariantNorm.gauge at hle ⊢
+  · unfold SymmetricNormingFunction.gauge at hle ⊢
     rwa [← hgauge]
 
 end AmbientReal

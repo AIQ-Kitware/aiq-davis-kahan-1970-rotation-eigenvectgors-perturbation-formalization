@@ -80,39 +80,39 @@ private theorem approximationSingularValue_directedCorner_complexify
 /-- Every paper norm gives the same extended value to a real directed corner
 and to the corresponding corner of the complexified subspace. -/
 private theorem directedCorner_extendedGauge_complexify
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (U : Submodule ℝ E) [U.HasOrthogonalProjection] (K : E →L[ℝ] E) :
     N.extendedGauge
         (paperBlockCompression (complexifySubmodule U)ᗮ (complexifySubmodule U)
           (complexify K)) =
       N.extendedGauge (paperBlockCompression Uᗮ U K) := by
-  unfold PaperUnitaryInvariantNorm.extendedGauge
+  unfold SymmetricNormingFunction.extendedGauge
   apply iSup_congr
   intro n
   apply congrArg ENNReal.ofReal
-  unfold PaperUnitaryInvariantNorm.prefixGauge PaperUnitaryInvariantNorm.approximationPrefix
+  unfold SymmetricNormingFunction.prefixGauge SymmetricNormingFunction.approximationPrefix
   apply congrArg (N.finiteGauge n)
   funext i
   exact approximationSingularValue_directedCorner_complexify U K i
 
 private theorem directedCorner_mem_complexify_iff
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (U : Submodule ℝ E) [U.HasOrthogonalProjection] (K : E →L[ℝ] E) :
     N.Mem
         (paperBlockCompression (complexifySubmodule U)ᗮ (complexifySubmodule U)
           (complexify K)) ↔
       N.Mem (paperBlockCompression Uᗮ U K) := by
-  unfold PaperUnitaryInvariantNorm.Mem
+  unfold SymmetricNormingFunction.Mem
   rw [directedCorner_extendedGauge_complexify N U K]
 
 private theorem directedCorner_gauge_complexify
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (U : Submodule ℝ E) [U.HasOrthogonalProjection] (K : E →L[ℝ] E) :
     N.gauge
         (paperBlockCompression (complexifySubmodule U)ᗮ (complexifySubmodule U)
           (complexify K)) =
       N.gauge (paperBlockCompression Uᗮ U K) := by
-  unfold PaperUnitaryInvariantNorm.gauge
+  unfold SymmetricNormingFunction.gauge
   rw [directedCorner_extendedGauge_complexify N U K]
 
 /-- The ambient reflection tangent depends only on the value of the source
@@ -120,7 +120,7 @@ subspace.  This packages proof irrelevance for its projection instance. -/
 private theorem reflectionResidualCorner_mem_congr_unboundedExactReal
     {k : Type*} [RCLike k] {G : Type*}
     [NormedAddCommGroup G] [InnerProductSpace k G] [CompleteSpace G]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {U V : Submodule k G} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (h : U = V) (B : G →L[k] G) :
     N.Mem (reflectionResidualCorner U B) ↔ N.Mem (reflectionResidualCorner V B) := by
@@ -130,7 +130,7 @@ private theorem reflectionResidualCorner_mem_congr_unboundedExactReal
 private theorem reflectionTangentCorner_mem_congr_unboundedExactReal
     {k : Type*} [RCLike k] {G : Type*}
     [NormedAddCommGroup G] [InnerProductSpace k G] [CompleteSpace G]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {U V : Submodule k G} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (h : U = V) (Z : G →L[k] G) :
     N.Mem (reflectionTangentCorner U Z) ↔ N.Mem (reflectionTangentCorner V Z) := by
@@ -140,7 +140,7 @@ private theorem reflectionTangentCorner_mem_congr_unboundedExactReal
 private theorem reflectionResidualCorner_gauge_congr_unboundedExactReal
     {k : Type*} [RCLike k] {G : Type*}
     [NormedAddCommGroup G] [InnerProductSpace k G] [CompleteSpace G]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {U V : Submodule k G} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (h : U = V) (B : G →L[k] G) :
     N.gauge (reflectionResidualCorner U B) = N.gauge (reflectionResidualCorner V B) := by
@@ -150,7 +150,7 @@ private theorem reflectionResidualCorner_gauge_congr_unboundedExactReal
 private theorem reflectionTangentCorner_gauge_congr_unboundedExactReal
     {k : Type*} [RCLike k] {G : Type*}
     [NormedAddCommGroup G] [InnerProductSpace k G] [CompleteSpace G]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {U V : Submodule k G} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (h : U = V) (Z : G →L[k] G) :
     N.gauge (reflectionTangentCorner U Z) = N.gauge (reflectionTangentCorner V Z) := by
@@ -195,8 +195,8 @@ private theorem complexified_reducing_commutation
 The caller sees exactly the real source data.  The complexification used in the
 proof is discharged completely: the conclusion is a real directed corner, its
 real pole certificate, and the same paper unitarily invariant norm. -/
-theorem tanTwoTheta_directed_unboundedResidual_blockRepresentative_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E} {B Z : E →L[ℝ] E} {a b c : ℝ}
     (hA : _root_.IsSelfAdjoint A)
     (hB : TauCeti.IsOddFor
@@ -291,7 +291,7 @@ theorem tanTwoTheta_directed_unboundedResidual_blockRepresentative_paperUINorm_r
         (complexify B)) :=
     (reflectionResidualCorner_mem_congr_unboundedExactReal
       N hUeq (complexify B)).1 hRmem0
-  have hc := tanTwoTheta_directed_unboundedResidual_blockRepresentative_paperUINorm_complex
+  have hc := tanTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNorming_complex
     N hAc hB' hZsa' hZ2' hZdom' hZcomm' hUa' hUb' hab hRmem'
   have hCCc := hc.1
   have hdiag :
@@ -343,8 +343,8 @@ theorem tanTwoTheta_directed_unboundedResidual_blockRepresentative_paperUINorm_r
 This is a genuine real-Hilbert-space statement.  The complex ambient theorem is
 used only internally; its reflection tangent and source norm descend exactly to
 the real operators. -/
-theorem tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E} {B Z : E →L[ℝ] E} {a b c : ℝ}
     (hA : _root_.IsSelfAdjoint A)
     (hBsa : IsSelfAdjoint B)
@@ -431,7 +431,7 @@ theorem tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_real
   have hZ2' : complexify Z * complexify Z = 1 := by
     rw [← complexify_mul, hZ2, complexify_one]
   have hBmem' : N.Mem (complexify B) := (N.mem_complexify_iff B).2 hBmem
-  have hc := tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex
+  have hc := tanTwoTheta_ambient_unbounded_blockRepresentative_symmetricNorming_complex
     N hAc hBsa' hB' hZsa' hZ2' hZdom' hZcomm' hUa' hUb' hab hBmem'
   have hCCc := hc.1
   have hdiag :
@@ -467,8 +467,8 @@ theorem tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_real
 /-! ## The subspace-taking real endpoints
 
 The two theorems below are the real mirror of
-`tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex` and
-`tanTwoTheta_ambient_unbounded_paperUINorm_complex`.  A caller supplies the
+`tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_symmetricNorming_complex` and
+`tanTwoTheta_ambient_unbounded_symmetricNorming_complex`.  A caller supplies the
 operator, the perturbation, the selected subspace, the ordered gap and the ideal
 membership; the reflection, its self-adjointness, its involutivity and the block
 tangent are all supplied by the library, and no pole certificate is asked for. -/
@@ -476,10 +476,10 @@ tangent are all supplied by the library, and no pole certificate is asked for. -
 /-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form over `ℝ`, taking the
 reducing subspace rather than a reflection witness.**
 
-`tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_real` with `Z = V.reflectionOperator`
+`tanTwoTheta_ambient_unbounded_blockRepresentative_symmetricNorming_real` with `Z = V.reflectionOperator`
 and with `Z` self-adjoint and involutive supplied by the library. -/
-theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E} {B : E →L[ℝ] E} {a b c : ℝ}
     (V : Submodule ℝ E) [V.HasOrthogonalProjection]
     (hA : _root_.IsSelfAdjoint A)
@@ -507,7 +507,7 @@ theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_pape
         (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic)
         (V.reflectionOperator)) ≤
         2 * N.gauge B :=
-  tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_real N hA hBsa hB
+  tanTwoTheta_ambient_unbounded_blockRepresentative_symmetricNorming_real N hA hBsa hB
     (TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V)
     (TauCeti.DavisKahan.reflectionOperator_mul_self_complex V)
     hV.mapsDomain hV.commutes hUa hUb hab hBmem
@@ -515,7 +515,7 @@ theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_pape
 /-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form over `ℝ`, on the paper's
 angle operator.**
 
-The same theorem as `tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_real`,
+The same theorem as `tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_symmetricNorming_real`,
 with the proof's block tangent replaced by the paper's real ambient `|tan 2Θ|`;
 see `DavisKahan.extendedGauge_unboundedReflectionTangent_real`.
 
@@ -524,8 +524,8 @@ reflection's diagonal block to be invertible -- the first component of the theor
 above -- and that unit is exactly what excludes the quarter-turn poles.  No branch
 is chosen either: principal angles may exceed `π/4`, and `|tan 2Θ|` is what a norm
 sees there. -/
-theorem tanTwoTheta_ambient_unbounded_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_unbounded_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E} {B : E →L[ℝ] E} {a b c : ℝ}
     (V : Submodule ℝ E) [V.HasOrthogonalProjection]
     (hA : _root_.IsSelfAdjoint A)
@@ -547,14 +547,14 @@ theorem tanTwoTheta_ambient_unbounded_paperUINorm_real
         (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic) V) ≤
         2 * N.gauge B := by
   obtain ⟨hunit, hmem, hle⟩ :=
-    tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_real N V hA hBsa hB hV hUa
+    tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_symmetricNorming_real N V hA hBsa hB hV hUa
       hUb hab hBmem
   have hgauge := DavisKahan.extendedGauge_unboundedReflectionTangent_real
     (TauCeti.LinearPMap.realSpecRange hA (Set.Iic c) measurableSet_Iic) V N hunit
   refine ⟨?_, ?_⟩
-  · unfold PaperUnitaryInvariantNorm.Mem at hmem ⊢
+  · unfold SymmetricNormingFunction.Mem at hmem ⊢
     rwa [← hgauge]
-  · unfold PaperUnitaryInvariantNorm.gauge at hle ⊢
+  · unfold SymmetricNormingFunction.gauge at hle ⊢
     rwa [← hgauge]
 
 
@@ -630,15 +630,15 @@ private theorem complexified_lower_form_bound_reducing :
 
 /-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form over `ℝ`, at an
 arbitrary reducing subspace**, on the block representative. -/
-theorem tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm) (hBsa : IsSelfAdjoint B) (hBmem : N.Mem B) :
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_symmetricNorming_real
+    (N : SymmetricNormingFunction) (hBsa : IsSelfAdjoint B) (hBmem : N.Mem B) :
     IsUnit (U.diagonalPart Z * U.diagonalPart Z) ∧
       N.Mem (unboundedReflectionTangent U Z) ∧
       (b - a) * N.gauge (unboundedReflectionTangent U Z) ≤ 2 * N.gauge B := by
   classical
   have hAc : _root_.IsSelfAdjoint (TauCeti.LinearPMap.complexifyReal A) :=
     TauCeti.LinearPMap.isSelfAdjoint_complexifyReal hA
-  have hc := tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_complex
+  have hc := tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_symmetricNorming_complex
     hAc (reducesSubspace_complexifyReal hred) (isOddFor_complexifySubmodule hB)
     ((complexify_isSelfAdjoint_iff Z).2 hZsa)
     (by rw [← complexify_mul, hZ2, complexify_one])
@@ -662,8 +662,8 @@ theorem tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_r
 
 /-- **Davis--Kahan 1970, `tan 2Θ`, unbounded directed residual form over `ℝ`, at
 an arbitrary reducing subspace.** -/
-theorem tanTwoTheta_directed_unboundedResidual_reducing_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (hRmem : N.Mem (paperBlockCompression Uᗮ U B)) :
     IsUnit (U.diagonalPart Z * U.diagonalPart Z) ∧
       N.Mem (reflectionTangentCorner U Z) ∧
@@ -672,7 +672,7 @@ theorem tanTwoTheta_directed_unboundedResidual_reducing_paperUINorm_real
   classical
   have hAc : _root_.IsSelfAdjoint (TauCeti.LinearPMap.complexifyReal A) :=
     TauCeti.LinearPMap.isSelfAdjoint_complexifyReal hA
-  have hc := tanTwoTheta_directed_unboundedResidual_reducing_paperUINorm_complex
+  have hc := tanTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_complex
     hAc (reducesSubspace_complexifyReal hred) (isOddFor_complexifySubmodule hB)
     ((complexify_isSelfAdjoint_iff Z).2 hZsa)
     (by rw [← complexify_mul, hZ2, complexify_one])
@@ -714,8 +714,8 @@ sine.**
 that make the left-hand side a statement about the sequence `|tan 2θⱼ|`: no
 directed doubled angle is a quarter turn, and the corner's singular values are
 exactly `tan (arcsin aₙ(sin 2Θ₀))`, each directed principal angle once. -/
-theorem tanTwoTheta_directed_unboundedResidual_reducing_sineSequence_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_directed_unboundedResidual_reducing_sineSequence_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (V : Submodule ℝ E) [V.HasOrthogonalProjection]
     (hA : _root_.IsSelfAdjoint A)
     (hred : TauCeti.LinearPMap.ReducesSubspace A U)
@@ -737,7 +737,7 @@ theorem tanTwoTheta_directed_unboundedResidual_reducing_sineSequence_paperUINorm
   have hZsa := TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V
   have hZ2 := TauCeti.DavisKahan.reflectionOperator_mul_self_complex V
   obtain ⟨hCC, hmem, hle⟩ :=
-    tanTwoTheta_directed_unboundedResidual_reducing_paperUINorm_real hA hred hB
+    tanTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_real hA hred hB
       hZsa hZ2 hV.mapsDomain hV.commutes hUa hUb hab N hRmem
   have hAc : _root_.IsSelfAdjoint (TauCeti.LinearPMap.complexifyReal A) :=
     TauCeti.LinearPMap.isSelfAdjoint_complexifyReal hA

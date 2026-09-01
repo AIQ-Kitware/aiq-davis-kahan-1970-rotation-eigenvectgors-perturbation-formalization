@@ -12,7 +12,7 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNormLaw
 
 Several results Davis and Kahan state "for every unitary-invariant norm" are
 proved here at an arbitrary `KyFanDominantIdealFamily`.  That is a genuine
-theorem and, as a quantifier, it is not the printed one: `PaperUnitaryInvariantNorm`
+theorem and, as a quantifier, it is not the printed one: `SymmetricNormingFunction`
 is the repository's model of the source's norm object -- a normalized symmetric
 gauge read on the complete approximation-singular-value sequence -- and a
 reviewer comparing a Lean statement with the paper should see it.
@@ -20,8 +20,8 @@ reviewer comparing a Lean statement with the paper should see it.
 The gap is bridgeable once and for all.  A `KyFanDominantIdealFamily`-quantified
 estimate can be instantiated at the finite Ky Fan gauges themselves, which are
 such families; that yields Ky Fan majorization, and Fan dominance
-(`PaperUnitaryInvariantNorm.mul_gauge_le_of_all_mul_kyFan_le`) turns majorization
-into the same estimate at every source norm.  `paperUINorm_of_kyFanDominant`
+(`SymmetricNormingFunction.mul_gauge_le_of_all_mul_kyFan_le`) turns majorization
+into the same estimate at every source norm.  `symmetricNorming_of_kyFanDominant`
 below is that bridge, and the endpoints after it are its instances.
 
 This module adds no mathematics beyond the bridge: each endpoint is the already
@@ -31,10 +31,10 @@ supporting evidence in the result inventory.
 
 ## Main results
 
-* `paperUINorm_of_kyFanDominant`;
-* `Corollary4_1_compact_nonacute_paperUINorm_complex` and `..._real`;
-* `Proposition4_3_compact_nonacute_paperUINorm_complex` and `..._real`;
-* `theorem5_2_paperUINorm_complex` and `theorem5_2_paperUINorm_real`.
+* `symmetricNorming_of_kyFanDominant`;
+* `Corollary4_1_compact_nonacute_symmetricNorming_complex` and `..._real`;
+* `Proposition4_3_compact_nonacute_symmetricNorming_complex` and `..._real`;
+* `theorem5_2_symmetricNorming_complex` and `theorem5_2_symmetricNorming_real`.
 
 ## References
 
@@ -66,13 +66,13 @@ sense, and `X` lies in that norm's ideal whenever `Y` does.
 
 The proof instantiates the hypothesis at the finite Ky Fan gauges, which are
 themselves such families, and then applies Fan dominance. -/
-theorem paperUINorm_of_kyFanDominant
+theorem symmetricNorming_of_kyFanDominant
     {𝕜 : Type u} [RCLike 𝕜]
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {X Y : E →L[𝕜] F} {d : ℝ} (hd : 0 < d)
+    (N : SymmetricNormingFunction) {X Y : E →L[𝕜] F} {d : ℝ} (hd : 0 < d)
     (hY : N.Mem Y)
     (h : ∀ M : KyFanDominantIdealFamily.{u, v} 𝕜,
       M.Mem Y → M.Mem X ∧ d * M.gauge X ≤ M.gauge Y) :
@@ -101,8 +101,8 @@ the direct rotation.
 `Corollary4_1_compact_nonacute_complex` is the same statement at an arbitrary
 Fan-dominant ideal gauge; this is it read at the paper's norm object, which is the
 quantifier the printed corollary uses. -/
-theorem Corollary4_1_compact_nonacute_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem Corollary4_1_compact_nonacute_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
@@ -114,7 +114,7 @@ theorem Corollary4_1_compact_nonacute_paperUINorm_complex
       N.gauge ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L
           DavisKahan.projection U) ≤
         N.gauge ((1 - W) ∘L DavisKahan.projection U) := by
-  obtain ⟨hmem, hle⟩ := paperUINorm_of_kyFanDominant N one_pos hWmem
+  obtain ⟨hmem, hle⟩ := symmetricNorming_of_kyFanDominant N one_pos hWmem
     (fun M hM => by
       obtain ⟨h₁, h₂⟩ :=
         Corollary4_1_compact_nonacute_complex M U V hcompact J W hWunitary hWmap hM
@@ -124,8 +124,8 @@ theorem Corollary4_1_compact_nonacute_paperUINorm_complex
 /-- **Davis--Kahan 1970, Proposition 4.3, at every source unitarily invariant
 norm**: the squared displacement `N((1 − V⋆)(1 − V))` is minimized by the direct
 rotation. -/
-theorem Proposition4_3_compact_nonacute_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem Proposition4_3_compact_nonacute_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
@@ -138,7 +138,7 @@ theorem Proposition4_3_compact_nonacute_paperUINorm_complex
       N.gauge ((1 - star (DavisKahan.nonacuteDirectRotation U V J)) *
           (1 - DavisKahan.nonacuteDirectRotation U V J)) ≤
         N.gauge ((1 - star W) * (1 - W)) := by
-  obtain ⟨hmem, hle⟩ := paperUINorm_of_kyFanDominant N one_pos hWmem
+  obtain ⟨hmem, hle⟩ := symmetricNorming_of_kyFanDominant N one_pos hWmem
     (fun M hM => by
       obtain ⟨h₁, h₂⟩ :=
         Proposition4_3_compact_nonacute_idealGauge M U V hcompact J W hWunitary hWmap hM
@@ -153,8 +153,8 @@ variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [Complete
 
 /-- **Davis--Kahan 1970, Corollary 4.1 over `ℝ`, at every source unitarily
 invariant norm.** -/
-theorem Corollary4_1_compact_nonacute_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem Corollary4_1_compact_nonacute_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℝ]
@@ -166,7 +166,7 @@ theorem Corollary4_1_compact_nonacute_paperUINorm_real
       N.gauge ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L
           DavisKahan.projection U) ≤
         N.gauge ((1 - W) ∘L DavisKahan.projection U) := by
-  obtain ⟨hmem, hle⟩ := paperUINorm_of_kyFanDominant N one_pos hWmem
+  obtain ⟨hmem, hle⟩ := symmetricNorming_of_kyFanDominant N one_pos hWmem
     (fun M hM => by
       obtain ⟨h₁, h₂⟩ :=
         Corollary4_1_compact_nonacute_real U V M hcompact J W hWunitary hWmap hM
@@ -175,8 +175,8 @@ theorem Corollary4_1_compact_nonacute_paperUINorm_real
 
 /-- **Davis--Kahan 1970, Proposition 4.3 over `ℝ`, at every source unitarily
 invariant norm.** -/
-theorem Proposition4_3_compact_nonacute_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem Proposition4_3_compact_nonacute_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℝ]
@@ -189,7 +189,7 @@ theorem Proposition4_3_compact_nonacute_paperUINorm_real
       N.gauge ((1 - star (DavisKahan.nonacuteDirectRotation U V J)) *
           (1 - DavisKahan.nonacuteDirectRotation U V J)) ≤
         N.gauge ((1 - star W) * (1 - W)) := by
-  obtain ⟨hmem, hle⟩ := paperUINorm_of_kyFanDominant N one_pos hWmem
+  obtain ⟨hmem, hle⟩ := symmetricNorming_of_kyFanDominant N one_pos hWmem
     (fun M hM => by
       obtain ⟨h₁, h₂⟩ :=
         Proposition4_3_compact_nonacute_real_idealGauge U V M hcompact J W hWunitary hWmap hM
@@ -206,11 +206,11 @@ section Sylvester
 norm**: for closed self-adjoint `A ≥ c + δ > c ≥ B` and a bounded solution of
 `A X = X B + R`, `δ N(X) ≤ N(R)`, and `X` lies in the norm's ideal whenever `R`
 does. -/
-theorem theorem5_2_paperUINorm_complex
+theorem theorem5_2_symmetricNorming_complex
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A : E →ₗ.[ℂ] E} {B : F →ₗ.[ℂ] F}
+    (N : SymmetricNormingFunction) {A : E →ₗ.[ℂ] E} {B : F →ₗ.[ℂ] F}
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {X R : F →L[ℂ] E} {c δ : ℝ} (hδ : 0 < δ)
     (hAlow : TauCeti.LinearPMap.SemiboundedBelow A (c + δ))
@@ -218,7 +218,7 @@ theorem theorem5_2_paperUINorm_complex
     (hsyl : TauCeti.LinearPMap.SylvesterEquation A B X R)
     (hR : N.Mem R) :
     N.Mem X ∧ δ * N.gauge X ≤ N.gauge R :=
-  paperUINorm_of_kyFanDominant N hδ hR
+  symmetricNorming_of_kyFanDominant N hδ hR
     (fun M hM => Theorem5_2 M hA hB hδ hAlow hBhigh hsyl hM)
 
 /-- **Davis--Kahan 1970, Theorem 5.2 over a real Hilbert space, at every source
@@ -227,18 +227,18 @@ unitarily invariant norm.**
 The real endpoint takes the whole `FormBoundedSylvesterGap`, which is the weaker
 separation hypothesis and therefore the stronger theorem: the printed ordered
 configuration `A ≥ c + δ > c ≥ B` is its `leftAboveRightBelow` constructor. -/
-theorem theorem5_2_paperUINorm_real
+theorem theorem5_2_symmetricNorming_real
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace ℝ F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A : E →ₗ.[ℝ] E} {B : F →ₗ.[ℝ] F}
+    (N : SymmetricNormingFunction) {A : E →ₗ.[ℝ] E} {B : F →ₗ.[ℝ] F}
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {X R : F →L[ℝ] E} {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap A B δ)
     (hsyl : TauCeti.LinearPMap.SylvesterEquation A B X R)
     (hR : N.Mem R) :
     N.Mem X ∧ δ * N.gauge X ≤ N.gauge R :=
-  paperUINorm_of_kyFanDominant N hδ hR
+  symmetricNorming_of_kyFanDominant N hδ hR
     (fun M hM => DavisKahan.ExactSinTheta.davisKahan1970_sylvester_real
       M hA hB hδ hgap hsyl hM)
 

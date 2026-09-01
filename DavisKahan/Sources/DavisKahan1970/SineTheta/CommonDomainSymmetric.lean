@@ -496,13 +496,13 @@ theorem symmetric_all_kyFan_crossSineSum
 field**, for every normalized unitarily invariant norm in the source sense.
 
 The conclusion is carried by the paper's whole-space sine representative; see
-`crossSineSum_paperMem_iff_and_gauge_eq` for the compiled dictionary identifying its
+`crossSineSum_normingMem_iff_and_gauge_eq` for the compiled dictionary identifying its
 singular-value sequence with the paper's. -/
 theorem result_every_unitarilyInvariantNorm_crossSineSum
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     [HasUnboundedSylvesterKyFan.{u, v} 𝕜]
     (P : PaperCommonDomainSymmetricSinThetaProblem U V)
-    (N : PaperUnitaryInvariantNorm) (hH : N.Mem P.perturbation) :
+    (N : SymmetricNormingFunction) (hH : N.Mem P.perturbation) :
     N.Mem (paperCrossSineSum U V) ∧
       P.gap * N.gauge (paperCrossSineSum U V) ≤ N.gauge P.perturbation :=
   N.mul_gauge_le_of_all_mul_kyFan_le P.gap_pos hH P.symmetric_all_kyFan_crossSineSum
@@ -511,14 +511,14 @@ theorem result_every_unitarilyInvariantNorm_crossSineSum
 `result_every_unitarilyInvariantNorm_crossSineSum` exactly as it evaluates the paper's
 whole-space sine singular-value list, which is the complete approximation-singular-value
 sequence of the projector difference `P_V - P_U`. -/
-theorem crossSineSum_paperMem_iff_and_gauge_eq
+theorem crossSineSum_normingMem_iff_and_gauge_eq
     (_P : PaperCommonDomainSymmetricSinThetaProblem U V)
-    (N : PaperUnitaryInvariantNorm) :
+    (N : SymmetricNormingFunction) :
     (N.Mem (paperCrossSineSum U V) ↔
         N.Mem (V.starProjection - U.starProjection)) ∧
       N.gauge (paperCrossSineSum U V) =
         N.gauge (V.starProjection - U.starProjection) :=
-  SameApproximationSingularSequence.paperMem_iff_and_gauge_eq N
+  SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N
     (paperCrossSineSum_same_projectionDiff U V)
 
 end PaperCommonDomainSymmetricSinThetaProblem
@@ -559,7 +559,7 @@ the Appendix to Section 6 licenses when it says the hypotheses of Proposition 6.
 relaxed in the same way as those of Theorem 6.1. -/
 theorem result_every_unitarilyInvariantNorm
     (P : PaperCommonDomainSymmetricSinThetaProblem U V)
-    (N : PaperUnitaryInvariantNorm) (hH : N.Mem P.perturbation) :
+    (N : SymmetricNormingFunction) (hH : N.Mem P.perturbation) :
     N.Mem (TauCeti.DavisKahanExt.paperSinAngleOperatorC U V) ∧
       P.gap * N.gauge
           (TauCeti.DavisKahanExt.paperSinAngleOperatorC U V) ≤
@@ -627,7 +627,7 @@ space**, for every normalized unitarily invariant norm in the source sense.
 paper's `H` is the bounded operator representing `B - A` there. -/
 theorem result_every_unitarilyInvariantNorm_real
     (P : PaperCommonDomainSymmetricSinThetaProblem U V)
-    (N : PaperUnitaryInvariantNorm) (hH : N.Mem P.perturbation) :
+    (N : SymmetricNormingFunction) (hH : N.Mem P.perturbation) :
     N.Mem (paperCrossSineSum U V) ∧
       P.gap * N.gauge (paperCrossSineSum U V) ≤ N.gauge P.perturbation :=
   P.result_every_unitarilyInvariantNorm_crossSineSum N hH

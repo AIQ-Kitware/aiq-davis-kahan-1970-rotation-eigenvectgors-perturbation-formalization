@@ -82,7 +82,7 @@ the Lemma 6.2 pinch — is *branch-free*.  It needs only the paper's own
 `cos 2θ ≠ 0`, which is what makes `tan 2Θ` a bounded operator at all; principal
 angles may exceed `π/4`, and where they do, `tan 2θ` turns negative and the
 object every unitarily invariant norm sees is `|tan 2Θ|`.  This is recorded as
-`tanTwoTheta_ambient_bounded_branchFree_paperUINorm_complex_of_corner`, which derives the whole ambient
+`tanTwoTheta_ambient_bounded_branchFree_symmetricNorming_complex_of_corner`, which derives the whole ambient
 conclusion from the directed corner estimate with no branch anywhere.
 
 The branch enters at exactly **one** place: the directed corner estimate
@@ -106,13 +106,13 @@ statement is *not* proved here; see the module note below.
 * `TauCeti.DavisKahan1970.paperTanTwoAngleOperatorC_eq_modulus_blockRepresentative`:
   its quarter-acute specialisation, `|Ξ| = tan 2Θ`.
 * `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_branchFree_kyFan_complex_of_corner` and
-  `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_branchFree_paperUINorm_complex_of_corner`: the
+  `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_branchFree_symmetricNorming_complex_of_corner`: the
   **branch-free reduction** of the ambient conclusion to the directed corner
   estimate, `δ N(|tan 2Θ|) ≤ 2 N(H)` given `δ · kyFan_k (corner) ≤ 2 ·
   kyFan_k R`.
 * `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_orderedForm_kyFan_complex`: the Ky Fan form,
   `δ · kyFan_k (tan 2Θ) ≤ 2 · kyFan_k H` for every `k`.
-* `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_orderedForm_paperUINorm_complex`: the source form,
+* `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_orderedForm_symmetricNorming_complex`: the source form,
   `δ N(tan 2Θ) ≤ 2 N(H)` for every unitarily invariant norm `N` in the paper's
   sense.
 * `TauCeti.DavisKahan1970.tanTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex`: the
@@ -1523,8 +1523,8 @@ paper's `cos 2θ ≠ 0`.  Membership of the ambient tangent in the norm's ideal 
 
 This is the exact statement of what is left to do for the branch-free ambient
 half: supply `hcorner` without a branch. -/
-theorem tanTwoTheta_ambient_bounded_branchFree_paperUINorm_complex_of_corner
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_bounded_branchFree_symmetricNorming_complex_of_corner
+    (N : SymmetricNormingFunction)
     (hH : IsSelfAdjoint H) (hab : a < b)
     (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0)
     (hcorner : ∀ j : ℕ,
@@ -1559,8 +1559,8 @@ tangent theorem.
 
 Membership of the ambient tangent in the norm's ideal is *concluded*, not
 hypothesised: the theorem is what forces `tan 2Θ` to be bounded. -/
-theorem tanTwoTheta_ambient_bounded_orderedForm_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_bounded_orderedForm_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     (hab : a < b)

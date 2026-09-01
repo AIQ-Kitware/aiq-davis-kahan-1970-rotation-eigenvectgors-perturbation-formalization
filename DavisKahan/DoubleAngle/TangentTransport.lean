@@ -607,7 +607,7 @@ theorem sameApproximationSingularValues_unboundedReflectionTangent
 every source unitarily invariant norm**, and one lies in the norm's ideal exactly
 when the other does. -/
 theorem extendedGauge_unboundedReflectionTangent_complex
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm)
+    (N : ExactSinTheta.SymmetricNormingFunction)
     (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     N.extendedGauge (unboundedReflectionTangent U V.reflectionOperator)
       = N.extendedGauge (paperAbsTanTwoAngleOperatorC U V) :=
@@ -641,7 +641,7 @@ real pair read in the complexification, which is where the tree keeps it — the
 is no real directed spelling, only the ambient `paperSinTwoAngleOperatorR`.  As
 in the complex case the directed operator is the block's partner: the block is
 one-sided and carries each principal angle once, where an ambient angle object
-carries it twice.  Turning this into an equality of *real* `PaperUnitaryInvariantNorm`
+carries it twice.  Turning this into an equality of *real* `SymmetricNormingFunction`
 gauges would need a real directed `sin 2Θ` operator, which would be a second
 spelling of an existing concept and is deliberately not introduced here. -/
 theorem approximationSingularValue_sinTwoThetaIdealBlock_real
@@ -666,10 +666,10 @@ angle is read in the complexification -- so the equality is chained through
 `gauge_eq_of_sameApproximationSingularValues`, which is same-field. -/
 theorem extendedGauge_sinTwoThetaIdealBlock_real
     (U V : Submodule ℝ Er) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm) :
+    (N : ExactSinTheta.SymmetricNormingFunction) :
     N.extendedGauge (sinTwoThetaIdealBlock U V)
       = N.extendedGauge (Real.sinTwoAngleOperatorRC U V) := by
-  rw [← ExactSinTheta.PaperUnitaryInvariantNorm.extendedGauge_complexify N
+  rw [← ExactSinTheta.SymmetricNormingFunction.extendedGauge_complexify N
       (sinTwoThetaIdealBlock U V),
     complexify_sinTwoThetaIdealBlock U V]
   exact extendedGauge_sinTwoThetaIdealBlock_complex (complexifySubmodule U)
@@ -679,18 +679,18 @@ theorem extendedGauge_sinTwoThetaIdealBlock_real
 `sin 2Θ`. -/
 theorem mem_sinTwoAngleOperatorRC_iff
     (U V : Submodule ℝ Er) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm) :
+    (N : ExactSinTheta.SymmetricNormingFunction) :
     N.Mem (Real.sinTwoAngleOperatorRC U V) ↔ N.Mem (sinTwoThetaIdealBlock U V) := by
-  unfold ExactSinTheta.PaperUnitaryInvariantNorm.Mem
+  unfold ExactSinTheta.SymmetricNormingFunction.Mem
   rw [extendedGauge_sinTwoThetaIdealBlock_real U V N]
 
 /-- The gauge transfers between the real block and the real directed `sin 2Θ`. -/
 theorem gauge_sinTwoAngleOperatorRC
     (U V : Submodule ℝ Er) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm) :
+    (N : ExactSinTheta.SymmetricNormingFunction) :
     N.gauge (Real.sinTwoAngleOperatorRC U V)
       = N.gauge (sinTwoThetaIdealBlock U V) := by
-  unfold ExactSinTheta.PaperUnitaryInvariantNorm.gauge
+  unfold ExactSinTheta.SymmetricNormingFunction.gauge
   rw [extendedGauge_sinTwoThetaIdealBlock_real U V N]
 
 /-- **The real reflection tangent and the real `|tan 2Θ|` have the same gauge in
@@ -708,7 +708,7 @@ complexifies to the complex one, `paperAbsTanTwoAngleOperatorR` complexifies to
 complexification.  No second analytic proof is involved. -/
 theorem extendedGauge_unboundedReflectionTangent_real
     (U V : Submodule ℝ Er) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (N : ExactSinTheta.PaperUnitaryInvariantNorm)
+    (N : ExactSinTheta.SymmetricNormingFunction)
     (hCC : IsUnit (U.diagonalPart V.reflectionOperator *
       U.diagonalPart V.reflectionOperator)) :
     N.extendedGauge (unboundedReflectionTangent U V.reflectionOperator)
@@ -727,9 +727,9 @@ theorem extendedGauge_unboundedReflectionTangent_real
     (complexifySubmodule U) (complexifySubmodule V) hCCc
   have htrans := extendedGauge_unboundedReflectionTangent_complex
     (complexifySubmodule U) (complexifySubmodule V) N hcos
-  rw [← ExactSinTheta.PaperUnitaryInvariantNorm.extendedGauge_complexify N
+  rw [← ExactSinTheta.SymmetricNormingFunction.extendedGauge_complexify N
       (unboundedReflectionTangent U V.reflectionOperator),
-    ← ExactSinTheta.PaperUnitaryInvariantNorm.extendedGauge_complexify N
+    ← ExactSinTheta.SymmetricNormingFunction.extendedGauge_complexify N
       (paperAbsTanTwoAngleOperatorR U V),
     complexify_paperAbsTanTwoAngleOperatorR,
     ← unboundedReflectionTangent_complexifySubmodule U V.reflectionOperator hCC,

@@ -256,8 +256,8 @@ theorem tanTwoTheta_ambient_bounded_kyFan_complex_of_block
   linarith [hcombine.trans hpinch]
 
 /-- **Branch-independent ambient assembly, source UI-norm form.** -/
-theorem tanTwoTheta_ambient_bounded_paperUINorm_complex_of_block
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTwoTheta_ambient_bounded_symmetricNorming_complex_of_block
+    (N : SymmetricNormingFunction)
     {H K : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {a b : ℝ}

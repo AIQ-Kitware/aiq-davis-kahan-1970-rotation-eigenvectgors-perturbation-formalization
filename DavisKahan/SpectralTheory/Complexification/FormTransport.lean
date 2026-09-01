@@ -13,7 +13,7 @@ is reached by complexifying: state the real configuration, push it to
 `RealComplexification E`, apply the proved complex theorem, and pull the
 conclusion back.  The geometry (`subspaceGap_complexifySubmodule`,
 `isAcute_complexifySubmodule_iff`, `isQuarterAcute_complexifySubmodule_iff`) and
-the norms (`PaperUnitaryInvariantNorm.gauge_complexify`) already transport.  What
+the norms (`SymmetricNormingFunction.gauge_complexify`) already transport.  What
 was missing is the *hypothesis* side: the quadratic-form gaps and the
 invariance/off-diagonality conditions that every Davis--Kahan theorem assumes.
 

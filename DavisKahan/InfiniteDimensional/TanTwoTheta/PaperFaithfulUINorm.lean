@@ -35,7 +35,7 @@ The unrestricted proof is split into two genuine bridges:
    sequence of the canonical ambient tangent with the graph-coordinate tangent.
 
 The post-branch Riccati/Ky-Fan/Fan-dominance estimate is then supplied by the
-already proved `sharp_paperUnitaryInvariantNorm` stack.
+already proved `sharp_symmetricNormingFunction` stack.
 
 *Moved, not restated.*  Promoted out of the non-default `FinishTanTwoTheta`
 completion lane so the unrestricted bounded theorem is covered by the
@@ -202,7 +202,7 @@ part of the proof: once the strict quarter-acute graph branch is known, the
 Riccati equation, approximation-number Ky Fan estimate, and Fan-dominance
 promotion require no finite-dimensional hypothesis. -/
 private theorem graphCoordinate_paper_bound_of_quarterAcute
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A H : E →L[ℂ] E)
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -324,12 +324,12 @@ private theorem graphCoordinate_paper_bound_of_quarterAcute
       simpa only [Camb] using ambientUpperRightBlock_eq H U B.B01 hB01
     rw [hext] at hseq
     exact hseq
-  have htransport := hseqB.paperMem_iff_and_gauge_eq N
+  have htransport := hseqB.normingMem_iff_and_gauge_eq N
   have hBmem : N.Mem B.B01 := htransport.1.mp hCambMem
   have hBgauge : N.gauge B.B01 = N.gauge Camb := htransport.2.symm
   have hCmem : N.Mem C.B01 := by
     have hnegmem : N.Mem ((-1 : ℂ) • B.B01) := by
-      unfold PaperUnitaryInvariantNorm.Mem at hBmem ⊢
+      unfold SymmetricNormingFunction.Mem at hBmem ⊢
       rw [N.extendedGauge_smul]
       norm_num
       exact hBmem
@@ -346,7 +346,7 @@ private theorem graphCoordinate_paper_bound_of_quarterAcute
   have hcontractive : ‖X‖ < 1 := by
     simpa only [X] using
       TauCeti.DavisKahanExt.norm_quarterAcuteAngularCoordinate_lt_one U V hquarter
-  have hsharp := sharp_paperUnitaryInvariantNorm
+  have hsharp := sharp_symmetricNormingFunction
     N D (sub_pos.mpr hab) hD0 hD1 hsolveD hcontractive hDmem
   change N.Mem (paperTanTwoThetaRepresentative U V hquarter) ∧
       (b - a) * N.gauge (paperTanTwoThetaRepresentative U V hquarter) ≤
@@ -372,7 +372,7 @@ new approximation-number/Riccati stack.  It is not the completion target and
 must not be cited as the arbitrary-Hilbert-space theorem. -/
 theorem paperTanTwoTheta_uiNorm_finite_alternate
     [FiniteDimensional ℂ E]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A H : E →L[ℂ] E)
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -412,7 +412,7 @@ derives the strict quarter-angle branch, and proves the sharp estimate for the
 canonical ambient `tanTwoAngleOperatorC` in every source unitary-invariant norm.
 -/
 theorem paperFaithful_tanTwoTheta_uiNorm
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (A H : E →L[ℂ] E)
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -448,7 +448,7 @@ theorem paperFaithful_tanTwoTheta_uiNorm
       (paperTanTwoThetaRepresentative U V hquarter) := by
     simpa only [paperTanTwoThetaRepresentative] using
       canonicalTanTwoAngle_hasSameApproximationNumbers_graphCoordinate U V hquarter
-  have htransport := hseq.paperMem_iff_and_gauge_eq N
+  have htransport := hseq.normingMem_iff_and_gauge_eq N
   refine ⟨hquarter, htransport.1.mpr hgraph.1, ?_⟩
   rw [htransport.2]
   exact hgraph.2

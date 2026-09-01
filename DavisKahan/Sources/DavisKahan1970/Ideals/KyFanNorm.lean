@@ -9,7 +9,7 @@ import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSemino
 /-!
 # Ky Fan norms inside the Davis--Kahan source norm class
 
-The source-facing class `PaperUnitaryInvariantNorm` is quantified over coherent
+The source-facing class `SymmetricNormingFunction` is quantified over coherent
 normalized symmetric norms in every finite dimension.  Fan dominance gives the
 forward implication
 
@@ -39,36 +39,36 @@ universe u v
 
 /-- Extend a permutation of `Fin n` to `Fin (n + 1)` by fixing the new last
 coordinate. -/
-noncomputable def paperZeroPadPerm {n : ℕ} (pi : Equiv.Perm (Fin n)) :
+noncomputable def zeroPadPerm {n : ℕ} (pi : Equiv.Perm (Fin n)) :
     Equiv.Perm (Fin (n + 1)) :=
   finSumFinEquiv.symm.trans
     ((Equiv.sumCongr pi (Equiv.refl (Fin 1))).trans finSumFinEquiv)
 
 /-- The zero-padding permutation fixes the original block. -/
 @[simp]
-theorem paperZeroPadPerm_castAdd {n : ℕ} (pi : Equiv.Perm (Fin n)) (i : Fin n) :
-    paperZeroPadPerm pi (Fin.castAdd 1 i) = Fin.castAdd 1 (pi i) := by
-  simp [paperZeroPadPerm]
+theorem zeroPadPerm_castAdd {n : ℕ} (pi : Equiv.Perm (Fin n)) (i : Fin n) :
+    zeroPadPerm pi (Fin.castAdd 1 i) = Fin.castAdd 1 (pi i) := by
+  simp [zeroPadPerm]
 
 /-- The zero-padding permutation sends the padded block past the original. -/
 @[simp]
-theorem paperZeroPadPerm_natAdd {n : ℕ} (pi : Equiv.Perm (Fin n)) (i : Fin 1) :
-    paperZeroPadPerm pi (Fin.natAdd n i) = Fin.natAdd n i := by
-  simp [paperZeroPadPerm]
+theorem zeroPadPerm_natAdd {n : ℕ} (pi : Equiv.Perm (Fin n)) (i : Fin 1) :
+    zeroPadPerm pi (Fin.natAdd n i) = Fin.natAdd n i := by
+  simp [zeroPadPerm]
 
 /-- Zero-padding commutes with extending a permutation by the identity. -/
-theorem zeroPadRight_comp_paperZeroPadPerm {n : ℕ}
+theorem zeroPadRight_comp_zeroPadPerm {n : ℕ}
     (pi : Equiv.Perm (Fin n)) (x : Fin n → ℝ) :
-    FiniteVector.zeroPadRight (m := 1) x ∘ paperZeroPadPerm pi =
+    FiniteVector.zeroPadRight (m := 1) x ∘ zeroPadPerm pi =
       FiniteVector.zeroPadRight (m := 1) (x ∘ pi) := by
   funext i
   refine Fin.lastCases ?_ (fun j => ?_) i
-  · simp [Function.comp_apply, paperZeroPadPerm, FiniteVector.zeroPadRight]
-  · simp [Function.comp_apply, paperZeroPadPerm, FiniteVector.zeroPadRight]
+  · simp [Function.comp_apply, zeroPadPerm, FiniteVector.zeroPadRight]
+  · simp [Function.comp_apply, zeroPadPerm, FiniteVector.zeroPadRight]
 
 /-- The finite square Ky Fan `k` seminorm used to build the coherent paper
 norm.  For `k` larger than the dimension the extra singular values are zero. -/
-noncomputable def paperKyFanFiniteNorm (k n : ℕ) :
+noncomputable def kyFanFiniteNorm (k n : ℕ) :
     TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n)) :=
   (TauCeti.RectangularUnitarilyInvariantSeminorm.kyFan
       (𝕜 := ℂ) (E := EuclideanSpace ℂ (Fin n))
@@ -76,10 +76,10 @@ noncomputable def paperKyFanFiniteNorm (k n : ℕ) :
 
 /-- On an antitone nonnegative vector, the finite Ky Fan gauge is literally the
 corresponding prefix sum. -/
-theorem paperKyFanFiniteNorm_gauge_of_antitone_nonneg
+theorem kyFanFiniteNorm_gauge_of_antitone_nonneg
     (k n : ℕ) (x : Fin n → ℝ) (hxanti : Antitone x)
     (hx0 : ∀ i, 0 ≤ x i) :
-    (paperKyFanFiniteNorm k n).gauge
+    (kyFanFiniteNorm k n).gauge
         (EuclideanSpace.basisFun (Fin n) ℂ) x =
       FiniteVector.prefixSum k x := by
   let b := EuclideanSpace.basisFun (Fin n) ℂ
@@ -126,10 +126,10 @@ theorem paperKyFanFiniteNorm_gauge_of_antitone_nonneg
       finrank_euclideanSpace_fin b hxanti hx0 i
 
 /-- The finite Ky Fan gauges are coherent under appending a zero coordinate. -/
-theorem paperKyFanFiniteNorm_zeroPad (k n : ℕ) (x : Fin n → ℝ) :
-    (paperKyFanFiniteNorm k (n + 1)).gauge
-        (EuclideanSpace.basisFun (Fin (n + 1)) ℂ) (paperZeroPad x) =
-      (paperKyFanFiniteNorm k n).gauge
+theorem kyFanFiniteNorm_zeroPad (k n : ℕ) (x : Fin n → ℝ) :
+    (kyFanFiniteNorm k (n + 1)).gauge
+        (EuclideanSpace.basisFun (Fin (n + 1)) ℂ) (zeroPad x) =
+      (kyFanFiniteNorm k n).gauge
         (EuclideanSpace.basisFun (Fin n) ℂ) x := by
   let absx : Fin n → ℝ := fun i => |x i|
   let pi : Equiv.Perm (Fin n) :=
@@ -144,20 +144,20 @@ theorem paperKyFanFiniteNorm_zeroPad (k n : ℕ) (x : Fin n → ℝ) :
     FiniteVector.zeroPadRight_nonneg hy0
 
   have hsmall :
-      (paperKyFanFiniteNorm k n).gauge
+      (kyFanFiniteNorm k n).gauge
           (EuclideanSpace.basisFun (Fin n) ℂ) y =
-        (paperKyFanFiniteNorm k n).gauge
+        (kyFanFiniteNorm k n).gauge
           (EuclideanSpace.basisFun (Fin n) ℂ) x := by
     calc
-      (paperKyFanFiniteNorm k n).gauge
+      (kyFanFiniteNorm k n).gauge
           (EuclideanSpace.basisFun (Fin n) ℂ) y =
-          (paperKyFanFiniteNorm k n).gauge
+          (kyFanFiniteNorm k n).gauge
             (EuclideanSpace.basisFun (Fin n) ℂ) absx := by
-        exact (paperKyFanFiniteNorm k n).gauge_perm
+        exact (kyFanFiniteNorm k n).gauge_perm
           (EuclideanSpace.basisFun (Fin n) ℂ) absx pi
-      _ = (paperKyFanFiniteNorm k n).gauge
+      _ = (kyFanFiniteNorm k n).gauge
             (EuclideanSpace.basisFun (Fin n) ℂ) x := by
-        exact uinGauge_abs (paperKyFanFiniteNorm k n)
+        exact uinGauge_abs (kyFanFiniteNorm k n)
           (EuclideanSpace.basisFun (Fin n) ℂ) x
 
   have habspad :
@@ -169,50 +169,50 @@ theorem paperKyFanFiniteNorm_zeroPad (k n : ℕ) (x : Fin n → ℝ) :
 
   have hpermPad :
       (fun i : Fin (n + 1) => |FiniteVector.zeroPadRight (m := 1) x i|) ∘
-          paperZeroPadPerm pi =
+          zeroPadPerm pi =
         FiniteVector.zeroPadRight (m := 1) y := by
-    rw [habspad, zeroPadRight_comp_paperZeroPadPerm]
+    rw [habspad, zeroPadRight_comp_zeroPadPerm]
 
-  rw [SymmetricIdeal.paperZeroPad_eq_zeroPadRight]
+  rw [SymmetricIdeal.zeroPad_eq_zeroPadRight]
   calc
-    (paperKyFanFiniteNorm k (n + 1)).gauge
+    (kyFanFiniteNorm k (n + 1)).gauge
         (EuclideanSpace.basisFun (Fin (n + 1)) ℂ)
         (FiniteVector.zeroPadRight (m := 1) x) =
-      (paperKyFanFiniteNorm k (n + 1)).gauge
+      (kyFanFiniteNorm k (n + 1)).gauge
         (EuclideanSpace.basisFun (Fin (n + 1)) ℂ)
         (fun i => |FiniteVector.zeroPadRight (m := 1) x i|) := by
-          exact (uinGauge_abs (paperKyFanFiniteNorm k (n + 1))
+          exact (uinGauge_abs (kyFanFiniteNorm k (n + 1))
             (EuclideanSpace.basisFun (Fin (n + 1)) ℂ)
             (FiniteVector.zeroPadRight (m := 1) x)).symm
-    _ = (paperKyFanFiniteNorm k (n + 1)).gauge
+    _ = (kyFanFiniteNorm k (n + 1)).gauge
         (EuclideanSpace.basisFun (Fin (n + 1)) ℂ)
         (((fun i => |FiniteVector.zeroPadRight (m := 1) x i|) ∘
-          paperZeroPadPerm pi)) := by
-          exact ((paperKyFanFiniteNorm k (n + 1)).gauge_perm
+          zeroPadPerm pi)) := by
+          exact ((kyFanFiniteNorm k (n + 1)).gauge_perm
             (EuclideanSpace.basisFun (Fin (n + 1)) ℂ)
             (fun i => |FiniteVector.zeroPadRight (m := 1) x i|)
-            (paperZeroPadPerm pi)).symm
-    _ = (paperKyFanFiniteNorm k (n + 1)).gauge
+            (zeroPadPerm pi)).symm
+    _ = (kyFanFiniteNorm k (n + 1)).gauge
         (EuclideanSpace.basisFun (Fin (n + 1)) ℂ)
         (FiniteVector.zeroPadRight (m := 1) y) := by rw [hpermPad]
     _ = FiniteVector.prefixSum k (FiniteVector.zeroPadRight (m := 1) y) :=
-      paperKyFanFiniteNorm_gauge_of_antitone_nonneg k (n + 1)
+      kyFanFiniteNorm_gauge_of_antitone_nonneg k (n + 1)
         _ hpadyanti hpady0
     _ = FiniteVector.prefixSum k y :=
       FiniteVector.prefixSum_zeroPadRight k y
-    _ = (paperKyFanFiniteNorm k n).gauge
+    _ = (kyFanFiniteNorm k n).gauge
         (EuclideanSpace.basisFun (Fin n) ℂ) y :=
-      (paperKyFanFiniteNorm_gauge_of_antitone_nonneg k n y hyanti hy0).symm
-    _ = (paperKyFanFiniteNorm k n).gauge
+      (kyFanFiniteNorm_gauge_of_antitone_nonneg k n y hyanti hy0).symm
+    _ = (kyFanFiniteNorm k n).gauge
         (EuclideanSpace.basisFun (Fin n) ℂ) x := hsmall
 
 /-- The Ky Fan `k` norm, for positive `k`, as an actual member of the coherent
 Davis--Kahan source norm class. -/
-noncomputable def paperKyFanNorm (k : ℕ) (hk : 0 < k) :
-    PaperUnitaryInvariantNorm where
-  finiteNorm := paperKyFanFiniteNorm k
+noncomputable def kyFanNormingFunction (k : ℕ) (hk : 0 < k) :
+    SymmetricNormingFunction where
+  finiteNorm := kyFanFiniteNorm k
   normalized := by
-    rw [paperKyFanFiniteNorm_gauge_of_antitone_nonneg k 1]
+    rw [kyFanFiniteNorm_gauge_of_antitone_nonneg k 1]
     · rw [FiniteVector.prefixSum_eq_full_sum_of_le (fun _ : Fin 1 => (1 : ℝ))]
       · simp
       · omega
@@ -222,32 +222,32 @@ noncomputable def paperKyFanNorm (k : ℕ) (hk : 0 < k) :
       norm_num
   zero_pad := by
     intro n x
-    exact paperKyFanFiniteNorm_zeroPad k n x
+    exact kyFanFiniteNorm_zeroPad k n x
 
-/-- The finite prefix of `paperKyFanNorm k` is the Ky Fan gauge at the shorter
+/-- The finite prefix of `kyFanNormingFunction k` is the Ky Fan gauge at the shorter
 of `k` and the available prefix length. -/
-theorem paperKyFanNorm_prefixGauge
+theorem kyFanNormingFunction_prefixGauge
     {𝕜 : Type u} [RCLike 𝕜]
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     (k : ℕ) (hk : 0 < k) (n : ℕ) (A : E →L[𝕜] F) :
-    (paperKyFanNorm k hk).prefixGauge n A =
+    (kyFanNormingFunction k hk).prefixGauge n A =
       kyFanApproximationGauge (min k n) A := by
-  rw [PaperUnitaryInvariantNorm.prefixGauge]
-  unfold PaperUnitaryInvariantNorm.finiteGauge paperKyFanNorm
-  rw [paperKyFanFiniteNorm_gauge_of_antitone_nonneg]
+  rw [SymmetricNormingFunction.prefixGauge]
+  unfold SymmetricNormingFunction.finiteGauge kyFanNormingFunction
+  rw [kyFanFiniteNorm_gauge_of_antitone_nonneg]
   · rcases le_total k n with hkn | hnk
     · rw [min_eq_left hkn]
       unfold FiniteVector.prefixSum
-      simp only [PaperUnitaryInvariantNorm.approximationPrefix]
+      simp only [SymmetricNormingFunction.approximationPrefix]
       rw [TauCeti.sum_filter_lt_eq_sum_fin hkn
         (fun m => approximationSingularValue m A)]
-      simpa only [PaperUnitaryInvariantNorm.approximationPrefix] using
-        (PaperUnitaryInvariantNorm.sum_approximationPrefix k A)
+      simpa only [SymmetricNormingFunction.approximationPrefix] using
+        (SymmetricNormingFunction.sum_approximationPrefix k A)
     · rw [min_eq_right hnk]
       rw [FiniteVector.prefixSum_eq_full_sum_of_le _ hnk]
-      exact PaperUnitaryInvariantNorm.sum_approximationPrefix n A
+      exact SymmetricNormingFunction.sum_approximationPrefix n A
   · intro i j hij
     exact approximationSingularValue_antitone A (Fin.le_def.mp hij)
   · intro i
@@ -266,91 +266,91 @@ private theorem kyFanApproximationGauge_mono_length_local
   exact le_add_of_nonneg_right (Finset.sum_nonneg fun n _ =>
     A.approximationNumber_nonneg n)
 
-/-- The canonical infinite-dimensional extension of `paperKyFanNorm k` is
+/-- The canonical infinite-dimensional extension of `kyFanNormingFunction k` is
 exactly the Ky Fan approximation gauge. -/
-theorem paperKyFanNorm_extendedGauge
+theorem kyFanNormingFunction_extendedGauge
     {𝕜 : Type u} [RCLike 𝕜]
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     (k : ℕ) (hk : 0 < k) (A : E →L[𝕜] F) :
-    (paperKyFanNorm k hk).extendedGauge A =
+    (kyFanNormingFunction k hk).extendedGauge A =
       ENNReal.ofReal (kyFanApproximationGauge k A) := by
   apply le_antisymm
-  · rw [PaperUnitaryInvariantNorm.extendedGauge]
+  · rw [SymmetricNormingFunction.extendedGauge]
     apply iSup_le
     intro n
-    rw [paperKyFanNorm_prefixGauge]
+    rw [kyFanNormingFunction_prefixGauge]
     exact ENNReal.ofReal_le_ofReal
       (kyFanApproximationGauge_mono_length_local A (min_le_left k n))
-  · rw [PaperUnitaryInvariantNorm.extendedGauge]
+  · rw [SymmetricNormingFunction.extendedGauge]
     refine le_trans ?_ (le_iSup
-      (fun n : ℕ => ENNReal.ofReal ((paperKyFanNorm k hk).prefixGauge n A)) k)
-    rw [paperKyFanNorm_prefixGauge, min_self]
+      (fun n : ℕ => ENNReal.ofReal ((kyFanNormingFunction k hk).prefixGauge n A)) k)
+    rw [kyFanNormingFunction_prefixGauge, min_self]
 
 /-- Every bounded operator belongs to a Ky Fan source norm, since a finite Ky
 Fan prefix is always finite. -/
-theorem paperKyFanNorm_mem
+theorem kyFanNormingFunction_mem
     {𝕜 : Type u} [RCLike 𝕜]
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     (k : ℕ) (hk : 0 < k) (A : E →L[𝕜] F) :
-    (paperKyFanNorm k hk).Mem A := by
-  rw [PaperUnitaryInvariantNorm.Mem, paperKyFanNorm_extendedGauge]
+    (kyFanNormingFunction k hk).Mem A := by
+  rw [SymmetricNormingFunction.Mem, kyFanNormingFunction_extendedGauge]
   exact ENNReal.ofReal_ne_top
 
-/-- The real-valued source gauge of `paperKyFanNorm k` is exactly the Ky Fan
+/-- The real-valued source gauge of `kyFanNormingFunction k` is exactly the Ky Fan
 approximation gauge. -/
-theorem paperKyFanNorm_gauge
+theorem kyFanNormingFunction_gauge
     {𝕜 : Type u} [RCLike 𝕜]
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     (k : ℕ) (hk : 0 < k) (A : E →L[𝕜] F) :
-    (paperKyFanNorm k hk).gauge A = kyFanApproximationGauge k A := by
-  rw [PaperUnitaryInvariantNorm.gauge, paperKyFanNorm_extendedGauge,
+    (kyFanNormingFunction k hk).gauge A = kyFanApproximationGauge k A := by
+  rw [SymmetricNormingFunction.gauge, kyFanNormingFunction_extendedGauge,
     ENNReal.toReal_ofReal (kyFanApproximationGauge_nonneg k A)]
 
 /-- **Converse Ky Fan principle for the source class.**  If every coherent
 Davis--Kahan source norm of `A` is at most the corresponding norm of `B`, then
 every Ky Fan prefix of `A` is at most that of `B`.
 
-Together with `PaperUnitaryInvariantNorm.extendedGauge_le_of_all_kyFan_le`, this
+Together with `SymmetricNormingFunction.extendedGauge_le_of_all_kyFan_le`, this
 shows that the universal source-norm order is exactly weak Ky Fan majorization. -/
-theorem all_kyFan_le_of_every_paperNorm_extendedGauge_le
+theorem all_kyFan_le_of_every_ext_finiteGaugeendedGauge_le
     {𝕜 : Type u} [RCLike 𝕜]
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     {A B : E →L[𝕜] F}
-    (h : ∀ N : PaperUnitaryInvariantNorm, N.extendedGauge A ≤ N.extendedGauge B) :
+    (h : ∀ N : SymmetricNormingFunction, N.extendedGauge A ≤ N.extendedGauge B) :
     ∀ k : ℕ, kyFanApproximationGauge k A ≤ kyFanApproximationGauge k B := by
   intro k
   by_cases hk0 : k = 0
   · subst k
     simp [kyFanApproximationGauge, ContinuousLinearMap.kyFanGauge_zero_index]
   · have hk : 0 < k := Nat.pos_of_ne_zero hk0
-    have hN := h (paperKyFanNorm k hk)
-    rw [paperKyFanNorm_extendedGauge, paperKyFanNorm_extendedGauge] at hN
+    have hN := h (kyFanNormingFunction k hk)
+    rw [kyFanNormingFunction_extendedGauge, kyFanNormingFunction_extendedGauge] at hN
     exact (ENNReal.ofReal_le_ofReal_iff (kyFanApproximationGauge_nonneg k B)).mp hN
 
 /-- Real-valued scaled converse, in the form most useful to source-facing
 Davis--Kahan inequalities. -/
-theorem all_mul_kyFan_le_of_every_paperNorm_gauge_le
+theorem all_mul_kyFan_le_of_every_symmetricNorming_gauge_le
     {𝕜 : Type u} [RCLike 𝕜]
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     {A B : E →L[𝕜] F} {c : ℝ}
-    (h : ∀ N : PaperUnitaryInvariantNorm, c * N.gauge A ≤ N.gauge B) :
+    (h : ∀ N : SymmetricNormingFunction, c * N.gauge A ≤ N.gauge B) :
     ∀ k : ℕ, c * kyFanApproximationGauge k A ≤ kyFanApproximationGauge k B := by
   intro k
   by_cases hk0 : k = 0
   · subst k
     simp [kyFanApproximationGauge, ContinuousLinearMap.kyFanGauge_zero_index]
   · have hk : 0 < k := Nat.pos_of_ne_zero hk0
-    simpa [paperKyFanNorm_gauge] using h (paperKyFanNorm k hk)
+    simpa [kyFanNormingFunction_gauge] using h (kyFanNormingFunction k hk)
 
 end
 

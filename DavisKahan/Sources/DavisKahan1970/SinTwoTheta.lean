@@ -335,7 +335,7 @@ which is the weaker of this tree's two spellings of spectral separation; the
 `TauCeti.LinearPMap.spectrum` is defined over `ℂ`.
 
 The ambient (whole-space) half `δ ‖sin 2Θ‖ ≤ 2‖H‖` over the reals is
-`TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_real`. -/
+`TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_symmetricNorming_real`. -/
 
 variable {Er : Type v}
   [NormedAddCommGroup Er] [InnerProductSpace ℝ Er] [CompleteSpace Er]
@@ -465,8 +465,8 @@ theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_unequal
 
 /-! ### The real directed forms at the paper's own unitarily invariant norm
 
-`PaperUnitaryInvariantNorm` is the source's symmetric-gauge presentation, and it
-is the class the real ambient half `sinTwoTheta_ambient_bounded_paperUINorm_real` is
+`SymmetricNormingFunction` is the source's symmetric-gauge presentation, and it
+is the class the real ambient half `sinTwoTheta_ambient_bounded_symmetricNorming_real` is
 stated over.  Reading the real Ky-Fan-dominant theorems at each finite Ky Fan
 family and closing with Fan dominance puts the real directed half at the same
 class, so both printed conclusions of the Section 2 `sin 2Θ` theorem are now
@@ -482,8 +482,8 @@ open DavisKahan DavisKahan.RealSpectralRestriction in
 /-- **Davis--Kahan 1970, directed `sin 2Θ` theorem over a REAL Hilbert space,
 reflection-residual form, for every source unitarily invariant norm**:
 `δ ‖sin 2Θ₀‖ ≤ ‖R‖`. -/
-theorem sinTwoTheta_directed_unboundedReflectionResidual_blockRepresentative_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unboundedReflectionResidual_blockRepresentative_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
     (R : Er →L[ℝ] Er) (hR : DavisKahan.IsSelfAdjointOperator R)
@@ -518,8 +518,8 @@ open DavisKahan DavisKahan.RealSpectralRestriction in
 /-- **Davis--Kahan 1970, directed `sin 2Θ` theorem over a REAL Hilbert space,
 bounded-perturbation form, for every source unitarily invariant norm**:
 `δ ‖sin 2Θ₀‖ ≤ 2‖E‖`, with the paper's sharp factor two. -/
-theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
     (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
@@ -559,7 +559,7 @@ open DavisKahan DavisKahan.RealSpectralRestriction in
 /-- **Davis--Kahan 1970, `sin 2Θ` over a REAL Hilbert space, bounded-perturbation
 form, stated on the angle operator itself.**
 
-`sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_paperUINorm_real` concludes about
+`sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_real` concludes about
 `sinTwoThetaIdealBlock`, the overlap of the selected spectral subspace with the
 reflected complement, which is the proof's vehicle rather than the paper's
 object.  `DavisKahan.gauge_sinTwoAngleOperatorRC` moves it to `2 sin Θ cos Θ`
@@ -567,14 +567,14 @@ for the real pair: the two have the same approximation singular values
 (`DavisKahan.approximationSingularValue_sinTwoThetaIdealBlock_real`), so every
 source unitarily invariant norm sees them identically.
 
-The real mirror of `sinTwoTheta_directed_unbounded_addBounded_spectrumGap_paperUINorm_complex`.  The angle
+The real mirror of `sinTwoTheta_directed_unbounded_addBounded_spectrumGap_symmetricNorming_complex`.  The angle
 is the *directed* double-angle sine of the real pair, read in the canonical
 complexification, which is where this development keeps the real double-angle
 operators; the ambient spelling `paperSinTwoAngleOperatorR` is a different
 operator, carrying each principal angle twice where the block carries it once,
 and no transport to it is claimed. -/
-theorem sinTwoTheta_directed_unbounded_addBounded_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unbounded_addBounded_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
     (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
@@ -593,7 +593,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_paperUINorm_real
         (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ≤
         2 * N.gauge Eop := by
-  obtain ⟨hmem, hle⟩ := sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_paperUINorm_real N A hA Eop hEop
+  obtain ⟨hmem, hle⟩ := sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_real N A hA Eop hEop
     B S hB hS hδ hgap hEmem
   refine ⟨(DavisKahan.mem_sinTwoAngleOperatorRC_iff _ _ N).mpr hmem, ?_⟩
   rwa [DavisKahan.gauge_sinTwoAngleOperatorRC]
@@ -603,12 +603,12 @@ open DavisKahan DavisKahan.RealSpectralRestriction in
 `ℝ`.**
 
 The real sibling of
-`sinTwoTheta_directed_unbounded_addBounded_unequalDimension_paperUINorm_complex`,
+`sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorming_complex`,
 with the same unused strict-dimension hypothesis and the same conclusion for an
 arbitrary operator carrying the directed double-angle sine's singular-value
 sequence. -/
-theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_paperUINorm_real
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorming_real
+    (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
     (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
@@ -631,7 +631,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_paperUINorm_r
     N.Mem sinTwoTheta₀.operator ∧
       δ * N.gauge sinTwoTheta₀.operator ≤ 2 * N.gauge Eop := by
   obtain ⟨hmem, hle⟩ :=
-    sinTwoTheta_directed_unbounded_addBounded_paperUINorm_real
+    sinTwoTheta_directed_unbounded_addBounded_symmetricNorming_real
       N A hA Eop hEop B S hB hS hδ hgap hEmem
   have hext := N.gauge_eq_of_sameApproximationSingularValues
     sinTwoTheta₀.same_singular_values
@@ -644,7 +644,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_paperUINorm_r
             (realSelfAdjointSpectralSubspace A hA B hB)
             (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
               (addBounded_isSelfAdjoint A hA Eop hEop) S hS)) := by
-      unfold PaperUnitaryInvariantNorm.gauge
+      unfold SymmetricNormingFunction.gauge
       rw [hext]
     rw [hgauge]
     exact hle
@@ -668,8 +668,8 @@ alias sinTwoTheta_unbounded_reflectionResidual_opNorm_real :=
 
 /-! ### The complex source norm, completing the pair
 
-`sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_paperUINorm_real` above states the bounded-perturbation
-`sin 2Θ` theorem for a `PaperUnitaryInvariantNorm` over a real Hilbert space.
+`sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_real` above states the bounded-perturbation
+`sin 2Θ` theorem for a `SymmetricNormingFunction` over a real Hilbert space.
 The complex counterpart was missing, even though the complex ideal-level theorem
 `DavisKahan.sinTwoTheta_addBounded_unitaryInvariant_of_spectrum_gap` has been
 available: only the adaptation from a Ky-Fan-dominant family to the source norm
@@ -696,9 +696,9 @@ self-adjoint operator, in a source unitarily invariant norm, over `ℂ`.**
 `B` is semibounded between `β` and `α`, and the restriction to `Bᶜ` has spectrum
 avoiding `(β − δ, α + δ)`.
 
-The complex counterpart of `sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_paperUINorm_real`. -/
-theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_spectrumGap_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+The complex counterpart of `sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_real`. -/
+theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_spectrumGap_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
     (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -741,7 +741,7 @@ open DavisKahan in
 /-- **Davis--Kahan 1970, `sin 2Θ` for a bounded perturbation of an unbounded
 self-adjoint operator, stated on the angle operator itself.**
 
-`sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_spectrumGap_paperUINorm_complex` above concludes about
+`sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_spectrumGap_symmetricNorming_complex` above concludes about
 `sinTwoThetaIdealBlock`, the overlap of the selected spectral subspace with the
 reflected complement.  That block is the proof's vehicle, not the paper's object.
 `DavisKahan.sinTwoThetaIdealBlock_hasSameApproximationNumbers` shows the two have
@@ -757,8 +757,8 @@ different operator: it agrees in operator norm
 (`norm_paperSinTwoAngleOperatorC_eq_norm_sinTwoAngleOperatorC`) but its
 approximation-number sequence is not identified with this one here, so the
 transport below is not claimed for it. -/
-theorem sinTwoTheta_directed_unbounded_addBounded_spectrumGap_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unbounded_addBounded_spectrumGap_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
     (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -780,7 +780,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_spectrumGap_paperUINorm_comple
         (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ≤
         2 * N.gauge Eop := by
-  obtain ⟨hmem, hle⟩ := sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_spectrumGap_paperUINorm_complex N A hA Eop hEop B S hB hS
+  obtain ⟨hmem, hle⟩ := sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_spectrumGap_symmetricNorming_complex N A hA Eop hEop B S hB hS
     hβα hδ hBlow hBhigh hBcomplSpec hEmem
   refine ⟨(DavisKahan.mem_sinTwoAngleOperatorC_iff _ _ N).mpr hmem, ?_⟩
   rwa [DavisKahan.gauge_sinTwoAngleOperatorC]
@@ -820,9 +820,9 @@ restriction of `A` to `B` and its restriction to `Bᶜ`.  The separating interva
 may be half-infinite, which is the scope Davis and Kahan state.
 
 The complex counterpart of
-`sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_paperUINorm_real`. -/
-theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+`sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_real`. -/
+theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
     (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -869,8 +869,8 @@ identically.
 This is the *directed* double-angle operator; the paper's ambient spelling
 `paperSinTwoAngleOperatorC U V` is a different operator, agreeing in operator
 norm but with no approximation-number identification claimed here. -/
-theorem sinTwoTheta_directed_unbounded_addBounded_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unbounded_addBounded_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
     (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -889,7 +889,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_paperUINorm_complex
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ≤
         2 * N.gauge Eop := by
   obtain ⟨hmem, hle⟩ :=
-    sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_paperUINorm_complex
+    sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_complex
       N A hA Eop hEop B S hB hS hδ hgap hEmem
   refine ⟨(DavisKahan.mem_sinTwoAngleOperatorC_iff _ _ N).mpr hmem, ?_⟩
   rwa [DavisKahan.gauge_sinTwoAngleOperatorC]
@@ -899,7 +899,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_paperUINorm_complex
 The closing sentence of Section 8 states that the `sin 2Θ` theorem extends to
 `dim X(E₀) < dim X(F₀)`, analogously to Theorems 6.1 and 6.3.  The repository
 states it at the scope the counted Section 2 result is certified at: an
-arbitrary `PaperUnitaryInvariantNorm` and the whole `FormBoundedSylvesterGap`.
+arbitrary `SymmetricNormingFunction` and the whole `FormBoundedSylvesterGap`.
 
 `sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_unequalDimension_complex`
 earlier in this file states the same extension, but only at a
@@ -925,8 +925,8 @@ open DavisKahan in
 `δ N(sin 2Θ₀) ≤ 2 N(E)` for any operator carrying the directed double-angle
 sine's singular-value sequence, when the selected spectral subspace of `A` has
 strictly smaller dimension than the selected spectral subspace of `A + E`. -/
-theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
     (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
@@ -948,7 +948,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_paperUINorm_c
     N.Mem sinTwoTheta₀.operator ∧
       δ * N.gauge sinTwoTheta₀.operator ≤ 2 * N.gauge Eop := by
   obtain ⟨hmem, hle⟩ :=
-    sinTwoTheta_directed_unbounded_addBounded_paperUINorm_complex
+    sinTwoTheta_directed_unbounded_addBounded_symmetricNorming_complex
       N A hA Eop hEop B S hB hS hδ hgap hEmem
   have hext := N.gauge_eq_of_sameApproximationSingularValues
     sinTwoTheta₀.same_singular_values
@@ -960,7 +960,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_paperUINorm_c
             (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
             (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
               (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) := by
-      unfold PaperUnitaryInvariantNorm.gauge
+      unfold SymmetricNormingFunction.gauge
       rw [hext]
     rw [hgauge]
     exact hle

@@ -169,8 +169,8 @@ theorem tanTheta_ambient_bounded_kyFan_complex_of_lowerCorner
   exact hcombine.trans hpinch
 
 /-- Paper-norm form of `tanTheta_ambient_bounded_kyFan_complex_of_lowerCorner`. -/
-theorem tanTheta_ambient_bounded_paperUINorm_complex_of_lowerCorner
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_bounded_symmetricNorming_complex_of_lowerCorner
+    (N : SymmetricNormingFunction)
     {H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hH : IsSelfAdjoint H)
@@ -189,7 +189,7 @@ theorem tanTheta_ambient_bounded_paperUINorm_complex_of_lowerCorner
 
 /-- **Unbounded-data ambient `tan Theta` theorem with transversality supplied.**
 
-This is the assembly half of `tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex`:
+This is the assembly half of `tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_complex`:
 everything except the derivation of `‖sin Theta‖ < 1` from the printed standing
 assumption (3.5).  Separating the two lets the real-scalar counterpart consume
 this half after establishing transversality natively on the real side, so the
@@ -199,8 +199,8 @@ crossed-defect condition never has to be transported across complexification.
 problem.  Its residual is assumed to be exactly the lower `U -> U-perp` block of
 the bounded perturbation `H`; this is the operator form of the printed
 Rayleigh--Ritz condition `H_0 = 0`. -/
-theorem tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex_of_transversality
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_complex_of_transversality
+    (N : SymmetricNormingFunction)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (data : Theorem63TrialData U V)
@@ -255,7 +255,7 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex_o
         mul_le_mul_of_nonneg_left hcorner hdelta.le
       _ ≤ kyFanApproximationGauge k data.residual := hcore
       _ = kyFanApproximationGauge k (paperProjectionBlock Uᗮ U H) := hresKy
-  exact tanTheta_ambient_bounded_paperUINorm_complex_of_lowerCorner N hH hdelta htr hlower hMem
+  exact tanTheta_ambient_bounded_symmetricNorming_complex_of_lowerCorner N hH hdelta htr hlower hMem
 
 /-- **Unbounded-data ambient `tan Theta` theorem, complex form.**
 
@@ -271,8 +271,8 @@ strictly below one under those form bounds, and the printed standing assumption
 
 The conclusion is the missing sharp ambient inequality
 `delta * N(tan Theta) <= N(H)` for every paper unitary-invariant norm. -/
-theorem tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (data : Theorem63TrialData U V)
@@ -303,7 +303,7 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex
       DavisKahan.subspaceGap_eq_directedGap_of_crossedDefectsEquivalent
         U V h35]
     exact hambient
-  exact tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex_of_transversality N data H hH
+  exact tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_complex_of_transversality N data H hH
     hdelta hCompression hcross htr hResidual hMem
 
 /-! ## Appendix scope: the Ritz compression itself may be unbounded -/
@@ -312,15 +312,15 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex
 with transversality supplied.**
 
 This is the Appendix counterpart of
-`tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex_of_transversality`.  The crucial
+`tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_complex_of_transversality`.  The crucial
 difference is that `D.compression` is a densely defined self-adjoint closed
 operator on the trial space, not a bounded continuous endomorphism.  Only the
 residual is bounded.  The lower-corner estimate therefore comes from
 `UnboundedCompressionTrialData.all_kyFan_core`, which performs the Appendix
 spectral truncation and release argument.  Once that estimate is available, the
 whole-space assembly is again purely bounded operator geometry. -/
-theorem tanTheta_ambient_unboundedRitzData_paperUINorm_complex_of_transversality
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_unboundedRitzData_symmetricNorming_complex_of_transversality
+    (N : SymmetricNormingFunction)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (D : UnboundedCompressionTrialData U)
@@ -373,7 +373,7 @@ theorem tanTheta_ambient_unboundedRitzData_paperUINorm_complex_of_transversality
         mul_le_mul_of_nonneg_left hcorner hdelta.le
       _ ≤ kyFanApproximationGauge k D.residual := hcore
       _ = kyFanApproximationGauge k (paperProjectionBlock Uᗮ U H) := hresKy
-  exact tanTheta_ambient_bounded_paperUINorm_complex_of_lowerCorner N hH hdelta htr hlower hMem
+  exact tanTheta_ambient_bounded_symmetricNorming_complex_of_lowerCorner N hH hdelta htr hlower hMem
 
 /-- **Davis--Kahan's ambient `tan Theta` estimate with an unbounded Ritz
 compression, complex form.**
@@ -383,8 +383,8 @@ The Appendix explicitly allows `A₀ ≤ alpha` and `Lambda₁ ≥ alpha + delta
 operator and `D.residual` is the bounded residual.  Uniform transversality is
 derived from the Appendix no-pole theorem plus the paper's standing condition
 (3.5), not assumed by the caller. -/
-theorem tanTheta_ambient_unboundedRitzData_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_unboundedRitzData_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (D : UnboundedCompressionTrialData U)
@@ -413,7 +413,7 @@ theorem tanTheta_ambient_unboundedRitzData_paperUINorm_complex
       DavisKahan.subspaceGap_eq_directedGap_of_crossedDefectsEquivalent
         U V h35]
     exact hambient
-  exact tanTheta_ambient_unboundedRitzData_paperUINorm_complex_of_transversality
+  exact tanTheta_ambient_unboundedRitzData_symmetricNorming_complex_of_transversality
     N D H hH hdelta hupper hcross htr hResidual hMem
 
 /-- **Davis--Kahan 1970, Appendix-complete ambient `tan Theta` theorem.**
@@ -425,8 +425,8 @@ unbounded; the residual and perturbation `H` are bounded.  The hypotheses
 Ritz domain, `hVdom`/`hVcomm` say the unwanted subspace reduces the ambient
 operator, `hupper` and `hUnwanted` are the two printed form bounds, and `h35` is
 the standing condition (3.5). -/
-theorem tanTheta_ambient_unboundedRitz_raw_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_unboundedRitz_raw_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (D : UnboundedCompressionTrialData U)
@@ -449,7 +449,7 @@ theorem tanTheta_ambient_unboundedRitz_raw_paperUINorm_complex
     (hMem : N.Mem H) :
     N.Mem (paperTanAngleOperatorC U V) ∧
       delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge H := by
-  refine tanTheta_ambient_unboundedRitzData_paperUINorm_complex
+  refine tanTheta_ambient_unboundedRitzData_symmetricNorming_complex
     N D H hH hdelta hupper ?_ h35 hResidual hMem
   intro z
   exact D.crossed_lower_of_reducing V A hZA haction hVdom hVcomm hUnwanted z
@@ -457,8 +457,8 @@ theorem tanTheta_ambient_unboundedRitz_raw_paperUINorm_complex
 /-- The same theorem specialized to an actual unbounded trial block and an
 arbitrary chosen reducing subspace.  All domain-sensitive crossed-form work is
 reused from the already-proved unbounded Theorem 6.3 implementation. -/
-theorem tanTheta_ambient_unboundedOperator_boundedRitz_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_unboundedOperator_boundedRitz_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (A : E →ₗ.[ℂ] E)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -480,7 +480,7 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitz_paperUINorm_complex
     N.Mem (paperTanAngleOperatorC U V) ∧
       delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge H := by
   let data := Theorem63TrialData.ofUnbounded D V
-  refine tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex N data H hH hdelta
+  refine tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_complex N data H hH hdelta
     hCompression ?_ h35 ?_ hMem
   · intro z
     exact crossed_lower_of_reducing A D V hVdom hVcomm hUnwanted z
@@ -488,7 +488,7 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitz_paperUINorm_complex
 
 /-! ### The constructor-first interface
 
-`tanTheta_ambient_unboundedRitz_raw_paperUINorm_complex` above is the most
+`tanTheta_ambient_unboundedRitz_raw_symmetricNorming_complex` above is the most
 general form, and it asks the caller for four separate facts that are not
 Davis--Kahan mathematics: two saying the compression data is `A`'s Ritz pair on
 `U`, and two saying `Vᗮ` reduces `A`.  `DavisKahan.UnboundedRitzPair` and
@@ -535,13 +535,13 @@ theorem norm_sinAngleOperatorC_lt_one_of_unboundedRitz
 /-- **Davis--Kahan 1970, `tan Θ`, unbounded ambient form, taking the Ritz pair and
 the reducing complement as objects.**
 
-`tanTheta_ambient_unboundedRitz_raw_paperUINorm_complex` with its four
+`tanTheta_ambient_unboundedRitz_raw_symmetricNorming_complex` with its four
 structural arguments replaced by `DavisKahan.UnboundedRitzPair A U` and
 `DavisKahan.ReducingComplement A V`.  The mathematics -- semiboundedness,
 coercivity on the unwanted subspace, and the crossed-defect condition (3.5) --
 is unchanged and still supplied by the caller. -/
-theorem tanTheta_ambient_unboundedRitz_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_ambient_unboundedRitz_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℂ] E}
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace U]
@@ -558,7 +558,7 @@ theorem tanTheta_ambient_unboundedRitz_paperUINorm_complex
     (hMem : N.Mem H) :
     N.Mem (paperTanAngleOperatorC U V) ∧
       delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge H :=
-  tanTheta_ambient_unboundedRitz_raw_paperUINorm_complex N D.trial A H hH hdelta
+  tanTheta_ambient_unboundedRitz_raw_symmetricNorming_complex N D.trial A H hH hdelta
     D.mem_domain D.action_eq hV.mapsDomain hV.commutes hupper hUnwanted h35
     hResidual hMem
 

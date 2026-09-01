@@ -14,7 +14,7 @@ complex".  Almost all of the analysis in this repository is carried out over `�
 so the real half of that assumption has to be reached by complexification.  This
 module supplies the norm half of that transfer.
 
-The point is that `PaperUnitaryInvariantNorm` is already scalar-agnostic *at the
+The point is that `SymmetricNormingFunction` is already scalar-agnostic *at the
 operator level*: although its finite model `finiteNorm` is a family of unitarily
 invariant seminorms on complex Euclidean spaces, an operator only ever enters
 through `approximationPrefix`, i.e. through its approximation singular values.
@@ -41,7 +41,7 @@ namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
 
-namespace PaperUnitaryInvariantNorm
+namespace SymmetricNormingFunction
 
 open scoped ENNReal
 open TauCeti.RealComplexification
@@ -62,7 +62,7 @@ theorem approximationPrefix_complexify (n : ℕ) (T : E →L[ℝ] F) :
   exact ComplexificationApproximation.approximationSingularValue_complexify T _
 
 /-- Each finite prefix gauge of a source norm is unchanged by complexification. -/
-theorem prefixGauge_complexify (N : PaperUnitaryInvariantNorm) (n : ℕ)
+theorem prefixGauge_complexify (N : SymmetricNormingFunction) (n : ℕ)
     (T : E →L[ℝ] F) :
     N.prefixGauge n (RealComplexification.complexify T) = N.prefixGauge n T := by
   unfold prefixGauge
@@ -70,14 +70,14 @@ theorem prefixGauge_complexify (N : PaperUnitaryInvariantNorm) (n : ℕ)
 
 /-- The extended (`ENNReal`-valued) source gauge is unchanged by
 complexification. -/
-theorem extendedGauge_complexify (N : PaperUnitaryInvariantNorm)
+theorem extendedGauge_complexify (N : SymmetricNormingFunction)
     (T : E →L[ℝ] F) :
     N.extendedGauge (RealComplexification.complexify T) = N.extendedGauge T := by
   unfold extendedGauge
   exact iSup_congr fun n => by rw [prefixGauge_complexify]
 
 /-- Membership in the ideal of a source norm is unchanged by complexification. -/
-theorem mem_complexify_iff (N : PaperUnitaryInvariantNorm) (T : E →L[ℝ] F) :
+theorem mem_complexify_iff (N : SymmetricNormingFunction) (T : E →L[ℝ] F) :
     N.Mem (RealComplexification.complexify T) ↔ N.Mem T := by
   unfold Mem
   rw [extendedGauge_complexify]
@@ -86,12 +86,12 @@ theorem mem_complexify_iff (N : PaperUnitaryInvariantNorm) (T : E →L[ℝ] F) :
 complexification.**  This is the transport lemma the real Davis--Kahan wrappers
 consume: a complex conclusion `δ * N.gauge (complexify X) ≤ N.gauge (complexify C)`
 is literally the real conclusion `δ * N.gauge X ≤ N.gauge C`. -/
-theorem gauge_complexify (N : PaperUnitaryInvariantNorm) (T : E →L[ℝ] F) :
+theorem gauge_complexify (N : SymmetricNormingFunction) (T : E →L[ℝ] F) :
     N.gauge (RealComplexification.complexify T) = N.gauge T := by
   unfold gauge
   rw [extendedGauge_complexify]
 
-end PaperUnitaryInvariantNorm
+end SymmetricNormingFunction
 
 end ExactSinTheta
 end DavisKahan

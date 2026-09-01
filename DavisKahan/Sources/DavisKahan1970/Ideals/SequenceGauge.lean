@@ -36,35 +36,35 @@ open DavisKahan.ExactSinTheta
 noncomputable section
 
 /-- The coherent finite gauge applied to the first `n` entries of a sequence. -/
-def sequencePrefixGauge (N : PaperUnitaryInvariantNorm) (n : ℕ)
+def sequencePrefixGauge (N : SymmetricNormingFunction) (n : ℕ)
     (x : ℕ → ℝ) : ℝ :=
   N.finiteGauge n (sequencePrefixVector n x)
 
 /-- The maximal extended sequence gauge associated with `N`. -/
-def sequenceExtendedGauge (N : PaperUnitaryInvariantNorm)
+def sequenceExtendedGauge (N : SymmetricNormingFunction)
     (x : ℕ → ℝ) : ENNReal :=
   ⨆ n : ℕ, ENNReal.ofReal (sequencePrefixGauge N n x)
 
 /-- Membership in the maximal sequence space. -/
-def SequenceMem (N : PaperUnitaryInvariantNorm) (x : ℕ → ℝ) : Prop :=
+def SequenceMem (N : SymmetricNormingFunction) (x : ℕ → ℝ) : Prop :=
   sequenceExtendedGauge N x ≠ ⊤
 
 /-- The real-valued sequence gauge on its maximal domain. -/
-def sequenceGauge (N : PaperUnitaryInvariantNorm) (x : ℕ → ℝ) : ℝ :=
+def sequenceGauge (N : SymmetricNormingFunction) (x : ℕ → ℝ) : ℝ :=
   (sequenceExtendedGauge N x).toReal
 
 /-- The paper's finite gauge, packaged in the algebraic interface consumed by
 finite majorization. -/
-noncomputable def paperFiniteSymmetricGauge
-    (N : PaperUnitaryInvariantNorm) (n : ℕ) : FiniteSymmetricGauge n :=
+noncomputable def normingFiniteSymmetricGauge
+    (N : SymmetricNormingFunction) (n : ℕ) : FiniteSymmetricGauge n :=
   (N.finiteNorm n).finiteSymmetricGauge
     (EuclideanSpace.basisFun (Fin n) ℂ)
 
-/-- `paperFiniteSymmetricGauge` computes the paper's own finite gauge: the repackaging
+/-- `normingFiniteSymmetricGauge` computes the paper's own finite gauge: the repackaging
 into `FiniteSymmetricGauge` changes the interface, not the value. -/
-@[simp] theorem paperFiniteSymmetricGauge_apply
-    (N : PaperUnitaryInvariantNorm) (n : ℕ) (x : Fin n → ℝ) :
-    paperFiniteSymmetricGauge N n x = N.finiteGauge n x :=
+@[simp] theorem normingFiniteSymmetricGauge_apply
+    (N : SymmetricNormingFunction) (n : ℕ) (x : Fin n → ℝ) :
+    normingFiniteSymmetricGauge N n x = N.finiteGauge n x :=
   rfl
 
 /-- A Minkowski sum of two symmetric-gauge balls is symmetric-convex. -/
@@ -126,22 +126,22 @@ theorem exists_gauge_decomposition_of_weaklyMajorized
 
 /-- The finite Riesz decomposition specialized to the normalized ℓ¹ gauge and
 one coherent paper gauge. -/
-theorem exists_l1_paperGauge_decomposition_of_weaklyMajorized
-    (N : PaperUnitaryInvariantNorm) {n : ℕ}
+theorem exists_l1_normingGauge_decomposition_of_weaklyMajorized
+    (N : SymmetricNormingFunction) {n : ℕ}
     {x y z : Fin n → ℝ}
     (h : FiniteVector.WeaklyMajorized x (y + z)) :
     ∃ u v : Fin n → ℝ,
       x = u + v ∧
-      paperL1Gauge n u ≤ paperL1Gauge n y ∧
+      l1Gauge n u ≤ l1Gauge n y ∧
       N.finiteGauge n v ≤ N.finiteGauge n z := by
   obtain ⟨u, v, huv, hu, hv⟩ :=
     exists_gauge_decomposition_of_weaklyMajorized
-      (paperFiniteSymmetricGauge paperNuclearNorm n)
-      (paperFiniteSymmetricGauge N n) h
+      (normingFiniteSymmetricGauge nuclearNormingFunction n)
+      (normingFiniteSymmetricGauge N n) h
   refine ⟨u, v, huv, ?_, ?_⟩
-  · change paperNuclearNorm.finiteGauge n u ≤
-      paperNuclearNorm.finiteGauge n y at hu
-    simpa only [paperNuclearNorm_finiteGauge] using hu
+  · change nuclearNormingFunction.finiteGauge n u ≤
+      nuclearNormingFunction.finiteGauge n y at hu
+    simpa only [nuclearNormingFunction_finiteGauge] using hu
   · change N.finiteGauge n v ≤ N.finiteGauge n z at hv
     exact hv
 

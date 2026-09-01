@@ -141,14 +141,14 @@ theorem paperSourceFullSin_same_projectionDifference
 /-- Every source norm gives the same value to the literal full angle sine and
 the projector difference. -/
 theorem paperSourceFullSin_mem_iff_and_gauge_eq
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     (N.Mem (paperSourceFullSinC U V) ↔
       N.Mem (U.starProjection - V.starProjection)) ∧
     N.gauge (paperSourceFullSinC U V) =
       N.gauge (U.starProjection - V.starProjection) :=
-  (paperSourceFullSin_same_projectionDifference U V).paperMem_iff_and_gauge_eq N
+  (paperSourceFullSin_same_projectionDifference U V).normingMem_iff_and_gauge_eq N
 
 end
 

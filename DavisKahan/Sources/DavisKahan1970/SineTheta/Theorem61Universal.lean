@@ -17,7 +17,7 @@ an independent ideal-membership hypothesis to the norm definition.
 
 The proof first instantiates the accepted theorem with every positive finite
 Ky Fan gauge.  The resulting simultaneous prefix inequalities are then passed
-to `PaperUnitaryInvariantNorm`, whose value is the canonical supremum of the
+to `SymmetricNormingFunction`, whose value is the canonical supremum of the
 coherent finite symmetric gauges.  Thus the final quantifier is literally the
 one used in Davis--Kahan 1970.
 -/
@@ -113,7 +113,7 @@ symmetric norming function. -/
 theorem result_every_unitarilyInvariantNorm
     (P : PaperTheorem61Data (E := E) (F := F) (G := G) (H := H))
     (S : PaperSinThetaRepresentative P.canonicalSinTheta)
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
       P.gap * P.frameLowerBound * N.gauge S.operator ≤
@@ -131,14 +131,14 @@ theorem result_every_unitarilyInvariantNorm_across
     (P : PaperTheorem61Data (E := E) (F := F) (G := G) (H := H))
     (S : PaperSinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.canonicalSinTheta)
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
       P.gap * P.frameLowerBound * N.gauge S.operator ≤
         N.gauge P.data.residual := by
   have hcanonical := P.result_every_unitarilyInvariantNorm
     (PaperSinThetaRepresentative.canonical P.canonicalSinTheta) N hR
-  have htransport := S.paperMem_iff_and_gauge_eq N
+  have htransport := S.normingMem_iff_and_gauge_eq N
   refine ⟨htransport.1.mpr hcanonical.1, ?_⟩
   rw [htransport.2]
   exact hcanonical.2
@@ -192,7 +192,7 @@ theorem result_every_unitarilyInvariantNorm_across
     (P : PaperIsometricTheoremData (E := E) (F := F) (G := G) (H := H))
     (S : PaperSinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.canonicalSinTheta)
-    (N : PaperUnitaryInvariantNorm) (hR : N.Mem P.data.residual) :
+    (N : SymmetricNormingFunction) (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
       P.gap * N.gauge S.operator ≤ N.gauge P.data.residual := by
   have h := P.toGeneral.result_every_unitarilyInvariantNorm_across S N hR
@@ -278,7 +278,7 @@ theorem all_kyFan_bound
 theorem result_every_unitarilyInvariantNorm
     (P : PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H))
     (S : PaperSinThetaRepresentative P.canonicalSinTheta)
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
       P.gap * P.frameLowerBound * N.gauge S.operator ≤
@@ -296,14 +296,14 @@ theorem result_every_unitarilyInvariantNorm_across
     (P : PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H))
     (S : PaperSinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.canonicalSinTheta)
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
       P.gap * P.frameLowerBound * N.gauge S.operator ≤
         N.gauge P.data.residual := by
   have hcanonical := P.result_every_unitarilyInvariantNorm
     (PaperSinThetaRepresentative.canonical P.canonicalSinTheta) N hR
-  have htransport := S.paperMem_iff_and_gauge_eq N
+  have htransport := S.normingMem_iff_and_gauge_eq N
   refine ⟨htransport.1.mpr hcanonical.1, ?_⟩
   rw [htransport.2]
   exact hcanonical.2
@@ -359,7 +359,7 @@ theorem result_every_unitarilyInvariantNorm_across
       (E := E) (F := F) (G := G) (H := H))
     (S : PaperSinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.canonicalSinTheta)
-    (N : PaperUnitaryInvariantNorm) (hR : N.Mem P.data.residual) :
+    (N : SymmetricNormingFunction) (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
       P.gap * N.gauge S.operator ≤ N.gauge P.data.residual := by
   have h := P.toGeneral.result_every_unitarilyInvariantNorm_across S N hR

@@ -41,7 +41,7 @@ noncomputable section
 universe u v
 
 /-- Add one trailing zero to a finite singular-value vector. -/
-def paperZeroPad {n : ℕ} (x : Fin n → ℝ) : Fin (n + 1) → ℝ :=
+def zeroPad {n : ℕ} (x : Fin n → ℝ) : Fin (n + 1) → ℝ :=
   Fin.lastCases 0 x
 
 /-- A normalized symmetric norming function in the exact dimension-coherent
@@ -52,7 +52,7 @@ because the repository already proves the equivalence between such norms and
 symmetric gauges.  Its gauge is real and therefore applies unchanged to real
 and complex operators, and to rectangular operators through their singular
 values. -/
-structure PaperUnitaryInvariantNorm where
+structure SymmetricNormingFunction where
   finiteNorm : ∀ n : ℕ,
     TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n))
   normalized :
@@ -60,13 +60,13 @@ structure PaperUnitaryInvariantNorm where
       (fun _ => 1) = 1
   zero_pad : ∀ {n : ℕ} (x : Fin n → ℝ),
     (finiteNorm (n + 1)).gauge
-        (EuclideanSpace.basisFun (Fin (n + 1)) ℂ) (paperZeroPad x) =
+        (EuclideanSpace.basisFun (Fin (n + 1)) ℂ) (zeroPad x) =
       (finiteNorm n).gauge (EuclideanSpace.basisFun (Fin n) ℂ) x
 
-namespace PaperUnitaryInvariantNorm
+namespace SymmetricNormingFunction
 
 /-- The finite symmetric gauge associated to the paper norm. -/
-def finiteGauge (N : PaperUnitaryInvariantNorm) (n : ℕ)
+def finiteGauge (N : SymmetricNormingFunction) (n : ℕ)
     (x : Fin n → ℝ) : ℝ :=
   (N.finiteNorm n).gauge (EuclideanSpace.basisFun (Fin n) ℂ) x
 
@@ -86,7 +86,7 @@ def prefixGauge
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) (n : ℕ) (A : E →L[𝕜] F) : ℝ :=
+    (N : SymmetricNormingFunction) (n : ℕ) (A : E →L[𝕜] F) : ℝ :=
   N.finiteGauge n (approximationPrefix n A)
 
 /-- The extended value of the source norm.  It is finite precisely on the
@@ -96,7 +96,7 @@ def extendedGauge
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) (A : E →L[𝕜] F) : ENNReal :=
+    (N : SymmetricNormingFunction) (A : E →L[𝕜] F) : ENNReal :=
   ⨆ n : ℕ, ENNReal.ofReal (N.prefixGauge n A)
 
 /-- Membership in the source norm ideal is not independent data: it means the
@@ -106,7 +106,7 @@ def Mem
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) (A : E →L[𝕜] F) : Prop :=
+    (N : SymmetricNormingFunction) (A : E →L[𝕜] F) : Prop :=
   N.extendedGauge A ≠ ⊤
 
 /-- The ordinary real-valued norm on its canonical ideal. -/
@@ -115,42 +115,42 @@ def gauge
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) (A : E →L[𝕜] F) : ℝ :=
+    (N : SymmetricNormingFunction) (A : E →L[𝕜] F) : ℝ :=
   (N.extendedGauge A).toReal
 
 /-- Rewrite form of the finite gauge as a sum over the first `k` singular values. -/
 @[simp]
-theorem finiteGauge_def (N : PaperUnitaryInvariantNorm) (n : ℕ)
+theorem finiteGauge_def (N : SymmetricNormingFunction) (n : ℕ)
     (x : Fin n → ℝ) :
     N.finiteGauge n x =
       (N.finiteNorm n).gauge (EuclideanSpace.basisFun (Fin n) ℂ) x :=
   rfl
 
 /-- Source normalization in one dimension. -/
-theorem finiteGauge_one (N : PaperUnitaryInvariantNorm) :
+theorem finiteGauge_one (N : SymmetricNormingFunction) :
     N.finiteGauge 1 (fun _ => 1) = 1 :=
   N.normalized
 
 /-- Coherence under trailing-zero padding. -/
-theorem finiteGauge_zeroPad (N : PaperUnitaryInvariantNorm)
+theorem finiteGauge_zeroPad (N : SymmetricNormingFunction)
     {n : ℕ} (x : Fin n → ℝ) :
-    N.finiteGauge (n + 1) (paperZeroPad x) = N.finiteGauge n x :=
+    N.finiteGauge (n + 1) (zeroPad x) = N.finiteGauge n x :=
   N.zero_pad x
 
 /-- Finite gauges are nonnegative. -/
-theorem finiteGauge_nonneg (N : PaperUnitaryInvariantNorm)
+theorem finiteGauge_nonneg (N : SymmetricNormingFunction)
     {n : ℕ} (x : Fin n → ℝ) : 0 ≤ N.finiteGauge n x :=
   (N.finiteNorm n).nonneg _
 
 /-- Finite gauges are absolutely homogeneous. -/
-theorem finiteGauge_smul (N : PaperUnitaryInvariantNorm)
+theorem finiteGauge_smul (N : SymmetricNormingFunction)
     {n : ℕ} (c : ℝ) (x : Fin n → ℝ) :
     N.finiteGauge n (c • x) = |c| * N.finiteGauge n x :=
   (N.finiteNorm n).gauge_real_smul
     (EuclideanSpace.basisFun (Fin n) ℂ) c x
 
 /-- Finite gauges are subadditive. -/
-theorem finiteGauge_add_le (N : PaperUnitaryInvariantNorm)
+theorem finiteGauge_add_le (N : SymmetricNormingFunction)
     {n : ℕ} (x y : Fin n → ℝ) :
     N.finiteGauge n (x + y) ≤
       N.finiteGauge n x + N.finiteGauge n y :=
@@ -178,7 +178,7 @@ theorem prefixGauge_le_of_all_kyFan_le
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A B : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {A B : E →L[𝕜] F}
     (h : ∀ k : ℕ, kyFanApproximationGauge k A ≤
       kyFanApproximationGauge k B) (n : ℕ) :
     N.prefixGauge n A ≤ N.prefixGauge n B := by
@@ -220,7 +220,7 @@ theorem mul_prefixGauge_le_of_all_mul_kyFan_le
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A B : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {A B : E →L[𝕜] F}
     {c : ℝ} (hc : 0 ≤ c)
     (h : ∀ k : ℕ, c * kyFanApproximationGauge k A ≤
       kyFanApproximationGauge k B) (n : ℕ) :
@@ -269,7 +269,7 @@ theorem extendedGauge_le_of_all_kyFan_le
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A B : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {A B : E →L[𝕜] F}
     (h : ∀ k : ℕ, kyFanApproximationGauge k A ≤
       kyFanApproximationGauge k B) :
     N.extendedGauge A ≤ N.extendedGauge B := by
@@ -286,7 +286,7 @@ theorem mul_extendedGauge_le_of_all_mul_kyFan_le
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A B : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {A B : E →L[𝕜] F}
     {c : ℝ} (hc : 0 ≤ c)
     (h : ∀ k : ℕ, c * kyFanApproximationGauge k A ≤
       kyFanApproximationGauge k B) :
@@ -310,7 +310,7 @@ theorem mem_of_all_mul_kyFan_le
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A B : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {A B : E →L[𝕜] F}
     {c : ℝ} (hc : 0 < c) (hB : N.Mem B)
     (h : ∀ k : ℕ, c * kyFanApproximationGauge k A ≤
       kyFanApproximationGauge k B) : N.Mem A := by
@@ -326,7 +326,7 @@ theorem mul_gauge_le_of_all_mul_kyFan_le
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A B : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {A B : E →L[𝕜] F}
     {c : ℝ} (hc : 0 < c) (hB : N.Mem B)
     (h : ∀ k : ℕ, c * kyFanApproximationGauge k A ≤
       kyFanApproximationGauge k B) :
@@ -356,7 +356,7 @@ theorem prefixGauge_adjoint
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) (n : ℕ) (A : E →L[𝕜] F) :
+    (N : SymmetricNormingFunction) (n : ℕ) (A : E →L[𝕜] F) :
     N.prefixGauge n A.adjoint = N.prefixGauge n A := by
   rw [prefixGauge, prefixGauge, approximationPrefix_adjoint]
 
@@ -374,10 +374,10 @@ theorem extendedGauge_eq_of_hasSameApproximationNumbers
     [NormedAddCommGroup F₁] [InnerProductSpace 𝕜 F₁] [CompleteSpace F₁]
     [NormedAddCommGroup E₂] [InnerProductSpace 𝕜 E₂] [CompleteSpace E₂]
     [NormedAddCommGroup F₂] [InnerProductSpace 𝕜 F₂] [CompleteSpace F₂]
-    (N : PaperUnitaryInvariantNorm) {A : E₁ →L[𝕜] F₁} {B : E₂ →L[𝕜] F₂}
+    (N : SymmetricNormingFunction) {A : E₁ →L[𝕜] F₁} {B : E₂ →L[𝕜] F₂}
     (h : A.HasSameApproximationNumbers B) :
     N.extendedGauge A = N.extendedGauge B := by
-  unfold PaperUnitaryInvariantNorm.extendedGauge
+  unfold SymmetricNormingFunction.extendedGauge
   refine iSup_congr fun n => ?_
   have hpre : approximationPrefix n A = approximationPrefix n B := by
     funext i
@@ -391,7 +391,7 @@ theorem gauge_eq_of_sameApproximationSingularValues
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {A B : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {A B : E →L[𝕜] F}
     (h : SameApproximationSingularValues A B) :
     N.extendedGauge A = N.extendedGauge B := by
   apply le_antisymm
@@ -400,7 +400,7 @@ theorem gauge_eq_of_sameApproximationSingularValues
   · exact N.extendedGauge_le_of_all_kyFan_le fun k =>
       le_of_eq (h.kyFanApproximationGauge_eq k).symm
 
-end PaperUnitaryInvariantNorm
+end SymmetricNormingFunction
 
 /-! ## The modulus and the paper norms
 
@@ -430,8 +430,8 @@ theorem modulus_mem_and_gauge_eq
 
 /-- Every literal paper norm assigns exactly the same extended value to an
 operator and its positive modulus. -/
-theorem paperNorm_modulus_eq
-    (N : PaperUnitaryInvariantNorm) (T : E →L[ℂ] E) :
+theorem normingFunction_modulus_eq
+    (N : SymmetricNormingFunction) (T : E →L[ℂ] E) :
     N.extendedGauge (ContinuousLinearMap.modulus T) = N.extendedGauge T :=
   N.gauge_eq_of_sameApproximationSingularValues
     (modulus_hasSameApproximationNumbers T)

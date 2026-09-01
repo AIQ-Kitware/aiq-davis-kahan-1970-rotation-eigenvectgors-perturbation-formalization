@@ -51,7 +51,7 @@ are visibly one theorem.
 
 `paperCrossSineSum` -- the implementation representative `P_Uᗮ P_V + P_U P_Vᗮ` --
 does not appear in any statement here.  It remains the object the real proof
-computes with, and `PaperRealSymmetricSinThetaProblem.crossSineSum_paperMem_iff_and_gauge_eq`
+computes with, and `PaperRealSymmetricSinThetaProblem.crossSineSum_normingMem_iff_and_gauge_eq`
 is the compiled transport from it to the projector difference.
 
 ## References
@@ -91,7 +91,7 @@ The conclusion is on the paper's literal `sin Θ`,
 organisation is visible: no `PaperSymmetricSinThetaProblem`, no
 `UnboundedSinThetaData`, no Ky Fan family. -/
 theorem proposition6_1_source_complex
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A B : E →L[ℂ] E} (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hU : A.Reduces U) (hV : B.Reduces V)
@@ -132,7 +132,7 @@ singular values of its argument, so this is the same estimate on `P_V − P_U`.
 It is stated because it is the shape the real theorem below has, which is what
 makes the two fields visibly one theorem. -/
 theorem proposition6_1_source_projectorDifference_complex
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A B : E →L[ℂ] E} (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hU : A.Reduces U) (hV : B.Reduces V)
@@ -162,7 +162,7 @@ theorem proposition6_1_source_projectorDifference_complex
     exact this
   have hgauge : N.gauge (paperSinAngleOperatorC U V)
       = N.gauge (V.starProjection - U.starProjection) := by
-    unfold PaperUnitaryInvariantNorm.gauge
+    unfold SymmetricNormingFunction.gauge
     rw [hext]
   exact ⟨hmem', by rwa [hgauge] at hle⟩
 
@@ -186,7 +186,7 @@ the caller occurs in the statement.  The proof runs through
 `paperCrossSineSum`, which the source real development computes with, and
 transports the conclusion off it. -/
 theorem proposition6_1_source_real
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A B : E →L[ℝ] E} (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {U V : Submodule ℝ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hU : A.Reduces U) (hV : B.Reduces V)
@@ -217,7 +217,7 @@ theorem proposition6_1_source_real
       gap_V_to_Uperp := hgapVU }
   have hsource := P.result_every_unitarilyInvariantNorm_real N (by
     simpa [P, PaperRealSymmetricSinThetaProblem.perturbation] using hMem)
-  obtain ⟨hiff, hgauge⟩ := P.crossSineSum_paperMem_iff_and_gauge_eq N
+  obtain ⟨hiff, hgauge⟩ := P.crossSineSum_normingMem_iff_and_gauge_eq N
   have hmem : N.Mem (V.starProjection - U.starProjection) := by
     have := hiff.mp (by simpa [P] using hsource.1)
     simpa [P] using this
@@ -259,7 +259,7 @@ conclusion is the same as in the bounded case, on the paper's literal `sin Θ`.
 `Proposition6_1_commonDomain_ofBounded` records that the bounded inputs are an
 instance, so this is a genuine relaxation rather than a parallel statement. -/
 theorem proposition6_1_commonDomain_source_complex
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A B : E →ₗ.[ℂ] E} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hU : TauCeti.LinearPMap.ReducesSubspace A U)
@@ -302,7 +302,7 @@ matching `proposition6_1_source_real`.  The proof runs through
 `paperCrossSineSum` and transports the conclusion off it. -/
 theorem proposition6_1_commonDomain_source_real
     {Er : Type v} [NormedAddCommGroup Er] [InnerProductSpace ℝ Er] [CompleteSpace Er]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A B : Er →ₗ.[ℝ] Er} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule ℝ Er} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hU : TauCeti.LinearPMap.ReducesSubspace A U)
@@ -336,7 +336,7 @@ theorem proposition6_1_commonDomain_source_real
       gap_U_to_Vperp := hgapUV
       gap_V_to_Uperp := hgapVU }
   obtain ⟨hmem, hle⟩ := P.result_every_unitarilyInvariantNorm_real N hMem
-  obtain ⟨hiff, hgauge⟩ := P.crossSineSum_paperMem_iff_and_gauge_eq N
+  obtain ⟨hiff, hgauge⟩ := P.crossSineSum_normingMem_iff_and_gauge_eq N
   refine ⟨hiff.mp hmem, ?_⟩
   rw [hgauge] at hle
   exact hle
@@ -346,7 +346,7 @@ theorem proposition6_1_commonDomain_source_real
 The two fixed-field statements above are this one at `ℝ` and at `ℂ`; it is stated
 separately because the conclusion has to be carried by the projector difference,
 the one spelling of the paper's whole-space sine that exists over both fields.
-`crossSineSum_paperMem_iff_and_gauge_eq` is the compiled dictionary saying that
+`crossSineSum_normingMem_iff_and_gauge_eq` is the compiled dictionary saying that
 every source norm evaluates it exactly as it evaluates the paper's `sin Θ`. -/
 
 section CommonDomainGeneric
@@ -364,7 +364,7 @@ proved. -/
 theorem proposition6_1_commonDomain_source_projectorDifference
     [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     [HasUnboundedSylvesterKyFan.{u, v} 𝕜]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A B : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hU : TauCeti.LinearPMap.ReducesSubspace A U)
@@ -398,7 +398,7 @@ theorem proposition6_1_commonDomain_source_projectorDifference
       gap_U_to_Vperp := hgapUV
       gap_V_to_Uperp := hgapVU }
   obtain ⟨hmem, hle⟩ := P.result_every_unitarilyInvariantNorm_crossSineSum N hMem
-  obtain ⟨hiff, hgauge⟩ := P.crossSineSum_paperMem_iff_and_gauge_eq N
+  obtain ⟨hiff, hgauge⟩ := P.crossSineSum_normingMem_iff_and_gauge_eq N
   refine ⟨hiff.mp hmem, ?_⟩
   rw [hgauge] at hle
   exact hle

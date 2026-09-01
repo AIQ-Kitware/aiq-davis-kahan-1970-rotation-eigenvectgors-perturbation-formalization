@@ -39,13 +39,13 @@ theorem and is not this one.
 
 * real **and** complex scalars, uniformly (`RCLike`);
 * arbitrary Hilbert space, with a finite-dimensional trial subspace;
-* every source unitarily invariant norm (`PaperUnitaryInvariantNorm`);
+* every source unitarily invariant norm (`SymmetricNormingFunction`);
 * the sharp constant two and the sharp gap factor `b - a`;
 * **no branch hypothesis and no branch conclusion.**
 
 The remaining scope difference from the printed statement is the
 finite-dimensional trial subspace; the selected-branch endpoints
-`sharp_paperUnitaryInvariantNorm` and `paperFaithful_tanTwoTheta_uiNorm`
+`sharp_symmetricNormingFunction` and `paperFaithful_tanTwoTheta_uiNorm`
 remove that restriction, at the cost of selecting the branch.
 
 ## Representative freedom
@@ -83,10 +83,10 @@ bounding the graph coordinate by one, no `IsQuarterAcute`, and no spectral
 placement hypothesis on the blocks of `A + H`: the perturbed invariant
 subspace is an arbitrary invariant graph over the trial subspace and may make
 angles arbitrarily close to `π/2` with it. -/
-theorem tanTwoTheta_branchFree_bounded_finiteSubspace_paperUINorm_rclike
+theorem tanTwoTheta_branchFree_bounded_finiteSubspace_symmetricNorming_rclike
     {𝕜 : Type u} [RCLike 𝕜] {E : Type v} [NormedAddCommGroup E]
     [InnerProductSpace 𝕜 E] [CompleteSpace E]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A H T : E →L[𝕜] E} {U : Submodule 𝕜 E} [FiniteDimensional 𝕜 U]
     {a b : ℝ}
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
@@ -123,7 +123,7 @@ perturbation across the form gap `[a, b]` of the unperturbed operator, on an
 arbitrary complex Hilbert space, with **no finite-dimensionality hypothesis on
 the trial subspace or on the ambient space**.
 
-This is `tanTwoTheta_branchFree_bounded_finiteSubspace_paperUINorm_rclike` with `[FiniteDimensional 𝕜 U]`
+This is `tanTwoTheta_branchFree_bounded_finiteSubspace_symmetricNorming_rclike` with `[FiniteDimensional 𝕜 U]`
 removed.  `[U.HasOrthogonalProjection]` is the formal encoding of the paper's
 "closed subspace", not a restriction.
 
@@ -137,10 +137,10 @@ arbitrarily close to `π/2` with it.
 from the ordered gap by `DavisKahanTheory.penalty_le_of_paired_approximate` and
 removed by the `ε → 0` passage in
 `DavisKahanTheory.sum_absDoubleAngleTangent_le_of_invariantSubspace`. -/
-theorem tanTwoTheta_branchFree_bounded_paperUINorm_complex
+theorem tanTwoTheta_branchFree_bounded_symmetricNorming_complex
     {E : Type v} [NormedAddCommGroup E]
     [InnerProductSpace ℂ E] [CompleteSpace E]
-    (N : PaperUnitaryInvariantNorm)
+    (N : SymmetricNormingFunction)
     {A H T : E →L[ℂ] E} {U : Submodule ℂ E} [U.HasOrthogonalProjection]
     {a b : ℝ}
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)

@@ -13,15 +13,15 @@ Theorem 6.3 is printed "for every unitarily invariant norm".  The repository's
 complex directed endpoints
 (`…ExactTanTheta.theorem6_3_infiniteTrial_source_ideal` and its finite-trial
 siblings) are stated at `KyFanDominantIdealFamily (𝕜 := ℂ)`, while the real
-endpoint `tanTheta_directed_bounded_paperUINorm_real` is stated at the paper's own
-`PaperUnitaryInvariantNorm`.  This module supplies the missing complex half, so
+endpoint `tanTheta_directed_bounded_symmetricNorming_real` is stated at the paper's own
+`SymmetricNormingFunction`.  This module supplies the missing complex half, so
 the two scalar fields carry the same norm abstraction.
 
 ## Nothing is transported across scalar fields
 
-`PaperUnitaryInvariantNorm` is a normalized symmetric norming function: it is
+`SymmetricNormingFunction` is a normalized symmetric norming function: it is
 scalar-agnostic *data*, and every one of its laws that Theorem 6.3 needs
-(`PaperUnitaryInvariantNorm.mul_gauge_le_of_all_mul_kyFan_le`) is `RCLike`-generic
+(`SymmetricNormingFunction.mul_gauge_le_of_all_mul_kyFan_le`) is `RCLike`-generic
 and consumes nothing but the family of Ky Fan approximation-gauge inequalities.
 So a complex operator is measured by a paper norm directly, and no ideal family
 is compared across fields — the manoeuvre the real transport had to avoid.
@@ -30,7 +30,7 @@ is compared across fields — the manoeuvre the real transport had to avoid.
 prefix, which is exactly what Fan dominance consumes, so the paper-norm endpoint
 is the ideal-family endpoint's sibling rather than a weakening of it: both are
 consequences of the same Ky Fan core, and
-`all_mul_kyFan_le_of_every_paperNorm_gauge_le` recovers the whole Ky Fan family
+`all_mul_kyFan_le_of_every_symmetricNorming_gauge_le` recovers the whole Ky Fan family
 back from the paper norms, so neither abstraction dominates the other.
 
 ## References
@@ -69,9 +69,9 @@ sequence, concludes its membership, and gives `δ N(tan Θ₀) ≤ N(R)`.
 The trial space carries no dimension hypothesis and the printed strict-rank
 comparison is not assumed; both are recorded on the ideal-family endpoints as
 already-inert, so dropping them strengthens rather than narrows.  This is the
-exact complex counterpart of `tanTheta_directed_bounded_paperUINorm_real`. -/
-theorem tanTheta_directed_bounded_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+exact complex counterpart of `tanTheta_directed_bounded_symmetricNorming_real`. -/
+theorem tanTheta_directed_bounded_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
     (V Z : Submodule ℂ H) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
     [CompleteSpace Z]
@@ -116,11 +116,11 @@ to the unwanted exact subspace lies in `[α + δ, ∞)`, and the conclusion is
 `δ N(tan Θ₀) ≤ N(R)` for the paper's norm class, with the tangent representative
 exhibited and its membership concluded.
 
-Grounded on `tanTheta_directed_bounded_paperUINorm_complex`; the spectral placement is converted
+Grounded on `tanTheta_directed_bounded_symmetricNorming_complex`; the spectral placement is converted
 to the form bounds by the same two `SpectralOrder.Complex` lemmas the ideal-family
 endpoint `theorem6_3_infiniteTrial_source_ideal` uses. -/
-theorem tanTheta_directed_bounded_spectralGap_paperUINorm_complex
-    (N : PaperUnitaryInvariantNorm)
+theorem tanTheta_directed_bounded_spectralGap_symmetricNorming_complex
+    (N : SymmetricNormingFunction)
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
     (V Z : Submodule ℂ H) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
     [CompleteSpace Z]
@@ -152,7 +152,7 @@ theorem tanTheta_directed_bounded_spectralGap_paperUINorm_complex
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ := fun y hy =>
     SpectralOrder.Complex.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
       hT (hV.orthogonalComplement).1 hUnwantedSpectrum hy
-  exact tanTheta_directed_bounded_paperUINorm_complex N T hT V Z hV hdelta hCompressionUpper
+  exact tanTheta_directed_bounded_symmetricNorming_complex N T hT V Z hV hdelta hCompressionUpper
     hUnwantedLower hResidual
 
 end

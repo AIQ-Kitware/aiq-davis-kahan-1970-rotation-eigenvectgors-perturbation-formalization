@@ -85,7 +85,7 @@ def zeroPad {n : ℕ} (x : Fin n → ℝ) : Fin (n + 1) → ℝ :=
   Fin.lastCases 0 x
 
 /-- **A unitarily invariant norm in Davis and Kahan's sense.** -/
-structure UINorm where
+structure SymmetricNormingFunction where
   /-- A unitarily invariant seminorm in each finite dimension. -/
   finiteNorm : ∀ n : ℕ, UISeminorm (EuclideanSpace ℂ (Fin n))
   /-- Normalisation on a single unit singular value. -/
@@ -100,16 +100,16 @@ structure UINorm where
 /-- **The extended value of a unitarily invariant norm on a scalar sequence**:
 the supremum over the sequence's prefixes.  This is the primitive; a norm of
 `tan Θ` is the norm of the sequence `tan θ₁, tan θ₂, …`. -/
-noncomputable def UINorm.evalSeq (N : UINorm) (s : ℕ → ℝ) : ℝ≥0∞ :=
+noncomputable def SymmetricNormingFunction.evalSeq (N : SymmetricNormingFunction) (s : ℕ → ℝ) : ℝ≥0∞ :=
   ⨆ n : ℕ, ENNReal.ofReal
     ((N.finiteNorm n).gauge (EuclideanSpace.basisFun (Fin n) ℂ)
       (fun i => s (i : ℕ)))
 
 /-- The sequence lies in the norm's ideal. -/
-def UINorm.SeqFinite (N : UINorm) (s : ℕ → ℝ) : Prop := N.evalSeq s ≠ ⊤
+def SymmetricNormingFunction.SeqFinite (N : SymmetricNormingFunction) (s : ℕ → ℝ) : Prop := N.evalSeq s ≠ ⊤
 
 /-- The real-valued norm of a sequence, meaningful on the ideal. -/
-noncomputable def UINorm.seqNorm (N : UINorm) (s : ℕ → ℝ) : ℝ :=
+noncomputable def SymmetricNormingFunction.seqNorm (N : SymmetricNormingFunction) (s : ℕ → ℝ) : ℝ :=
   (N.evalSeq s).toReal
 
 section NormEval
@@ -120,14 +120,14 @@ variable {F : Type v} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [Complet
 
 /-- The norm's extended value on an operator: its value on the singular-value
 sequence, and `⊤` exactly off the norm's ideal. -/
-noncomputable def UINorm.eval (N : UINorm) (T : E →L[𝕜] F) : ℝ≥0∞ :=
+noncomputable def SymmetricNormingFunction.eval (N : SymmetricNormingFunction) (T : E →L[𝕜] F) : ℝ≥0∞ :=
   N.evalSeq (fun n => singularValue T n)
 
 /-- The operator lies in the norm's ideal. -/
-def UINorm.Finite (N : UINorm) (T : E →L[𝕜] F) : Prop := N.eval T ≠ ⊤
+def SymmetricNormingFunction.Finite (N : SymmetricNormingFunction) (T : E →L[𝕜] F) : Prop := N.eval T ≠ ⊤
 
 /-- The real-valued norm, meaningful on the ideal. -/
-noncomputable def UINorm.norm (N : UINorm) (T : E →L[𝕜] F) : ℝ := (N.eval T).toReal
+noncomputable def SymmetricNormingFunction.norm (N : SymmetricNormingFunction) (T : E →L[𝕜] F) : ℝ := (N.eval T).toReal
 
 end NormEval
 
@@ -460,7 +460,7 @@ block `Λ₁` are separated by a gap `δ`, then `δ ‖sin Θ₀‖ ≤ ‖R‖`
 invariant norm.  The ambient operator may be unbounded, the trial block may be
 unbounded, the space may have any dimension, and the separating interval may be
 half-infinite.  This is the one Section 2 theorem with a single conclusion. -/
-theorem sinTheta (N : UINorm)
+theorem sinTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} {A₀ : F →ₗ.[𝕜] F} {Λ₁ : G →ₗ.[𝕜] G}
     {E₀ : F →L[𝕜] E} {F₀ : K →L[𝕜] E} {F₁ : G →L[𝕜] E} {R : F →L[𝕜] E}
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
@@ -499,7 +499,7 @@ Rayleigh--Ritz data, needing only the *residual* in the norm's ideal, and
 `δ ‖tan Θ‖ ≤ ‖H‖` for a bounded self-adjoint perturbation with vanishing trial
 diagonal block, needing the *perturbation*.  Each clause also concludes that its
 tangent has no pole. -/
-structure TanThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
+structure TanThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection] (α δ : ℝ) : Prop where
   /-- `δ ‖tan Θ₀‖ ≤ ‖R‖`: the directed conclusion, on the residual alone. -/
   directed : ∀ {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
@@ -528,7 +528,7 @@ exact block at or above `α + δ` -- and the perturbation has vanishing trial
 diagonal block, the Rayleigh--Ritz condition `H₀ = 0` carried by `RitzData` and
 by `D.residual = P_{Uᗮ} H|_U`.  Then `δ ‖tan Θ₀‖ ≤ ‖R‖` and `δ ‖tan Θ‖ ≤ ‖H‖`,
 with the sharp factor one.  `V` is any subspace reducing `A`. -/
-theorem tanTheta (N : UINorm)
+theorem tanTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : Reduces A V)
     {α δ : ℝ} (hδ : 0 < δ)
@@ -547,7 +547,7 @@ subspace reducing the perturbed operator, needing the perturbation.
 The factor two is the paper's, and is sharp.  Unlike `tan Θ` no Rayleigh--Ritz
 condition is imposed, and unlike `tan Θ` the Appendix does not extend this
 theorem to an unbounded trial compression. -/
-structure SinTwoThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
+structure SinTwoThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection] (δ : ℝ) : Prop where
   /-- `δ ‖sin 2Θ₀‖ ≤ 2 ‖R‖`: the directed conclusion, on the residual alone. -/
   directed : ∀ {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
@@ -564,7 +564,7 @@ structure SinTwoThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
 /-- **The `sin 2Θ` theorem**, both printed conclusions.  The separating interval
 may be half-infinite, the ambient operator may be unbounded, and `U` is any
 subspace reducing `A` whose two blocks the separation puts a gap `δ` between. -/
-theorem sinTwoTheta (N : UINorm)
+theorem sinTwoTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     {δ : ℝ} (hδ : 0 < δ)
@@ -585,7 +585,7 @@ Section 7 derives the nonvanishing of the relevant `cos 2θⱼ`, which appears h
 as `TangentDefined` of the double-angle sine -- the quarter-turn exclusion
 `‖sin 2Θ‖ < 1`, uniform over the whole angle rather than read off a
 singular-value sequence of the single angle. -/
-structure TanTwoThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
+structure TanTwoThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (H : E →L[𝕜] E) (δ : ℝ) : Prop where
   /-- `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖`: the directed conclusion, on the residual corner. -/
@@ -607,7 +607,7 @@ structure TanTwoThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
 ordered on the two blocks of `A` and the perturbation is *off-diagonal* for the
 splitting -- `H₀ = H₁ = 0`.  Then `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖` and
 `δ ‖tan 2Θ‖ ≤ 2 ‖H‖`. -/
-theorem tanTwoTheta (N : UINorm)
+theorem tanTwoTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)

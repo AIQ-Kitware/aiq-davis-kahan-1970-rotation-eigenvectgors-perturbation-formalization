@@ -25,7 +25,7 @@ noncomputable section
 
 universe u v
 
-namespace PaperUnitaryInvariantNorm
+namespace SymmetricNormingFunction
 
 /-- The vector `(1,0,...,0)` in dimension `n+1`. -/
 def firstCoordinateVector (n : ℕ) : Fin (n + 1) → ℝ :=
@@ -42,17 +42,17 @@ theorem firstCoordinateVector_zero :
 /-- Coherent zero padding fixes the gauge of `(1,0,...,0)` in every positive
 dimension. -/
 theorem finiteGauge_firstCoordinateVector
-    (N : PaperUnitaryInvariantNorm) (n : ℕ) :
+    (N : SymmetricNormingFunction) (n : ℕ) :
     N.finiteGauge (n + 1) (firstCoordinateVector n) = 1 := by
   induction n with
   | zero => simpa [firstCoordinateVector] using N.finiteGauge_one
   | succ n ih =>
       have hpad : firstCoordinateVector (n + 1) =
-          paperZeroPad (firstCoordinateVector n) := by
+          zeroPad (firstCoordinateVector n) := by
         funext i
         refine Fin.lastCases ?_ (fun j => ?_) i
-        · simp [firstCoordinateVector, paperZeroPad]
-        · simp [firstCoordinateVector, paperZeroPad]
+        · simp [firstCoordinateVector, zeroPad]
+        · simp [firstCoordinateVector, zeroPad]
       rw [hpad, N.finiteGauge_zeroPad, ih]
 
 /-- Complete approximation singular-value sequence of a norm-one rank-at-most-
@@ -78,7 +78,7 @@ theorem prefixGauge_rankOne
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {V : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {V : E →L[𝕜] F}
     (hVnorm : ‖V‖ = 1) (hVrank : V.rank ≤ (1 : Cardinal)) (n : ℕ) :
     N.prefixGauge (n + 1) V = 1 := by
   unfold prefixGauge approximationPrefix
@@ -96,7 +96,7 @@ theorem extendedGauge_rankOne
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {V : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {V : E →L[𝕜] F}
     (hVnorm : ‖V‖ = 1) (hVrank : V.rank ≤ (1 : Cardinal)) :
     N.extendedGauge V = 1 := by
   apply le_antisymm
@@ -124,7 +124,7 @@ theorem mem_rankOne
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {V : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {V : E →L[𝕜] F}
     (hVnorm : ‖V‖ = 1) (hVrank : V.rank ≤ (1 : Cardinal)) :
     N.Mem V := by
   unfold Mem
@@ -137,14 +137,14 @@ theorem gauge_rankOne
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-    (N : PaperUnitaryInvariantNorm) {V : E →L[𝕜] F}
+    (N : SymmetricNormingFunction) {V : E →L[𝕜] F}
     (hVnorm : ‖V‖ = 1) (hVrank : V.rank ≤ (1 : Cardinal)) :
     N.gauge V = 1 := by
   unfold gauge
   rw [N.extendedGauge_rankOne hVnorm hVrank]
   simp
 
-end PaperUnitaryInvariantNorm
+end SymmetricNormingFunction
 
 end
 

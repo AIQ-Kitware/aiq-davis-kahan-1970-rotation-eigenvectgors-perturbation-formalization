@@ -308,7 +308,7 @@ real function `f` that is `1` at or below `α` and `0` at or above `α + δ`,
 qualifies.  Nothing constrains it on the open gap `(α, α + δ)` because the gap carries no
 spectrum (`spectrum_subset_union_of_formGap`), which is also what makes `f` continuous where
 the functional calculus reads it. -/
-theorem cfc_eq_starProjection_of_blockGap [CompleteSpace U]
+theorem cfc_eq_starProjection_of_blockGap_complex [CompleteSpace U]
     [CompleteSpace (Uᗮ : Submodule ℂ E)]
     (hA : IsSelfAdjoint A)
     {A₀ : U →L[ℂ] U} {A₁ : (Uᗮ : Submodule ℂ E) →L[ℂ] (Uᗮ : Submodule ℂ E)}
@@ -518,7 +518,7 @@ theorem spectrum_subset_union_of_formGap_real {A : F →L[ℝ] F} {U : Submodule
     simp
   exact hlam (isUnit_of_isUnit_mul_self hTTunit)
 
-/-- **The real twin of `cfc_eq_starProjection_of_blockGap`.** -/
+/-- **The real twin of `cfc_eq_starProjection_of_blockGap_complex`.** -/
 theorem cfc_eq_starProjection_of_blockGap_real {A : F →L[ℝ] F} {U : Submodule ℝ F}
     [U.HasOrthogonalProjection] [CompleteSpace U] [CompleteSpace (Uᗮ : Submodule ℝ F)]
     (hA : IsSelfAdjoint A)

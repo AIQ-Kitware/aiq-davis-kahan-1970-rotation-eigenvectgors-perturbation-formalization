@@ -165,6 +165,33 @@ theorem reflectionPerturbation_mem_and_gauge_le
         add_le_add le_rfl hconjGauge
       _ = 2 * N.gaugeReal E := by ring
 
+omit [CompleteSpace H] [CompleteSpace G] in
+/-- The reflection of a subspace is a self-adjoint unitary, so reflecting an
+isometric embedding preserves isometry. -/
+theorem isometricEmbedding_reflection_comp
+    (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
+    {Y : G →L[𝕜] H} (hY : IsometricEmbedding Y) :
+    IsometricEmbedding (V.reflectionOperator ∘L Y) := by
+  intro y
+  change ‖V.reflection (Y y)‖ = ‖y‖
+  rw [V.reflection.norm_map]
+  exact hY y
+
+omit [CompleteSpace G] in
+/-- The reflection operator is its own adjoint. -/
+theorem adjoint_reflectionOperator (V : Submodule 𝕜 H)
+    [V.HasOrthogonalProjection] :
+    (V.reflectionOperator : H →L[𝕜] H).adjoint = V.reflectionOperator := by
+  have hP : IsSelfAdjoint (V.starProjection : H →L[𝕜] H) :=
+    isSelfAdjoint_starProjection V
+  have hform : (V.reflectionOperator : H →L[𝕜] H) =
+      (2 : 𝕜) • V.starProjection - 1 := by
+    ext x
+    simp [Submodule.reflectionOperator_apply]
+  refine IsSelfAdjoint.adjoint_eq ?_
+  rw [hform, IsSelfAdjoint, star_sub, star_smul, star_ofNat, hP.star_eq,
+    star_one]
+
 end ScalarGeneric
 
 variable {H : Type v}
@@ -172,7 +199,7 @@ variable {H : Type v}
 
 /-- The operator norm of the ambient ideal block is exactly the norm of sine
 of twice the complex operator angle. -/
-theorem norm_sinTwoThetaIdealBlock
+theorem norm_sinTwoThetaIdealBlock_complex
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     ‖sinTwoThetaIdealBlock U V‖ = ‖sinTwoAngleOperatorC U V‖ := by
@@ -318,20 +345,8 @@ theorem sinTwoTheta_reflectionResidual_block_gauge_of_spectrum_gap
         N.gaugeReal ((R ∘L U.subtypeL).adjoint ∘L Wc.subtypeL) at hraw
   have hambient := projectionProduct_mem_and_gauge_le_overlap
     N U Wc hraw.1
-  -- Duplicated with `selfAdjointSpectralSubspace_compl_eq_orthogonal`'s own `hproj` in
-  -- `SpectralTheory/ReflectionRestriction.lean`, and NOT removable by citing that theorem:
-  -- it states the equality of the SUBSPACES, and rewriting with it under `starProjection`
-  -- gives "motive is not type correct" because `starProjection` takes a
-  -- `HasOrthogonalProjection` instance derived from the submodule.  Going through the
-  -- projections, as both copies do, is what avoids that.
-  have hUcProjection : Uc.starProjection = Uᗮ.starProjection := by
-    rw [← selfAdjointSpectralProjection_eq_starProjection
-      A hA Bᶜ hB.compl]
-    rw [show selfAdjointSpectralProjection A hA Bᶜ hB.compl
-          = ContinuousLinearMap.id ℂ H - selfAdjointSpectralProjection A hA B hB from
-        (TauCeti.LinearPMap.spectralPVM hA).proj_compl B hB]
-    rw [selfAdjointSpectralProjection_eq_starProjection A hA B hB]
-    exact (Submodule.starProjection_orthogonal' U).symm
+  have hUcProjection : Uc.starProjection = Uᗮ.starProjection :=
+    starProjection_selfAdjointSpectralSubspace_compl A hA B hB
   have hWcProjection : Wc.starProjection =
       (Uᗮ.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)).starProjection := by
     calc
@@ -598,7 +613,7 @@ theorem sinTwoTheta_reflectionResidual_of_spectrum_gap
     (TauCeti.SymmetricOperatorIdealFamily.mem_operatorNormFamily R)).2
   rwa [TauCeti.SymmetricOperatorIdealFamily.gaugeReal_operatorNormFamily,
     TauCeti.SymmetricOperatorIdealFamily.gaugeReal_operatorNormFamily,
-    norm_sinTwoThetaIdealBlock] at h
+    norm_sinTwoThetaIdealBlock_complex] at h
 
 /-- Canonical complex operator-norm unbounded sine-two-theta theorem for a
 bounded self-adjoint perturbation. -/

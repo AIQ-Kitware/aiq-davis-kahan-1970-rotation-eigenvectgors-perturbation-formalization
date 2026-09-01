@@ -484,7 +484,7 @@ Frobenius sin-Θ theory here already covers general (even interleaved) two-set
 separation.  The *operator-norm* analogue for interleaved spectra is a
 genuinely different theorem carrying the optimal constant `π/2`
 (Bhatia–Davis–McIntosh) and is deliberately out of scope; see
-`dev/davis-kahan-expert-completion-plan.md`, Phase H. -/
+the completion campaign of July 2026 (Git history). -/
 
 /-- If `x` lies in `[a, b]` and `y` avoids the `g`-enlarged interval
 `(a − g, b + g)`, then `x` and `y` are at least `g` apart.  The real-analysis

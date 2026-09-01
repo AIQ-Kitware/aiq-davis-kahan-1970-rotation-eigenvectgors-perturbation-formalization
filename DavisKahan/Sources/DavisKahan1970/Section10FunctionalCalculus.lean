@@ -48,7 +48,7 @@ f(A + H) − f(A)              = Q − P                     (ambient)
 The second is the source's `‖Q^⊥E₀‖ = ‖sin Θ₀‖` because `P_{Q^⊥}|_U` — Lean spelling
 `TauCeti.principalSineOperator U V` — *is* the repository's directed sine operator, by
 definition; and the middle member of the source's chain, `f(A+H)E₀ − E₀f(A₀)`, is recovered
-by `Question10_4_directed_functionalChange_paperForm` using `f(A₀) = 1`.
+by `Question10_4_directed_functionalChange_paperForm_complex` using `f(A₀) = 1`.
 
 ## Where the source is doing more than it says, and what this file assumes instead
 
@@ -115,10 +115,10 @@ theorem subtypeL_comp_compressOperator_of_invariant
 
 /-- **The gap step function of a reduced self-adjoint operator is its reducing projection.**
 
-This is `TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap` presented in the paper's
+This is `TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap_complex` presented in the paper's
 block vocabulary: `U` reduces `A`, the two blocks are the compressions `A₀` and `A₁`, and
 their spectra are separated by the gap `(α, α + δ)`. -/
-theorem cfc_gapStep_eq_starProjection
+theorem cfc_gapStep_eq_starProjection_complex
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     (U : Submodule ℂ E) [U.HasOrthogonalProjection]
     (hAU : ∀ x ∈ U, A x ∈ U)
@@ -130,7 +130,7 @@ theorem cfc_gapStep_eq_starProjection
   have hAred : A.Reduces U :=
     DavisKahan.reduces_orthogonalComplement
       (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA) hAU
-  exact TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap hA
+  exact TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap_complex hA
     (subtypeL_comp_compressOperator_of_invariant A U hAU)
     (subtypeL_comp_compressOperator_of_invariant A Uᗮ hAred.2)
     hδ hA0spec hA1spec hf1 hf0
@@ -143,7 +143,7 @@ variable (U V : Submodule ℂ E) [U.HasOrthogonalProjection] [V.HasOrthogonalPro
 
 Under the `tan 2θ` spectral hypotheses on the blocks of `A`, the gap step function returns
 the reducing projection `P`. -/
-theorem Question10_4_stepFunction_unperturbed
+theorem Question10_4_stepFunction_unperturbed_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (_hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U)
     {β α δ : ℝ} (hδ : 0 < δ)
@@ -152,7 +152,7 @@ theorem Question10_4_stepFunction_unperturbed
     (_hHU : ∀ x ∈ U, H x ∈ Uᗮ) (_hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
     cfc f A = U.starProjection :=
-  cfc_gapStep_eq_starProjection hA U hAU hδ (fun _ hr => (hA0spec hr).2) hA1spec hf1 hf0
+  cfc_gapStep_eq_starProjection_complex hA U hAU hδ (fun _ hr => (hA0spec hr).2) hA1spec hf1 hf0
 
 /-- **Davis--Kahan 1970, Question 10.4: `f(A + H) = Q`.**
 
@@ -160,7 +160,7 @@ The perturbed half of the same identity.  Its hypotheses place the blocks `Λ₀
 `A + H` on opposite sides of the same gap; see the module docstring for why the printed
 `tan 2θ` hypotheses do not supply this and the sentence has to be read as making `Q`
 the spectral projection of `A + H` at the cut. -/
-theorem Question10_4_stepFunction_perturbed
+theorem Question10_4_stepFunction_perturbed_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     {α δ : ℝ} (hδ : 0 < δ)
@@ -168,14 +168,14 @@ theorem Question10_4_stepFunction_perturbed
     (hL1spec : spectrum ℝ (compressOperator Vᗮ (A + H)) ⊆ Set.Ici (α + δ))
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
     cfc f (A + H) = V.starProjection :=
-  cfc_gapStep_eq_starProjection (hA.add hH) V hAplusH_V hδ hL0spec hL1spec hf1 hf0
+  cfc_gapStep_eq_starProjection_complex (hA.add hH) V hAplusH_V hδ hL0spec hL1spec hf1 hf0
 
 /-- **Davis--Kahan 1970, Question 10.4: `f(A₀) = 1`.**
 
 The trial block `A₀` has its whole spectrum at or below `α`, where `f` is `1`, so the
 functional calculus returns the identity.  This is the one of the three identities that needs
 no gap: only that `f` is constantly `1` where `A₀`'s spectrum lives. -/
-theorem Question10_4_stepFunction_trialBlock
+theorem Question10_4_stepFunction_trialBlock_complex
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A) {β α : ℝ}
     (hA0spec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc β α)
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) :
@@ -196,8 +196,8 @@ difference.**
 
 `f(A + H) − f(A) = Q − P`, whence `‖f(A+H) − f(A)‖ = ‖Q − P‖ = ‖sin Θ‖` in every unitarily
 invariant norm.  The source's `tan 2θ` bound `δ‖tan 2Θ‖ ≤ 2‖H‖` then applies to the right
-side; it is already proved as `tanTwoTheta_wholeSpace_paperUINorm_exact`. -/
-theorem Question10_4_ambient_functionalChange
+side; it is already proved as `tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex`. -/
+theorem Question10_4_ambient_functionalChange_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     {β α δ : ℝ} (hδ : 0 < δ)
@@ -208,13 +208,13 @@ theorem Question10_4_ambient_functionalChange
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
     cfc f (A + H) - cfc f A = paperProjectorDifference U V := by
-  rw [Question10_4_stepFunction_perturbed V hA hH hAplusH_V hδ hL0spec hL1spec hf1 hf0,
-    Question10_4_stepFunction_unperturbed U hA hH hAU hδ hA0spec hA1spec hHU hHUperp hf1 hf0]
+  rw [Question10_4_stepFunction_perturbed_complex V hA hH hAplusH_V hδ hL0spec hL1spec hf1 hf0,
+    Question10_4_stepFunction_unperturbed_complex U hA hH hAU hδ hA0spec hA1spec hHU hHUperp hf1 hf0]
   rfl
 
 /-- **The source's displayed ambient chain**, `‖f(A+H) − f(A)‖ = ‖Q − P‖ = ‖sin Θ‖`, in the
 operator norm. -/
-theorem Question10_4_ambient_norm_eq_sinTheta
+theorem Question10_4_ambient_norm_eq_sinTheta_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     {β α δ : ℝ} (hδ : 0 < δ)
@@ -226,7 +226,7 @@ theorem Question10_4_ambient_norm_eq_sinTheta
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
     ‖cfc f (A + H) - cfc f A‖ = ‖paperProjectorDifference U V‖ ∧
       ‖paperProjectorDifference U V‖ = ‖sinAngleOperatorC U V‖ := by
-  refine ⟨by rw [Question10_4_ambient_functionalChange U V hA hH hAU hAplusH_V hδ hA0spec
+  refine ⟨by rw [Question10_4_ambient_functionalChange_complex U V hA hH hAU hAplusH_V hδ hA0spec
       hA1spec hL0spec hL1spec hHU hHUperp hf1 hf0], ?_⟩
   rw [sinAngleOperatorC, ContinuousLinearMap.norm_modulus, paperProjectorDifference,
     ← norm_neg (U.starProjection - V.starProjection)]
@@ -239,8 +239,8 @@ sine.**
 `(f(A + H) − f(A))E₀ = −P_{Q^⊥}|_U`, whose norm is the source's `‖Q^⊥E₀‖ = ‖sin Θ₀‖` —
 `TauCeti.principalSineOperator U V` is the directed sine operator by definition.  The source's
 `tan 2θ` residual bound `δ‖tan 2Θ₀‖ ≤ 2‖R‖` applies to the right side and is already proved
-as `tanTwoTheta_directedCorner_residual_paperUINorm_exact`. -/
-theorem Question10_4_directed_functionalChange
+as `tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_complex`. -/
+theorem Question10_4_directed_functionalChange_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     {β α δ : ℝ} (hδ : 0 < δ)
@@ -251,7 +251,7 @@ theorem Question10_4_directed_functionalChange
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
     (cfc f (A + H) - cfc f A) ∘L U.subtypeL = -TauCeti.principalSineOperator U V := by
-  rw [Question10_4_ambient_functionalChange U V hA hH hAU hAplusH_V hδ hA0spec hA1spec
+  rw [Question10_4_ambient_functionalChange_complex U V hA hH hAU hAplusH_V hδ hA0spec hA1spec
     hL0spec hL1spec hHU hHUperp hf1 hf0]
   refine ContinuousLinearMap.ext fun x => ?_
   have hx : U.starProjection (x : E) = (x : E) :=
@@ -266,7 +266,7 @@ theorem Question10_4_directed_functionalChange
 
 `(f(A+H) − f(A))E₀ = f(A+H)E₀ − E₀f(A₀) = −Q^⊥E₀`.  The middle equality is where `f(A₀) = 1`
 is used, exactly as in the source. -/
-theorem Question10_4_directed_functionalChange_paperForm
+theorem Question10_4_directed_functionalChange_paperForm_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     {β α δ : ℝ} (hδ : 0 < δ)
@@ -279,22 +279,22 @@ theorem Question10_4_directed_functionalChange_paperForm
     (cfc f (A + H)) ∘L U.subtypeL -
         U.subtypeL ∘L cfc f (compressOperator U A) =
       -TauCeti.principalSineOperator U V := by
-  have hP := Question10_4_stepFunction_unperturbed U hA hH hAU hδ hA0spec hA1spec hHU
+  have hP := Question10_4_stepFunction_unperturbed_complex U hA hH hAU hδ hA0spec hA1spec hHU
     hHUperp hf1 hf0
-  have h1 := Question10_4_stepFunction_trialBlock U hA hA0spec hf1
+  have h1 := Question10_4_stepFunction_trialBlock_complex U hA hA0spec hf1
   have hmid : U.subtypeL ∘L cfc f (compressOperator U A) = (cfc f A) ∘L U.subtypeL := by
     rw [h1, hP]
     refine ContinuousLinearMap.ext fun x => ?_
     simp [Submodule.starProjection_eq_self_iff.mpr x.2]
   rw [hmid, ← ContinuousLinearMap.sub_comp]
-  exact Question10_4_directed_functionalChange U V hA hH hAU hAplusH_V hδ hA0spec hA1spec
+  exact Question10_4_directed_functionalChange_complex U V hA hH hAU hAplusH_V hδ hA0spec hA1spec
     hL0spec hL1spec hHU hHUperp hf1 hf0
 
 /-! ## The real branch
 
 Davis and Kahan work on a real *or* complex Hilbert space, and the `tan 2θ` estimates these
 identities feed into already have real endpoints
-(`tanTwoTheta_wholeSpace_paperUINorm_real_exact` and the directed sibling).  The same five
+(`tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real` and the directed sibling).  The same five
 claims over `ℝ`, on `TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap_real`.
 
 The ambient identity is stated as `Q − P` directly rather than through
@@ -313,7 +313,7 @@ local instance instCompleteSpaceCoeOfHasOrthogonalProjectionReal
   (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 /-- **The gap step function of a reduced real self-adjoint operator is its reducing
-projection.**  Real twin of `cfc_gapStep_eq_starProjection`. -/
+projection.**  Real twin of `cfc_gapStep_eq_starProjection_complex`. -/
 theorem cfc_gapStep_eq_starProjection_real
     {A : E →L[ℝ] E} (hA : IsSelfAdjoint A)
     (U : Submodule ℝ E) [U.HasOrthogonalProjection]

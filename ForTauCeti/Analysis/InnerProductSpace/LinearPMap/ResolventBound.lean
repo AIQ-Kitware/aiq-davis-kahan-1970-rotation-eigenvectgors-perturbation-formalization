@@ -56,7 +56,7 @@ mapping is stated accordingly: the relevant point of `A` attached to a nonzero
 * **Spectra influence:** the *theorem selection* is Spectra's — its
   `exists_norm_le_two_sided_shifted_inverse_of_spectralProjection_Ioo_eq_zero`
   is what identified this bound as the thing to prove, and
-  `docs/planning/tauceti-adaptation-and-spectra-extraction.md` records that
+  the completed Tau Ceti adaptation recorded that
   theorem selection is attributable even when the proof is independent.  The
   proof *architecture* is not Spectra's: Spectra goes through the PVM and the
   bounded calculus, this goes through spectral mapping and the spectral radius,

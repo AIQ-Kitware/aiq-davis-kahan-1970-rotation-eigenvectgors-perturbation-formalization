@@ -33,8 +33,8 @@ the index type must be linearly ordered.
 * `TauCeti.countable_of_pairwise_dist_le`: a uniformly separated set in a separable metric space
   is countable.
 * `TauCeti.BorelCalculus.cyclicSubspace_zero`: the zero vector generates `⊥`.
-* `TauCeti.BorelCalculus.exists_countable_isHilbertSum_lp_diagMeasure`: **the `ℕ`-indexed cyclic
-  decomposition.**
+* `TauCeti.BorelCalculus.exists_countable_isHilbertSum_lp_diagMeasure_complex`:
+  **the `ℕ`-indexed cyclic decomposition.**
 
 ## Provenance
 
@@ -141,7 +141,7 @@ theorem countable_of_isOrthogonalCyclicSet [TopologicalSpace.SeparableSpace H]
 The Zorn-maximal orthogonal cyclic set is countable, so it can be enumerated; indices not used
 by the enumeration are filled with the zero vector, whose summand is trivial and therefore
 orthogonal to everything. -/
-theorem exists_countable_isHilbertSum_lp_diagMeasure [TopologicalSpace.SeparableSpace H]
+theorem exists_countable_isHilbertSum_lp_diagMeasure_complex [TopologicalSpace.SeparableSpace H]
     (ha : IsStarNormal a) :
     ∃ ξ : ℕ → H, IsHilbertSum ℂ (fun n => Lp ℂ 2 (diagMeasure ha (ξ n)))
       (fun n => cyclicIsometry ha (ξ n)) := by

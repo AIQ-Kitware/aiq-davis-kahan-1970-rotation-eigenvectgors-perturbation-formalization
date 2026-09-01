@@ -190,7 +190,7 @@ theorem proposition3_4_source_full_real
 
   have hC : IsPaperDirectRotation CR CV (WC * WC) := by
     dsimp only [CR]
-    exact proposition3_4_source_full
+    exact proposition3_4_source_full_bundled_complex
       CU CV WC hunitaryC hintertwinesC hcrossedC
         hsource_nonnegC hcomplement_nonnegC hcosC
 

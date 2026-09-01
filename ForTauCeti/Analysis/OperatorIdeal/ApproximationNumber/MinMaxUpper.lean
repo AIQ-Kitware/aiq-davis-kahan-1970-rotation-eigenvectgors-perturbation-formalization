@@ -58,7 +58,7 @@ ideals, and the orthogonal block-sum merge formulas.
   Apache 2.0.
 * Spectra influence: **none in the proof.**  The statement is the one
   `DavisKahan/Interop/Spectra/ApproximationNumberMinMax.lean` carried as
-  `exists_linearIndependent_lowerBound_of_lt_approximationNumber`, whose proof
+  `exists_linearIndependent_lowerBound_of_lt_approximationNumber_complex`, whose proof
   used Spectra's projection-valued measures; nothing of that proof is reused here.
 -/
 
@@ -110,7 +110,7 @@ spanned by `n + 1` independent vectors.
 This is the converse of `ContinuousLinearMap.le_approximationNumber_of_linearIndependent`,
 and the two together characterise `aₙ(T)` as a supremum of lower moduli.  No compactness or
 finite-dimensionality is assumed. -/
-theorem exists_linearIndependent_lowerBound_of_lt_approximationNumber
+theorem exists_linearIndependent_lowerBound_of_lt_approximationNumber_complex
     (T : E →L[ℂ] F) (n : ℕ) {r : ℝ} (hr0 : 0 ≤ r) (hr : r < T.approximationNumber n) :
     ∃ s : ℝ, r < s ∧ ∃ v : Fin (n + 1) → E, LinearIndependent ℂ v ∧
       ∀ x ∈ Submodule.span ℂ (Set.range v), s * ‖x‖ ≤ ‖T x‖ := by

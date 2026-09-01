@@ -84,9 +84,9 @@ which the printed right-hand side can be finite.
   representative `Ξ`.
 * `TauCeti.DavisKahan1970.paperTanAngleOperatorC_eq_modulus_blockRepresentative`:
   `|Ξ| = tan Θ`.
-* `TauCeti.DavisKahan1970.tanTheta_wholeSpace_all_kyFan`: the Ky Fan form,
+* `TauCeti.DavisKahan1970.tanTheta_ambient_bounded_kyFan_complex_of_transversality`: the Ky Fan form,
   `δ · kyFan_k (tan Θ) ≤ kyFan_k H` for every `k`.
-* `TauCeti.DavisKahan1970.tanTheta_wholeSpace_paperUINorm`: the source form,
+* `TauCeti.DavisKahan1970.tanTheta_ambient_bounded_paperUINorm_complex_of_transversality`: the source form,
   `δ N(tan Θ) ≤ N(H)` for every unitarily invariant norm `N` in the paper's
   sense.
 
@@ -1024,7 +1024,7 @@ theorem approximationNumber_lowerCorner_le
   have hres := approximationNumber_le_of_gramResolvent (paperDirectedSineAmbient U V)
     (norm_paperDirectedSineAmbient_lt_one htr)
     (gramOperator_lowerCorner_moebius htr) n
-  rw [approximationNumber_gramOperator c n] at hres
+  rw [approximationNumber_gramOperator_complex c n] at hres
   -- the scalar identity `tan (arcsin σ)² = σ²/(1 − σ²)`
   have hden : (0 : ℝ) < 1 - sig ^ 2 := by nlinarith
   have hsqrt : Real.sqrt (1 - sig ^ 2) * Real.sqrt (1 - sig ^ 2) = 1 - sig ^ 2 :=
@@ -1104,7 +1104,7 @@ theorem corner_all_kyFan
 
 /-- **The whole-space `tan Θ` theorem, Ky Fan form.**  The second conclusion of
 the Section 2 tangent theorem, at every finite Ky Fan gauge. -/
-theorem tanTheta_wholeSpace_all_kyFan
+theorem tanTheta_ambient_bounded_kyFan_complex_of_transversality
     (hT : T.IsSymmetric) (hA : IsSelfAdjoint A)
     (hV : T.Reduces V) (hAU : ∀ x ∈ U, A x ∈ U)
     {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -1173,7 +1173,7 @@ theorem tanTheta_wholeSpace_all_kyFan
 /-- **The whole-space `tan Θ` theorem for every source unitarily invariant
 norm**: `δ ‖tan Θ‖ ≤ ‖H‖`, the second conclusion of the Section 2 tangent
 theorem and the assertion the paper settles just after equation (7.6). -/
-theorem tanTheta_wholeSpace_paperUINorm
+theorem tanTheta_ambient_bounded_paperUINorm_complex_of_transversality
     (N : PaperUnitaryInvariantNorm)
     (hT : T.IsSymmetric) (hA : IsSelfAdjoint A)
     (hV : T.Reduces V) (hAU : ∀ x ∈ U, A x ∈ U)
@@ -1187,7 +1187,7 @@ theorem tanTheta_wholeSpace_paperUINorm
     N.Mem (paperTanAngleOperatorC U V) ∧
       delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge (T - A) :=
   N.mul_gauge_le_of_all_mul_kyFan_le hdelta hMem
-    (tanTheta_wholeSpace_all_kyFan hT hA hV hAU hdelta hCompressionUpper
+    (tanTheta_ambient_bounded_kyFan_complex_of_transversality hT hA hV hAU hdelta hCompressionUpper
       hUnwantedLower htr)
 
 /-! ### Uniform transversality is derived, not assumed
@@ -1239,9 +1239,9 @@ theorem norm_sinAngleOperatorC_lt_one_of_crossedDefectsEquivalent
 
 /-- **The whole-space `tan Θ` theorem, Ky Fan form, with transversality derived.**
 
-The same conclusion as `tanTheta_wholeSpace_all_kyFan`, with the uniform transversality
+The same conclusion as `tanTheta_ambient_bounded_kyFan_complex_of_transversality`, with the uniform transversality
 hypothesis replaced by the printed standing assumption (3.5). -/
-theorem tanTheta_wholeSpace_all_kyFan_of_crossedDefectsEquivalent
+theorem tanTheta_ambient_bounded_kyFan_complex_of_crossedDefects
     (hT : T.IsSymmetric) (hA : IsSelfAdjoint A)
     (hV : T.Reduces V) (hAU : ∀ x ∈ U, A x ∈ U)
     {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -1253,16 +1253,16 @@ theorem tanTheta_wholeSpace_all_kyFan_of_crossedDefectsEquivalent
     ∀ k : ℕ,
       delta * kyFanApproximationGauge k (paperTanAngleOperatorC U V) ≤
         kyFanApproximationGauge k (T - A) :=
-  tanTheta_wholeSpace_all_kyFan hT hA hV hAU hdelta hCompressionUpper hUnwantedLower
+  tanTheta_ambient_bounded_kyFan_complex_of_transversality hT hA hV hAU hdelta hCompressionUpper hUnwantedLower
     (norm_sinAngleOperatorC_lt_one_of_crossedDefectsEquivalent hT hV hdelta
       hCompressionUpper hUnwantedLower h35)
 
 /-- **Davis--Kahan 1970, the whole-space `tan Θ` theorem for every source unitarily
 invariant norm, under the printed standing assumptions only.**
 
-Identical to `tanTheta_wholeSpace_paperUINorm` except that uniform transversality is no
+Identical to `tanTheta_ambient_bounded_paperUINorm_complex_of_transversality` except that uniform transversality is no
 longer a hypothesis: it is derived from the form bounds and the printed (3.5). -/
-theorem tanTheta_wholeSpace_paperUINorm_of_crossedDefectsEquivalent
+theorem tanTheta_ambient_bounded_paperUINorm_complex_of_crossedDefects
     (N : PaperUnitaryInvariantNorm)
     (hT : T.IsSymmetric) (hA : IsSelfAdjoint A)
     (hV : T.Reduces V) (hAU : ∀ x ∈ U, A x ∈ U)
@@ -1275,7 +1275,7 @@ theorem tanTheta_wholeSpace_paperUINorm_of_crossedDefectsEquivalent
     (hMem : N.Mem (T - A)) :
     N.Mem (paperTanAngleOperatorC U V) ∧
       delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge (T - A) :=
-  tanTheta_wholeSpace_paperUINorm N hT hA hV hAU hdelta hCompressionUpper hUnwantedLower
+  tanTheta_ambient_bounded_paperUINorm_complex_of_transversality N hT hA hV hAU hdelta hCompressionUpper hUnwantedLower
     (norm_sinAngleOperatorC_lt_one_of_crossedDefectsEquivalent hT hV hdelta
       hCompressionUpper hUnwantedLower h35) hMem
 

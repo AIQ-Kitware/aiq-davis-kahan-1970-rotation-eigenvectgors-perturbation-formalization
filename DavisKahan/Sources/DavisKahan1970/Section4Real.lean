@@ -610,7 +610,7 @@ theorem displacementAngleSineSq_ge_real
     {x : E} (hx : x ∈ U) (hxnorm : ‖x‖ = 1) :
     1 - ‖TauCeti.DavisKahan.canonicalAbsoluteValueR U V x‖ ^ 2 ≤
       displacementAngleSineSqR W x := by
-  have h := TauCeti.DavisKahan.Section4.displacementAngleSineSq_ge
+  have h := TauCeti.DavisKahan.Section4.displacementAngleSineSq_ge_complex
     (complexifySubmodule U) (complexifySubmodule V)
     (complexify W) (TauCeti.DavisKahan.complexify_mem_unitary hWunitary)
     (complexify_intertwines U V hWmap)
@@ -818,7 +818,7 @@ private theorem approximationNumber_gramOperator_real {X Y : Type*}
     (A : X →L[ℝ] Y) (n : ℕ) :
     (gramOperatorR A).approximationNumber n = A.approximationNumber n ^ 2 := by
   rw [← approximationNumber_complexify, complexify_gramOperator_real,
-    TauCeti.ApproximationNumber.approximationNumber_gramOperator,
+    TauCeti.ApproximationNumber.approximationNumber_gramOperator_complex,
     approximationNumber_complexify]
 
 /-- Ky Fan gauges of real Gram operators inherit pointwise approximation dominance. -/
@@ -850,7 +850,7 @@ private theorem kyFanApproximationGauge_diagonalPart_le_real
     kyFanApproximationGauge k (U.diagonalPart A) ≤ kyFanApproximationGauge k A := by
   rw [← kyFanApproximationGauge_complexify, ← kyFanApproximationGauge_complexify,
     ← diagonalPart_complexify_real U]
-  exact TauCeti.ApproximationNumber.kyFanApproximationGauge_diagonalPart_le
+  exact TauCeti.ApproximationNumber.kyFanApproximationGauge_diagonalPart_le_complex
     (complexifySubmodule U) (complexify A) k
 
 omit [CompleteSpace E] in
@@ -1052,7 +1052,7 @@ theorem Proposition4_3_nonacute_real_idealGauge
 At the compact source scope, an arbitrary real orthogonal competitor carrying `U` onto `V`
 admits an orthonormal family of source vectors whose displacement angles dominate every
 nonzero principal angle.  This is the real counterpart of
-`Proposition4_1_compact_orthonormalVectors`; zero angles have a vacuous lower bound. -/
+`Proposition4_1_compact_orthonormalVectors_complex`; zero angles have a vacuous lower bound. -/
 theorem Proposition4_1_compact_orthonormalVectors_real
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (W : E →L[ℝ] E) (hWunitary : W ∈ unitary (E →L[ℝ] E))

@@ -606,7 +606,7 @@ theorem kyFanApproximationGauge_add_le_complex
     (k : ℕ) (K L : E₀ →L[ℂ] F₀) :
     kyFanApproximationGauge k (K + L) ≤
       kyFanApproximationGauge k K + kyFanApproximationGauge k L :=
-  K.kyFanGauge_add_le L k
+  K.kyFanGauge_add_le_complex L k
 end ComplexKyFanTriangle
 
 omit [CompleteSpace E] [CompleteSpace F] in

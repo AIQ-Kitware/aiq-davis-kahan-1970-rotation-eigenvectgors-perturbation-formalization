@@ -22,7 +22,7 @@ z ∈ dom A₁  →  X* z ∈ dom A₀
 
 together with the adjoint Riccati equation.  Both are needed by the sharp
 unbounded `tan 2Theta` argument, where the commutator `A₀X*X - X*XA₀` must be
-shown bounded; see `dev/finishtantwotheta-completion-lane.md` (ticket T1.1).
+shown bounded; the sharp tan(2Theta) note in Git history (ticket T1.1).
 
 The file mirrors `UnboundedReduction`: first a coordinate characterization of
 membership in the complement, then the domain-vector constructor, then the
@@ -912,7 +912,7 @@ Feeding this to `kyFan_unbounded_sylvester_le_of_semibounded_direct` with
 `c = 0`, `δ = d` yields an unbounded, arbitrary-ideal Ky Fan estimate for
 `tan 2Theta`.  Note `C` is *not* `-B₁₀`: the discrepancy is the commutator term
 `X ∘ R ∘ G`, and it is exactly why this route gives a defect form rather than
-the sharp constant — see `dev/finishtantwotheta-completion-lane.md`. -/
+the sharp constant — see the sharp tan(2Theta) note in Git history. -/
 theorem doubleAngleTangent_sylvester_eq
     (hinv : TauCeti.LinearPMap.InvariantSubspace (unboundedBlockOperatorCore H)
       (unboundedBlockGraph X)ᗮ)
@@ -955,7 +955,7 @@ and doubling both sides turns `X ∘ R` into `tan 2Theta`.
 
 `C` is *not* `-B₁₀`; the difference is the commutator term `X ∘ R ∘ G`, which is
 exactly why this yields a defect form rather than the sharp constant.  See
-`dev/finishtantwotheta-completion-lane.md`. -/
+the sharp tan(2Theta) note in Git history. -/
 theorem doubleAngleTangent_sylvesterEquation
     (hinv : TauCeti.LinearPMap.InvariantSubspace (unboundedBlockOperatorCore H)
       (unboundedBlockGraph X)ᗮ)

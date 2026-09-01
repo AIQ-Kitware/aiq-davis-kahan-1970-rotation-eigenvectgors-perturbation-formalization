@@ -287,7 +287,7 @@ theorem lt_approximationNumber_iff_exists_finiteDimensional_lowerBound_real
     T n hr0
 
 /-- **The Ky Fan triangle inequality over real Hilbert spaces.**  The complex case is
-`ContinuousLinearMap.kyFanGauge_add_le`; both are the same theorem,
+`ContinuousLinearMap.kyFanGauge_add_le_complex`; both are the same theorem,
 `kyFanGauge_add_le_of_hasMinMaxLowerBound`, applied to the min--max lower bound for their
 field.  Over `ℝ` that bound is `hasMinMaxLowerBound_real`, which is where the
 complexification in this file is spent. -/

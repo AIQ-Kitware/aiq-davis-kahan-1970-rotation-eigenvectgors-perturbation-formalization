@@ -813,7 +813,7 @@ module solves the identical problem for the `ℓᵖ` gauge in
 `lpGauge_approximationNumber_add_le`, whose docstring states the argument: the
 truncated sequences are *weakly majorized* — antitone and nonnegative because
 approximation numbers are, prefix-comparable because that comparison **is**
-`kyFanGauge_add_le` — so a monotone-under-weak-majorization lemma applies.
+`kyFanGauge_add_le_complex` — so a monotone-under-weak-majorization lemma applies.
 
 Every ingredient for the general case now exists:
 

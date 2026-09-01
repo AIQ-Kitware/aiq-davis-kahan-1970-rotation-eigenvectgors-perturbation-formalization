@@ -3,7 +3,7 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
-import DavisKahan.SinTheta.Unbounded.LegacyGap
+import DavisKahan.SinTheta.Unbounded.FormBoundedGap
 import DavisKahan.SinTheta.Specializations
 import DavisKahan.SinTheta.Real.Specializations
 import DavisKahan.SinTheta.Natural.Real
@@ -37,48 +37,44 @@ alias FormBoundedIsometricSinThetaProblem :=
 alias RealGeneralSinThetaProblem :=
   DavisKahan.ExactSinTheta.RealGeneralSinThetaProblem
 
-alias generalizedSinTheta :=
+alias sinTheta_generalized_bundled_complex :=
   DavisKahan.ExactSinTheta.FormBoundedGeneralSinThetaProblem.result
-alias generalizedSinTheta_complementaryBlock :=
+alias sinTheta_generalized_complementaryBlock_complex :=
   DavisKahan.ExactSinTheta.FormBoundedGeneralSinThetaProblem.complementaryBlock_result
 
 /-- Completed generalized finite interval/exterior theorem. -/
-alias generalizedSinTheta_finiteInterval :=
+alias sinTheta_generalized_intervalExterior_bundled_complex :=
   DavisKahan.ExactSinTheta.FiniteIntervalGeneralSinThetaProblem.result
 
 /-- Complementary-overlap form of the completed finite interval/exterior theorem. -/
-alias generalizedSinTheta_finiteInterval_complementaryBlock :=
+alias sinTheta_generalized_intervalExterior_complementaryBlock_complex :=
   DavisKahan.ExactSinTheta.FiniteIntervalGeneralSinThetaProblem.complementaryBlock_result
 
 /-- The bundled-problem entry point for the complex sine theorem: it takes a
 `FormBoundedIsometricSinThetaProblem` record rather than an argument list.  The
 direct-argument statement of the same result is
-`TauCeti.DavisKahan1970.SectionTwo.sinTheta`, which is the one to cite. -/
-alias sinTheta :=
-  DavisKahan.ExactSinTheta.FormBoundedIsometricSinThetaProblem.result_complex
-
-/-- Explicit complex name for the manuscript's default scalar convention. -/
-alias sinTheta_complex :=
+`TauCeti.DavisKahan1970.SectionTwo.sinTheta_complex`, which is the one to cite. -/
+alias sinTheta_bundled_complex :=
   DavisKahan.ExactSinTheta.FormBoundedIsometricSinThetaProblem.result_complex
 
 /-- Real source-facing isometric theorem. -/
-alias sinTheta_real :=
+alias sinTheta_bundled_real :=
   DavisKahan.ExactSinTheta.FormBoundedIsometricSinThetaProblem.result_real
 
 /-- Real unbounded isometric theorem from a measurable exact spectral set. -/
-alias sinTheta_real_spectralSubspace :=
+alias sinTheta_unbounded_spectralSubspace_real :=
   DavisKahan.ExactSinTheta.sinTheta_unbounded_real_spectralSubspace
 
 /-- Real source-facing generalized theorem. -/
-alias generalizedSinTheta_real :=
+alias sinTheta_generalized_bundled_real :=
   DavisKahan.ExactSinTheta.RealGeneralSinThetaProblem.result
 
 /-- Real generalized unbounded theorem from a measurable exact spectral set. -/
-alias generalizedSinTheta_real_spectralSubspace :=
+alias sinTheta_generalized_unbounded_spectralSubspace_real :=
   DavisKahan.ExactSinTheta.generalizedSinTheta_unbounded_real_spectralSubspace
 
 /-- Real complementary-overlap form of the generalized theorem. -/
-alias generalizedSinTheta_real_complementaryBlock :=
+alias sinTheta_generalized_complementaryBlock_real :=
   DavisKahan.ExactSinTheta.RealGeneralSinThetaProblem.complementaryBlock_result
 
 /-- Bounded generalized problem, derived through the full-domain closed-operator
@@ -87,7 +83,7 @@ alias BoundedGeneralSinThetaProblem :=
   DavisKahan.ExactSinTheta.BoundedGeneralSinThetaProblem
 
 /-- Bounded specialization derived from the canonical generalized theorem. -/
-alias generalizedSinTheta_boundedSpecialization :=
+alias sinTheta_generalized_bounded_complex :=
   DavisKahan.ExactSinTheta.BoundedGeneralSinThetaProblem.result
 
 /-- Bounded real lower-frame problem. -/
@@ -95,7 +91,7 @@ alias RealBoundedGeneralSinThetaProblem :=
   DavisKahan.ExactSinTheta.RealBoundedGeneralSinThetaProblem
 
 /-- Bounded real generalized specialization. -/
-alias generalizedSinTheta_boundedSpecialization_real :=
+alias sinTheta_generalized_bounded_real :=
   DavisKahan.ExactSinTheta.RealBoundedGeneralSinThetaProblem.result
 
 end DavisKahan1970

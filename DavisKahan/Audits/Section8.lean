@@ -157,17 +157,17 @@ and the finite-dimensional part (iii) endpoints. -/
 Both alternatives from the printed hypotheses, the inherited `sin 2Θ`
 estimates, the Krein completion, equation (1.5), and the printed `Θ < π/4`. -/
 
-#check theorem8_2_perturbationHalfGap_source
-#check theorem8_2_residualHalfGap_source
-#check theorem8_2_branch_source_directed
+#check theorem8_2_perturbationHalfGap_source_complex
+#check theorem8_2_residualHalfGap_source_complex
+#check theorem8_2_branch_source_directed_complex
 #check theorem8_2_krein_completion_source
-#check theorem8_2_sinTwoTheta_perturbation_source
-#check theorem8_2_sinTwoTheta_residual_source
+#check theorem8_2_sinTwoTheta_perturbation_source_complex
+#check theorem8_2_sinTwoTheta_residual_source_complex
 #check subspaceGap_eq_directedGap_of_finrank_eq
 #check theorem8_2_perturbationHalfGap_source_maximalAngle_lt
 #check theorem8_2_residualHalfGap_source_maximalAngle_lt
 #check theorem8_2_branch_source_maximalAngle_lt
-#check theorem8_2_source
+#check theorem8_2_source_complex
 #check theorem8_2_sinTwoTheta_perturbation_source_paperUINorm
 #check theorem8_2_sinTwoTheta_residual_source_paperUINorm
 #check theorem8_2_sinTwoTheta_residual_source_all_kyFan
@@ -184,17 +184,17 @@ estimates, the Krein completion, equation (1.5), and the printed `Θ < π/4`. -/
 #check theorem8_2_sinTwoTheta_residual_source_real_paperUINorm
 #check theorem8_2_source_real
 
-#print axioms theorem8_2_perturbationHalfGap_source
-#print axioms theorem8_2_residualHalfGap_source
-#print axioms theorem8_2_branch_source_directed
+#print axioms theorem8_2_perturbationHalfGap_source_complex
+#print axioms theorem8_2_residualHalfGap_source_complex
+#print axioms theorem8_2_branch_source_directed_complex
 #print axioms theorem8_2_krein_completion_source
-#print axioms theorem8_2_sinTwoTheta_perturbation_source
-#print axioms theorem8_2_sinTwoTheta_residual_source
+#print axioms theorem8_2_sinTwoTheta_perturbation_source_complex
+#print axioms theorem8_2_sinTwoTheta_residual_source_complex
 #print axioms subspaceGap_eq_directedGap_of_finrank_eq
 #print axioms theorem8_2_perturbationHalfGap_source_maximalAngle_lt
 #print axioms theorem8_2_residualHalfGap_source_maximalAngle_lt
 #print axioms theorem8_2_branch_source_maximalAngle_lt
-#print axioms theorem8_2_source
+#print axioms theorem8_2_source_complex
 #print axioms theorem8_2_sinTwoTheta_perturbation_source_paperUINorm
 #print axioms theorem8_2_sinTwoTheta_residual_source_paperUINorm
 #print axioms theorem8_2_sinTwoTheta_residual_source_all_kyFan

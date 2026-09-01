@@ -30,7 +30,7 @@ linearly dependent ones are harmless, contributing restrictions to smaller subsp
 * `ContinuousLinearMap.approximationNumber_isLUB_finiteRestrictions`: the two together;
 * `ContinuousLinearMap.lt_approximationNumber_iff_exists_finiteDimensional_lowerBound`: the
   epsilon form of the min--max characterisation, packaging
-  `ContinuousLinearMap.exists_linearIndependent_lowerBound_of_lt_approximationNumber` with
+  `ContinuousLinearMap.exists_linearIndependent_lowerBound_of_lt_approximationNumber_complex` with
   its converse `ContinuousLinearMap.le_approximationNumber_of_linearIndependent` into an
   `Iff`.
 
@@ -106,7 +106,7 @@ lower modulus, attained on the span of `n + 1` independent vectors.
 
 This is the *only* input to the approximation-number localization theory that depends on the
 scalar field.  Over `ℂ` it is the min--max theorem
-`ContinuousLinearMap.exists_linearIndependent_lowerBound_of_lt_approximationNumber`, proved
+`ContinuousLinearMap.exists_linearIndependent_lowerBound_of_lt_approximationNumber_complex`, proved
 from the continuous functional calculus on `T.modulus`; over `ℝ`, where that calculus is not
 available for operators on the space itself, it is transported through the complexification.
 Everything downstream — the finite-restriction localization, the least-upper-bound
@@ -241,7 +241,8 @@ variable {E : Type v} {F : Type w}
 
 /-- Over `ℂ` the min--max lower-bound property is the min--max theorem itself. -/
 theorem hasMinMaxLowerBound_complex : HasMinMaxLowerBound ℂ E F :=
-  fun T n _ hr0 hr => T.exists_linearIndependent_lowerBound_of_lt_approximationNumber n hr0 hr
+  fun T n _ hr0 hr =>
+    T.exists_linearIndependent_lowerBound_of_lt_approximationNumber_complex n hr0 hr
 
 /-- Every strict lower threshold for the ambient approximation number is exceeded by an
 approximation number of an `(n+1)`-generated restriction. -/

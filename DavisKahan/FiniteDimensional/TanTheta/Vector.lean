@@ -3,7 +3,7 @@ Staged for Mathlib: additions to `Mathlib/Analysis/InnerProductSpace/` (new file
 `TanTheta.lean`).
 
 Formalized by Claude Fable 5 (claude-fable-5[1m]), plan steps G3.0 (statement
-gate) and G3 (proof) of `dev/davis-kahan-expert-completion-plan.md`.
+gate) and G3 (proof) of the July 2026 completion campaign.
 
 The proof is an elementary, coordinate-free vectorization of Nakatsukasa's
 argument (LAA 436 (2012), 1528–1534), discovered while planning: no CS

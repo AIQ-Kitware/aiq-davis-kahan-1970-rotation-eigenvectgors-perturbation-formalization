@@ -128,7 +128,8 @@ the same length.
 
 The proof is the whole point of the module: the truncated sequences are weakly majorized —
 antitone and nonnegative because approximation numbers are, and prefix-comparable because
-that comparison *is* `kyFanGauge_add_le` — so `TauCeti.FiniteVector.lpGauge_mono_weaklyMajorized`
+that comparison *is* `kyFanGauge_add_le_complex` — so
+`TauCeti.FiniteVector.lpGauge_mono_weaklyMajorized`
 applies, and finite Minkowski splits the right-hand side. -/
 theorem lpGauge_approximationNumber_add_le {p : ℝ} (hp : 1 ≤ p) (S T : E →L[𝕜] F) (k : ℕ) :
     TauCeti.FiniteVector.lpGauge p (fun i : Fin k => (S + T).approximationNumber i) ≤

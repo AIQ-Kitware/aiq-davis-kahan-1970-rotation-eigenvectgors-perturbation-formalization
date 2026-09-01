@@ -5,7 +5,7 @@ Authors: Jon Crall, Claude Opus 5
 -/
 import DavisKahan.Sources.DavisKahan1970.Section8.Theorem82Branch
 import DavisKahan.Geometry.Halmos.CrossedDefectGap
-import DavisKahan.Sources.DavisKahan1970.SinTwoThetaWholeSpace
+import DavisKahan.Sources.DavisKahan1970.SinTwoThetaAmbient
 import ForTauCeti.Analysis.InnerProductSpace.AngleGeometry
 
 /-!
@@ -132,8 +132,8 @@ those rules out.
 * `subspaceGap_eq_directedGap_of_crossedDefects` and
   `maximalAngle_lt_pi_div_four_of_crossedDefects` -- the same bridge and the
   printed `Θ < π/4` under (3.5), in any dimension;
-* `theorem8_2_sinTwoTheta_perturbation_source` and
-  `theorem8_2_sinTwoTheta_residual_source` -- the `sin 2Θ` conclusions Theorem
+* `theorem8_2_sinTwoTheta_perturbation_source_complex` and
+  `theorem8_2_sinTwoTheta_residual_source_complex` -- the `sin 2Θ` conclusions Theorem
   8.2 inherits, specialized to its configuration and stated with its
   hypotheses, so the exported Section 8.2 surface carries them rather than
   merely pointing at Section 7, at the operator norm;
@@ -148,7 +148,7 @@ those rules out.
 * `theorem8_2_perturbationHalfGap_source_maximalAngle_lt`,
   `theorem8_2_residualHalfGap_source_maximalAngle_lt`,
   `theorem8_2_branch_source_maximalAngle_lt` -- the printed `Θ < π/4`;
-* `theorem8_2_source` -- the whole printed theorem, both alternatives and both
+* `theorem8_2_source_complex` -- the whole printed theorem, both alternatives and both
   conclusions, in one statement.
 
 The directed theorems keep their names and are *not* superseded: they are the
@@ -271,7 +271,7 @@ assertion. -/
 (`sinTwoTheta_perturbation`) with `Q` as the subspace carrying the printed gap.
 Nothing here is re-proved; the printed spectral placement of `Λ₀` and `Λ₁` is
 exactly a `FiniteGapConfiguration` for `A + K` at `Q`. -/
-theorem theorem8_2_sinTwoTheta_perturbation_source
+theorem theorem8_2_sinTwoTheta_perturbation_source_complex
     {A K : H →L[ℂ] H} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℂ H} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -299,7 +299,7 @@ legitimate and is the stronger reading, because `norm_offdiag_add_eq` makes the
 two off-diagonal blocks of the reflection defect equal there.  It is not
 legitimate at a general unitarily invariant norm, and that is the remaining open
 axis recorded at the head of section 2b below. -/
-theorem theorem8_2_sinTwoTheta_residual_source
+theorem theorem8_2_sinTwoTheta_residual_source_complex
     {A K : H →L[ℂ] H} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℂ H} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -340,7 +340,7 @@ The printed `sin 2Θ` theorem concludes "for every unitary-invariant norm", so
 that is the scope at which Theorem 8.2 inherits it; the two theorems above are
 its operator-norm reading.  The perturbation alternative is restated here over
 the paper's own class `PaperUnitaryInvariantNorm`, inherited from equation (7.5)
-(`DavisKahan1970.sinTwoTheta_wholeSpace_paperUINorm`) with nothing re-proved.
+(`DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_complex`) with nothing re-proved.
 
 The conclusion names the paper's literal `sin 2Θ`, the positive operator
 `paperSinTwoAngleOperatorC Q P`, rather than the modulus-free
@@ -362,14 +362,14 @@ what was wrong was the inference drawn from it, because it measured the
 *The measurement, which stands.*  The printed residual conclusion is
 `δ‖sin 2Θ₀‖ ≤ 2‖R‖` at the **directed** `Θ₀` (and the paper's own proof of it,
 through Lemma 6.1, actually gives the constant `1`).
-`theorem8_2_sinTwoTheta_residual_source` above states it at the **ambient** `Θ`,
+`theorem8_2_sinTwoTheta_residual_source_complex` above states it at the **ambient** `Θ`,
 which is legitimate at the operator norm because the two off-diagonal blocks of
 the reflection defect have the *same* operator norm -- that is
 `norm_offdiag_add_eq`.  For a general unitarily invariant norm that identity
 fails.  Writing `C` for the `P`-to-`Pᗮ` block of `A + K`, the singular values of
 `C + C⋆` are those of `C` doubled, so a symmetric gauge sees
 `N(C + C⋆) = 2 N(C)` in general (the trace norm does).  Every route through
-`sinTwoTheta_wholeSpace_paperUINorm` has to supply a comparison operator reduced
+`sinTwoTheta_ambient_bounded_paperUINorm_complex` has to supply a comparison operator reduced
 by `P`, i.e. block-diagonal, so its displacement from `A + K` is exactly
 `-(C + C⋆)` for the best such choice; with `N(C) ≤ N(R)` this yields the
 constant `4`, not the printed `2`.  So the **ambient** `sin 2Θ` at a general
@@ -382,7 +382,7 @@ printed constant needs the singular-value identification of `sin 2Θ₀` with
 decomposition.  It does not.  The printed conclusion is about `Θ₀`, so the route
 that works never forms the ambient sum at all: state the conclusion at the
 canonical directed block `sinTwoThetaIdealBlock Q P`, and the constant `2` comes
-out of `sinTwoTheta_directedResidual_paperUINorm`'s own chain -- the paper
+out of `sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_complex`'s own chain -- the paper
 projection block dominates `δ` times the ideal block, the block defect costs the
 factor `2`, and the residual is extended by zero along `P.subtypeL.adjoint`,
 which preserves the whole approximation-singular sequence and hence every paper
@@ -420,11 +420,11 @@ theorem spectrum_compressOperator_subset_of_spectrumIn
 every source unitarily invariant norm.**
 
 `δ ‖sin 2Θ‖ ≤ 2 ‖H‖`, at the paper's own class of unitarily invariant norms and
-at Theorem 8.2's own hypotheses.  `theorem8_2_sinTwoTheta_perturbation_source`
+at Theorem 8.2's own hypotheses.  `theorem8_2_sinTwoTheta_perturbation_source_complex`
 is the operator-norm reading of the same inheritance.
 
 Nothing is re-proved.  This is equation (7.5) of the paper's Section 7,
-`DavisKahan1970.sinTwoTheta_wholeSpace_paperUINorm`, read with `A + K` carrying
+`DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_complex`, read with `A + K` carrying
 the printed gap on `Q` and with `A` — which `P` reduces by hypothesis — as the
 comparison operator, so that the displacement is `-K`. -/
 theorem theorem8_2_sinTwoTheta_perturbation_source_paperUINorm
@@ -462,7 +462,7 @@ theorem theorem8_2_sinTwoTheta_perturbation_source_paperUINorm
     · exact absurd h (by simp)
   have hgaugeNeg : N.gauge (A - (A + K)) = N.gauge K := by
     rw [hneg, N.gauge_smul _ hKmem, hone, one_mul]
-  obtain ⟨hmem, hle⟩ := DavisKahan1970.sinTwoTheta_wholeSpace_paperUINorm N
+  obtain ⟨hmem, hle⟩ := DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_complex N
     hAKsa hAsa hQred hPred hdelta hab hUspec hUspec' hMemNeg
   exact ⟨hmem, by rwa [hgaugeNeg] at hle⟩
 
@@ -492,7 +492,7 @@ theorem theorem8_2_sinTwoTheta_residual_source_all_kyFan
   have hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Qᗮ (A + K)),
       x ≤ beta - delta ∨ alpha + delta ≤ x :=
     fun _ hx => spectrum_compressOperator_subset_of_spectrumIn hQperp hx
-  exact DavisKahan1970.sinTwoTheta_directedResidual_all_kyFan
+  exact DavisKahan1970.sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
     (A := A + K) (U := Q) (V := P)
     hAKsa hQred hdelta hab hUspec hUspec' (compressOperator P A)
 
@@ -526,7 +526,7 @@ theorem theorem8_2_sinTwoTheta_residual_source_paperUINorm
   have hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Qᗮ (A + K)),
       x ≤ beta - delta ∨ alpha + delta ≤ x :=
     fun _ hx => spectrum_compressOperator_subset_of_spectrumIn hQperp hx
-  exact DavisKahan1970.sinTwoTheta_directedResidual_paperUINorm
+  exact DavisKahan1970.sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_complex
     (A := A + K) (U := Q) (V := P) N hAKsa hQred hdelta hab
     hUspec hUspec' (compressOperator P A) hRmem
 
@@ -535,7 +535,7 @@ theorem theorem8_2_sinTwoTheta_residual_source_paperUINorm
 /-- **Davis--Kahan 1970, Theorem 8.2, perturbation alternative, printed form.**
 
 `Θ < π/4` under the printed hypotheses together with the standing convention
-(1.5).  The proof adds nothing to `theorem8_2_perturbationHalfGap_source`; (1.5)
+(1.5).  The proof adds nothing to `theorem8_2_perturbationHalfGap_source_complex`; (1.5)
 only converts its directed conclusion into the symmetric one. -/
 theorem theorem8_2_perturbationHalfGap_source_maximalAngle_lt [FiniteDimensional ℂ H]
     {A K : H →L[ℂ] H} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
@@ -549,7 +549,7 @@ theorem theorem8_2_perturbationHalfGap_source_maximalAngle_lt [FiniteDimensional
     (hsmall : ‖K‖ < delta / 2) :
     maximalAngle P Q < Real.pi / 4 :=
   maximalAngle_lt_pi_div_four_of_directedGap_lt hrank
-    (theorem8_2_perturbationHalfGap_source hA hK hdelta hab hQ hQperp hPred hP hsmall)
+    (theorem8_2_perturbationHalfGap_source_complex hA hK hdelta hab hQ hQperp hPred hP hsmall)
 
 /-- **Davis--Kahan 1970, Theorem 8.2, residual alternative, printed form.** -/
 theorem theorem8_2_residualHalfGap_source_maximalAngle_lt [FiniteDimensional ℂ H]
@@ -564,7 +564,7 @@ theorem theorem8_2_residualHalfGap_source_maximalAngle_lt [FiniteDimensional ℂ
     (hRsmall : ‖residual (A + K) P.subtypeL (compressOperator P A)‖ < delta / 2) :
     maximalAngle P Q < Real.pi / 4 :=
   maximalAngle_lt_pi_div_four_of_directedGap_lt hrank
-    (theorem8_2_residualHalfGap_source hA hK hdelta hab hQ hQperp hPred hP hRsmall)
+    (theorem8_2_residualHalfGap_source_complex hA hK hdelta hab hQ hQperp hPred hP hRsmall)
 
 /-- **Theorem 8.2's printed disjunction, printed conclusion.** -/
 theorem theorem8_2_branch_source_maximalAngle_lt [FiniteDimensional ℂ H]
@@ -623,7 +623,7 @@ content.
 
 `‖·‖₁` is the bound norm throughout Theorem 8.2, which is what the operator
 norms here are. -/
-theorem theorem8_2_source [FiniteDimensional ℂ H]
+theorem theorem8_2_source_complex [FiniteDimensional ℂ H]
     {A K : H →L[ℂ] H} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℂ H} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -638,8 +638,8 @@ theorem theorem8_2_source [FiniteDimensional ℂ H]
       delta * ‖DavisKahanExt.sinTwoAngleOperator Q P‖ ≤
         2 * ‖residual (A + K) P.subtypeL (compressOperator P A)‖ ∧
       maximalAngle P Q < Real.pi / 4 :=
-  ⟨theorem8_2_sinTwoTheta_perturbation_source hA hK hdelta hab hQ hQperp hPred,
-    theorem8_2_sinTwoTheta_residual_source hA hK hdelta hab hQ hQperp hPred,
+  ⟨theorem8_2_sinTwoTheta_perturbation_source_complex hA hK hdelta hab hQ hQperp hPred,
+    theorem8_2_sinTwoTheta_residual_source_complex hA hK hdelta hab hQ hQperp hPred,
     theorem8_2_branch_source_maximalAngle_lt hA hK hdelta hab hQ hQperp hPred hP
       hrank hsmall⟩
 

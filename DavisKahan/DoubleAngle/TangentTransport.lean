@@ -606,7 +606,7 @@ theorem sameApproximationSingularValues_unboundedReflectionTangent
 /-- **The reflection tangent and the paper's `|tan 2Θ|` have the same gauge in
 every source unitarily invariant norm**, and one lies in the norm's ideal exactly
 when the other does. -/
-theorem extendedGauge_unboundedReflectionTangent
+theorem extendedGauge_unboundedReflectionTangent_complex
     (N : ExactSinTheta.PaperUnitaryInvariantNorm)
     (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     N.extendedGauge (unboundedReflectionTangent U V.reflectionOperator)
@@ -672,7 +672,7 @@ theorem extendedGauge_sinTwoThetaIdealBlock_real
   rw [← ExactSinTheta.PaperUnitaryInvariantNorm.extendedGauge_complexify N
       (sinTwoThetaIdealBlock U V),
     complexify_sinTwoThetaIdealBlock U V]
-  exact extendedGauge_sinTwoThetaIdealBlock (complexifySubmodule U)
+  exact extendedGauge_sinTwoThetaIdealBlock_complex (complexifySubmodule U)
     (complexifySubmodule V) N
 
 /-- Ideal membership transfers between the real block and the real directed
@@ -696,7 +696,7 @@ theorem gauge_sinTwoAngleOperatorRC
 /-- **The real reflection tangent and the real `|tan 2Θ|` have the same gauge in
 every source unitarily invariant norm.**
 
-The real counterpart of `extendedGauge_unboundedReflectionTangent`, and, like it,
+The real counterpart of `extendedGauge_unboundedReflectionTangent_complex`, and, like it,
 it asks for no independent pole certificate: the hypothesis is invertibility of
 the reflection's diagonal block, which is what the unbounded `tan 2Θ` theorem
 already delivers.
@@ -725,7 +725,7 @@ theorem extendedGauge_unboundedReflectionTangent_real
     exact hCC
   have hcos := cos_two_ne_zero_of_isUnit_diagonalPart_reflection_sq
     (complexifySubmodule U) (complexifySubmodule V) hCCc
-  have htrans := extendedGauge_unboundedReflectionTangent
+  have htrans := extendedGauge_unboundedReflectionTangent_complex
     (complexifySubmodule U) (complexifySubmodule V) N hcos
   rw [← ExactSinTheta.PaperUnitaryInvariantNorm.extendedGauge_complexify N
       (unboundedReflectionTangent U V.reflectionOperator),

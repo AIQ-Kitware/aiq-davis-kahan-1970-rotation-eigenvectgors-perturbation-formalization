@@ -716,7 +716,7 @@ variable {A : E →ₗ.[ℝ] E} {B Z : E →L[ℝ] E} {a b c : ℝ}
 /-- **Davis--Kahan Section 7, the `tan 2Θ` theorem for an unbounded self-adjoint
 operator, in residual form, at the operator norm, over real scalars.**
 
-The real counterpart of `tanTwoTheta_unbounded_residual_opNorm`, with the same
+The real counterpart of `tanTwoTheta_unbounded_residual_opNorm_complex`, with the same
 two conclusions: the tangent inequality with the sharp constant `2` against the
 residual `B`, and the explicit lower bound `κ ‖x‖ ≤ ‖cos 2Θ₀ x‖` that makes it
 meaningful.  As over `ℂ`, no cutoff data is assumed: the trial subspace is the
@@ -850,7 +850,7 @@ theorem tanTwoTheta_unbounded_residual_opNorm_real
 /-- The tangent form over real scalars: on the trial subspace the denominator is
 nonzero, so the estimate can be divided through.
 `‖sin 2Θ₀ x‖ / ‖cos 2Θ₀ x‖ ≤ 2 ‖B‖ / δ`.  The real counterpart of
-`tanTwoTheta_unbounded_residual_div`. -/
+`tanTwoTheta_unbounded_residual_div_complex`. -/
 theorem tanTwoTheta_unbounded_residual_div_real
     (hA : _root_.IsSelfAdjoint A)
     (hB : TauCeti.IsOddFor

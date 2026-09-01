@@ -101,7 +101,7 @@ d · kyFanGauge k X ≤ (π/2) · kyFanGauge k C    for every k.
 ```
 
 `norm_sylvester_le_of_generalSeparation` is the case `k = 1`. -/
-theorem kyFan_sylvester_le_of_generalSeparation
+theorem kyFan_sylvester_le_of_generalSeparation_complex
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec}
     {X C : Ec →L[ℂ] Fc}
     (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
@@ -172,7 +172,7 @@ theorem kyFan_sylvester_le_of_generalSeparation_real
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
     (hEq : sylvesterOperator A B X = C) (k : ℕ) :
     d * X.kyFanGauge k ≤ (Real.pi / 2) * C.kyFanGauge k := by
-  have hfan := kyFan_sylvester_le_of_generalSeparation
+  have hfan := kyFan_sylvester_le_of_generalSeparation_complex
     ((complexify_isSymmetric_iff A).2 hA) ((complexify_isSymmetric_iff B).2 hB) hd
     (spectraSeparated_top_complexify hsep) (complexify_sylvesterEquation hEq) k
   have hX := kyFanApproximationGauge_complexify X k

@@ -48,6 +48,20 @@ def SemiboundedAbove (A : E →ₗ.[𝕜] E) (c : ℝ) : Prop :=
   ∀ x : A.domain,
     RCLike.re ⟪A x, (x : E)⟫_𝕜 ≤ c * ‖(x : E)‖ ^ 2
 
+/-- Unfolds the lower semibound through a stable public API: `SemiboundedBelow`
+is kept abstract across module boundaries, so consumers use this rather than
+definitional transparency. -/
+theorem semiboundedBelow_iff (A : E →ₗ.[𝕜] E) (c : ℝ) :
+    SemiboundedBelow A c ↔
+      ∀ x : A.domain, c * ‖(x : E)‖ ^ 2 ≤ RCLike.re ⟪A x, (x : E)⟫_𝕜 :=
+  Iff.rfl
+
+/-- Unfolds the upper semibound through a stable public API. -/
+theorem semiboundedAbove_iff (A : E →ₗ.[𝕜] E) (c : ℝ) :
+    SemiboundedAbove A c ↔
+      ∀ x : A.domain, RCLike.re ⟪A x, (x : E)⟫_𝕜 ≤ c * ‖(x : E)‖ ^ 2 :=
+  Iff.rfl
+
 /-- A lower semibound remains valid after decreasing the constant. -/
 theorem SemiboundedBelow.mono {A : E →ₗ.[𝕜] E} {c d : ℝ}
     (hA : SemiboundedBelow A c) (hdc : d ≤ c) :

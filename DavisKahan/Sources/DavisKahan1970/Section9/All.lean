@@ -6,6 +6,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.Sources.DavisKahan1970.Section9.BeamDoubleTangentKyFan
 import DavisKahan.Sources.DavisKahan1970.Section9.DomainLimitation
 import DavisKahan.Sources.DavisKahan1970.Section9.ExactData
+import DavisKahan.Sources.DavisKahan1970.Section9.ExampleCertificateSurface
 import DavisKahan.Sources.DavisKahan1970.Section9.FreeBeamAnalyticFoundation
 import DavisKahan.Sources.DavisKahan1970.Section9.FreeBeamCharacteristic
 import DavisKahan.Sources.DavisKahan1970.Section9.FreeBeamCharacteristicConverse
@@ -16,7 +17,6 @@ import DavisKahan.Sources.DavisKahan1970.Section9.FreeBeamModeUniqueness
 import DavisKahan.Sources.DavisKahan1970.Section9.FreeBeamOrthogonality
 import DavisKahan.Sources.DavisKahan1970.Section9.FreeBeamRootExclusion
 import DavisKahan.Sources.DavisKahan1970.Section9.FreeBeamRootLocalization
-import DavisKahan.Sources.DavisKahan1970.Section9.FullExample
 import DavisKahan.Sources.DavisKahan1970.Section9.IndividualAngles
 import DavisKahan.Sources.DavisKahan1970.Section9.NumericalBounds
 import DavisKahan.Sources.DavisKahan1970.Section9.PaperNumericalResults

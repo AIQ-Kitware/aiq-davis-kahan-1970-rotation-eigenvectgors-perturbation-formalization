@@ -74,7 +74,7 @@ theorem complexify_one_sub_starProjection
 
 /-- **The real Pythagorean splitting of the rectangular square energy.**
 
-The real form of `paperHilbertSchmidtEnergy_domain_projection_add`, obtained by
+The real form of `paperHilbertSchmidtEnergy_domain_projection_add_complex`, obtained by
 reading the complex splitting at the complexified operator and the complexified
 subspace.  No complex object survives in the statement. -/
 theorem paperHilbertSchmidtEnergy_domain_projection_add_real
@@ -87,7 +87,7 @@ theorem paperHilbertSchmidtEnergy_domain_projection_add_real
       paperHilbertSchmidtEnergy
         (L ∘L (1 - P.starProjection)) := by
   have hc :=
-    paperHilbertSchmidtEnergy_domain_projection_add (complexify L)
+    paperHilbertSchmidtEnergy_domain_projection_add_complex (complexify L)
       (complexifySubmodule P) ((isPaperHilbertSchmidt_complexify_iff L).2 hfinite)
   have h1 :
       complexify L ∘L (complexifySubmodule P).starProjection =
@@ -105,7 +105,7 @@ theorem paperHilbertSchmidtEnergy_domain_projection_add_real
 /-- **Davis--Kahan 1970, Lemma 6.3, over a real Hilbert space of arbitrary
 dimension.**
 
-Word for word the statement of `lemma6_3_approximationNumber_leakage` with
+Word for word the statement of `lemma6_3_approximationNumber_leakage_complex` with
 `InnerProductSpace ℂ` replaced by `InnerProductSpace ℝ`: the source-faithful
 block hypothesis `K ∘ P = Q ∘ K ∘ P`, a rank bound on the selected target
 block, and near-saturation of the first-`n` square energy force the off-block

@@ -15,11 +15,11 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.CosineAngleReal
 import DavisKahan.Sources.DavisKahan1970.SineTheta.FiniteMultiplicity
 import DavisKahan.Sources.DavisKahan1970.SineTheta.FullAngle
 import DavisKahan.Sources.DavisKahan1970.SineTheta.FullAngleReal
-import DavisKahan.Sources.DavisKahan1970.SineTheta.HeadlineGeneric
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Lemma61
 import DavisKahan.Sources.DavisKahan1970.SineTheta.OperatorAngleBridge
 import DavisKahan.Sources.DavisKahan1970.SineTheta.ProjectionBlocks
 import DavisKahan.Sources.DavisKahan1970.SineTheta.ReflectedDefectDoubling
+import DavisKahan.Sources.DavisKahan1970.SineTheta.ScalarGeneric
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Sharpness
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Symmetric
 import DavisKahan.Sources.DavisKahan1970.SineTheta.SymmetricReal

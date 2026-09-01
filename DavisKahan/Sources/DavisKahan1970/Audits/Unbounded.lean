@@ -9,7 +9,7 @@ import DavisKahan.Sylvester.Unbounded.OrderedEngineDirect
 import DavisKahan.Sylvester.RealUnbounded
 import DavisKahan.SinTheta.Real.Specializations
 import DavisKahan.Sources.DavisKahan1970.GeneralSinTheta
-import DavisKahan.Sources.DavisKahan1970.FullPartIII
+import DavisKahan.Sources.DavisKahan1970.PartIIIManuscriptSurface
 
 /-!
 # Full unbounded sine-theta trusted-dependency audit
@@ -78,14 +78,14 @@ namespace ExactSinTheta
 #check RealGeneralSinThetaProblem.result
 #check BoundedGeneralSinThetaProblem.result
 #check RealBoundedGeneralSinThetaProblem.result
-#check TauCeti.DavisKahan1970.sinTheta
-#check TauCeti.DavisKahan1970.sinTheta_real
-#check TauCeti.DavisKahan1970.sinTheta_real_spectralSubspace
-#check TauCeti.DavisKahan1970.generalizedSinTheta_real_spectralSubspace
-#check TauCeti.DavisKahan1970.generalizedSinTheta
-#check TauCeti.DavisKahan1970.generalizedSinTheta_real
-#check TauCeti.DavisKahan1970.generalizedSinTheta_boundedSpecialization
-#check TauCeti.DavisKahan1970.generalizedSinTheta_boundedSpecialization_real
+#check TauCeti.DavisKahan1970.sinTheta_bundled_complex
+#check TauCeti.DavisKahan1970.sinTheta_bundled_real
+#check TauCeti.DavisKahan1970.sinTheta_unbounded_spectralSubspace_real
+#check TauCeti.DavisKahan1970.sinTheta_generalized_unbounded_spectralSubspace_real
+#check TauCeti.DavisKahan1970.sinTheta_generalized_bundled_complex
+#check TauCeti.DavisKahan1970.sinTheta_generalized_bundled_real
+#check TauCeti.DavisKahan1970.sinTheta_generalized_bounded_complex
+#check TauCeti.DavisKahan1970.sinTheta_generalized_bounded_real
 
 #print axioms sylvesterNeumannPartialSum_cauchy
 #print axioms sylvesterNeumannSolution_mem
@@ -134,14 +134,14 @@ namespace ExactSinTheta
 #print axioms RealGeneralSinThetaProblem.result
 #print axioms BoundedGeneralSinThetaProblem.result
 #print axioms RealBoundedGeneralSinThetaProblem.result
-#print axioms TauCeti.DavisKahan1970.sinTheta
-#print axioms TauCeti.DavisKahan1970.sinTheta_real
-#print axioms TauCeti.DavisKahan1970.sinTheta_real_spectralSubspace
-#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_real_spectralSubspace
-#print axioms TauCeti.DavisKahan1970.generalizedSinTheta
-#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_real
-#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_boundedSpecialization
-#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_boundedSpecialization_real
+#print axioms TauCeti.DavisKahan1970.sinTheta_bundled_complex
+#print axioms TauCeti.DavisKahan1970.sinTheta_bundled_real
+#print axioms TauCeti.DavisKahan1970.sinTheta_unbounded_spectralSubspace_real
+#print axioms TauCeti.DavisKahan1970.sinTheta_generalized_unbounded_spectralSubspace_real
+#print axioms TauCeti.DavisKahan1970.sinTheta_generalized_bundled_complex
+#print axioms TauCeti.DavisKahan1970.sinTheta_generalized_bundled_real
+#print axioms TauCeti.DavisKahan1970.sinTheta_generalized_bounded_complex
+#print axioms TauCeti.DavisKahan1970.sinTheta_generalized_bounded_real
 #check TauCeti.DavisKahan1970.banach_sylvester_lower_bound_interchanged
 #check TauCeti.DavisKahan1970.banach_sylvester_lower_bound_unboundedA
 #print axioms TauCeti.DavisKahan1970.banach_sylvester_lower_bound_interchanged

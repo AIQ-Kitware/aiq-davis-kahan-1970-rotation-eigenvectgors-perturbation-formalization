@@ -346,7 +346,7 @@ The constant is the sharp `2` and the right-hand side is the residual, so this
 is `δ N(tan 2Θ₀) ≤ 2 N(R)` at every Ky Fan gauge.
 
 Scope, stated honestly.  At `n = 1` this is *weaker* than
-`tanTwoTheta_unbounded_residual_opNorm`, which needs no eigenvector: it bounds
+`tanTwoTheta_unbounded_residual_opNorm_complex`, which needs no eigenvector: it bounds
 `δ ‖sin 2Θ₀ x‖` against `2 ‖B‖ ‖cos 2Θ₀ x‖` at every trial vector.  What is new
 here is `n ≥ 2`, which that theorem does not reach at all; the price is the
 eigenfamily hypothesis, and removing it is the remaining work. -/
@@ -2108,7 +2108,7 @@ variable {c : ℝ}
 
 /-- **The genuine unbounded `tan 2Θ₀` exists, with no extra hypothesis.**
 
-Under exactly the standing Davis--Kahan data of `tanTwoTheta_unbounded_residual_opNorm`
+Under exactly the standing Davis--Kahan data of `tanTwoTheta_unbounded_residual_opNorm_complex`
 — `A` self-adjoint and possibly unbounded, `𝔛₀ = 1_{(-∞, c]}(A)`, `B` bounded and
 fully off-diagonal, `Z` the reducing reflection `2Q - 1`, and the form separation
 `a < b` — the operator `unboundedReflectionTangent 𝔛₀ Z` satisfies the defining

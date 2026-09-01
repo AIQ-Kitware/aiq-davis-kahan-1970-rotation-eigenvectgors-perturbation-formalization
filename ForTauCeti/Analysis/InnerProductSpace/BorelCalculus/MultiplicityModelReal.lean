@@ -433,7 +433,8 @@ theorem mulLp_ofReal_ofRealLp {α : Type*} [MeasurableSpace α] (ρ : Measure α
 /-- **The real converse: real data agreeing up to measure class and null sets present unitarily
 equivalent real operators.**
 
-This is `operatorUnitaryEquiv_of_measureEquiv` at real scalars, and it is proved *without* a real
+This is `operatorUnitaryEquiv_of_measureEquiv_complex` at real scalars, and it is proved *without*
+a real
 Radon--Nikodym theory.  The trick is that the real model operator is multiplication by a symbol
 that happens to be real valued, so it is the restriction to the real classes of multiplication by
 the **same** symbol read in `ℂ` -- and that complex operator is intertwined by the ordinary

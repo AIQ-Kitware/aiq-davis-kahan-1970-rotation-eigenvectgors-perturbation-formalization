@@ -45,12 +45,12 @@ theory but a statement of where the theory lives.
 The whole-space `tan Θ` estimate `δ ‖tan Θ‖ ≤ ‖H‖` (Section 2, second
 conclusion of the `tan θ` theorem; derived at Section 7 lines around equation
 (7.6)) is proved in
-`DavisKahan/Sources/DavisKahan1970/TanThetaWholeSpace.lean`, and the ambient
+`DavisKahan/Sources/DavisKahan1970/TanThetaAmbient.lean`, and the ambient
 `tan 2Θ` estimate in
-`DavisKahan/Sources/DavisKahan1970/TanTwoThetaWholeSpace.lean`.  The real-scalar
+`DavisKahan/Sources/DavisKahan1970/TanTwoThetaAmbient.lean`.  The real-scalar
 forms of both, and the real counterparts of the operators defined here, are in
 `DavisKahan/Geometry/Angle/PaperOperatorAngleReal.lean` and
-`DavisKahan/Sources/DavisKahan1970/WholeSpaceReal.lean`.
+`DavisKahan/Sources/DavisKahan1970/AmbientReal.lean`.
 
 ## References
 

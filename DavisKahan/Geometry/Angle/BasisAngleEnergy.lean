@@ -205,7 +205,7 @@ theorem norm_inner_competitor_le
 
 /-- **Termwise Proposition 4.2**: a unit source vector is displaced by at least
 the angle its own `C`-length prescribes. -/
-theorem displacementAngleSineSq_ge
+theorem displacementAngleSineSq_ge_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (W : H →L[ℂ] H)
     (hWunitary : W ∈ unitary (H →L[ℂ] H))
@@ -248,7 +248,7 @@ theorem sum_displacementAngleSineSq_ge
         ((b i : U) : H)‖ ^ 2) ≤
       ∑ i, displacementAngleSineSq W ((b i : U) : H) := by
   refine Finset.sum_le_sum fun i _ => ?_
-  refine displacementAngleSineSq_ge U V W hWunitary hWmap (b i).property ?_
+  refine displacementAngleSineSq_ge_complex U V W hWunitary hWmap (b i).property ?_
   have h : ‖((b i : U) : H)‖ = ‖(b i : U)‖ := rfl
   rw [h]
   exact b.orthonormal.1 i
@@ -259,7 +259,7 @@ theorem sum_displacementAngleSineSq_ge
 summing `1 - ‖C bᵢ‖²` over an infinite basis.  With the paper's basis-free
 right-hand side there is nothing to settle, for two reasons.
 
-First, the estimate is **termwise** — `displacementAngleSineSq_ge` constrains one
+First, the estimate is **termwise** — `displacementAngleSineSq_ge_complex` constrains one
 unit vector of `U` at a time — so no completeness or even orthogonality is used
 and the inequality survives passage to any subfamily.  (That is exactly what
 fails for the wrong right-hand side `∑ᵢ cost D bᵢ`, which is a genuine total
@@ -274,7 +274,7 @@ into the infinite one with no hypothesis at all. -/
 Orthonormality is not needed for the inequality — it is what makes the two sides
 the paper's *energies* — so the estimate does not depend on the family being a
 basis, or even orthogonal. -/
-theorem sum_displacementAngleSineSq_ge_of_mem
+theorem sum_displacementAngleSineSq_ge_of_mem_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (W : H →L[ℂ] H)
     (hWunitary : W ∈ unitary (H →L[ℂ] H))
@@ -285,7 +285,7 @@ theorem sum_displacementAngleSineSq_ge_of_mem
         (spectraCanonicalIntertwiner U V) (b i)‖ ^ 2) ≤
       ∑ i ∈ s, displacementAngleSineSq W (b i) :=
   Finset.sum_le_sum fun i _ =>
-    displacementAngleSineSq_ge U V W hWunitary hWmap (hb i) (hbnorm i)
+    displacementAngleSineSq_ge_complex U V W hWunitary hWmap (hb i) (hbnorm i)
 
 /-- **Proposition 4.2, infinite-dimensional form, with no summability
 convention.**
@@ -293,7 +293,7 @@ convention.**
 In `ℝ≥0∞` both sums are unconditionally defined and the inequality is the
 termwise one.  The index type is arbitrary — in particular it may be infinite,
 and the family need not be complete. -/
-theorem tsum_displacementAngleSineSq_ge_of_mem
+theorem tsum_displacementAngleSineSq_ge_of_mem_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (W : H →L[ℂ] H)
     (hWunitary : W ∈ unitary (H →L[ℂ] H))
@@ -304,7 +304,7 @@ theorem tsum_displacementAngleSineSq_ge_of_mem
       ∑' i, ENNReal.ofReal (displacementAngleSineSq W (b i)) :=
   ENNReal.tsum_le_tsum fun i =>
     ENNReal.ofReal_le_ofReal
-      (displacementAngleSineSq_ge U V W hWunitary hWmap (hb i) (hbnorm i))
+      (displacementAngleSineSq_ge_complex U V W hWunitary hWmap (hb i) (hbnorm i))
 
 /-- **The bound of Proposition 4.2 is attained by the direct rotation on a
 principal vector.**
@@ -392,7 +392,7 @@ theorem tsum_displacementAngleSineSq_ge_tsum_sq_principalSineSequence
       ∑' i, ENNReal.ofReal
         (displacementAngleSineSq W ((b i : U) : H)) := by
   rw [← tsum_one_sub_sq_norm_absoluteValue_eq_tsum_sq_principalSineSequence U V b]
-  exact tsum_displacementAngleSineSq_ge_of_mem U V W hWunitary hWmap
+  exact tsum_displacementAngleSineSq_ge_of_mem_complex U V W hWunitary hWmap
     (fun i => ((b i : U) : H)) (fun i => (b i).property)
     (fun i => b.orthonormal.1 i)
 

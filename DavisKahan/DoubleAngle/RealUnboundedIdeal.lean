@@ -13,7 +13,7 @@ import DavisKahan.SpectralTheory.Real.SpectralRestriction
 Standing assumption 1 of Davis--Kahan 1970 is that the Hilbert space is "real or
 complex".  The ambient (whole-space) half of the Section 2 `sin 2Θ` theorem,
 `δ ‖sin 2Θ‖ ≤ 2‖H‖`, is available over the reals in
-`Sources/DavisKahan1970/WholeSpaceReal.lean`.  This module supplies the other
+`Sources/DavisKahan1970/AmbientReal.lean`.  This module supplies the other
 printed conclusion, the **directed** half `δ ‖sin 2Θ₀‖ ≤ 2‖R‖`, over a real
 Hilbert space, for an unbounded self-adjoint closed operator and its genuine
 spectral subspaces, and for every real Ky-Fan-dominant unitarily invariant ideal
@@ -159,32 +159,6 @@ section SinTwoTheta
 
 variable (A : E →ₗ.[ℝ] E) (hA : IsSelfAdjoint A)
   (S : Set ℝ) (hS : MeasurableSet S)
-
-omit [CompleteSpace E] [CompleteSpace G] in
-/-- The reflection of a subspace is a self-adjoint bounded operator, so
-reflecting an isometric embedding preserves isometry. -/
-theorem isometricEmbedding_reflection_comp
-    (V : Submodule ℝ E) [V.HasOrthogonalProjection]
-    {Y : G →L[ℝ] E} (hY : IsometricEmbedding Y) :
-    IsometricEmbedding (V.reflectionOperator ∘L Y) := by
-  intro y
-  change ‖V.reflection (Y y)‖ = ‖y‖
-  rw [V.reflection.norm_map]
-  exact hY y
-
-/-- The reflection operator is its own adjoint: it is a self-adjoint unitary. -/
-theorem adjoint_reflectionOperator (V : Submodule ℝ E)
-    [V.HasOrthogonalProjection] :
-    (V.reflectionOperator : E →L[ℝ] E).adjoint = V.reflectionOperator := by
-  have hP : ∀ a b : E, ⟪V.starProjection a, b⟫_ℝ = ⟪a, V.starProjection b⟫_ℝ :=
-    ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
-      (isSelfAdjoint_starProjection V)
-  have hsym : (V.reflectionOperator : E →L[ℝ] E).IsSymmetric := by
-    intro x y
-    change ⟪V.reflectionOperator x, y⟫_ℝ = ⟪x, V.reflectionOperator y⟫_ℝ
-    simp only [Submodule.reflectionOperator_apply, inner_sub_left,
-      inner_sub_right, real_inner_smul_left, real_inner_smul_right, hP]
-  exact (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hsym).adjoint_eq
 
 /-- The orthogonal projection onto the complementary real spectral range is the
 projection onto the orthogonal complement of the selected one.  Stated at the
@@ -390,6 +364,175 @@ theorem sinTwoTheta_reflectionResidual_gauge_real
     ((realSelfAdjointSpectralSubspace A hA S hS)ᗮ.map
       (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection hRmem
     (Submodule.starProjection_norm_le _) (Submodule.starProjection_norm_le _)
+
+
+section SinTwoThetaReducingReal
+
+/-- A subspace admitting an orthogonal projection inside a complete ambient
+space is itself complete. -/
+local instance instCompleteSpaceCoeRealUnboundedIdealReducing
+    (W : Submodule ℝ E) [W.HasOrthogonalProjection] : CompleteSpace W :=
+  (Submodule.isComplete_coe_of_hasOrthogonalProjection W).completeSpace_coe
+
+/-- **Davis--Kahan 1970, the directed `sin 2Θ` theorem over a real Hilbert
+space, reflection-residual block form, at an arbitrary reducing subspace.**
+
+The real mirror of
+`sinTwoTheta_reflectionResidual_block_gauge_of_formGap_reducing`: the trial
+subspace need only reduce `A`, which is the source's own hypothesis. -/
+theorem sinTwoTheta_reflectionResidual_block_gauge_reducing_real
+    {A : E →ₗ.[ℝ] E} (hA : IsSelfAdjoint A)
+    {U : Submodule ℝ E} [U.HasOrthogonalProjection]
+    (hred : TauCeti.LinearPMap.ReducesSubspace A U)
+    (N : KyFanDominantIdealFamily (𝕜 := ℝ))
+    (R : E →L[ℝ] E) (hR : IsSelfAdjointOperator R)
+    (V : Submodule ℝ E) [V.HasOrthogonalProjection]
+    {δ : ℝ} (hδ : 0 < δ)
+    (hgap : FormBoundedSylvesterGap
+      (TauCeti.LinearPMap.reducingRestriction A U hred)
+      (TauCeti.LinearPMap.reducingRestriction A Uᗮ hred.orthogonal) δ)
+    (hJdom : ∀ x : A.domain, V.reflectionOperator (x : E) ∈ A.domain)
+    (hJintertwines : ∀ x : A.domain,
+      (TauCeti.LinearPMap.addBounded A R)
+          ⟨V.reflectionOperator (x : E), hJdom x⟩ =
+        V.reflectionOperator (A x))
+    (hRmem : N.Mem R) :
+    N.Mem (sinTwoThetaIdealBlock U V) ∧
+      δ * N.gauge (sinTwoThetaIdealBlock U V) ≤
+        N.gauge (U.starProjection ∘L R ∘L
+          (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection) := by
+  set Uc := (Uᗮ : Submodule ℝ E) with hUc
+  set A₀ := TauCeti.LinearPMap.reducingRestriction A U hred with hA₀def
+  set Λ := TauCeti.LinearPMap.reducingRestriction A Uᗮ hred.orthogonal with hΛdef
+  set J : E →L[ℝ] E := V.reflectionOperator with hJ
+  set X : U →L[ℝ] E := U.subtypeL with hX
+  set F₁ : Uc →L[ℝ] E := J ∘L Uc.subtypeL with hF₁
+  -- domain and intertwining data for the exact block
+  have hXdom : ∀ x : A₀.domain, X (x : U) ∈ A.domain := fun x =>
+    (TauCeti.LinearPMap.mem_reducingRestriction_domain_iff A U hred _).mp x.2
+  have hXint : ∀ x : A₀.domain,
+      A ⟨X (x : U), hXdom x⟩ = X (A₀ x) := fun x =>
+    (TauCeti.LinearPMap.coe_reducingRestriction_apply A U hred (x : U)
+      (hXdom x)).symm
+  -- domain and intertwining data for the reflected complementary block
+  have hUcdom : ∀ y : Λ.domain, ((y : Uc) : E) ∈ A.domain := fun y =>
+    (TauCeti.LinearPMap.mem_reducingRestriction_domain_iff A Uᗮ hred.orthogonal
+      _).mp y.2
+  have hF₁dom : ∀ y : Λ.domain, F₁ (y : Uc) ∈ A.domain := fun y =>
+    hJdom ⟨((y : Uc) : E), hUcdom y⟩
+  have hF₁int : ∀ y : Λ.domain,
+      (TauCeti.LinearPMap.addBounded A R) ⟨F₁ (y : Uc), hF₁dom y⟩ =
+        F₁ (Λ y) := by
+    intro y
+    have hAy : A ⟨((y : Uc) : E), hUcdom y⟩ =
+        ((Λ y : Uc) : E) :=
+      (TauCeti.LinearPMap.coe_reducingRestriction_apply A Uᗮ hred.orthogonal
+        (y : Uc) (hUcdom y)).symm
+    calc
+      (TauCeti.LinearPMap.addBounded A R) ⟨F₁ (y : Uc), hF₁dom y⟩
+          = J (A ⟨((y : Uc) : E), hUcdom y⟩) :=
+            hJintertwines ⟨((y : Uc) : E), hUcdom y⟩
+      _ = J ((Λ y : Uc) : E) := congrArg J hAy
+      _ = F₁ (Λ y) := rfl
+  have hXiso : IsometricEmbedding X := fun _ => rfl
+  have hF₁iso : IsometricEmbedding F₁ :=
+    isometricEmbedding_reflection_comp V (fun _ => rfl)
+  have hraw := sinTheta_addBounded_gauge_real_block N A hA R hR
+    A₀ (TauCeti.LinearPMap.reducingRestriction_isSelfAdjoint A U hred
+      hA.dense_domain hA)
+    Λ (TauCeti.LinearPMap.reducingRestriction_isSelfAdjoint A Uᗮ hred.orthogonal
+      hA.dense_domain hA)
+    X F₁ hXdom hXint hF₁dom hF₁int hF₁iso hδ hgap hRmem
+  -- the reflected complementary projection, read through the ambient reflection
+  have hFproj : F₁ ∘L F₁.adjoint =
+      (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection := by
+    rw [starProjection_map_unitary Uᗮ V.reflection]
+    refine ContinuousLinearMap.ext fun x => ?_
+    have hUcU : Uc.subtypeL ∘L Uc.subtypeL.adjoint = Uc.starProjection := by
+      refine ContinuousLinearMap.ext fun z => ?_
+      rw [Submodule.adjoint_subtypeL]
+      rfl
+    have hadj : F₁.adjoint = Uc.subtypeL.adjoint ∘L J := by
+      rw [hF₁, ContinuousLinearMap.adjoint_comp, hJ,
+        adjoint_reflectionOperator V]
+    have hsymm : V.reflection.symm = V.reflection := V.reflection_symm
+    change J (Uc.subtypeL (F₁.adjoint x)) = _
+    rw [hadj]
+    change J (Uc.subtypeL (Uc.subtypeL.adjoint (J x))) = _
+    rw [show Uc.subtypeL (Uc.subtypeL.adjoint (J x)) =
+        (Uc.subtypeL ∘L Uc.subtypeL.adjoint) (J x) from rfl, hUcU]
+    change J (Uc.starProjection (J x)) =
+      V.reflection (Uc.starProjection (V.reflection.symm x))
+    rw [hsymm]
+    rfl
+  have hambient := projectionProduct_mem_and_gauge_le_isometric
+    N.toSymmetricOperatorIdealFamily U
+    (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)) F₁ hF₁iso hFproj hraw.1
+  -- contract the rectangular block to the ambient one
+  have hF₁adjF₁ : F₁.adjoint ∘L F₁ = ContinuousLinearMap.id ℝ Uc := by
+    have hUcadj : Uc.subtypeL.adjoint ∘L Uc.subtypeL = ContinuousLinearMap.id ℝ Uc := by
+      ext v
+      rw [ContinuousLinearMap.comp_apply, ContinuousLinearMap.id_apply,
+        Submodule.adjoint_subtypeL, Submodule.subtypeL_apply]
+      exact congrArg (fun z : Uc => (z : E))
+        (Submodule.orthogonalProjectionOnto_mem_subspace_eq_self v)
+    have hJJ : (J ∘L J : E →L[ℝ] E) = ContinuousLinearMap.id ℝ E :=
+      Submodule.reflectionOperator_involutive V
+    calc F₁.adjoint ∘L F₁
+        = (Uc.subtypeL.adjoint ∘L J.adjoint) ∘L (J ∘L Uc.subtypeL) := by
+          rw [hF₁, ContinuousLinearMap.adjoint_comp]
+      _ = Uc.subtypeL.adjoint ∘L (J ∘L J) ∘L Uc.subtypeL := by
+          rw [hJ, adjoint_reflectionOperator V]
+          rfl
+      _ = Uc.subtypeL.adjoint ∘L Uc.subtypeL := by
+          rw [hJJ, ContinuousLinearMap.id_comp]
+      _ = ContinuousLinearMap.id ℝ Uc := hUcadj
+  have hPF : (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection ∘L F₁
+      = F₁ := by
+    rw [← hFproj, ContinuousLinearMap.comp_assoc, hF₁adjF₁,
+      ContinuousLinearMap.comp_id]
+  have hPX : X.adjoint ∘L U.starProjection = X.adjoint := by
+    rw [hX]
+    ext x
+    rw [ContinuousLinearMap.comp_apply, Submodule.adjoint_subtypeL,
+      Submodule.coe_orthogonalProjectionOnto_apply,
+      Submodule.coe_orthogonalProjectionOnto_apply]
+    exact Submodule.starProjection_eq_self_iff.mpr (U.starProjection_apply_mem x)
+  have hRadj : R.adjoint = R :=
+    ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hR
+  have hfac : (R ∘L X).adjoint ∘L F₁ =
+      X.adjoint ∘L (U.starProjection ∘L R ∘L
+        (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection) ∘L F₁ := by
+    rw [ContinuousLinearMap.adjoint_comp, hRadj]
+    calc X.adjoint ∘L R ∘L F₁
+        = (X.adjoint ∘L U.starProjection) ∘L R ∘L
+            ((Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection ∘L
+              F₁) := by rw [hPX, hPF]
+      _ = X.adjoint ∘L (U.starProjection ∘L R ∘L
+            (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection) ∘L
+            F₁ := rfl
+  have hMid : N.Mem (U.starProjection ∘L R ∘L
+      (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection) :=
+    N.toSymmetricOperatorIdealFamily.comp_mem U.starProjection
+      (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection hRmem
+  have hcontract : N.gauge ((R ∘L X).adjoint ∘L F₁) ≤
+      N.gauge (U.starProjection ∘L R ∘L
+        (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection) := by
+    rw [hfac]
+    have hXadjNorm : ‖X.adjoint‖ ≤ 1 := by
+      rw [ContinuousLinearMap.adjoint.norm_map]
+      exact opNorm_le_one_of_isometry hXiso
+    exact N.toSymmetricOperatorIdealFamily.gaugeReal_comp_le_of_contractions
+      X.adjoint F₁ hMid hXadjNorm (opNorm_le_one_of_isometry hF₁iso)
+  refine ⟨hambient.1, ?_⟩
+  calc
+    δ * N.gauge (sinTwoThetaIdealBlock U V) ≤ δ * N.gauge (X.adjoint ∘L F₁) :=
+      mul_le_mul_of_nonneg_left hambient.2 hδ.le
+    _ ≤ N.gauge ((R ∘L X).adjoint ∘L F₁) := hraw.2
+    _ ≤ N.gauge (U.starProjection ∘L R ∘L
+        (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℝ] E)).starProjection) := hcontract
+
+end SinTwoThetaReducingReal
 
 end SinTwoTheta
 

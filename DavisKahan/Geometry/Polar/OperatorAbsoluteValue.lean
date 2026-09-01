@@ -27,17 +27,17 @@ rather than square) — and this module already carried the two bridge theorems
 proving the constructions *equal*: `spectraOperatorAbsoluteValue = T.modulus`
 and `spectraPolarIsometry = T.polarPartial`.
 
-Phase S1 of `dev/tauceti/spectra-removal-plan.md` takes the obvious next step:
+Phase S1 of the completed Spectra removal took the obvious next step:
 the definitions now *are* the `ForTauCeti` ones, so those two bridge theorems
 collapse to `rfl` and the Spectra import is gone.  Cluster C of the port surface
 (`absOp`, `polarIsometry`, `polarRange`) is closed by this file.
 
-Nothing downstream changes: every `spectra*` name keeps its statement, so the
-~400 call sites across `Geometry/Polar/**`, `SpectralTheory/**` and
-`Experimental/**` are untouched.  The names are now misnomers — there is no
-Spectra behind them — but renaming them is a naming-audit sweep over ten
-modules, deliberately *not* folded into the dependency removal.  It is recorded
-as a follow-on in the removal plan.
+Nothing downstream changes: every `spectra*` name keeps its statement, so its
+call sites across `Geometry/Polar/**` and `SpectralTheory/**` are untouched.
+**The names are misnomers — there is no Spectra behind them.**  Renaming them is
+a sweep over 100 declarations and about 1400 call sites, deliberately *not*
+folded into the dependency removal; it is recorded as an open finding in
+`dev/honesty-census-2026-08-31.md`.
 
 Two theorems were deleted rather than kept, because they mentioned Spectra
 constants and nothing outside this file used them: `spectra_absOp_eq_modulus`

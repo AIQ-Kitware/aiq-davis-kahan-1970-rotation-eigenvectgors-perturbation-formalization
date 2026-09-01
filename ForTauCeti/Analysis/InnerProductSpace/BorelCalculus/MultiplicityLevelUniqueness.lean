@@ -21,7 +21,7 @@ OperatorUnitaryEquiv D.operator E.operator
   →  MeasureEquiv D.base E.base  ∧  ∀ k, D.base (D.level k ∆ E.level k) = 0,
 ```
 
-the exact converse of `operatorUnitaryEquiv_of_measureEquiv`.
+the exact converse of `operatorUnitaryEquiv_of_measureEquiv_complex`.
 
 ## The invariant, and how the model computes it
 
@@ -53,7 +53,7 @@ constant in the slice index -- the reason a slice contributes exactly one genera
 * `TauCeti.BorelCalculus.base_level_symmDiff_eq_zero_of_operatorUnitaryEquiv`: **the level
   sets are unitary invariants.**
 * `TauCeti.BorelCalculus.operatorUnitaryEquiv_iff_measureEquiv_and_level`: **Hahn--Hellinger
-  uniqueness**, as a biconditional against `operatorUnitaryEquiv_of_measureEquiv`.
+  uniqueness**, as a biconditional against `operatorUnitaryEquiv_of_measureEquiv_complex`.
 
 ## Provenance
 
@@ -673,13 +673,13 @@ theorem measureEquiv_and_level_of_operatorUnitaryEquiv {D E : MultiplicityDatum 
 /-- **The multiplicity datum is a complete invariant, canonically.**  Two data present
 unitarily equivalent operators exactly when they agree in measure class and, up to null sets,
 in every level set.  The forward direction is the uniqueness proved in this module; the
-converse is the existence-side transport `operatorUnitaryEquiv_of_measureEquiv`. -/
+converse is the existence-side transport `operatorUnitaryEquiv_of_measureEquiv_complex`. -/
 theorem operatorUnitaryEquiv_iff_measureEquiv_and_level {D E : MultiplicityDatum ℂ} :
     OperatorUnitaryEquiv D.operator E.operator ↔
       MeasureEquiv D.base E.base ∧
         ∀ k, D.base (symmDiff (D.level k) (E.level k)) = 0 :=
   ⟨fun h => measureEquiv_and_level_of_operatorUnitaryEquiv h,
-    fun h => operatorUnitaryEquiv_of_measureEquiv h.1 h.2⟩
+    fun h => operatorUnitaryEquiv_of_measureEquiv_complex h.1 h.2⟩
 
 end Model
 

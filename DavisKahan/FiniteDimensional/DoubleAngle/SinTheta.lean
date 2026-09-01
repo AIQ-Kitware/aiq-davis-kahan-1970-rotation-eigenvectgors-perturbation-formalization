@@ -3,7 +3,7 @@ Staged for Mathlib: additions to `Mathlib/Analysis/InnerProductSpace/` (new file
 `SinTwoThetaUINorm.lean`).
 
 Formalized by Claude Fable 5 (claude-fable-5[1m]), plan step G1 of
-`dev/davis-kahan-expert-completion-plan.md`.
+the July 2026 completion campaign (Git history).
 
 The subspace Davis–Kahan sin 2Θ theorem, in every unitarily invariant norm:
 `N (Q ∘ P̂ ∘ P) ≤ N (S − T) / (b − a)`, where `P, Q = 1 − P` split along a

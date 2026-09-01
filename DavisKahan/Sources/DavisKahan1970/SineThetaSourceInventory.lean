@@ -43,9 +43,9 @@ alias unitaryInvariantNorm_nonempty := paperUnitaryInvariantNorm_nonempty
 alias directedCosineBlock := paperCosineBlockC
 alias directedSineBlock := paperSineBlockC
 alias directedCosineOperator := paperCosineModulusC
-alias directedAngle := paperSourceDirectedAngleC
-alias directedSinAngle := paperSourceDirectedSinC
-alias directedCosAngle := paperSourceDirectedCosC
+alias directedAngle_complex := paperSourceDirectedAngleC
+alias directedSinAngle_complex := paperSourceDirectedSinC
+alias directedCosAngle_complex := paperSourceDirectedCosC
 alias directedCosAngle_eq_modulus := paperSourceDirectedCosC_eq
 alias directedSinAngle_eq_modulus :=
   paperSourceDirectedSinC_eq_paperSineModulusC
@@ -58,8 +58,8 @@ alias directedAngle_real_eq_arcsin_sineModulus :=
 alias directedAngle_real := paperSourceDirectedAngleR
 alias directedSinAngle_real := paperSourceDirectedSinR
 alias directedCosAngle_real := paperSourceDirectedCosR
-alias fullAngleCoordinates := paperSourceFullAngleC
-alias fullSinAngleCoordinates := paperSourceFullSinC
+alias fullAngleCoordinates_complex := paperSourceFullAngleC
+alias fullSinAngleCoordinates_complex := paperSourceFullSinC
 alias fullSinAngle_singularValues_projectionDifference :=
   paperSourceFullSin_same_projectionDifference
 alias fullSinAngle_norm_projectionDifference :=
@@ -85,34 +85,48 @@ alias GeneralSinThetaIdealFamilyProblem := PaperGeneralSinThetaProblem
 alias IsometricSinThetaIdealFamilyProblem := PaperIsometricSinThetaProblem
 alias RealGeneralSinThetaIdealFamilyProblem := PaperRealGeneralSinThetaProblem
 alias RealIsometricSinThetaIdealFamilyProblem := PaperRealIsometricSinThetaProblem
-alias generalizedSinTheta_idealFamily := PaperGeneralSinThetaProblem.result
-alias sinTheta_idealFamily := PaperIsometricSinThetaProblem.result
-alias generalizedSinTheta_real_idealFamily :=
+alias sinTheta_generalized_idealFamily_complex := PaperGeneralSinThetaProblem.result
+alias sinTheta_idealFamily_complex := PaperIsometricSinThetaProblem.result
+alias sinTheta_generalized_idealFamily_real :=
   PaperRealGeneralSinThetaProblem.result
-alias sinTheta_real_idealFamily := PaperRealIsometricSinThetaProblem.result
+alias sinTheta_idealFamily_real := PaperRealIsometricSinThetaProblem.result
 
 alias IsometricSinThetaPaperData := PaperIsometricTheoremData
-alias sinTheta_exactPaper :=
+alias sinTheta_paperData_complex :=
   PaperIsometricTheoremData.result_every_unitarilyInvariantNorm_across
 alias RealIsometricSinThetaPaperData := PaperRealIsometricTheoremData
-alias sinTheta_real_exactPaper :=
+alias sinTheta_paperData_real :=
   PaperRealIsometricTheoremData.result_every_unitarilyInvariantNorm_across
 
 alias Theorem6_1Data := PaperTheorem61Data
-alias Theorem6_1 :=
+-- **The canonical source theorems are `DavisKahan1970.theorem6_1_source_complex`
+-- and `..._real`** in `Sources/DavisKahan1970/Theorem61.lean`.  They take the
+-- components -- ambient/trial/complementary operators, coordinate maps, residual,
+-- `IsTrialResidualEquation`, `IsExactSpectralDecomposition`, the frame bound and
+-- the gap -- rather than a `PaperTheorem61Data` record.  The aliases below name
+-- the record methods those theorems call.
+alias Theorem6_1_complex :=
   PaperTheorem61Data.result_every_unitarilyInvariantNorm_across
 alias Theorem6_1RealData := PaperRealTheorem61Data
 alias Theorem6_1_real :=
   PaperRealTheorem61Data.result_every_unitarilyInvariantNorm_across
-alias generalizedSinTheta_exactPaper :=
+alias sinTheta_generalized_paperData_complex :=
   PaperTheorem61Data.result_every_unitarilyInvariantNorm_across
-alias generalizedSinTheta_real_exactPaper :=
+alias sinTheta_generalized_paperData_real :=
   PaperRealTheorem61Data.result_every_unitarilyInvariantNorm_across
 
-/-! ## Proposition 6.1 -/
+/-! ## Proposition 6.1
+
+**The canonical source theorems are `DavisKahan1970.proposition6_1_source_complex`
+and `..._real` in `Sources/DavisKahan1970/Proposition61.lean`.**  They take the
+operators, the reducing subspaces, the gap and the two separations directly.
+The aliases below name the record methods those theorems call, and are the
+implementation and compatibility API: a caller who already holds a
+`PaperSymmetricSinThetaProblem` can still use them, but nobody should have to
+build one. -/
 
 alias SymmetricSinThetaProblem := PaperSymmetricSinThetaProblem
-alias Proposition6_1 :=
+alias Proposition6_1_complex :=
   PaperSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm
 
 -- The real-scalar form.  A unitarily invariant norm sees only the complete
@@ -135,11 +149,16 @@ alias Proposition6_1_real_sinTheta_eq_literalFullSinAngle :=
 alias Proposition6_1_real_representative :=
   PaperRealSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_representative_real
 
-/-! ## Theorem 6.2 and its printed finite-rank consequence -/
+/-! ## Theorem 6.2 and its printed finite-rank consequence
+
+**The canonical source theorems are `DavisKahan1970.theorem6_2_source_complex`
+and `..._real`** in `Sources/DavisKahan1970/Theorem61.lean`, on the same
+component hypotheses as Theorem 6.1.  The aliases below are the record methods
+they call. -/
 
 alias PairwiseSpectrumGap := PairwiseSpectrumGap
 alias Theorem6_2Data := PaperTheorem62Data
-alias Theorem6_2 := PaperTheorem62Data.result_across
+alias Theorem6_2_complex := PaperTheorem62Data.result_across
 alias Theorem6_2_boundNorm_of_finiteRank :=
   PaperTheorem62Data.operatorNorm_result_across_of_rank_le
 alias Theorem6_2RealData := PaperRealTheorem62Data

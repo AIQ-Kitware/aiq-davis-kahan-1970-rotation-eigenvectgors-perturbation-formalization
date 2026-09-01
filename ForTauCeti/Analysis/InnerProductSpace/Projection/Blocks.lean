@@ -38,6 +38,26 @@ variable [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
 
 namespace Submodule
 
+/-- **Equal subspaces have the same orthogonal projection.**
+
+`HasOrthogonalProjection` is a `Prop` class, so once the subspaces are identified
+the two instance arguments coincide by proof irrelevance.  This is needed
+wherever a spectral development names one subspace two ways -- the range selected
+by a complement set and the orthogonal complement of the range, say -- because
+`rw` on the subspace itself produces an ill-typed motive: `starProjection` takes
+an instance derived from the subspace being rewritten. -/
+theorem starProjection_congr {p q : Submodule 𝕜 E}
+    [p.HasOrthogonalProjection] [q.HasOrthogonalProjection] (h : p = q) :
+    p.starProjection = q.starProjection := by
+  subst h; rfl
+
+/-- Pointwise form of `Submodule.starProjection_congr`, for rewriting under an
+application. -/
+theorem starProjection_congr_apply {p q : Submodule 𝕜 E}
+    [p.HasOrthogonalProjection] [q.HasOrthogonalProjection] (h : p = q) (x : E) :
+    p.starProjection x = q.starProjection x := by
+  rw [starProjection_congr h]
+
 /-- Reflection through an orthogonally complemented subspace. -/
 noncomputable def reflectionOperator (U : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] : E →L[𝕜] E :=

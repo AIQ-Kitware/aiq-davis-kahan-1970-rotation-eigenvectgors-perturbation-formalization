@@ -118,7 +118,7 @@ are absent from the index subtype because their asserted lower bound is automati
 The vectors are the compact Gram singular vectors of `P_{Vᗮ}|_U`.  Thus this declaration is
 the printed orthonormal-vector formulation, independently of the approximation-number
 minimality formulation above. -/
-theorem Proposition4_1_compact_orthonormalVectors
+theorem Proposition4_1_compact_orthonormalVectors_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
@@ -140,7 +140,7 @@ theorem Proposition4_1_compact_orthonormalVectors
   have hseq (n : ℕ) : A.approximationNumber n =
       TauCeti.principalSineSequence U V n ^ 2 := by
     simpa only [A, T, TauCeti.principalSineSequence] using
-      (TauCeti.ApproximationNumber.approximationNumber_gramOperator T n)
+      (TauCeti.ApproximationNumber.approximationNumber_gramOperator_complex T n)
   let e : {n : ℕ // 0 < TauCeti.principalSineSequence U V n} ≃
       {n : ℕ // 0 < A.approximationNumber n} :=
     { toFun := fun n => ⟨n, by rw [hseq]; nlinarith [n.2]⟩
@@ -240,7 +240,7 @@ theorem principalSineOperator_norm_sq_eq_one_sub_sourceCosine_norm_sq
 /-- **The exact singular-value value in Proposition 4.1 at the inherited
 compact, matched-defect scope.**  The direct rotation realizes the principal
 chord `2 sin(theta_n / 2)` at every approximation-number index. -/
-theorem Proposition4_1_compact_nonacute_directRotationValues
+theorem Proposition4_1_compact_nonacute_directRotationValues_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (_hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
@@ -308,7 +308,7 @@ theorem Proposition4_1_compact_nonacute_directRotationValues
 
 /-- **Proposition 4.1 with both printed formulations and the inherited compact,
 matched-defect scope in one declaration.** -/
-theorem Proposition4_1_compact_nonacute
+theorem Proposition4_1_compact_nonacute_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
@@ -331,15 +331,15 @@ theorem Proposition4_1_compact_nonacute
               DavisKahan.projection U) n ≤
           ContinuousLinearMap.approximationNumber
             ((1 - W) ∘L DavisKahan.projection U) n := by
-  refine ⟨Proposition4_1_compact_orthonormalVectors U V hcompact W hWunitary hWmap,
+  refine ⟨Proposition4_1_compact_orthonormalVectors_complex U V hcompact W hWunitary hWmap,
     ?_, fun n => ?_⟩
-  · exact Proposition4_1_compact_nonacute_directRotationValues
+  · exact Proposition4_1_compact_nonacute_directRotationValues_complex
       U V hcompact J W hWunitary hWmap
   · exact DavisKahan.Section4.proposition4_1_nonacute_restrictedDisplacement_approximationNumbers
       U V J W hWunitary hWmap n
 
 /-- **Corollary 4.1 at the inherited compact, matched-defect scope.** -/
-theorem Corollary4_1_compact_nonacute
+theorem Corollary4_1_compact_nonacute_complex
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (_hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))

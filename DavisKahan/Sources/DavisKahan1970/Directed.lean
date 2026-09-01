@@ -13,7 +13,7 @@ Theorem 6.3 is printed "for every unitarily invariant norm".  The repository's
 complex directed endpoints
 (`…ExactTanTheta.theorem6_3_infiniteTrial_source_ideal` and its finite-trial
 siblings) are stated at `KyFanDominantIdealFamily (𝕜 := ℂ)`, while the real
-endpoint `tanTheta_directed_paperUINorm_real` is stated at the paper's own
+endpoint `tanTheta_directed_bounded_paperUINorm_real` is stated at the paper's own
 `PaperUnitaryInvariantNorm`.  This module supplies the missing complex half, so
 the two scalar fields carry the same norm abstraction.
 
@@ -69,8 +69,8 @@ sequence, concludes its membership, and gives `δ N(tan Θ₀) ≤ N(R)`.
 The trial space carries no dimension hypothesis and the printed strict-rank
 comparison is not assumed; both are recorded on the ideal-family endpoints as
 already-inert, so dropping them strengthens rather than narrows.  This is the
-exact complex counterpart of `tanTheta_directed_paperUINorm_real`. -/
-theorem tanTheta_directed_paperUINorm
+exact complex counterpart of `tanTheta_directed_bounded_paperUINorm_real`. -/
+theorem tanTheta_directed_bounded_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
     (V Z : Submodule ℂ H) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
@@ -116,10 +116,10 @@ to the unwanted exact subspace lies in `[α + δ, ∞)`, and the conclusion is
 `δ N(tan Θ₀) ≤ N(R)` for the paper's norm class, with the tangent representative
 exhibited and its membership concluded.
 
-Grounded on `tanTheta_directed_paperUINorm`; the spectral placement is converted
+Grounded on `tanTheta_directed_bounded_paperUINorm_complex`; the spectral placement is converted
 to the form bounds by the same two `SpectralOrder.Complex` lemmas the ideal-family
 endpoint `theorem6_3_infiniteTrial_source_ideal` uses. -/
-theorem tanTheta_directed_paperUINorm_spectral
+theorem tanTheta_directed_bounded_spectralGap_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
     (V Z : Submodule ℂ H) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
@@ -152,7 +152,7 @@ theorem tanTheta_directed_paperUINorm_spectral
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ := fun y hy =>
     SpectralOrder.Complex.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
       hT (hV.orthogonalComplement).1 hUnwantedSpectrum hy
-  exact tanTheta_directed_paperUINorm N T hT V Z hV hdelta hCompressionUpper
+  exact tanTheta_directed_bounded_paperUINorm_complex N T hT V Z hV hdelta hCompressionUpper
     hUnwantedLower hResidual
 
 end

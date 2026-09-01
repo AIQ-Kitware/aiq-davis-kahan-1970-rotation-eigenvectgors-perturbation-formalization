@@ -154,7 +154,7 @@ theorem paperHilbertSchmidt_complete_real
     rw [paperHilbertSchmidtNorm_complexify]
     exact hN m n hm hn
   obtain ⟨Lc, hLc, hconvC⟩ :=
-    paperHilbertSchmidt_complete Ac hAc hcauchyC
+    paperHilbertSchmidt_complete_complex Ac hAc hcauchyC
   have hOp : Tendsto Ac atTop (𝓝 Lc) :=
     tendsto_opNorm_of_paperHilbertSchmidt Ac Lc hAc hLc hconvC
   have hreal : MapsRealCopy Lc :=
@@ -188,7 +188,7 @@ theorem isPaperHilbertSchmidt_add_real
     IsPaperHilbertSchmidt (A + B) := by
   rw [← isPaperHilbertSchmidt_complexify_iff]
   rw [complexify_add]
-  exact isPaperHilbertSchmidt_add
+  exact isPaperHilbertSchmidt_add_complex
     ((isPaperHilbertSchmidt_complexify_iff A).2 hA)
     ((isPaperHilbertSchmidt_complexify_iff B).2 hB)
 
@@ -207,7 +207,7 @@ theorem paperHilbertSchmidtNorm_add_le_real
           rw [complexify_add]
     _ ≤ paperHilbertSchmidtNorm (complexify A) +
           paperHilbertSchmidtNorm (complexify B) :=
-      paperHilbertSchmidtNorm_add_le
+      paperHilbertSchmidtNorm_add_le_complex
         ((isPaperHilbertSchmidt_complexify_iff A).2 hA)
         ((isPaperHilbertSchmidt_complexify_iff B).2 hB)
     _ = paperHilbertSchmidtNorm A + paperHilbertSchmidtNorm B := by

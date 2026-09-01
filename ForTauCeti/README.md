@@ -28,10 +28,10 @@ Mathlib      TauCeti
   headers, `retired/Spectra.UPSTREAM.md`, and the historical engineering records.
 - Tau Ceti is a pinned Lake dependency, materialised under `.lake/packages`. An
   editable checkout is an optional explicit input (`--tauceti-root` /
-  `TAUCETI_ROOT`); this repository contains no submodules. Maintained
-  implementations are edited here.
+  `TAUCETI_ROOT`). Coordination repositories under `submodules/` are not build
+  dependencies. Maintained implementations are edited here.
 
-The import firewall is enforced by `scripts/check_dependency_layers.py`.
+The import firewall is enforced by `dev/policy/import-layers.yaml`.
 
 ## Namespace and API ownership
 
@@ -111,8 +111,8 @@ is source fidelity rather than reusable API design.
 module/cluster inventory. Generated and checkable artifacts own mutable status:
 
 ```bash
-python3 scripts/check_dependency_layers.py
-python3 scripts/check_expose_ratchet.py --check
+aiq-lean imports check dev/policy/import-layers.yaml
+aiq-lean ratchet check dev/policy/ratchet.yaml
 python3 scripts/check_tauceti_roadmap_topics.py
 python3 scripts/check_tauceti_readiness.py
 python3 scripts/derive_tauceti_submission_ladder.py --check

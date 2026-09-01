@@ -66,14 +66,14 @@ and `theorem8_1_lowerSymmetricGaugeRepulsion_angle_source`, quantified over
 stronger than any single gauge inequality and are exported too.  The paper's
 increasing index order is available as the `..._rev_source` wrappers.
 
-**Theorem 8.2.**  `theorem8_2_source` is the whole printed theorem: both
+**Theorem 8.2.**  `theorem8_2_source_complex` is the whole printed theorem: both
 `sin 2Θ` estimates and the strict quarter angle, under either printed smallness
 alternative and the Section 1 standing convention (1.5).  The two alternatives
 are separately available, and so is the strongest dimension-free form:
 
-* `theorem8_2_branch_source_directed` -- `directedGap P Q < √2/2` from the
+* `theorem8_2_branch_source_directed_complex` -- `directedGap P Q < √2/2` from the
   explicit printed hypotheses **alone**, with no dimension convention.  This is
-  *not* superseded by `theorem8_2_source`; see `Section8SourceTheorem82.lean`
+  *not* superseded by `theorem8_2_source_complex`; see `Section8SourceTheorem82.lean`
   for why the symmetric reading needs a standing convention and why (1.5) at
   either reading does not by itself supply one.
 * `theorem8_2_branch_source_maximalAngle_lt_of_crossedDefects` -- the printed
@@ -95,12 +95,12 @@ namespace Section8
 
 /-! ### Theorem 8.2
 
-`theorem8_2_branch_source_directed` is the strongest statement obtainable from
+`theorem8_2_branch_source_directed_complex` is the strongest statement obtainable from
 the explicit printed hypotheses; the `maximalAngle` forms add the Section 1
 standing convention (1.5) and deliver the printed `Θ < π/4`.  The distinction is
 deliberate and must not be collapsed. -/
 
-/-! `theorem8_2_perturbationHalfGap_source` and `theorem8_2_residualHalfGap_source`
+/-! `theorem8_2_perturbationHalfGap_source_complex` and `theorem8_2_residualHalfGap_source_complex`
 need no alias: they are declared in this namespace by
 `Sources/DavisKahan1970/Section8/Theorem82Branch.lean`. -/
 
@@ -120,7 +120,7 @@ alternative gives `directedGap P Q < √2/2`.  This is the strongest conclusion
 available from the explicit printed hypotheses alone, and it is deliberately
 distinct from the `maximalAngle` forms, which add the Section 1 standing
 convention (1.5) to deliver the printed `Θ < π/4`. -/
-alias theorem8_2_branch_source_directed :=
+alias theorem8_2_branch_source_directed_complex :=
   theorem8_2_branch_source
 
 /-- **Krein's self-adjoint completion with the exact restriction norm**, the one

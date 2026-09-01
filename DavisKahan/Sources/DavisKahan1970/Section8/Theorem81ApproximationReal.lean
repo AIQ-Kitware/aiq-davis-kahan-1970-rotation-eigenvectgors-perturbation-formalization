@@ -39,7 +39,7 @@ what makes the transport below exact:
 
 The one thing this module does *not* do is re-elaborate the Weyl step
 `approximationNumber_mono_of_form_le` over `ℝ`.  That step squares through
-`TauCeti.ApproximationNumber.approximationNumber_gramOperator`, whose whole
+`TauCeti.ApproximationNumber.approximationNumber_gramOperator_complex`, whose whole
 layer is defined only over `ℂ` (see the docstring of
 `Section8/CompressionApproximation.lean`), and descending the finished
 inequality is both shorter and lossless.

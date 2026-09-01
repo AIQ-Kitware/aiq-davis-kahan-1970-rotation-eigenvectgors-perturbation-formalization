@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Sol
 -/
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedExact
+import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedReducing
 import DavisKahan.Sources.DavisKahan1970.SineTheta.ProjectionBlocks
 import DavisKahan.InfiniteDimensional.DoubleAngle
 import DavisKahan.Geometry.Polar.DirectRotation
@@ -259,7 +260,7 @@ reducing reflection `Z` of `A+B`, and the separated form bounds.  Membership of
 
 The canonical spectral cutoffs, pole exclusion, directed residual estimate,
 and both-corner Lemma-6.1 assembly are all internal. -/
-theorem tanTwoTheta_unbounded_ambient_paperUINorm_exact
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     {A : G →ₗ.[ℂ] G} {B Z : G →L[ℂ] G} {a b c : ℝ}
     (hA : IsSelfAdjoint A)
@@ -386,6 +387,169 @@ theorem tanTwoTheta_unbounded_ambient_paperUINorm_exact
   refine ⟨hCC, hUI.1, ?_⟩
   nlinarith [hUI.2]
 
+
+/-! ### The same theorem at an arbitrary reducing subspace
+
+`TanTwoThetaUnboundedReducing.lean` removes the spectral selection of the trial
+subspace from the pole exclusion.  The block assembly above never used it, so
+the ambient endpoint restates verbatim; only the three previously spectral
+`have`s change.  These live here rather than in that module because the assembly
+lemmas they use are private to this file. -/
+
+section AmbientReducing
+
+variable {A : G →ₗ.[ℂ] G} {B Z : G →L[ℂ] G} {U : Submodule ℂ G}
+  [U.HasOrthogonalProjection] {a b : ℝ}
+
+variable (hA : IsSelfAdjoint A) (hred : TauCeti.LinearPMap.ReducesSubspace A U)
+  (hB : TauCeti.IsOddFor U B)
+  (hZsa : IsSelfAdjoint Z) (hZ2 : Z * Z = 1)
+  (hZdom : TauCeti.LinearPMap.MapsDomainTo A A Z)
+  (hZcomm : ∀ x : A.domain,
+    A ⟨Z (x : G), hZdom x⟩ + B (Z (x : G)) = Z (A x) + Z (B (x : G)))
+  (hUa : ∀ x : A.domain, (x : G) ∈ U →
+    RCLike.re ⟪A x, (x : G)⟫_ℂ ≤ a * ‖(x : G)‖ ^ 2)
+  (hUb : ∀ x : A.domain, (x : G) ∈ Uᗮ →
+    b * ‖(x : G)‖ ^ 2 ≤ RCLike.re ⟪A x, (x : G)⟫_ℂ)
+  (hab : a < b)
+
+include hA hred hB hZsa hZ2 hZdom hZcomm hUa hUb hab
+
+/-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form, at an arbitrary
+reducing subspace**, on the block representative.
+
+`δ N(tan 2Θ) ≤ 2 N(B)` with the whole perturbation on the right.  This is
+`tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex` with the
+spectral selection of `U` removed. -/
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_complex
+    (N : PaperUnitaryInvariantNorm) (hBsa : IsSelfAdjoint B) (hBmem : N.Mem B) :
+    IsUnit (U.diagonalPart Z * U.diagonalPart Z) ∧
+      N.Mem (unboundedReflectionTangent U Z) ∧
+      (b - a) * N.gauge (unboundedReflectionTangent U Z) ≤ 2 * N.gauge B := by
+  have hCC := isUnit_diagonalPart_sq_reducing_exact hA hred hB hZsa hZ2 hZdom
+    hZcomm hUa hUb hab
+  have hcorner := gap_mul_kyFan_reflectionTangentCorner_le_two_mul_kyFan_reducing
+    hA hred hB hZsa hZ2 hZdom hZcomm hUa hUb hab
+  set T : G →L[ℂ] G := unboundedReflectionTangent U Z with hTdef
+  have hTodd : TauCeti.IsOddFor U T :=
+    isOddFor_unboundedReflectionTangent_exact (U := U) (Z := Z) hCC
+  have hTskew : T.adjoint = -T :=
+    adjoint_unboundedReflectionTangent_eq_neg_exact (U := U) (Z := Z) hZsa hZ2 hCC
+  have hhalf : 0 < (b - a) / 2 := by linarith
+  have hcnorm : ‖((((b - a) / 2 : ℝ)) : ℂ)‖ = (b - a) / 2 := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hhalf]
+  have h₀ : ∀ k : ℕ,
+      kyFanApproximationGauge k (paperProjectionBlock Uᗮ U
+          (((((b - a) / 2 : ℝ)) : ℂ) • T)) ≤
+        kyFanApproximationGauge k (paperProjectionBlock Uᗮ U B) := by
+    intro k
+    rw [projectionBlock_smul_unboundedAmbientExact,
+      kyFanApproximationGauge_smul, hcnorm]
+    rw [(paperProjectionBlock_same_compression Uᗮ U T).kyFanApproximationGauge_eq k,
+      (paperProjectionBlock_same_compression Uᗮ U B).kyFanApproximationGauge_eq k]
+    change ((b - a) / 2) * kyFanApproximationGauge k (reflectionTangentCorner U Z) ≤
+      kyFanApproximationGauge k (reflectionResidualCorner U B)
+    linarith [hcorner k]
+  have h₁ : ∀ k : ℕ,
+      kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ
+          (((((b - a) / 2 : ℝ)) : ℂ) • T)) ≤
+        kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ B) := by
+    intro k
+    rw [projectionBlock_smul_unboundedAmbientExact,
+      kyFanApproximationGauge_smul, hcnorm,
+      kyFan_upper_eq_lower_of_skewAdjoint_unboundedAmbientExact T hTskew k,
+      kyFan_upper_eq_lower_of_selfAdjoint_unboundedAmbientExact B hBsa k]
+    have hk := h₀ k
+    rw [projectionBlock_smul_unboundedAmbientExact,
+      kyFanApproximationGauge_smul, hcnorm] at hk
+    exact hk
+  have hcombine := paperLemma61_all_kyFan Uᗮ U
+    (((((b - a) / 2 : ℝ)) : ℂ) • T)
+    (((((b - a) / 2 : ℝ)) : ℂ) • T) B B h₀ h₁
+  have hpairT : paperDiagonalPair Uᗮ U T = T :=
+    paperDiagonalPair_orthogonal_eq_self_of_isOddFor_unboundedAmbientExact hTodd
+  have hpairB : paperDiagonalPair Uᗮ U B = B :=
+    paperDiagonalPair_orthogonal_eq_self_of_isOddFor_unboundedAmbientExact hB
+  have hwhole : ∀ k : ℕ,
+      (b - a) * kyFanApproximationGauge k T ≤ 2 * kyFanApproximationGauge k B := by
+    intro k
+    have h := hcombine k
+    have hsumT :
+        paperProjectionBlock Uᗮ U (((((b - a) / 2 : ℝ)) : ℂ) • T) +
+          paperProjectionBlock Uᗮᗮ Uᗮ (((((b - a) / 2 : ℝ)) : ℂ) • T) =
+        ((((b - a) / 2 : ℝ)) : ℂ) • T := by
+      rw [projectionBlock_smul_unboundedAmbientExact,
+        projectionBlock_smul_unboundedAmbientExact, ← smul_add]
+      change (((((b - a) / 2 : ℝ)) : ℂ) • paperDiagonalPair Uᗮ U T) = _
+      rw [hpairT]
+    have hsumB :
+        paperProjectionBlock Uᗮ U B + paperProjectionBlock Uᗮᗮ Uᗮ B = B := by
+      change paperDiagonalPair Uᗮ U B = B
+      exact hpairB
+    rw [hsumT, hsumB, kyFanApproximationGauge_smul, hcnorm] at h
+    linarith
+  have hscaled : ∀ k : ℕ,
+      ((b - a) / 2) * kyFanApproximationGauge k T ≤ kyFanApproximationGauge k B := by
+    intro k
+    linarith [hwhole k]
+  have hUI := N.mul_gauge_le_of_all_mul_kyFan_le hhalf hBmem hscaled
+  refine ⟨hCC, hUI.1, ?_⟩
+  nlinarith [hUI.2]
+
+
+end AmbientReducing
+
+
+/-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form, at an arbitrary
+reducing subspace, on the paper's angle operator.**
+
+The endpoint the source states: `A` self-adjoint and possibly unbounded, `U` any
+subspace reducing `A` with the form at most `a` on `U` and at least `b` on `Uᗮ`,
+`B` a bounded self-adjoint perturbation off-diagonal for that splitting, `V`
+reducing `A + B`.  Then
+
+`(b − a) N(|tan 2Θ|) ≤ 2 N(B)`
+
+for every source unitarily invariant norm, with `Θ` the angle between `U` and
+`V` and each ambient principal angle counted with its ambient multiplicity.
+
+The first component is the **derived** pole exclusion `cos 2θ ≠ 0` on the angle
+spectrum, which Section 7 proves rather than assumes; no branch is selected, and
+`|tan 2Θ|` is what a unitarily invariant norm sees past a quarter turn. -/
+theorem tanTwoTheta_ambient_unbounded_reducing_paperUINorm_complex
+    (N : PaperUnitaryInvariantNorm)
+    {A : G →ₗ.[ℂ] G} {B : G →L[ℂ] G} {a b : ℝ}
+    {U : Submodule ℂ G} [U.HasOrthogonalProjection]
+    (V : Submodule ℂ G) [V.HasOrthogonalProjection]
+    (hA : IsSelfAdjoint A) (hred : TauCeti.LinearPMap.ReducesSubspace A U)
+    (hBsa : IsSelfAdjoint B) (hB : TauCeti.IsOddFor U B)
+    (hV : DavisKahan.ReflectionIntertwines A B V)
+    (hUa : ∀ x : A.domain, (x : G) ∈ U →
+      RCLike.re ⟪A x, (x : G)⟫_ℂ ≤ a * ‖(x : G)‖ ^ 2)
+    (hUb : ∀ x : A.domain, (x : G) ∈ Uᗮ →
+      b * ‖(x : G)‖ ^ 2 ≤ RCLike.re ⟪A x, (x : G)⟫_ℂ)
+    (hab : a < b) (hBmem : N.Mem B) :
+    (∀ t ∈ spectrum ℝ (TauCeti.DavisKahanExt.paperAngleOperatorC U V),
+        Real.cos (2 * t) ≠ 0) ∧
+      N.Mem (TauCeti.DavisKahanExt.paperAbsTanTwoAngleOperatorC U V) ∧
+      (b - a) * N.gauge
+          (TauCeti.DavisKahanExt.paperAbsTanTwoAngleOperatorC U V) ≤
+        2 * N.gauge B := by
+  obtain ⟨hunit, hmem, hle⟩ :=
+    tanTwoTheta_ambient_unbounded_blockRepresentative_reducing_paperUINorm_complex
+      hA hred hB (TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V)
+      (TauCeti.DavisKahan.reflectionOperator_mul_self_complex V)
+      hV.mapsDomain hV.commutes hUa hUb hab N hBsa hBmem
+  have hcos := DavisKahan.cos_two_ne_zero_of_isUnit_diagonalPart_reflection_sq
+    U V hunit
+  have hgauge := DavisKahan.extendedGauge_unboundedReflectionTangent_complex
+    U V N hcos
+  refine ⟨hcos, ?_, ?_⟩
+  · unfold PaperUnitaryInvariantNorm.Mem at hmem ⊢
+    rwa [← hgauge]
+  · unfold PaperUnitaryInvariantNorm.gauge at hle ⊢
+    rwa [← hgauge]
+
 /-! ### The subspace-first interface
 
 The theorem above asks its caller for a reflection `Z` together with four facts
@@ -409,9 +573,9 @@ proved here. -/
 /-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form, taking the reducing
 subspace rather than a reflection witness.**
 
-`tanTwoTheta_unbounded_ambient_paperUINorm_exact` with `Z = V.reflectionOperator`
+`tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex` with `Z = V.reflectionOperator`
 and with `Z` self-adjoint and involutive supplied by the library. -/
-theorem tanTwoTheta_unbounded_ambient_subspace_paperUINorm
+theorem tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     {A : G →ₗ.[ℂ] G} {B : G →L[ℂ] G} {a b c : ℝ}
     (V : Submodule ℂ G) [V.HasOrthogonalProjection]
@@ -440,7 +604,7 @@ theorem tanTwoTheta_unbounded_ambient_subspace_paperUINorm
         (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic)
         (V.reflectionOperator)) ≤
         2 * N.gauge B :=
-  tanTwoTheta_unbounded_ambient_paperUINorm_exact N hA hBsa hB
+  tanTwoTheta_ambient_unbounded_blockRepresentative_paperUINorm_complex N hA hBsa hB
     (TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V)
     (TauCeti.DavisKahan.reflectionOperator_mul_self_complex V)
     hV.mapsDomain hV.commutes hUa hUb hab hBmem
@@ -448,22 +612,22 @@ theorem tanTwoTheta_unbounded_ambient_subspace_paperUINorm
 /-- **Davis--Kahan 1970, `tan 2Θ`, unbounded ambient form, on the paper's angle
 operator.**
 
-The same theorem as `tanTwoTheta_unbounded_ambient_subspace_paperUINorm`, with the
+The same theorem as `tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex`, with the
 proof's block tangent replaced by the paper's ambient `|tan 2Θ|`.  The two have
 the same approximation numbers -- `unboundedReflectionTangent U J_V = Ξ · J_U`
 with `J_U` a self-adjoint unitary, and `|Ξ| = |tan 2Θ|` -- so every source
 unitarily invariant norm sees them identically; see
-`DavisKahan.extendedGauge_unboundedReflectionTangent`.
+`DavisKahan.extendedGauge_unboundedReflectionTangent_complex`.
 
 **No pole hypothesis is asked of the caller.**  The transport needs `cos 2θ ≠ 0`
 on the angle spectrum, but that is not an independent assumption here: the
 ordered gap already forces the reflection's diagonal block to be invertible --
 that is the first component of
-`tanTwoTheta_unbounded_ambient_subspace_paperUINorm` -- and
+`tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex` -- and
 `DavisKahan.cos_two_ne_zero_of_isUnit_diagonalPart_reflection_sq` turns that unit
 into pole exclusion.  No branch is chosen either: principal angles may exceed
 `π/4`, and `|tan 2Θ|` is what a norm sees there. -/
-theorem tanTwoTheta_unbounded_ambient_paperAngle_paperUINorm
+theorem tanTwoTheta_ambient_unbounded_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     {A : G →ₗ.[ℂ] G} {B : G →L[ℂ] G} {a b c : ℝ}
     (V : Submodule ℂ G) [V.HasOrthogonalProjection]
@@ -486,11 +650,11 @@ theorem tanTwoTheta_unbounded_ambient_paperAngle_paperUINorm
         (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) V) ≤
         2 * N.gauge B := by
   obtain ⟨hunit, hmem, hle⟩ :=
-    tanTwoTheta_unbounded_ambient_subspace_paperUINorm N V hA hBsa hB hV hUa hUb
+    tanTwoTheta_ambient_unbounded_blockRepresentative_derivedReflection_paperUINorm_complex N V hA hBsa hB hV hUa hUb
       hab hBmem
   have hcos := DavisKahan.cos_two_ne_zero_of_isUnit_diagonalPart_reflection_sq
     (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) V hunit
-  have hgauge := DavisKahan.extendedGauge_unboundedReflectionTangent
+  have hgauge := DavisKahan.extendedGauge_unboundedReflectionTangent_complex
     (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) V N hcos
   refine ⟨?_, ?_⟩
   · unfold PaperUnitaryInvariantNorm.Mem at hmem ⊢

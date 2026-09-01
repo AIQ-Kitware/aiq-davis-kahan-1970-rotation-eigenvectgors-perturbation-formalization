@@ -53,7 +53,7 @@ every unitary-invariant norm.
 
 ## What is compiled, at which scope
 
-* `tanTwoTheta_uiNorm` — **the source norm scope of equation (7.6)**: for
+* `tanTwoTheta_principalBranch_finiteDimensional_uiNorm_rclike` — **the source norm scope of equation (7.6)**: for
   every rectangular unitarily invariant norm,
   `(b - a) · N(tan 2Θ₀) ≤ 2 · N(H)`, in the finite-dimensional
   graph-coordinate formulation, proved by the paper's paired-singular-vector
@@ -62,8 +62,8 @@ every unitary-invariant norm.
   the double-angle-tangent singular values is admissible.  Quarter-acuteness
   enters as the hypothesis that the graph coordinate is a strict
   contraction; for spectral subspaces it is discharged by the acute-branch
-  conclusion of `tanTwoTheta_sharp_opNorm`.
-* `tanTwoTheta_sharp_opNorm` — the sharp subspace-level theorem at operator
+  conclusion of `tanTwoTheta_sharpness_opNorm_rclike`.
+* `tanTwoTheta_sharpness_opNorm_rclike` — the sharp subspace-level theorem at operator
   norm, on an **arbitrary inner-product space over any `RCLike` field** (no
   finite-dimensionality, no completeness): form gap `[a, b]`-split on the
   `T`-invariant pair, mirrored bounds for the perturbed pair, off-diagonal
@@ -78,14 +78,14 @@ every unitary-invariant norm.
   subspaces, under an explicit quarter-acuteness hypothesis and with the
   non-sharp extended-cosine denominator `1 - 2 g²`.
 
-* `tanTwoTheta_uiIdeal_infinite` — **the infinite-dimensional sharp
+* `tanTwoTheta_principalBranch_finiteSubspace_idealFamily_rclike` — **the infinite-dimensional sharp
   ideal form**: on an arbitrary `RCLike` Hilbert space with a
   finite-dimensional invariant configuration (finite-dimensional `U`,
   graph coordinate supported on `U`), every Fan-dominant unitary-invariant
   ideal family transports membership of the off-diagonal perturbation to
   the `tan 2Θ₀` representative with the sharp constant:
   `(b - a) · N(tan 2Θ₀) ≤ 2 · N(H)`.  The Ky Fan approximation-number
-  root `tanTwoTheta_kyFan_infinite` holds with no ideal hypothesis at
+  root `tanTwoTheta_principalBranch_finiteSubspace_kyFan_rclike` holds with no ideal hypothesis at
   all.  Proof: compression to the finite carrier `U ⊔ T''U` and
   approximation-number transport.
 
@@ -129,11 +129,11 @@ for a fully off-diagonal symmetric perturbation `H` across the form gap
 `[a, b]`, where `tan 2Θ₀` is any operator whose singular values are the
 double-angle tangents of the principal angles between `U` and the perturbed
 invariant graph subspace. -/
-alias tanTwoTheta_uiNorm := DavisKahanTheory.tanTwoTheta0_offDiagonal_le
+alias tanTwoTheta_principalBranch_finiteDimensional_uiNorm_rclike := DavisKahanTheory.tanTwoTheta0_offDiagonal_le
 
-/-- The Ky Fan prefix root of `tanTwoTheta_uiNorm`: equation (7.6) summed
+/-- The Ky Fan prefix root of `tanTwoTheta_principalBranch_finiteDimensional_uiNorm_rclike`: equation (7.6) summed
 over paired singular vectors. -/
-alias tanTwoTheta_kyFan := DavisKahanTheory.kyFan_tanTwoTheta0_offDiagonal_le
+alias tanTwoTheta_principalBranch_finiteDimensional_kyFan_rclike := DavisKahanTheory.kyFan_tanTwoTheta0_offDiagonal_le
 
 /-- The paired-singular-vector scalar inequality at the heart of the source
 argument. -/
@@ -147,18 +147,18 @@ every Fan-dominant unitary-invariant ideal** (finite-dimensional invariant
 configuration): membership of the off-diagonal perturbation in the ideal
 transports to any `tan 2Θ₀` representative, with
 `(b - a) · N(tan 2Θ₀) ≤ 2 · N(H)`. -/
-alias tanTwoTheta_uiIdeal_infinite :=
+alias tanTwoTheta_principalBranch_finiteSubspace_idealFamily_rclike :=
   DavisKahanTheory.tanTwoTheta0_offDiagonal_mem_and_gauge_le_of_finiteDimensional_invariantSubspace
 
 /-- The Ky Fan approximation-number root of the infinite-dimensional sharp
 form; holds for every `k` with no ideal hypothesis. -/
-alias tanTwoTheta_kyFan_infinite :=
+alias tanTwoTheta_principalBranch_finiteSubspace_kyFan_rclike :=
   DavisKahanTheory.kyFan_tanTwoTheta0_offDiagonal_le_of_finiteDimensional_invariantSubspace
 
 /-- Representative-free infinite-dimensional Ky Fan root, phrased directly
 in the double-angle tangents of the graph-coordinate approximation
 numbers. -/
-alias tanTwoTheta_kyFan_doubleAngleTangent_infinite :=
+alias tanTwoTheta_doubleAngleTangent_finiteSubspace_kyFan_rclike :=
   DavisKahanTheory.kyFan_doubleAngleTangent_offDiagonal_le_of_finiteDimensional_invariantSubspace
 
 /-- The Ky Fan variational bound for approximation-number prefixes: the
@@ -174,7 +174,7 @@ norm, with the Section 8 acute branch.**  Ambient scope: any inner-product
 space over any `RCLike` field.  Conclusion: `sin² θ_max < 1/2` and
 `(b - a) sin 2θ_max ≤ 2 ε cos 2θ_max`, i.e. `tan 2θ_max ≤ 2ε/(b - a)` with
 the strict quarter-turn branch. -/
-alias tanTwoTheta_sharp_opNorm := TauCeti.tan_two_theta_norm_sub_le
+alias tanTwoTheta_sharpness_opNorm_rclike := TauCeti.tan_two_theta_norm_sub_le
 
 /-- **Spectral repulsion for off-diagonal perturbations**: no eigenvalue
 enters the open form gap.  This is the source's reason the selected branch
@@ -193,12 +193,12 @@ a derived branch conclusion. -/
 
 /-- Unbounded operator-norm `tan 2Θ` estimate with the extended-cosine
 denominator, under explicit quarter-acuteness. -/
-alias unbounded_tanTwoTheta_opNorm :=
+alias tanTwoTheta_unbounded_opNorm_complex :=
   DavisKahan.tanTwoTheta_addBounded_of_spectrum_gap
 
 /-- Set-localized interval/exterior form of the unbounded operator-norm
 estimate. -/
-alias unbounded_tanTwoTheta_intervalExterior_opNorm :=
+alias tanTwoTheta_unbounded_intervalExterior_opNorm_complex :=
   DavisKahan.tanTwoTheta_addBounded_of_intervalExterior
 
 /-- The ideal-theoretic tangent companion of the reflected overlap block. -/
@@ -211,16 +211,16 @@ alias tanTwoThetaBlock_mem_and_gauge_le :=
   DavisKahan.tanTwoThetaIdealBlock_mem_and_gauge_le
 
 /-- Unbounded `tan 2Θ` estimate at rectangular ideal-gauge scope. -/
-alias unbounded_tanTwoTheta_gauge :=
+alias tanTwoTheta_unbounded_blockRepresentative_symmetricIdealFamily_complex :=
   DavisKahan.tanTwoTheta_addBounded_gauge_of_spectrum_gap
 
 /-- Unbounded `tan 2Θ` estimate for every source unitary-invariant ideal
 family. -/
-alias unbounded_tanTwoTheta_uiNorm :=
+alias tanTwoTheta_unbounded_blockRepresentative_idealFamily_complex :=
   DavisKahan.tanTwoTheta_addBounded_unitaryInvariant_of_spectrum_gap
 
 /-- Set-localized interval/exterior form at unitary-invariant ideal scope. -/
-alias unbounded_tanTwoTheta_intervalExterior_uiNorm :=
+alias tanTwoTheta_unbounded_intervalExterior_blockRepresentative_idealFamily_complex :=
   DavisKahan.tanTwoTheta_addBounded_unitaryInvariant_of_intervalExterior
 
 end DavisKahan1970

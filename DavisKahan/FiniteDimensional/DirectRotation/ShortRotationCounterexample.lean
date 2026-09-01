@@ -9,7 +9,7 @@ import DavisKahan.FiniteDimensional.DirectRotation.QNorm
 # The short-rotation full-displacement claim is false
 
 This file certifies the refutation recorded in
-`dev/targeted-mathematical-repair-2026-07-21.md`: the transcribed
+the 2026-07-21 repair note (Git history): the transcribed
 Davis--Kahan Proposition 4.4 — *"over a real space, if every principal angle
 is at most `π/3` then the direct rotation minimizes every unitarily invariant
 norm of the full displacement `I - W` over unitaries `W` carrying `U` onto

@@ -19,7 +19,8 @@ OperatorUnitaryEquiv D.operator E.operator  →  MeasureEquiv D.base E.base.
 ```
 
 This is the **measure-class half** of uniqueness for the multiplicity classification.  Together
-with `operatorUnitaryEquiv_of_measureEquiv`, which goes the other way, it says the measure class
+with `operatorUnitaryEquiv_of_measureEquiv_complex`, which goes the other way, it says the measure
+class
 of a datum is exactly the part of the datum that the operator sees -- as far as measures go.
 The level sets are the other half; they are settled in
 `ForTauCeti/Analysis/InnerProductSpace/BorelCalculus/MultiplicityLevelUniqueness.lean`, which
@@ -178,7 +179,7 @@ theorem absolutelyContinuous_base_of_intertwines {D E : MultiplicityDatum ℂ}
 /-- **The measure class of a multiplicity datum is a unitary invariant.**
 
 This is the measure-class half of uniqueness for the multiplicity classification, and the
-converse of the measure half of `operatorUnitaryEquiv_of_measureEquiv`. -/
+converse of the measure half of `operatorUnitaryEquiv_of_measureEquiv_complex`. -/
 theorem measureEquiv_base_of_operatorUnitaryEquiv {D E : MultiplicityDatum ℂ}
     (h : OperatorUnitaryEquiv D.operator E.operator) : MeasureEquiv D.base E.base := by
   rw [operator_eq_mulLp_datumSymbol D, operator_eq_mulLp_datumSymbol E] at h

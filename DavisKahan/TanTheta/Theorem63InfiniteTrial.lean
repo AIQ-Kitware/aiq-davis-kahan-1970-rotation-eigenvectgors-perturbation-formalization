@@ -175,7 +175,7 @@ theorem approximationSingularValue_sineBlock_lt_one_of_finite
     have hb := approximationSingularValue_eq_finiteSourceSingularValue
       (theorem63DirectedSineBlock F V) ⟨n, hn⟩
     simpa using hb ▸ hlt
-  · have h0 := approximationSingularValue_eq_zero_of_finrank_le
+  · have h0 := approximationSingularValue_eq_zero_of_finrank_le_complex
       (Z := F) (theorem63DirectedSineBlock F V) (le_of_not_gt hn)
     rw [h0]
     exact one_pos

@@ -207,11 +207,11 @@ pending synthesis than the default allows; the instance is found at depth `3`. -
 set_option maxSynthPendingDepth 3
 
 /-! **Davis--Kahan 1970, Theorem 3.1 in the paper's multiplicity phrasing** is
-`TauCeti.DavisKahan1970.theorem3_1_spectralMultiplicity_classification`, in
+`TauCeti.DavisKahan1970.theorem3_1_spectralMultiplicity_classification_complex`, in
 `DavisKahan/Sources/DavisKahan1970/Section3Classification.lean`, together with its real
 analogue.  It is a wrapper over `twoProjection_operator_classification` below and the
 promoted spectral-multiplicity classification
-`TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv`; it lives with the other
+`TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv_complex`; it lives with the other
 source-facing Section 3 statements rather than here. -/
 
 /-- **Davis--Kahan 1970, Corollary 3.1 with the printed hypothesis, over a complex Hilbert

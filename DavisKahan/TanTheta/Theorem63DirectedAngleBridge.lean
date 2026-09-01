@@ -278,7 +278,7 @@ private theorem norm_directedSine_lt_one_of_all_singular_lt_one
     rw [happrox]
     exact h0
   · have hzero : finrank ℂ Z ≤ 0 := Nat.le_zero.mpr (Nat.eq_zero_of_not_pos hpos)
-    have happrox := approximationSingularValue_eq_zero_of_finrank_le
+    have happrox := approximationSingularValue_eq_zero_of_finrank_le_complex
       Z (directedSine Z V) hzero
     rw [approximationSingularValue_zero] at happrox
     rw [happrox]

@@ -3,7 +3,7 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
-import DavisKahan.Sources.DavisKahan1970.FullSineTheta
+import DavisKahan.Sources.DavisKahan1970.SineThetaSourceInventory
 
 /-!
 # Trusted-dependency audit for the literal paper sine-theta surface
@@ -27,14 +27,14 @@ dependencies in every result.
 #print axioms TauCeti.DavisKahan1970.directedSinAngle_real
 #print axioms TauCeti.DavisKahan1970.lemma6_1
 #print axioms TauCeti.DavisKahan1970.lemma6_2
-#print axioms TauCeti.DavisKahan1970.sinTheta_exactPaper
-#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_exactPaper
-#print axioms TauCeti.DavisKahan1970.sinTheta_real_exactPaper
-#print axioms TauCeti.DavisKahan1970.generalizedSinTheta_real_exactPaper
-#print axioms TauCeti.DavisKahan1970.Theorem6_1
+#print axioms TauCeti.DavisKahan1970.sinTheta_paperData_complex
+#print axioms TauCeti.DavisKahan1970.sinTheta_generalized_paperData_complex
+#print axioms TauCeti.DavisKahan1970.sinTheta_paperData_real
+#print axioms TauCeti.DavisKahan1970.sinTheta_generalized_paperData_real
+#print axioms TauCeti.DavisKahan1970.Theorem6_1_complex
 #print axioms TauCeti.DavisKahan1970.Theorem6_1_real
-#print axioms TauCeti.DavisKahan1970.Proposition6_1
-#print axioms TauCeti.DavisKahan1970.Theorem6_2
+#print axioms TauCeti.DavisKahan1970.Proposition6_1_complex
+#print axioms TauCeti.DavisKahan1970.Theorem6_2_complex
 #print axioms TauCeti.DavisKahan1970.Theorem6_2_real
 #print axioms TauCeti.DavisKahan1970.Theorem6_2_boundNorm_of_finiteRank
 #print axioms TauCeti.DavisKahan1970.Theorem6_2_real_boundNorm_of_finiteRank

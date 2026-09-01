@@ -35,7 +35,7 @@ The argument is the classical one, in three steps:
   (`Spectra.YosidaHille.isSelfAdjoint_to_surjective`,
   `Spectra.Resolvent.mem_resolventSet_of_im_ne_zero`) and that is what told us
   the criterion was needed here; per
-  `docs/planning/tauceti-adaptation-and-spectra-extraction.md`, theorem
+  the completed Tau Ceti adaptation, theorem
   selection is attributable even when the proof is independent.  The proof below
   was written against Mathlib's `LinearPMap` adjoint API and shares no lemma with
   Spectra's, which routes through the Cayley transform and Yosida--Hille.

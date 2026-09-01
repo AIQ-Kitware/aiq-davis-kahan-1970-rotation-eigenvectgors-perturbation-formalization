@@ -89,7 +89,7 @@ self-adjoint involution `2Q - 1`.  `hZdom`, `hZcomm` : `Z` preserves `D(A)` and
 commutes with `A + B` there — that is, `Q` reduces the perturbed operator.
 `hUa`, `hUb`, `hab` : the spectral separation `A ≤ a` on `𝔛₀`, `A ≥ b` on `𝔛₁`,
 `a < b`. -/
-theorem tanTwoTheta_unbounded_residual_opNorm
+theorem tanTwoTheta_unbounded_residual_opNorm_complex
     {A : H →ₗ.[ℂ] H} {B Z : H →L[ℂ] H} {a b c : ℝ} (hA : IsSelfAdjoint A)
     (hB : TauCeti.IsOddFor
       (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) B)
@@ -121,7 +121,7 @@ theorem tanTwoTheta_unbounded_residual_opNorm
 
 /-- The tangent form: on the trial subspace the denominator is nonzero, so the
 estimate can be divided through.  `‖sin 2Θ₀ x‖ / ‖cos 2Θ₀ x‖ ≤ 2 ‖B‖ / δ`. -/
-theorem tanTwoTheta_unbounded_residual_div
+theorem tanTwoTheta_unbounded_residual_div_complex
     {A : H →ₗ.[ℂ] H} {B Z : H →L[ℂ] H} {a b c : ℝ} (hA : IsSelfAdjoint A)
     (hB : TauCeti.IsOddFor
       (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) B)
@@ -142,7 +142,7 @@ theorem tanTwoTheta_unbounded_residual_div
         measurableSet_Iic).offDiagonalPart Z x‖ /
       ‖(TauCeti.LinearPMap.specRange hA (Set.Iic c)
         measurableSet_Iic).diagonalPart Z x‖ ≤ 2 * ‖B‖ / (b - a) := by
-  obtain ⟨htan, hpole⟩ := tanTwoTheta_unbounded_residual_opNorm hA hB hZsa hZ2
+  obtain ⟨htan, hpole⟩ := tanTwoTheta_unbounded_residual_opNorm_complex hA hB hZsa hZ2
     hZdom hZcomm hUa hUb hab hx
   have hδ : 0 < b - a := by linarith
   have hxpos : 0 < ‖x‖ := norm_pos_iff.mpr hx0

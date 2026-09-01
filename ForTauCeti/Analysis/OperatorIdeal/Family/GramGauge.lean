@@ -23,7 +23,8 @@ itself rather than some other Schatten exponent — the `p = ∞` and `p = 1` en
 
 The first is the C⋆-identity and already lives upstream as
 `TauCeti.ApproximationNumber.norm_gramOperator`.  This module supplies the second, which is
-not formal: it needs `aₙ(X⋆X) = aₙ(X)²` (`approximationNumber_gramOperator`) together with the
+not formal: it needs `aₙ(X⋆X) = aₙ(X)²` (`approximationNumber_gramOperator_complex`) together with
+the
 agreement of the Schatten-2 gauge with the basis-defined Hilbert--Schmidt gauge
 (`ContinuousLinearMap.schattenENorm_two`), and neither is arithmetic.
 
@@ -76,7 +77,7 @@ theorem nuclearENorm_gramOperator (X : E0 →L[ℂ] E1) :
       ∑' n : ℕ, ENNReal.ofReal (X.approximationNumber n) ^ (2 : ℝ) := by
     rw [ContinuousLinearMap.nuclearENorm]
     refine tsum_congr fun n => ?_
-    rw [approximationNumber_gramOperator X n,
+    rw [approximationNumber_gramOperator_complex X n,
       ← Real.rpow_natCast (X.approximationNumber n) 2,
       ← ENNReal.ofReal_rpow_of_nonneg (X.approximationNumber_nonneg n) (by norm_num)]
     norm_num

@@ -58,7 +58,7 @@ variable {H₂ : Type*} [NormedAddCommGroup H₂] [InnerProductSpace ℝ H₂]
 separability hypothesis on either space and no reality hypothesis on the base measures.
 
 The complex statement is confined to `ℂ` because the middle step
-`TauCeti.operatorUnitaryEquiv_of_measureEquiv` uses the complex `rnDerivL2Equiv` API.  That turns
+`TauCeti.operatorUnitaryEquiv_of_measureEquiv_complex` uses the complex `rnDerivL2Equiv` API.  That turns
 out not to matter here: the real model operator is multiplication by a *real valued* symbol, so
 it is the restriction to the real classes of the complex operator with the same symbol, and a
 real symbol commutes with pointwise conjugation.  The complex Radon--Nikodym unitary is
@@ -87,7 +87,7 @@ theorem sameSpectralMultiplicity_of_operatorUnitaryEquiv_real [CompleteSpace H�
 
 /-- **Spectral multiplicity data classify bounded self-adjoint operators on a separable real
 Hilbert space up to unitary equivalence.**  This is the real analogue of
-`TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv`. -/
+`TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv_complex`. -/
 theorem sameSpectralMultiplicity_iff_operatorUnitaryEquiv_real [CompleteSpace H₁]
     [TopologicalSpace.SeparableSpace H₁] (A : H₁ →L[ℝ] H₁) (B : H₂ →L[ℝ] H₂)
     (hA : IsSelfAdjoint A) :

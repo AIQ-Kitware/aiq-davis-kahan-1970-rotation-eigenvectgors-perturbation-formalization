@@ -52,7 +52,7 @@ The Weyl step `approximationNumber_mono_of_form_le` is stated over `ℂ` only, a
 the obstruction is *not* `CFC.sqrt` — that is available over any `RCLike` field
 once the three functional-calculus hypotheses of
 `ForTauCeti/Analysis/InnerProductSpace/OperatorModulus.lean` are carried.  It is
-the squaring step `TauCeti.ApproximationNumber.approximationNumber_gramOperator`
+the squaring step `TauCeti.ApproximationNumber.approximationNumber_gramOperator_complex`
 (`aₙ(X⋆X) = aₙ(X)²`), whose whole layer — `gramOperator`, `gramLinearPMap`,
 `gramSpectralPVM` — is defined only for `InnerProductSpace ℂ`, because it runs
 through the bounded projection-valued measure of a self-adjoint operator.  Since
@@ -133,7 +133,7 @@ dimension, while both sides of part (i) are positive (the `Pᗮ` form is at leas
 The proof is the factorization: `‖√S x‖² = Re ⟪x, S x⟫`, so the form hypothesis
 is exactly pointwise norm domination of the square roots, which
 `approximationNumber_le_of_norm_apply_le` converts into domination of their
-approximation numbers; then `approximationNumber_gramOperator` squares it back,
+approximation numbers; then `approximationNumber_gramOperator_complex` squares it back,
 since `S = (√S)⋆(√S)`.
 
 Because it avoids min-max over subspaces of a fixed dimension, it holds in
@@ -172,13 +172,13 @@ theorem approximationNumber_mono_of_form_le
   calc S.approximationNumber n
       = (gramOperator (CFC.sqrt S)).approximationNumber n := by rw [hgram hS]
     _ = (CFC.sqrt S).approximationNumber n ^ 2 :=
-        approximationNumber_gramOperator _ n
+        approximationNumber_gramOperator_complex _ n
     _ ≤ (CFC.sqrt T).approximationNumber n ^ 2 := by
         gcongr
         · exact _root_.ContinuousLinearMap.approximationNumber_nonneg _ _
         · exact _root_.ContinuousLinearMap.approximationNumber_le_of_norm_apply_le _ _ hle n
     _ = (gramOperator (CFC.sqrt T)).approximationNumber n :=
-        (approximationNumber_gramOperator _ n).symm
+        (approximationNumber_gramOperator_complex _ n).symm
     _ = T.approximationNumber n := by rw [hgram hT]
 
 end ComplexWeylStep

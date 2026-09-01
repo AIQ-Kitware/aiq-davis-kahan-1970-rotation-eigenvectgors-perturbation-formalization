@@ -246,6 +246,25 @@ noncomputable def reducingRestriction
     (A : E →ₗ.[𝕜] E) (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (hred : ReducesSubspace A U) :
     (reducingRestriction A U hred).domain = reducingRestrictionDomain A U := (rfl)
+/-- Membership in the restricted domain, stated without naming the intermediate
+domain submodule.  This is the form a consumer outside this module can use: the
+restricted operator's domain is `U`-vectors that already lay in `A.domain`. -/
+theorem mem_reducingRestriction_domain_iff
+    (A : E →ₗ.[𝕜] E) (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
+    (hred : ReducesSubspace A U) (x : U) :
+    x ∈ (reducingRestriction A U hred).domain ↔ (x : E) ∈ A.domain := Iff.rfl
+
+/-- **The reducing restriction acts by the ambient partial map**, read through
+the two coercions and indexed by an ambient-domain proof rather than by the
+restricted domain's subtype.  `coe_reducingRestrictionLinearMap` says the same
+about the underlying linear map; this is the partial-map form, and it is what a
+consumer needs to compute with a restriction it did not build. -/
+theorem coe_reducingRestriction_apply
+    (A : E →ₗ.[𝕜] E) (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
+    (hred : ReducesSubspace A U) (x : U) (hx : (x : E) ∈ A.domain) :
+    ((reducingRestriction A U hred
+        ⟨x, (mem_reducingRestriction_domain_iff A U hred x).mpr hx⟩ : U) : E) =
+      A ⟨(x : E), hx⟩ := (rfl)
 /-- A dense partial-map domain remains dense after restriction to a reducing
 subspace. -/
 theorem reducingRestriction_dense

@@ -954,7 +954,7 @@ noncomputable def theorem63DirectedTangent : Z →L[ℂ] H :=
 
 /-- Composing with the inclusion of the trial space does not move approximation
 singular values: the inclusion is an isometry with a norm-one left inverse. -/
-theorem approximationSingularValue_subtypeL_comp
+theorem approximationSingularValue_subtypeL_comp_complex
     (A : Z →L[ℂ] Z) (k : ℕ) :
     approximationSingularValue k (Z.subtypeL ∘L A) =
       approximationSingularValue k A := by
@@ -974,7 +974,7 @@ theorem approximationSingularValue_subtypeL_comp
 omit [Z.HasOrthogonalProjection] in
 /-- Above the dimension of the trial space every approximation singular value of
 a map out of it vanishes. -/
-theorem approximationSingularValue_eq_zero_of_finrank_le
+theorem approximationSingularValue_eq_zero_of_finrank_le_complex
     (A : Z →L[ℂ] H) {k : ℕ} (hk : finrank ℂ Z ≤ k) :
     approximationSingularValue k A = 0 := by
   refine approximationSingularValue_eq_zero_of_rank_le_nat
@@ -1043,7 +1043,7 @@ theorem hasTheorem63DirectedTangentApproximationNumbers_theorem63DirectedTangent
             (diagOp (finiteSourceRightSingularBasis
               (theorem63DirectedSineBlock Z V))
               (theorem63DirectedTangentDiagonal Z V)).toContinuousLinearMap :=
-        approximationSingularValue_subtypeL_comp Z _ k
+        approximationSingularValue_subtypeL_comp_complex Z _ k
       _ = (diagOp (finiteSourceRightSingularBasis
             (theorem63DirectedSineBlock Z V))
             (theorem63DirectedTangentDiagonal Z V)).singularValues k :=
@@ -1054,9 +1054,9 @@ theorem hasTheorem63DirectedTangentApproximationNumbers_theorem63DirectedTangent
             (finiteSourceRightSingularBasis (theorem63DirectedSineBlock Z V))
             htanti ht0 ⟨k, hk⟩
   · have hkge : finrank ℂ Z ≤ k := Nat.le_of_not_lt hk
-    rw [approximationSingularValue_eq_zero_of_finrank_le Z
+    rw [approximationSingularValue_eq_zero_of_finrank_le_complex Z
       (theorem63DirectedTangent Z V) hkge,
-      approximationSingularValue_eq_zero_of_finrank_le Z
+      approximationSingularValue_eq_zero_of_finrank_le_complex Z
         (theorem63DirectedSineBlock Z V) hkge]
     simp
 

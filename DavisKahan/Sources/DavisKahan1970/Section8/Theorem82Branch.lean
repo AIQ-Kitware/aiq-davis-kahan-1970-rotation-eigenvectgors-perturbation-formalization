@@ -132,7 +132,7 @@ The conclusion is the printed `Θ < π/4` in its directed form: every unit vecto
 of `P H` makes an angle strictly below `π/4` with `Q H`.  See the module
 docstring for why the symmetric projector gap is *not* what the printed
 statement can mean. -/
-theorem theorem8_2_perturbationHalfGap_source
+theorem theorem8_2_perturbationHalfGap_source_complex
     {A K : H →L[ℂ] H} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℂ H} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -327,7 +327,7 @@ theorem theorem8_2_perturbationHalfGap_source_angle_lt
     (hP : SpectrumIn A P (Set.Icc (beta - delta / 2) (alpha + delta / 2)))
     (hsmall : ‖K‖ < delta / 2) :
     Real.arcsin (directedGap P Q) < Real.pi / 4 := by
-  have h := theorem8_2_perturbationHalfGap_source hA hK hdelta hab hQ hQperp hPred hP
+  have h := theorem8_2_perturbationHalfGap_source_complex hA hK hdelta hab hQ hQperp hPred hP
     hsmall
   have h0 : (0 : ℝ) ≤ directedGap P Q := norm_nonneg _
   rw [← DavisKahan1970.Section8.arcsin_sqrt_two_div_two]
@@ -346,7 +346,7 @@ section ResidualAlternative
 strictly inside the quarter turn.**
 
 The hypotheses are the printed ones, identical to
-`theorem8_2_perturbationHalfGap_source` except that the smallness assumption is
+`theorem8_2_perturbationHalfGap_source_complex` except that the smallness assumption is
 the printed residual condition `‖R‖ < δ/2` in place of `‖H‖ < δ/2`.  `R` is the
 source residual (1.8), `R = (A + K) E₀ - E₀ A₀`.
 
@@ -359,8 +359,8 @@ The proof is the printed reduction.  Krein's theorem
 self-adjoint `K'` with the same first column and with `‖K'‖ = ‖R‖`; setting
 `A' := A + K - K'` leaves `A' + K' = A + K` and `A'|P = A|P`, so every printed
 hypothesis transfers verbatim and
-`theorem8_2_perturbationHalfGap_source` applies to `(A', K')`. -/
-theorem theorem8_2_residualHalfGap_source
+`theorem8_2_perturbationHalfGap_source_complex` applies to `(A', K')`. -/
+theorem theorem8_2_residualHalfGap_source_complex
     {A K : H →L[ℂ] H} (hA : IsSelfAdjointOperator A) (hK : IsSelfAdjointOperator K)
     {P Q : Submodule ℂ H} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     {alpha beta delta : ℝ} (hdelta : 0 < delta) (hab : beta ≤ alpha)
@@ -422,7 +422,7 @@ theorem theorem8_2_residualHalfGap_source
   have hQperp' : SpectrumIn (A' + K') Qᗮ (gapExterior beta alpha delta) := by
     rw [htotal]; exact hQperp
   -- the printed reduction to the perturbation-norm case
-  exact theorem8_2_perturbationHalfGap_source hA'sym hK'sym hdelta hab hQ' hQperp'
+  exact theorem8_2_perturbationHalfGap_source_complex hA'sym hK'sym hdelta hab hQ' hQperp'
     hA'red hA'spec hK'small
 
 /-- **The residual alternative in the printed scalar form.** -/
@@ -436,7 +436,7 @@ theorem theorem8_2_residualHalfGap_source_angle_lt
     (hP : SpectrumIn A P (Set.Icc (beta - delta / 2) (alpha + delta / 2)))
     (hRsmall : ‖residual (A + K) P.subtypeL (compressOperator P A)‖ < delta / 2) :
     Real.arcsin (directedGap P Q) < Real.pi / 4 := by
-  have h := theorem8_2_residualHalfGap_source hA hK hdelta hab hQ hQperp hPred hP
+  have h := theorem8_2_residualHalfGap_source_complex hA hK hdelta hab hQ hQperp hPred hP
     hRsmall
   have h0 : (0 : ℝ) ≤ directedGap P Q := norm_nonneg _
   rw [← DavisKahan1970.Section8.arcsin_sqrt_two_div_two]
@@ -460,8 +460,8 @@ theorem theorem8_2_branch_source
       ‖residual (A + K) P.subtypeL (compressOperator P A)‖ < delta / 2) :
     directedGap P Q < Real.sqrt 2 / 2 := by
   rcases hsmall with h | h
-  · exact theorem8_2_perturbationHalfGap_source hA hK hdelta hab hQ hQperp hPred hP h
-  · exact theorem8_2_residualHalfGap_source hA hK hdelta hab hQ hQperp hPred hP h
+  · exact theorem8_2_perturbationHalfGap_source_complex hA hK hdelta hab hQ hQperp hPred hP h
+  · exact theorem8_2_residualHalfGap_source_complex hA hK hdelta hab hQ hQperp hPred hP h
 
 end ResidualAlternative
 

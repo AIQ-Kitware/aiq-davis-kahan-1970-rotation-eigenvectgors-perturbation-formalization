@@ -332,7 +332,7 @@ This is the statement the unbounded theorems consume: it upgrades the old
 operator-norm identification to every `PaperUnitaryInvariantNorm` at once,
 because a paper norm's extended gauge is determined by the approximation
 singular-value sequence and the two sequences are equal. -/
-theorem extendedGauge_sinTwoThetaIdealBlock (N : PaperUnitaryInvariantNorm) :
+theorem extendedGauge_sinTwoThetaIdealBlock_complex (N : PaperUnitaryInvariantNorm) :
     N.extendedGauge (sinTwoThetaIdealBlock U V)
       = N.extendedGauge (sinTwoAngleOperatorC U V) :=
   N.gauge_eq_of_sameApproximationSingularValues
@@ -342,13 +342,13 @@ theorem extendedGauge_sinTwoThetaIdealBlock (N : PaperUnitaryInvariantNorm) :
 theorem mem_sinTwoAngleOperatorC_iff (N : PaperUnitaryInvariantNorm) :
     N.Mem (sinTwoAngleOperatorC U V) ↔ N.Mem (sinTwoThetaIdealBlock U V) := by
   unfold PaperUnitaryInvariantNorm.Mem
-  rw [extendedGauge_sinTwoThetaIdealBlock U V N]
+  rw [extendedGauge_sinTwoThetaIdealBlock_complex U V N]
 
 /-- The gauge transfers between the block and the paper's operator. -/
 theorem gauge_sinTwoAngleOperatorC (N : PaperUnitaryInvariantNorm) :
     N.gauge (sinTwoAngleOperatorC U V) = N.gauge (sinTwoThetaIdealBlock U V) := by
   unfold PaperUnitaryInvariantNorm.gauge
-  rw [extendedGauge_sinTwoThetaIdealBlock U V N]
+  rw [extendedGauge_sinTwoThetaIdealBlock_complex U V N]
 
 end NormTransport
 

@@ -33,7 +33,7 @@ manuscript components that are still open are named separately, in
 unproved result into a production build.
 
 The mathematical dependency order and per-declaration repair ledger are in
-`dev/davis-kahan-1970-one-shot-proof-manuscript.md`.
+`dev/davis-kahan-1970-full-sine-theta-proof-manuscript-2026-07-19.md`.
 -/
 
 namespace TauCeti
@@ -41,27 +41,24 @@ namespace DavisKahan1970
 
 /-! ## Canonical single-angle target
 
-The unqualified source role belongs to the generalized unbounded theorem.
-The bounded aliases below are specializations and implementation seams. -/
-alias canonical_generalizedSinTheta := generalizedSinTheta
-alias canonical_sinTheta := sinTheta
-alias canonical_generalizedSinTheta_complementaryBlock :=
-  generalizedSinTheta_complementaryBlock
+The unqualified source role belongs to the generalized unbounded theorem; the
+declaration that holds it is `sinTheta_generalized_bundled_complex`.  The
+bounded aliases below are specializations and implementation seams. -/
 
 /-! ## Sylvester engine -/
 alias bounded_sylvester_neumann_solution :=
   DavisKahan.ExactSinTheta.sylvesterNeumannSolution_eq
 
 /-! ## Single-angle theorems -/
-alias unbounded_sinTheta_opNorm :=
+alias sinTheta_unbounded_opNorm_complex :=
   DavisKahan.ExactSinTheta.sinTheta_unbounded_opNorm
 alias unbounded_sylvester_intervalExterior_opNorm :=
   DavisKahan.ExactSinTheta.norm_sylvester_le_of_intervalExterior
 alias unbounded_sylvester_exteriorInterval_opNorm :=
   DavisKahan.ExactSinTheta.norm_sylvester_le_of_exteriorInterval
-alias unbounded_sinTheta_uiNorm :=
+alias sinTheta_unbounded_idealFamily_complex :=
   DavisKahan.ExactSinTheta.sinTheta_unbounded_gauge
-alias unbounded_sinTheta_opNorm_genuineSpectrum :=
+alias sinTheta_unbounded_spectrumGap_opNorm_complex :=
   DavisKahan.sinTheta_unbounded_opNorm_of_spectrum_gap
 alias unbounded_boundedPerturbation_sinTheta_spectralSubspaces :=
   DavisKahan.sinTheta_addBounded_spectralSubspaces_opNorm_of_intervalExterior
@@ -73,7 +70,7 @@ alias unbounded_spectralRestriction_formBounds :=
   DavisKahan.selfAdjointSpectralRestriction_semibounded_of_subset_Icc
 alias unbounded_spectralRestriction_spectrum_exterior :=
   DavisKahan.selfAdjointSpectralRestriction_spectrum_avoids_open_of_inter_eq_empty
-alias unbounded_sinTheta_uiNorm_genuineSpectrum :=
+alias sinTheta_unbounded_spectrumGap_idealFamily_complex :=
   DavisKahan.sinTheta_unbounded_gauge_of_spectrum_gap
 alias unbounded_sylvester_exteriorInterval_uiNorm :=
   DavisKahan.ExactSinTheta.mem_and_gauge_le_of_exteriorLeft_intervalRight

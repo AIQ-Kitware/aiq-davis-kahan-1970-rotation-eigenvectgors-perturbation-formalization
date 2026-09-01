@@ -23,17 +23,17 @@ namespace DavisKahan1970
 #check @sinTwoTheta_mirrorDefect_eq_perturbationDefect
 #check @sinTwoTheta_mirrorDefect_le_two_mul
 #check @sinTwoTheta_reflectedOverlap_norm
-#check @norm_sinTwoThetaBlock
-#check @unbounded_sinTwoTheta_opNorm
-#check @unbounded_sinTwoTheta_reflectionResidual_opNorm
-#check @unbounded_sinTwoTheta_uiNorm
-#check @unbounded_sinTwoTheta_uiNorm_representative
-#check @unbounded_sinTwoTheta_residual_uiNorm_representative
+#check @norm_sinTwoThetaBlock_complex
+#check @sinTwoTheta_unbounded_perturbation_opNorm_complex
+#check @sinTwoTheta_unbounded_reflectionResidual_opNorm_complex
+#check @sinTwoTheta_unbounded_perturbation_blockRepresentative_idealFamily_complex
+#check @sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_complex
+#check @sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_complex
 
-#print axioms unbounded_sinTwoTheta_uiNorm
-#print axioms unbounded_sinTwoTheta_uiNorm_representative
-#print axioms unbounded_sinTwoTheta_residual_uiNorm_representative
-#print axioms unbounded_sinTwoTheta_opNorm
+#print axioms sinTwoTheta_unbounded_perturbation_blockRepresentative_idealFamily_complex
+#print axioms sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_complex
+#print axioms sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_complex
+#print axioms sinTwoTheta_unbounded_perturbation_opNorm_complex
 
 /-! ## Theorem 6.3: generalized tangent -/
 
@@ -53,24 +53,24 @@ namespace DavisKahan1970
 
 /-! ## Section 7, equation (7.6): tangent double angle -/
 
-#check @tanTwoTheta_uiNorm
-#check @tanTwoTheta_kyFan
+#check @tanTwoTheta_principalBranch_finiteDimensional_uiNorm_rclike
+#check @tanTwoTheta_principalBranch_finiteDimensional_kyFan_rclike
 #check @tanTwoTheta_pairedSingularVector_scalar
-#check @tanTwoTheta_sharp_opNorm
+#check @tanTwoTheta_sharpness_opNorm_rclike
 #check @tanTwoTheta_spectral_repulsion
-#check @unbounded_tanTwoTheta_opNorm
-#check @unbounded_tanTwoTheta_uiNorm
-#check @tanTwoTheta_uiIdeal_infinite
-#check @tanTwoTheta_kyFan_infinite
-#check @tanTwoTheta_kyFan_doubleAngleTangent_infinite
+#check @tanTwoTheta_unbounded_opNorm_complex
+#check @tanTwoTheta_unbounded_blockRepresentative_idealFamily_complex
+#check @tanTwoTheta_principalBranch_finiteSubspace_idealFamily_rclike
+#check @tanTwoTheta_principalBranch_finiteSubspace_kyFan_rclike
+#check @tanTwoTheta_doubleAngleTangent_finiteSubspace_kyFan_rclike
 #check @kyFanApproximationGauge_orthonormal_bound
 
-#print axioms tanTwoTheta_uiNorm
-#print axioms tanTwoTheta_kyFan
-#print axioms tanTwoTheta_sharp_opNorm
-#print axioms unbounded_tanTwoTheta_uiNorm
-#print axioms tanTwoTheta_uiIdeal_infinite
-#print axioms tanTwoTheta_kyFan_infinite
+#print axioms tanTwoTheta_principalBranch_finiteDimensional_uiNorm_rclike
+#print axioms tanTwoTheta_principalBranch_finiteDimensional_kyFan_rclike
+#print axioms tanTwoTheta_sharpness_opNorm_rclike
+#print axioms tanTwoTheta_unbounded_blockRepresentative_idealFamily_complex
+#print axioms tanTwoTheta_principalBranch_finiteSubspace_idealFamily_rclike
+#print axioms tanTwoTheta_principalBranch_finiteSubspace_kyFan_rclike
 #print axioms kyFanApproximationGauge_orthonormal_bound
 
 end DavisKahan1970

@@ -5,7 +5,7 @@ Authors: Jon Crall, GPT-5.6 Sol
 -/
 import DavisKahan.DoubleAngle.ReflectionTangentKyFan
 import DavisKahan.InfiniteDimensional.DoubleAngle
-import DavisKahan.Sources.DavisKahan1970.TanTwoThetaWholeSpace
+import DavisKahan.Sources.DavisKahan1970.TanTwoThetaAmbient
 import ForTauCeti.Analysis.InnerProductSpace.DoubleAngle.ReflectionBlocks
 import ForTauCeti.Analysis.InnerProductSpace.DoubleAngle.UnboundedPole
 import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder.Complex
@@ -1009,7 +1009,7 @@ private theorem cos_two_ne_zero_of_ordered_form_gap_offDiagonal
     (by simpa only [N, signedCosTwo] using hN)
 
 /-- **Branch-free Section 7 directed-corner estimate, lower-residual form.** -/
-theorem tanTwoTheta_directedCorner_residual_all_kyFan_branchFree
+theorem tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {a b : ℝ}
@@ -1039,12 +1039,12 @@ theorem tanTwoTheta_directedCorner_residual_all_kyFan_branchFree
 unitarily invariant norm.**
 
 This is the arbitrary-UI-norm upgrade of
-`tanTwoTheta_directedCorner_residual_all_kyFan_branchFree`.  The operator on the
+`tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex`.  The operator on the
 left is the paper's directed `tan 2Θ₀` corner representative and the operator on
 the right is the directed residual corner.  Pole exclusion is still an explicit
 input at this layer; the source-facing theorem below derives it from the printed
 ordered spectral gap and off-diagonal hypotheses. -/
-theorem tanTwoTheta_directedCorner_residual_paperUINorm_branchFree
+theorem tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -1071,7 +1071,7 @@ theorem tanTwoTheta_directedCorner_residual_paperUINorm_branchFree
             (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
         kyFanApproximationGauge k (paperProjectionBlock Uᗮ U H) := by
     intro k
-    have h := tanTwoTheta_directedCorner_residual_all_kyFan_branchFree
+    have h := tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex
       hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos k
     linarith
   obtain ⟨hmem, hbound⟩ :=
@@ -1081,7 +1081,7 @@ theorem tanTwoTheta_directedCorner_residual_paperUINorm_branchFree
 /-- The same branch-free corner estimate in the upper-residual orientation
 consumed by the ambient Lemma-6.1 assembly.  This rewrite costs **no factor**:
 it is only adjoint invariance of approximation numbers. -/
-theorem tanTwoTheta_directedCorner_residual_all_kyFan_branchFree_upper
+theorem tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex_upperCorner
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {a b : ℝ}
@@ -1098,7 +1098,7 @@ theorem tanTwoTheta_directedCorner_residual_all_kyFan_branchFree_upper
             (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
         2 * kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ H) := by
   intro k
-  have h := tanTwoTheta_directedCorner_residual_all_kyFan_branchFree
+  have h := tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex
     hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos k
   rw [← kyFan_lowerBlock_eq_upperBlock_reflection H hH k]
   exact h
@@ -1108,7 +1108,7 @@ theorem tanTwoTheta_directedCorner_residual_all_kyFan_branchFree_upper
 No `IsQuarterAcute`, no graph coordinate, and no placement hypothesis on the
 blocks of `A+H`.  The only angle hypothesis is the paper's own pole exclusion
 `cos 2theta != 0`. -/
-theorem tanTwoTheta_wholeSpace_all_kyFan_branchFree
+theorem tanTwoTheta_ambient_bounded_branchFree_orderedForm_kyFan_complex
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {a b : ℝ}
@@ -1122,12 +1122,12 @@ theorem tanTwoTheta_wholeSpace_all_kyFan_branchFree
     ∀ k : ℕ,
       (b - a) * kyFanApproximationGauge k (paperAbsTanTwoAngleOperatorC U V) ≤
         2 * kyFanApproximationGauge k H := by
-  exact tanTwoTheta_wholeSpace_all_kyFan_of_corner hH hab hcos
-    (tanTwoTheta_directedCorner_residual_all_kyFan_branchFree_upper
+  exact tanTwoTheta_ambient_bounded_branchFree_kyFan_complex_of_corner hH hab hcos
+    (tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex_upperCorner
       hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos)
 
 /-- **M30: source unitarily-invariant-norm form.** -/
-theorem tanTwoTheta_wholeSpace_paperUINorm_branchFree
+theorem tanTwoTheta_ambient_bounded_branchFree_orderedForm_paperUINorm_complex_of_poleExclusion
     (N : PaperUnitaryInvariantNorm)
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -1142,8 +1142,8 @@ theorem tanTwoTheta_wholeSpace_paperUINorm_branchFree
     (hHmem : N.Mem H) :
     N.Mem (paperAbsTanTwoAngleOperatorC U V) ∧
       (b - a) * N.gauge (paperAbsTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
-  exact tanTwoTheta_wholeSpace_paperUINorm_of_corner N hH hab hcos
-    (tanTwoTheta_directedCorner_residual_all_kyFan_branchFree_upper
+  exact tanTwoTheta_ambient_bounded_branchFree_paperUINorm_complex_of_corner N hH hab hcos
+    (tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex_upperCorner
       hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos) hHmem
 
 /-- **Davis--Kahan 1970, Section 2 `tan 2Θ₀`, directed residual
@@ -1161,7 +1161,7 @@ singular data seen by the paper's norm.  There is deliberately no caller
 supplied quarter-angle branch, no `cos (2θ) ≠ 0` hypothesis, and no placement
 hypothesis on the blocks of `A+H`; pole exclusion is derived internally by the
 Section 7 reflection argument. -/
-theorem tanTwoTheta_directedCorner_residual_paperUINorm_exact
+theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -1262,7 +1262,7 @@ theorem tanTwoTheta_directedCorner_residual_paperUINorm_exact
     unfold PaperUnitaryInvariantNorm.Mem at hRmem ⊢
     rwa [hRnegExt]
   obtain ⟨hmem, hbound⟩ :=
-    tanTwoTheta_directedCorner_residual_paperUINorm_branchFree N
+    tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_paperUINorm_complex N
       (A := -A) (H := -H) (U := U) (V := V)
       (a := -(α + δ)) (b := -α)
       hAneg hHneg hAUneg hAplusH_V_neg hnegGap hUhighNeg hUperpLowNeg
@@ -1298,7 +1298,7 @@ exclusion is derived above from the same ordered gap by the Section 7
 reflection argument.  The proof uses the branch-free positive representative
 internally, then the modulus identity in `TanTwoThetaWholeSpace` transfers the
 result back to the paper's literal signed `tan 2Θ`. -/
-theorem tanTwoTheta_wholeSpace_paperUINorm_exact
+theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -1387,7 +1387,7 @@ theorem tanTwoTheta_wholeSpace_paperUINorm_exact
     unfold PaperUnitaryInvariantNorm.Mem at hHmem ⊢
     rwa [hnegExt]
   obtain ⟨habsMem, habsBound⟩ :=
-    tanTwoTheta_wholeSpace_paperUINorm_branchFree N
+    tanTwoTheta_ambient_bounded_branchFree_orderedForm_paperUINorm_complex_of_poleExclusion N
       (A := -A) (H := -H) (U := U) (V := V)
       (a := -(α + δ)) (b := -α)
       hAneg hHneg hAUneg hAplusH_V_neg hnegGap hUhighNeg hUperpLowNeg

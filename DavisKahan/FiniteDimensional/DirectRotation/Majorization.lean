@@ -455,7 +455,7 @@ theorem positive_affine_reverse_kyFanSum
 The historical short-rotation corollary (a `pi / 3` largest-angle bound forcing
 UI-norm minimality of the full displacement `I - W`) is intentionally absent:
 it is false for arbitrary competitors carrying `U` onto `V` (see
-`dev/targeted-mathematical-repair-2026-07-21.md`; a competitor may mix an
+the 2026-07-21 repair note (Git history); a competitor may mix an
 equal-angle multiplicity space and beat the direct rotation in trace norm at
 every angle).  The valid arbitrary-UI endpoint is the restricted-displacement
 theorem `uiNorm_restrictedDisplacement_le`, which needs no largest-angle

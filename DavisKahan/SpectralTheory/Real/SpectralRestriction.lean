@@ -552,16 +552,6 @@ private theorem coe_ofRealDomain (A : E →ₗ.[ℝ] E) (x : A.domain) :
       ofReal (x : E) :=
   rfl
 
-omit [CompleteSpace E] in
-/-- Orthogonal projections onto equal subspaces agree.  Stated pointwise so it
-can be used as a rewrite where a direct `rw` on the subspace would produce an
-ill-typed motive (the orthogonal-projection instance depends on it). -/
-private theorem starProjection_congr {U V : Submodule ℝ E}
-    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (h : U = V) (y : E) :
-    U.starProjection y = V.starProjection y := by
-  subst h
-  rfl
-
 /-- The real spectral projection preserves the original real operator domain. -/
 theorem realSelfAdjointSpectralProjection_mem_domain
     (A : E →ₗ.[ℝ] E) (hA : IsSelfAdjoint A)
@@ -619,7 +609,7 @@ theorem realSelfAdjointSpectralSubspace_reducing
   · intro x
     have hx := realSelfAdjointSpectralProjection_mem_domain A hA hS.compl x
     rw [realSelfAdjointSpectralProjection_eq_starProjection,
-      starProjection_congr hUc] at hx
+      Submodule.starProjection_congr_apply hUc] at hx
     exact hx
   · intro x hx
     rw [← Submodule.starProjection_eq_self_iff] at hx ⊢

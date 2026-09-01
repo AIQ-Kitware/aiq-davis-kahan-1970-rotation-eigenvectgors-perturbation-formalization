@@ -308,7 +308,7 @@ end Isometry
 section Multiplication
 
 /-- A uniformly bounded measurable function multiplies `L²` into itself. -/
-theorem memLp_two_mul (ρ : Measure α) {g : α → ℂ} (hg : Measurable g) {C : ℝ}
+theorem memLp_two_mul_complex (ρ : Measure α) {g : α → ℂ} (hg : Measurable g) {C : ℝ}
     (hgC : ∀ x, ‖g x‖ ≤ C) (F : Lp ℂ 2 ρ) : MemLp (fun x => g x * F x) 2 ρ := by
   refine MemLp.mono' ((Lp.memLp F).norm.const_mul C)
     (hg.aestronglyMeasurable.mul (Lp.aestronglyMeasurable F)) ?_
@@ -335,7 +335,7 @@ theorem eLpNorm_two_mul_le (ρ : Measure α) {g : α → ℂ} {C : ℝ} (hgC : �
 /-- **The bound that makes multiplication a bounded operator** on `L²`. -/
 theorem norm_toLp_mul_le (ρ : Measure α) {g : α → ℂ} (hg : Measurable g) {C : ℝ}
     (hgC : ∀ x, ‖g x‖ ≤ C) (F : Lp ℂ 2 ρ) :
-    ‖MemLp.toLp (fun x => g x * F x) (memLp_two_mul ρ hg hgC F)‖ ≤ |C| * ‖F‖ := by
+    ‖MemLp.toLp (fun x => g x * F x) (memLp_two_mul_complex ρ hg hgC F)‖ ≤ |C| * ‖F‖ := by
   rw [Lp.norm_toLp, Lp.norm_def, ← ENNReal.toReal_ofReal (abs_nonneg C), ← ENNReal.toReal_mul]
   refine ENNReal.toReal_mono ?_ (eLpNorm_two_mul_le ρ hgC _)
   exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top (Lp.eLpNorm_ne_top F)
@@ -347,15 +347,15 @@ theory, for an arbitrary measure on an arbitrary measurable space. -/
 noncomputable def mulLp (ρ : Measure α) {g : α → ℂ} (hg : Measurable g) {C : ℝ}
     (hgC : ∀ x, ‖g x‖ ≤ C) : Lp ℂ 2 ρ →L[ℂ] Lp ℂ 2 ρ :=
   LinearMap.mkContinuous
-    { toFun := fun F => MemLp.toLp (fun x => g x * F x) (memLp_two_mul ρ hg hgC F)
+    { toFun := fun F => MemLp.toLp (fun x => g x * F x) (memLp_two_mul_complex ρ hg hgC F)
       map_add' := fun F G => by
-        rw [← MemLp.toLp_add (memLp_two_mul ρ hg hgC F) (memLp_two_mul ρ hg hgC G)]
+        rw [← MemLp.toLp_add (memLp_two_mul_complex ρ hg hgC F) (memLp_two_mul_complex ρ hg hgC G)]
         refine (MemLp.toLp_eq_toLp_iff _ _).2 ?_
         filter_upwards [Lp.coeFn_add F G] with x hx
         simp only [Pi.add_apply, hx]
         ring
       map_smul' := fun c F => by
-        rw [RingHom.id_apply, ← MemLp.toLp_const_smul c (memLp_two_mul ρ hg hgC F)]
+        rw [RingHom.id_apply, ← MemLp.toLp_const_smul c (memLp_two_mul_complex ρ hg hgC F)]
         refine (MemLp.toLp_eq_toLp_iff _ _).2 ?_
         filter_upwards [Lp.coeFn_smul c F] with x hx
         simp only [Pi.smul_apply, hx, smul_eq_mul]
@@ -365,7 +365,7 @@ noncomputable def mulLp (ρ : Measure α) {g : α → ℂ} (hg : Measurable g) {
 /-- The multiplication operator, unfolded. -/
 theorem mulLp_apply (ρ : Measure α) {g : α → ℂ} (hg : Measurable g) {C : ℝ}
     (hgC : ∀ x, ‖g x‖ ≤ C) (F : Lp ℂ 2 ρ) :
-    mulLp ρ hg hgC F = MemLp.toLp (fun x => g x * F x) (memLp_two_mul ρ hg hgC F) := (rfl)
+    mulLp ρ hg hgC F = MemLp.toLp (fun x => g x * F x) (memLp_two_mul_complex ρ hg hgC F) := (rfl)
 
 /-- The multiplication operator really is pointwise multiplication. -/
 theorem coeFn_mulLp (ρ : Measure α) {g : α → ℂ} (hg : Measurable g) {C : ℝ}

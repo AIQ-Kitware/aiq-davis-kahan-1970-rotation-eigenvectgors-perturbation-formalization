@@ -114,6 +114,71 @@ theorem norm_reflectionPerturbation_le
     _ ≤ ‖E‖ + ‖E‖ := add_le_add (le_refl ‖E‖) hconj
     _ = 2 * ‖E‖ := by ring
 
+/-! ## The reflected operator, identified as a unitary conjugate
+
+The two facts a reflection argument establishes about `A + (E - J E J)` -- that
+`J` preserves `dom A`, and that `(A + (E - J E J)) J = J A` there -- say exactly
+that the perturbed operator *is* `J A J`.  Recording that as an equality of
+partial maps is what lets the spectral vocabulary cross the reflection: reducing
+subspaces, reducing restrictions and the form-bounded gap all transport through
+`LinearPMap.unitaryConj`, and none of them transports through an intertwining
+identity stated pointwise.
+
+The hypotheses are the two lemmas the spectral development already proves --
+`perturbedSpectralReflection_mem_domain` and
+`add_reflectionPerturbation_intertwines` over `ℂ`, and their real siblings -- so
+this lemma is scalar-generic even though those are not. -/
+
+/-- **The reflected perturbation makes the operator the reflection conjugate.**
+
+`J` is an involutive isometry, so preserving `dom A` in one direction preserves
+it in both, and the pointwise intertwining then determines the action. -/
+theorem addBounded_reflectionPerturbation_eq_unitaryConj
+    {A : H →ₗ.[𝕜] H} (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
+    (Eop : H →L[𝕜] H)
+    (hmem : ∀ x : A.domain, V.reflectionOperator (x : H) ∈ A.domain)
+    (hint : ∀ x : A.domain,
+      (TauCeti.LinearPMap.addBounded A (reflectionPerturbation V Eop))
+          ⟨V.reflectionOperator (x : H), hmem x⟩ =
+        V.reflectionOperator (A x)) :
+    TauCeti.LinearPMap.addBounded A (reflectionPerturbation V Eop) =
+      TauCeti.LinearPMap.unitaryConj V.reflection A := by
+  -- `V.reflection.symm = V.reflection` and `reflectionOperator = reflection` both hold
+  -- definitionally, so the only content is that `J` preserves `dom A` in both
+  -- directions and that the intertwining determines the action.
+  have hrefl : ∀ y : H, V.reflectionOperator y = V.reflection y := fun _ => rfl
+  have hmem' : ∀ y : H, y ∈ A.domain → V.reflection y ∈ A.domain := by
+    intro y hy
+    have h := hmem ⟨y, hy⟩
+    rwa [hrefl] at h
+  have hdomain : (TauCeti.LinearPMap.addBounded A
+      (reflectionPerturbation V Eop)).domain =
+      (TauCeti.LinearPMap.unitaryConj V.reflection A).domain := by
+    ext y
+    rw [TauCeti.LinearPMap.addBounded_domain,
+      TauCeti.LinearPMap.mem_unitaryConj_domain_iff]
+    refine ⟨fun hy => hmem' y hy, fun hy => ?_⟩
+    have hy' : V.reflection y ∈ A.domain := hy
+    have h := hmem' _ hy'
+    rwa [V.reflection_reflection] at h
+  refine _root_.LinearPMap.ext_iff.mpr ⟨hdomain, ?_⟩
+  intro y hy hz
+  have hJy : V.reflection y ∈ A.domain := hmem' y hy
+  have hcongr : (⟨y, hy⟩ :
+      (TauCeti.LinearPMap.addBounded A (reflectionPerturbation V Eop)).domain) =
+      ⟨V.reflectionOperator (((⟨V.reflection y, hJy⟩ : A.domain)) : H),
+        hmem ⟨V.reflection y, hJy⟩⟩ :=
+    Subtype.ext (by
+      change y = V.reflection (V.reflection y)
+      exact (V.reflection_reflection y).symm)
+  calc (TauCeti.LinearPMap.addBounded A (reflectionPerturbation V Eop)) ⟨y, hy⟩
+      = (TauCeti.LinearPMap.addBounded A (reflectionPerturbation V Eop))
+          ⟨V.reflectionOperator (((⟨V.reflection y, hJy⟩ : A.domain)) : H),
+            hmem ⟨V.reflection y, hJy⟩⟩ := by rw [hcongr]
+    _ = V.reflectionOperator (A ⟨V.reflection y, hJy⟩) :=
+        hint ⟨V.reflection y, hJy⟩
+    _ = (TauCeti.LinearPMap.unitaryConj V.reflection A) ⟨y, hz⟩ := rfl
+
 end ScalarGeneric
 
 variable {H : Type v}
@@ -460,6 +525,26 @@ theorem subspaceGap_map_reflection_eq_norm_sinTwoAngle
     norm_sinTwoAngleOperatorC]
   norm_num
 
+/-- The orthogonal projection onto the complementary spectral range is the
+projection onto the orthogonal complement of the selected one.
+
+Stated at the level of projections rather than of subspaces.  Rewriting with
+`selfAdjointSpectralSubspace_compl_eq_orthogonal` below under `starProjection`
+gives "motive is not type correct", because `starProjection` takes a
+`HasOrthogonalProjection` instance derived from the submodule; going through
+the projections is what avoids that. -/
+theorem starProjection_selfAdjointSpectralSubspace_compl
+    (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
+    (B : Set ℝ) (hB : MeasurableSet B) :
+    (selfAdjointSpectralSubspace A hA Bᶜ hB.compl).starProjection =
+      (selfAdjointSpectralSubspace A hA B hB)ᗮ.starProjection := by
+  rw [← selfAdjointSpectralProjection_eq_starProjection A hA Bᶜ hB.compl,
+    show selfAdjointSpectralProjection A hA Bᶜ hB.compl
+        = ContinuousLinearMap.id ℂ H - selfAdjointSpectralProjection A hA B hB from
+      (TauCeti.LinearPMap.spectralPVM hA).proj_compl B hB]
+  rw [selfAdjointSpectralProjection_eq_starProjection A hA B hB]
+  exact (Submodule.starProjection_orthogonal' _).symm
+
 /-- The spectral range of a measurable complement is the orthogonal
 complement of the original spectral range. -/
 theorem selfAdjointSpectralSubspace_compl_eq_orthogonal
@@ -467,15 +552,7 @@ theorem selfAdjointSpectralSubspace_compl_eq_orthogonal
     (B : Set ℝ) (hB : MeasurableSet B) :
     selfAdjointSpectralSubspace A hA Bᶜ hB.compl =
       (selfAdjointSpectralSubspace A hA B hB)ᗮ := by
-  let U := selfAdjointSpectralSubspace A hA B hB
-  let Uc := selfAdjointSpectralSubspace A hA Bᶜ hB.compl
-  have hproj : Uc.starProjection = Uᗮ.starProjection := by
-    rw [← selfAdjointSpectralProjection_eq_starProjection A hA Bᶜ hB.compl,
-      show selfAdjointSpectralProjection A hA Bᶜ hB.compl
-          = ContinuousLinearMap.id ℂ H - selfAdjointSpectralProjection A hA B hB from
-        (TauCeti.LinearPMap.spectralPVM hA).proj_compl B hB]
-    rw [selfAdjointSpectralProjection_eq_starProjection A hA B hB]
-    exact (Submodule.starProjection_orthogonal' U).symm
+  have hproj := starProjection_selfAdjointSpectralSubspace_compl A hA B hB
   apply le_antisymm
   · intro x hx
     apply Submodule.starProjection_eq_self_iff.mp
@@ -485,6 +562,53 @@ theorem selfAdjointSpectralSubspace_compl_eq_orthogonal
     apply Submodule.starProjection_eq_self_iff.mp
     rw [hproj]
     exact Submodule.starProjection_eq_self_iff.mpr hx
+
+/-- **A measurable spectral range reduces its own self-adjoint operator.**
+
+Both projections preserve the domain because the spectral projection does
+(`selfAdjointSpectralProjection_mem_domain`, applied to `B` and to `Bᶜ`), and
+both summands are invariant because `A` maps a spectral range into itself
+(`selfAdjointSpectralSubspace_compl_eq_orthogonal` identifies the complementary
+range with the orthogonal complement).  This is the complex counterpart of
+`RealSpectralRestriction.realSelfAdjointSpectralSubspace_reducing`. -/
+theorem selfAdjointSpectralSubspace_reducing
+    (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
+    (B : Set ℝ) (hB : MeasurableSet B) :
+    TauCeti.LinearPMap.ReducesSubspace A (selfAdjointSpectralSubspace A hA B hB) := by
+  have hcompl : selfAdjointSpectralSubspace A hA Bᶜ hB.compl =
+      (selfAdjointSpectralSubspace A hA B hB)ᗮ :=
+    selfAdjointSpectralSubspace_compl_eq_orthogonal A hA B hB
+  refine TauCeti.LinearPMap.ReducesSubspace.of_components ?_ ?_ ?_ ?_
+  · intro x
+    rw [← selfAdjointSpectralProjection_eq_starProjection A hA B hB]
+    exact selfAdjointSpectralProjection_mem_domain A hA hB x
+  · intro x
+    have hx := selfAdjointSpectralProjection_mem_domain A hA hB.compl x
+    rw [selfAdjointSpectralProjection_eq_starProjection A hA Bᶜ hB.compl] at hx
+    rwa [Submodule.starProjection_congr_apply hcompl] at hx
+  · intro x hx
+    exact selfAdjoint_maps_spectralSubspace A hA hB x hx
+  · intro x hx
+    rw [← hcompl] at hx ⊢
+    exact selfAdjoint_maps_spectralSubspace A hA hB.compl x hx
+
+/-- **The canonical spectral restriction is the reducing restriction.**
+
+`selfAdjointSpectralRestriction` is `LinearPMap.specRestrict`, whose domain is
+`A.domain` pulled back along the range inclusion and whose action is `A`; that is
+the reducing restriction of `A` to the same subspace, on the nose.  The real
+track defines its restriction as `reducingRestriction` directly, so this is the
+bridge the complex track needs before a theorem stated over reducing
+restrictions can consume a complex spectral gap hypothesis. -/
+theorem selfAdjointSpectralRestriction_eq_reducingRestriction
+    (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
+    (B : Set ℝ) (hB : MeasurableSet B) :
+    selfAdjointSpectralRestriction A hA B hB =
+      TauCeti.LinearPMap.reducingRestriction A (selfAdjointSpectralSubspace A hA B hB)
+        (selfAdjointSpectralSubspace_reducing A hA B hB) := by
+  refine _root_.LinearPMap.ext_iff.mpr ⟨rfl, ?_⟩
+  intro x hx hy
+  rfl
 
 /-- Reflection through a genuine spectral range preserves the full domain of
 the self-adjoint operator. -/

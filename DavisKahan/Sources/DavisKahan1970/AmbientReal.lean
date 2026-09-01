@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 5, OpenAI GPT-5.6 Sol
 -/
 import DavisKahan.Geometry.Angle.PaperOperatorAngleReal
-import DavisKahan.Sources.DavisKahan1970.SinTwoThetaWholeSpace
-import DavisKahan.Sources.DavisKahan1970.TanThetaWholeSpace
+import DavisKahan.Sources.DavisKahan1970.SinTwoThetaAmbient
+import DavisKahan.Sources.DavisKahan1970.TanThetaAmbient
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaReflectionAmbient
 import DavisKahan.SpectralTheory.Complexification.FormTransport
 import DavisKahan.SpectralTheory.Complexification.SubmoduleEquiv
@@ -55,10 +55,10 @@ kinds of hypothesis have to travel, and all three were already available:
 
 ## Main results
 
-* `TauCeti.DavisKahan1970.tanTheta_wholeSpace_paperUINorm_real`
-* `TauCeti.DavisKahan1970.sinTwoTheta_wholeSpace_paperUINorm_real`
-* `TauCeti.DavisKahan1970.tanTwoTheta_directedCorner_residual_paperUINorm_real_exact`
-* `TauCeti.DavisKahan1970.tanTwoTheta_wholeSpace_paperUINorm_real_exact`
+* `TauCeti.DavisKahan1970.tanTheta_ambient_bounded_paperUINorm_real_of_transversality`
+* `TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_real`
+* `TauCeti.DavisKahan1970.tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_real`
+* `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real`
 
 ## References
 
@@ -207,7 +207,7 @@ is the formal encoding of the paper's "closed subspace".  As in the complex
 statement, uniform transversality `‖sin Θ‖ < 1` is assumed — that is what makes
 `tan Θ` the tangent — and membership of `tan Θ` in the norm's ideal is
 concluded. -/
-theorem tanTheta_wholeSpace_paperUINorm_real
+theorem tanTheta_ambient_bounded_paperUINorm_real_of_transversality
     (N : PaperUnitaryInvariantNorm)
     (hT : IsSelfAdjoint T) (hA : IsSelfAdjoint A)
     (hV : T.Reduces V) (hAU : ∀ x ∈ U, A x ∈ U)
@@ -226,7 +226,7 @@ theorem tanTheta_wholeSpace_paperUINorm_real
     rw [← complexify_sub]
     exact (PaperUnitaryInvariantNorm.mem_complexify_iff N (T - A)).2 hMem
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTheta_wholeSpace_paperUINorm (E := RealComplexification E) N
+    tanTheta_ambient_bounded_paperUINorm_complex_of_transversality (E := RealComplexification E) N
       (T := complexify T) (A := complexify A)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
       (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.1
@@ -249,7 +249,7 @@ theorem tanTheta_wholeSpace_paperUINorm_real
 /-- **Davis--Kahan 1970, the whole-space `sin 2Θ` theorem over a REAL Hilbert
 space, for every source unitarily invariant norm**: `δ ‖sin 2Θ‖ ≤ 2‖H‖`, the
 second conclusion of the Section 2 `sin 2Θ` theorem and equation (7.5). -/
-theorem sinTwoTheta_wholeSpace_paperUINorm_real
+theorem sinTwoTheta_ambient_bounded_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     (hU : A.Reduces U) (hV : B.Reduces V)
@@ -264,7 +264,7 @@ theorem sinTwoTheta_wholeSpace_paperUINorm_real
     rw [← complexify_sub]
     exact (PaperUnitaryInvariantNorm.mem_complexify_iff N (B - A)).2 hMem
   obtain ⟨hmemC, hboundC⟩ :=
-    sinTwoTheta_wholeSpace_paperUINorm (E := RealComplexification E) N
+    sinTwoTheta_ambient_bounded_paperUINorm_complex (E := RealComplexification E) N
       (A := complexify A) (B := complexify B)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
       ((complexify_isSelfAdjoint_iff A).2 hA)
@@ -300,8 +300,8 @@ theorem over a real Hilbert space.
 This older endpoint assumes ordered form bounds on both the unperturbed `U`
 blocks and the perturbed `V` blocks.  It is retained as reusable infrastructure;
 the literal Section 2 source signature, which does **not** assume the `V`-block
-placement, is `tanTwoTheta_wholeSpace_paperUINorm_real_exact` below. -/
-theorem tanTwoTheta_wholeSpace_paperUINorm_real
+placement, is `tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real` below. -/
+theorem tanTwoTheta_ambient_bounded_orderedForm_paperUINorm_real
     (N : PaperUnitaryInvariantNorm) {a b : ℝ}
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
@@ -317,7 +317,7 @@ theorem tanTwoTheta_wholeSpace_paperUINorm_real
   have hsum : complexify A + complexify H = complexify (A + H) :=
     (complexify_add A H).symm
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTwoTheta_wholeSpace_paperUINorm (E := RealComplexification E) N
+    tanTwoTheta_ambient_bounded_orderedForm_paperUINorm_complex (E := RealComplexification E) N
       (A := complexify A) (H := complexify H)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
       ((complexify_isSelfAdjoint_iff A).2 hA)
@@ -350,7 +350,7 @@ theorem tanTwoTheta_wholeSpace_paperUINorm_real
 conclusion over a REAL Hilbert space, exactly from the printed hypotheses.**
 
 This is the real-scalar counterpart of
-`tanTwoTheta_directedCorner_residual_paperUINorm_exact`.  It assumes only the
+`tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_complex`.  It assumes only the
 paper's interval/half-line separation for the two blocks of `A`, positivity of
 `δ`, `H₀ = H₁ = 0`, and invariance of the comparison subspace for `A+H`.
 There is no quarter-angle branch, no caller-supplied pole exclusion, and no
@@ -359,7 +359,7 @@ spectral-placement hypothesis on the `A+H` blocks.
 The left side uses `paperTanTwoDirectedCornerR`, the same canonical
 complexification convention already used for the paper's real directed angle.
 The residual norm on the right is genuinely real. -/
-theorem tanTwoTheta_directedCorner_residual_paperUINorm_real_exact
+theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     {A H : E →L[ℝ] E} {U V : Submodule ℝ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -387,7 +387,7 @@ theorem tanTwoTheta_directedCorner_residual_paperUINorm_real_exact
     rw [hRblock]
     exact (PaperUnitaryInvariantNorm.mem_complexify_iff N _).2 hRmem
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTwoTheta_directedCorner_residual_paperUINorm_exact
+    tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_paperUINorm_complex
       (E := RealComplexification E) N
       (A := complexify A) (H := complexify H)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
@@ -425,12 +425,12 @@ theorem tanTwoTheta_directedCorner_residual_paperUINorm_real_exact
 Hilbert space, exactly from the printed hypotheses.**
 
 This is the real-scalar counterpart of
-`tanTwoTheta_wholeSpace_paperUINorm_exact`.  In particular it assumes only the
+`tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex`.  In particular it assumes only the
 paper's interval/half-line separation for the two blocks of `A`, positivity of
 `δ`, `H₀ = H₁ = 0`, and invariance of the comparison subspace for `A+H`.
 There is no quarter-angle branch, no pole-exclusion hypothesis, and no
 spectral-placement hypothesis for the blocks of `A+H`. -/
-theorem tanTwoTheta_wholeSpace_paperUINorm_real_exact
+theorem tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     {β α δ : ℝ}
     (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
@@ -447,9 +447,9 @@ theorem tanTwoTheta_wholeSpace_paperUINorm_real_exact
   -- Keep these spectrum transports inline.  On a complex operator there are
   -- multiple elaboration paths for `spectrum ℝ`; the expected argument type of
   -- the complex theorem selects the native `realSpectrum` path, avoiding the
-  -- real-algebra diamond (as in `sinTwoTheta_wholeSpace_paperUINorm_real`).
+  -- real-algebra diamond (as in `sinTwoTheta_ambient_bounded_paperUINorm_real`).
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTwoTheta_wholeSpace_paperUINorm_exact (E := RealComplexification E) N
+    tanTwoTheta_ambient_bounded_spectralGap_paperUINorm_complex (E := RealComplexification E) N
       (A := complexify A) (H := complexify H)
       (U := complexifySubmodule U) (V := complexifySubmodule V)
       ((complexify_isSelfAdjoint_iff A).2 hA)

@@ -52,6 +52,8 @@ below, and none is needed.
 
 namespace TauCeti
 namespace DavisKahan1970
+
+universe u₁ v₁
 namespace SectionTwoUsage
 
 open scoped InnerProductSpace
@@ -76,7 +78,7 @@ variable {E F G H : Type v}
 inside `[β, α]`, the complementary spectrum outside `(β - δ, α + δ)`.
 
 `FormBoundedSylvesterGap.intervalExterior` turns that into the gap the theorem
-takes, and `_root_.DavisKahan1970.sinTheta_complex_of_intervalExterior` packages
+takes, and `_root_.DavisKahan1970.sinTheta_unbounded_intervalExterior_paperUINorm_complex` packages
 the same step; this spells it out so the seam is visible. -/
 theorem sinTheta_from_printed_separation
     (N : PaperUnitaryInvariantNorm)
@@ -92,6 +94,40 @@ theorem sinTheta_from_printed_separation
     (hR : N.Mem R) :
     N.Mem ((ContinuousLinearMap.id ℂ E - F₀ ∘L F₀.adjoint) ∘L E₀) ∧
       δ * N.gauge ((ContinuousLinearMap.id ℂ E - F₀ ∘L F₀.adjoint) ∘L E₀) ≤
+        N.gauge R :=
+  SectionTwo.sinTheta_complex N A A₀ Λ₁ E₀ F₀ F₁ R hA hA₀ hΛ₁ htrial hexact hδ
+    (FormBoundedSylvesterGap.intervalExterior hβα (Or.inl ⟨htrialSpec, hcomplSpec⟩))
+    hR
+
+/-- The same call over an arbitrary `RCLike` field, through the newly bound
+`SectionTwo.sinTheta`.
+
+This is the reachability check for the scalar-generic endpoint: ordinary
+operator-theory hypotheses in, printed conclusion out, with no problem record
+assembled by hand.  The two class hypotheses are the field capabilities, which
+`ℝ` and `ℂ` both satisfy by instance. -/
+theorem sinTheta_from_printed_separation_rclike
+    {𝕜 : Type u₁} [RCLike 𝕜]
+    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u₁, v₁} 𝕜]
+    [TauCeti.DavisKahan.ExactSinTheta.HasUnboundedSylvesterKyFan.{u₁, v₁} 𝕜]
+    {E F G H : Type v₁}
+    [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
+    [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
+    [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
+    [NormedAddCommGroup H] [InnerProductSpace 𝕜 H] [CompleteSpace H]
+    (N : PaperUnitaryInvariantNorm)
+    (A : E →ₗ.[𝕜] E) (A₀ : F →ₗ.[𝕜] F) (Λ₁ : G →ₗ.[𝕜] G)
+    (E₀ : F →L[𝕜] E) (F₀ : H →L[𝕜] E) (F₁ : G →L[𝕜] E) (R : F →L[𝕜] E)
+    (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
+    (htrial : _root_.DavisKahan1970.IsTrialResidual A A₀ E₀ R)
+    (hexact : _root_.DavisKahan1970.IsExactSpectralDecomposition A Λ₁ F₀ F₁)
+    {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
+    (htrialSpec : TauCeti.LinearPMap.realSpectrum A₀ ⊆ Set.Icc β α)
+    (hcomplSpec : TauCeti.LinearPMap.realSpectrum Λ₁ ⊆
+      {x : ℝ | x ≤ β - δ ∨ α + δ ≤ x})
+    (hR : N.Mem R) :
+    N.Mem ((ContinuousLinearMap.id 𝕜 E - F₀ ∘L F₀.adjoint) ∘L E₀) ∧
+      δ * N.gauge ((ContinuousLinearMap.id 𝕜 E - F₀ ∘L F₀.adjoint) ∘L E₀) ≤
         N.gauge R :=
   SectionTwo.sinTheta N A A₀ Λ₁ E₀ F₀ F₁ R hA hA₀ hΛ₁ htrial hexact hδ
     (FormBoundedSylvesterGap.intervalExterior hβα (Or.inl ⟨htrialSpec, hcomplSpec⟩))
@@ -128,7 +164,7 @@ theorem tanTheta_from_reducingSubspace
     (hMem : N.Mem Hop) :
     N.Mem (paperTanAngleOperatorC U V) ∧
       delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge Hop :=
-  SectionTwo.tanTheta N D (DavisKahan.ReducingComplement.ofReducesSubspace hVred)
+  SectionTwo.tanTheta_complex N D (DavisKahan.ReducingComplement.ofReducesSubspace hVred)
     Hop hH hdelta hupper hUnwanted h35 hResidual hMem
 
 /-- The same reading with a bounded Ritz compression, which is the common case.
@@ -154,11 +190,87 @@ theorem tanTheta_from_trialBlock
     (hMem : N.Mem Hop) :
     N.Mem (paperTanAngleOperatorC U V) ∧
       delta * N.gauge (paperTanAngleOperatorC U V) ≤ N.gauge Hop :=
-  SectionTwo.tanTheta N (DavisKahan.UnboundedRitzPair.ofTrialBlock D)
+  SectionTwo.tanTheta_complex N (DavisKahan.UnboundedRitzPair.ofTrialBlock D)
     (DavisKahan.ReducingComplement.ofReducesSubspace hVred) Hop hH hdelta hupper
     hUnwanted h35 hResidual hMem
 
 end TanTheta
+
+/-! ## `sin 2Θ` from a measurable spectral selection
+
+This section was missing until 2026-08-31, and its absence hid a certification
+defect: writing the call is what makes visible that the complex endpoint cannot
+be reached at the source's half-infinite gap scope. -/
+
+section SinTwoTheta
+
+variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
+  [CompleteSpace E]
+
+/-- `sin 2Θ` over `ℂ`, from a measurable spectral selection and the printed
+separation, through `SectionTwo.sinTwoTheta_complex`.
+
+The separation is `FormBoundedSylvesterGap` between the two spectral
+restrictions, which is the printed scope: it carries the bounded interval and
+both half-infinite configurations.  `sinTwoTheta_from_halfInfinite_separation`
+below exercises one of the latter, which is the case the endpoint could not be
+written at until the complex full-gap route landed. -/
+theorem sinTwoTheta_from_printed_separation
+    (N : PaperUnitaryInvariantNorm)
+    (A : E →ₗ.[ℂ] E) (hA : IsSelfAdjoint A)
+    (Eop : E →L[ℂ] E) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hgap : DavisKahan.ExactSinTheta.FormBoundedSylvesterGap
+      (DavisKahan.selfAdjointSpectralRestriction A hA B hB)
+      (DavisKahan.selfAdjointSpectralRestriction A hA Bᶜ hB.compl) δ)
+    (hEmem : N.Mem Eop) :
+    N.Mem (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+        (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
+        (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
+          (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ∧
+      δ * N.gauge (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+        (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
+        (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
+          (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ≤
+        2 * N.gauge Eop :=
+  SectionTwo.sinTwoTheta_complex N A hA Eop hEop B S hB hS hδ hgap hEmem
+
+/-- `sin 2Θ` over `ℂ` at a **half-infinite** separating interval.
+
+The selected restriction is bounded below by `c + δ` in form and the
+complementary restriction is bounded above by `c`; neither is bounded on the
+other side.  Davis and Kahan state the four theorems with intervals that "may be
+half-infinite", and this is that configuration: `[c + δ, ∞)` against `(-∞, c]`.
+
+The caller supplies the two form bounds and nothing else — no finite `β ≤ α`, no
+spectrum-avoidance certificate. -/
+theorem sinTwoTheta_from_halfInfinite_separation
+    (N : PaperUnitaryInvariantNorm)
+    (A : E →ₗ.[ℂ] E) (hA : IsSelfAdjoint A)
+    (Eop : E →L[ℂ] E) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
+    {c δ : ℝ} (hδ : 0 < δ)
+    (hBlow : TauCeti.LinearPMap.SemiboundedBelow
+      (DavisKahan.selfAdjointSpectralRestriction A hA B hB) (c + δ))
+    (hBcomplHigh : TauCeti.LinearPMap.SemiboundedAbove
+      (DavisKahan.selfAdjointSpectralRestriction A hA Bᶜ hB.compl) c)
+    (hEmem : N.Mem Eop) :
+    N.Mem (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+        (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
+        (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
+          (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ∧
+      δ * N.gauge (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+        (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
+        (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
+          (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ≤
+        2 * N.gauge Eop :=
+  SectionTwo.sinTwoTheta_complex N A hA Eop hEop B S hB hS hδ
+    (DavisKahan.ExactSinTheta.FormBoundedSylvesterGap.leftAboveRightBelow
+      c hBlow hBcomplHigh)
+    hEmem
+
+end SinTwoTheta
 
 /-! ## `tan 2Θ` from a subspace reducing the perturbed operator -/
 
@@ -196,7 +308,7 @@ theorem tanTwoTheta_from_reducingSubspace
       (b - a) * N.gauge (paperAbsTanTwoAngleOperatorC
         (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) V) ≤
         2 * N.gauge B :=
-  SectionTwo.tanTwoTheta N V hA hBsa hB
+  SectionTwo.tanTwoTheta_complex N V hA hBsa hB
     (DavisKahan.ReflectionIntertwines.ofReducesSubspace hVred) hUa hUb hab hBmem
 
 end TanTwoTheta

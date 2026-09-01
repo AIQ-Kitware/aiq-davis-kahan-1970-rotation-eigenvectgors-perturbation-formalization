@@ -90,7 +90,7 @@ Unlike the finite-dimensional Eckart--Young identification, the ambient source
 and target spaces need not be finite-dimensional either.
 
 The converse is
-`ContinuousLinearMap.exists_linearIndependent_lowerBound_of_lt_approximationNumber`
+`ContinuousLinearMap.exists_linearIndependent_lowerBound_of_lt_approximationNumber_complex`
 in `ForTauCeti/Analysis/OperatorIdeal/ApproximationNumber/MinMaxUpper.lean`, so
 the characterization is complete; an earlier version of this docstring said only
 this half held unconditionally in infinite dimensions, which was a statement

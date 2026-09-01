@@ -30,9 +30,9 @@ kyFan_k(2 − 2C)                        -- D's squared displacement, already pi
   `orthogonalDecomposition_conj_diagonalPart` together with invariance of the gauge under
   conjugation by the isometry `H ≃ₗᵢ WithLp 2 (U × Uᗮ)`.
 * The second is `kyFanApproximationGauge_blockSum_le` fed by Proposition 4.1 on `U` and on
-  `Uᗮ`, squared through `approximationNumber_gramOperator` (`aₙ(X†X) = aₙ(X)²`).
+  `Uᗮ`, squared through `approximationNumber_gramOperator_complex` (`aₙ(X†X) = aₙ(X)²`).
 * The last is the Fan--Hoffman pinching contraction
-  `kyFanApproximationGauge_diagonalPart_le`.
+  `kyFanApproximationGauge_diagonalPart_le_complex`.
 
 ## Two things that are *not* extra work
 
@@ -102,7 +102,7 @@ variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [Complete
 
 This is where `aₙ(X†X) = aₙ(X)²` is spent: a pointwise domination at the first power
 squares termwise, and sums of squares are then compared summand by summand. -/
-theorem kyFanApproximationGauge_gramOperator_mono {E F G : Type u}
+theorem kyFanApproximationGauge_gramOperator_mono_complex {E F G : Type u}
     [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
     [NormedAddCommGroup G] [InnerProductSpace ℂ G] [CompleteSpace G]
@@ -112,13 +112,13 @@ theorem kyFanApproximationGauge_gramOperator_mono {E F G : Type u}
       kyFanApproximationGauge k (gramOperator B) := by
   unfold kyFanApproximationGauge ContinuousLinearMap.kyFanGauge
   refine Finset.sum_le_sum fun n _ => ?_
-  rw [approximationNumber_gramOperator, approximationNumber_gramOperator]
+  rw [approximationNumber_gramOperator_complex, approximationNumber_gramOperator_complex]
   have h0 : 0 ≤ A.approximationNumber n := A.approximationNumber_nonneg n
   nlinarith [h n, h0]
 
 /-- The `U`-compression of a Gram operator is the Gram operator of the compression, since
 `ι_U† = Π_U`. -/
-theorem orthogonalProjectionOnto_comp_gram_comp_subtypeL (T : H →L[ℂ] H)
+theorem orthogonalProjectionOnto_comp_gram_comp_subtypeL_complex (T : H →L[ℂ] H)
     (U : Submodule ℂ H) [U.HasOrthogonalProjection] [CompleteSpace (U : Type u)] :
     U.orthogonalProjectionOnto ∘L (star T * T) ∘L U.subtypeL =
       gramOperator (T ∘L U.subtypeL) := by
@@ -128,7 +128,7 @@ theorem orthogonalProjectionOnto_comp_gram_comp_subtypeL (T : H →L[ℂ] H)
 omit [CompleteSpace H] in
 /-- Admissibility of a competitor passes to the complementary pair: subtract
 `W P_U = P_V W` from `W = W`. -/
-theorem competitor_admissible_orthogonal (U V : Submodule ℂ H)
+theorem competitor_admissible_orthogonal_complex (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (W : H →L[ℂ] H)
     (hWmap : W * projection U = projection V * W) :
     W * projection Uᗮ = projection Vᗮ * W := by
@@ -213,7 +213,7 @@ theorem nonacuteDirectRotation_displacementSquare_eq (U V : Submodule ℂ H)
   norm_num [two_smul ℂ]
 
 /-- The completed nonacute direct rotation's squared displacement is already block diagonal. -/
-theorem diagonalPart_nonacuteDirectRotation_displacementSquare (U V : Submodule ℂ H)
+theorem diagonalPart_nonacuteDirectRotation_displacementSquare_complex (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (J : halmosSourceDefect U V ≃ₗᵢ[ℂ] halmosTargetDefect U V) :
     U.diagonalPart ((1 - star (nonacuteDirectRotation U V J)) *
@@ -285,11 +285,11 @@ theorem proposition4_3_squaredDisplacement_kyFan (U V : Submodule ℂ H)
     have hst : (1 - star T) * (1 - T) = star (1 - T) * (1 - T) := by
       rw [star_sub, star_one]
     rw [hst,
-      ← kyFanApproximationGauge_conj_eq hL hR hRL
+      ← kyFanApproximationGauge_conj_eq_complex hL hR hRL
         (U.diagonalPart (star (1 - T) * (1 - T))) k,
       orthogonalDecomposition_conj_diagonalPart U (star (1 - T) * (1 - T)),
-      orthogonalProjectionOnto_comp_gram_comp_subtypeL,
-      orthogonalProjectionOnto_comp_gram_comp_subtypeL]
+      orthogonalProjectionOnto_comp_gram_comp_subtypeL_complex,
+      orthogonalProjectionOnto_comp_gram_comp_subtypeL_complex]
   have hU : ∀ n,
       ((1 - spectraDirectRotation U V hacute) ∘L U.subtypeL).approximationNumber n ≤
         ((1 - W) ∘L U.subtypeL).approximationNumber n :=
@@ -300,11 +300,11 @@ theorem proposition4_3_squaredDisplacement_kyFan (U V : Submodule ℂ H)
     intro n
     have h := proposition4_1_source_approximationNumbers Uᗮ Vᗮ
       (isUniformlyAcute_orthogonal hacute) W hWunitary
-      (competitor_admissible_orthogonal U V W hWmap) n
+      (competitor_admissible_orthogonal_complex U V W hWmap) n
     rwa [spectraDirectRotation_orthogonal U V hacute] at h
   have hblock := kyFanApproximationGauge_blockSum_le
-    (fun j => kyFanApproximationGauge_gramOperator_mono _ _ hU j)
-    (fun j => kyFanApproximationGauge_gramOperator_mono _ _ hUperp j) k
+    (fun j => kyFanApproximationGauge_gramOperator_mono_complex _ _ hU j)
+    (fun j => kyFanApproximationGauge_gramOperator_mono_complex _ _ hUperp j) k
   calc kyFanApproximationGauge k
         ((1 - star (spectraDirectRotation U V hacute)) *
           (1 - spectraDirectRotation U V hacute))
@@ -322,7 +322,7 @@ theorem proposition4_3_squaredDisplacement_kyFan (U V : Submodule ℂ H)
     _ = kyFanApproximationGauge k
           (U.diagonalPart ((1 - star W) * (1 - W))) := (hchart W).symm
     _ ≤ kyFanApproximationGauge k ((1 - star W) * (1 - W)) :=
-        kyFanApproximationGauge_diagonalPart_le U _ k
+        kyFanApproximationGauge_diagonalPart_le_complex U _ k
 
 /-- **Davis--Kahan Proposition 4.3 at the matched-crossed-defect nonacute scope.** -/
 theorem proposition4_3_nonacute_squaredDisplacement_kyFan (U V : Submodule ℂ H)
@@ -360,11 +360,11 @@ theorem proposition4_3_nonacute_squaredDisplacement_kyFan (U V : Submodule ℂ H
     have hst : (1 - star T) * (1 - T) = star (1 - T) * (1 - T) := by
       rw [star_sub, star_one]
     rw [hst,
-      ← kyFanApproximationGauge_conj_eq hL hR hRL
+      ← kyFanApproximationGauge_conj_eq_complex hL hR hRL
         (U.diagonalPart (star (1 - T) * (1 - T))) k,
       orthogonalDecomposition_conj_diagonalPart U (star (1 - T) * (1 - T)),
-      orthogonalProjectionOnto_comp_gram_comp_subtypeL,
-      orthogonalProjectionOnto_comp_gram_comp_subtypeL]
+      orthogonalProjectionOnto_comp_gram_comp_subtypeL_complex,
+      orthogonalProjectionOnto_comp_gram_comp_subtypeL_complex]
   have hU : ∀ n,
       ((1 - nonacuteDirectRotation U V J) ∘L U.subtypeL).approximationNumber n ≤
         ((1 - W) ∘L U.subtypeL).approximationNumber n :=
@@ -375,18 +375,18 @@ theorem proposition4_3_nonacute_squaredDisplacement_kyFan (U V : Submodule ℂ H
     intro n
     have h := proposition4_1_nonacute_source_approximationNumbers U.orthogonal V.orthogonal
       (orthogonalCrossedDefectEquiv U V J) W hWunitary
-      (competitor_admissible_orthogonal U V W hWmap) n
+      (competitor_admissible_orthogonal_complex U V W hWmap) n
     rwa [nonacuteDirectRotation_orthogonal U V J] at h
   have hblock := kyFanApproximationGauge_blockSum_le
-    (fun j => kyFanApproximationGauge_gramOperator_mono _ _ hU j)
-    (fun j => kyFanApproximationGauge_gramOperator_mono _ _ hUperp j) k
+    (fun j => kyFanApproximationGauge_gramOperator_mono_complex _ _ hU j)
+    (fun j => kyFanApproximationGauge_gramOperator_mono_complex _ _ hUperp j) k
   calc kyFanApproximationGauge k
         ((1 - star (nonacuteDirectRotation U V J)) *
           (1 - nonacuteDirectRotation U V J))
       = kyFanApproximationGauge k (U.diagonalPart
           ((1 - star (nonacuteDirectRotation U V J)) *
             (1 - nonacuteDirectRotation U V J))) := by
-        rw [diagonalPart_nonacuteDirectRotation_displacementSquare U V J]
+        rw [diagonalPart_nonacuteDirectRotation_displacementSquare_complex U V J]
     _ = kyFanApproximationGauge k (continuousOrthogonalBlockSum
           (gramOperator ((1 - nonacuteDirectRotation U V J) ∘L U.subtypeL))
           (gramOperator ((1 - nonacuteDirectRotation U V J) ∘L U.orthogonal.subtypeL))) := hchart _
@@ -396,7 +396,7 @@ theorem proposition4_3_nonacute_squaredDisplacement_kyFan (U V : Submodule ℂ H
     _ = kyFanApproximationGauge k
           (U.diagonalPart ((1 - star W) * (1 - W))) := (hchart W).symm
     _ ≤ kyFanApproximationGauge k ((1 - star W) * (1 - W)) :=
-        kyFanApproximationGauge_diagonalPart_le U _ k
+        kyFanApproximationGauge_diagonalPart_le_complex U _ k
 
 end
 

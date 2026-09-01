@@ -47,7 +47,7 @@ variable {F : Type v} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [Complet
 (ii).**
 
 The classification half (`twoProjection_operator_classification`, and
-`TauCeti.DavisKahan1970.theorem3_1_spectralMultiplicity_classification` in the paper's
+`TauCeti.DavisKahan1970.theorem3_1_spectralMultiplicity_classification_complex` in the paper's
 multiplicity phrasing) says that the angle datum determines the pair.  This says the converse of the *existence* kind: every
 admissible angle datum is *attained*.  Given `cos Θ₀, sin Θ₀` on `E`,
 `cos Θ₁, sin Θ₁` on `F` and the intertwiner `J₀` that matches their spectral

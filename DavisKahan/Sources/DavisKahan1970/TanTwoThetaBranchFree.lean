@@ -83,7 +83,7 @@ bounding the graph coordinate by one, no `IsQuarterAcute`, and no spectral
 placement hypothesis on the blocks of `A + H`: the perturbed invariant
 subspace is an arbitrary invariant graph over the trial subspace and may make
 angles arbitrarily close to `π/2` with it. -/
-theorem tanTwoTheta_branchFree_paperUINorm
+theorem tanTwoTheta_branchFree_bounded_finiteSubspace_paperUINorm_rclike
     {𝕜 : Type u} [RCLike 𝕜] {E : Type v} [NormedAddCommGroup E]
     [InnerProductSpace 𝕜 E] [CompleteSpace E]
     (N : PaperUnitaryInvariantNorm)
@@ -123,7 +123,7 @@ perturbation across the form gap `[a, b]` of the unperturbed operator, on an
 arbitrary complex Hilbert space, with **no finite-dimensionality hypothesis on
 the trial subspace or on the ambient space**.
 
-This is `tanTwoTheta_branchFree_paperUINorm` with `[FiniteDimensional 𝕜 U]`
+This is `tanTwoTheta_branchFree_bounded_finiteSubspace_paperUINorm_rclike` with `[FiniteDimensional 𝕜 U]`
 removed.  `[U.HasOrthogonalProjection]` is the formal encoding of the paper's
 "closed subspace", not a restriction.
 
@@ -137,7 +137,7 @@ arbitrarily close to `π/2` with it.
 from the ordered gap by `DavisKahanTheory.penalty_le_of_paired_approximate` and
 removed by the `ε → 0` passage in
 `DavisKahanTheory.sum_absDoubleAngleTangent_le_of_invariantSubspace`. -/
-theorem tanTwoTheta_branchFree_paperUINorm_arbitrarySubspace
+theorem tanTwoTheta_branchFree_bounded_paperUINorm_complex
     {E : Type v} [NormedAddCommGroup E]
     [InnerProductSpace ℂ E] [CompleteSpace E]
     (N : PaperUnitaryInvariantNorm)
@@ -190,17 +190,17 @@ alias tanTwoTheta_branchFree_scalar :=
 
 /-- The branch-free Ky Fan root over an arbitrary finite index set,
 finite-dimensional form. -/
-alias tanTwoTheta_branchFree_kyFan :=
+alias tanTwoTheta_branchFree_finiteDimensional_kyFan_rclike :=
   DavisKahanTheory.sum_absDoubleAngleTangent_le
 
 /-- **The unrestricted `tan 2Θ` theorem, every rectangular unitarily
 invariant norm**, finite-dimensional graph-coordinate form. -/
-alias tanTwoTheta_branchFree_uiNorm :=
+alias tanTwoTheta_branchFree_finiteDimensional_uiNorm_rclike :=
   DavisKahanTheory.absTanTwoTheta0_offDiagonal_le
 
 /-- **The unrestricted `tan 2Θ` theorem, every Fan-dominant unitary-invariant
 ideal, arbitrary Hilbert space** with a finite-dimensional trial subspace. -/
-alias tanTwoTheta_branchFree_uiIdeal_infinite :=
+alias tanTwoTheta_branchFree_finiteSubspace_idealFamily_rclike :=
   DavisKahanTheory.absTanTwoTheta_offDiagonal_mem_and_gauge_le_of_finiteDimensional_invariantSubspace
 
 /-! ## The arbitrary-trial-subspace layer
@@ -227,7 +227,7 @@ alias tanTwoTheta_pole_separation :=
 
 /-- **The branch-free Ky Fan root over an arbitrary finite index set, arbitrary
 trial subspace.** -/
-alias tanTwoTheta_branchFree_kyFan_arbitrarySubspace :=
+alias tanTwoTheta_branchFree_kyFan_complex :=
   DavisKahanTheory.sum_absDoubleAngleTangent_le_of_invariantSubspace
 
 /-- **The branch-free `tan 2Θ` prefix bound for any representative, arbitrary
@@ -237,7 +237,7 @@ alias tanTwoTheta_branchFree_prefix_arbitrarySubspace :=
 
 /-- **The unrestricted `tan 2Θ` theorem, every Fan-dominant unitary-invariant
 ideal, arbitrary Hilbert space and arbitrary trial subspace.** -/
-alias tanTwoTheta_branchFree_uiIdeal_arbitrarySubspace :=
+alias tanTwoTheta_branchFree_idealFamily_complex :=
   DavisKahanTheory.absTanTwoTheta_offDiagonal_mem_and_gauge_le_of_invariantSubspace
 
 end

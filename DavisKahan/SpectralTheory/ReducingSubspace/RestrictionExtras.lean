@@ -54,6 +54,27 @@ theorem ofBounded_reducesSubspace
     show A (x : E) ∈ Uᗮ
     exact hred.2 (x : E) hx
 
+/-- The block of a bounded operator on a subspace it reduces, as a partial map.
+
+The Section 6 whole-space statements compare two such blocks through
+`FormBoundedSylvesterGap`.  Writing the composite out inline is what made those
+hypotheses unreadable, and is why callers were handed a record to fill in
+instead of a theorem to apply. -/
+noncomputable def boundedReducingBlock
+    (A : E →L[𝕜] E) (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
+    (hred : A.Reduces U) : U →ₗ.[𝕜] U :=
+  TauCeti.LinearPMap.reducingRestriction (A.toLinearMap.toPMap ⊤) U
+    (ofBounded_reducesSubspace A U hred)
+
+/-- The block of a bounded operator on the orthogonal complement of a subspace
+it reduces.  A reducing subspace's complement is reducing, so this needs no
+hypothesis beyond `hred`. -/
+noncomputable def boundedReducingBlockCompl
+    (A : E →L[𝕜] E) (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
+    (hred : A.Reduces U) : Uᗮ →ₗ.[𝕜] Uᗮ :=
+  TauCeti.LinearPMap.reducingRestriction (A.toLinearMap.toPMap ⊤) Uᗮ
+    (ofBounded_reducesSubspace A U hred).orthogonal
+
 end PartialMap
 end DavisKahanExt
 end TauCeti

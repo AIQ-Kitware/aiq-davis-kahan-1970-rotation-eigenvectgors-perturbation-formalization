@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.Sylvester.ClosedSylvesterEquation
+import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.UnitaryTransport
 
 /-!
 # Form-bounded gap configurations for the unbounded Sylvester equation
@@ -110,6 +111,112 @@ inductive FormBoundedSylvesterGap
       (c : ℝ)
       (hA : TauCeti.LinearPMap.SemiboundedAbove A c)
       (hB : TauCeti.LinearPMap.SemiboundedBelow B (c + δ))
+
+/-! ## Unitary invariance
+
+Every configuration of the gap is a statement about the real spectrum or about
+an operator form, and a unitary equivalence preserves both.  Both slots are
+covered separately rather than jointly so that a caller conjugating only one
+block does not have to insert an identity conjugation on the other.
+
+This is what carries the source separation hypothesis across the reflection in
+the ambient double-angle theorem: there the perturbed operator is the reflection
+conjugate of the unperturbed one, and its reducing restriction is the conjugate
+of the original restriction.  Every constructor, including both half-infinite
+ones, transports; nothing collapses to the bounded-interval case. -/
+
+variable {E' F' : Type v}
+  [NormedAddCommGroup E'] [InnerProductSpace 𝕜 E'] [CompleteSpace E']
+  [NormedAddCommGroup F'] [InnerProductSpace 𝕜 F']
+
+/-- The interval/exterior configuration is invariant under conjugating the left
+block by a unitary. -/
+theorem RealSpectrumIntervalExteriorGap.unitaryConj_left
+    {A : E →ₗ.[𝕜] E} {B : F →ₗ.[𝕜] F} {β α δ : ℝ}
+    (W : E ≃ₗᵢ[𝕜] E') (h : RealSpectrumIntervalExteriorGap A B β α δ) :
+    RealSpectrumIntervalExteriorGap (TauCeti.LinearPMap.unitaryConj W A) B β α δ := by
+  rw [RealSpectrumIntervalExteriorGap, TauCeti.LinearPMap.realSpectrum_unitaryConj]
+  exact h
+
+/-- The interval/exterior configuration is invariant under conjugating the right
+block by a unitary. -/
+theorem RealSpectrumIntervalExteriorGap.unitaryConj_right
+    {A : E →ₗ.[𝕜] E} {B : F →ₗ.[𝕜] F} {β α δ : ℝ}
+    (V : F ≃ₗᵢ[𝕜] F') (h : RealSpectrumIntervalExteriorGap A B β α δ) :
+    RealSpectrumIntervalExteriorGap A (TauCeti.LinearPMap.unitaryConj V B) β α δ := by
+  rw [RealSpectrumIntervalExteriorGap, TauCeti.LinearPMap.realSpectrum_unitaryConj]
+  exact h
+
+/-- **The form-bounded gap is invariant under a unitary conjugation of the left
+block**, in every configuration. -/
+theorem FormBoundedSylvesterGap.unitaryConj_left
+    {A : E →ₗ.[𝕜] E} {B : F →ₗ.[𝕜] F} {δ : ℝ}
+    (W : E ≃ₗᵢ[𝕜] E') (h : FormBoundedSylvesterGap A B δ) :
+    FormBoundedSylvesterGap (TauCeti.LinearPMap.unitaryConj W A) B δ := by
+  cases h with
+  | intervalExterior hβα hgap =>
+      exact .intervalExterior hβα (hgap.unitaryConj_left W)
+  | leftAboveRightBelow c hA hB =>
+      exact .leftAboveRightBelow c
+        (TauCeti.LinearPMap.semiboundedBelow_unitaryConj_of W hA) hB
+  | leftBelowRightAbove c hA hB =>
+      exact .leftBelowRightAbove c
+        (TauCeti.LinearPMap.semiboundedAbove_unitaryConj_of W hA) hB
+
+/-- **The form-bounded gap is invariant under a unitary conjugation of the right
+block**, in every configuration. -/
+theorem FormBoundedSylvesterGap.unitaryConj_right
+    {A : E →ₗ.[𝕜] E} {B : F →ₗ.[𝕜] F} {δ : ℝ}
+    (V : F ≃ₗᵢ[𝕜] F') (h : FormBoundedSylvesterGap A B δ) :
+    FormBoundedSylvesterGap A (TauCeti.LinearPMap.unitaryConj V B) δ := by
+  cases h with
+  | intervalExterior hβα hgap =>
+      exact .intervalExterior hβα (hgap.unitaryConj_right V)
+  | leftAboveRightBelow c hA hB =>
+      exact .leftAboveRightBelow c hA
+        (TauCeti.LinearPMap.semiboundedAbove_unitaryConj_of V hB)
+  | leftBelowRightAbove c hA hB =>
+      exact .leftBelowRightAbove c hA
+        (TauCeti.LinearPMap.semiboundedBelow_unitaryConj_of V hB)
+
+/-! ## Transport along an equality of reducing subspaces
+
+A spectral development can produce the same reducing restriction under two
+different names for one subspace -- `selfAdjointSpectralSubspace A hA Bᶜ hB.compl`
+and `(selfAdjointSpectralSubspace A hA B hB)ᗮ`, for instance.  Those are equal
+submodules but distinct *types*, so the restrictions are not interchangeable by
+`rw`.  `HasOrthogonalProjection`, `CompleteSpace` and `ReducesSubspace` are all
+`Prop`s, so substituting the subspace equality identifies everything else. -/
+
+/-- The gap survives renaming the right-hand reducing subspace. -/
+theorem FormBoundedSylvesterGap.reducingRestriction_congr_right
+    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
+    {X : E →ₗ.[𝕜] E} {A : G →ₗ.[𝕜] G} {p q : Submodule 𝕜 G}
+    [p.HasOrthogonalProjection] [q.HasOrthogonalProjection]
+    [CompleteSpace p] [CompleteSpace q]
+    (h : p = q)
+    (hp : TauCeti.LinearPMap.ReducesSubspace A p)
+    (hq : TauCeti.LinearPMap.ReducesSubspace A q) {δ : ℝ}
+    (hgap : FormBoundedSylvesterGap X
+      (TauCeti.LinearPMap.reducingRestriction A p hp) δ) :
+    FormBoundedSylvesterGap X
+      (TauCeti.LinearPMap.reducingRestriction A q hq) δ := by
+  subst h; exact hgap
+
+/-- The gap survives renaming the left-hand reducing subspace. -/
+theorem FormBoundedSylvesterGap.reducingRestriction_congr_left
+    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
+    {X : E →ₗ.[𝕜] E} {A : G →ₗ.[𝕜] G} {p q : Submodule 𝕜 G}
+    [p.HasOrthogonalProjection] [q.HasOrthogonalProjection]
+    [CompleteSpace p] [CompleteSpace q]
+    (h : p = q)
+    (hp : TauCeti.LinearPMap.ReducesSubspace A p)
+    (hq : TauCeti.LinearPMap.ReducesSubspace A q) {δ : ℝ}
+    (hgap : FormBoundedSylvesterGap
+      (TauCeti.LinearPMap.reducingRestriction A p hp) X δ) :
+    FormBoundedSylvesterGap
+      (TauCeti.LinearPMap.reducingRestriction A q hq) X δ := by
+  subst h; exact hgap
 
 end ExactSinTheta
 end DavisKahan

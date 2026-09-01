@@ -3,7 +3,7 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Sol
 -/
-import DavisKahan.Sources.DavisKahan1970.SineTheta.HeadlineGeneric
+import DavisKahan.Sources.DavisKahan1970.SineTheta.ScalarGeneric
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNormLaws
 import DavisKahan.FiniteDimensional.TanTheta.RitzResidual
 import DavisKahan.FiniteDimensional.DoubleAngle.SinTwoThetaResidual
@@ -21,7 +21,7 @@ promote existing scalar-generic Ky Fan/UI-norm engines to the literal
 spectral hypotheses instead of hiding them in local gap structures whenever
 that can be done without weakening the theorem.
 
-The single-angle sine theorem lives in `SineTheta/HeadlineGeneric.lean` because
+The single-angle sine theorem lives in `SineTheta/ScalarGeneric.lean` because
 its unbounded scalar-generic engine is substantial enough to merit its own
 module.
 -/
@@ -70,7 +70,7 @@ unwanted exact spectrum lies in `[alpha + delta, infinity)`.
 The theorem is finite-dimensional only because this wrapper reuses the
 scalar-generic singular-value engine.  The source census separately points to
 the arbitrary-dimensional/unbounded source theorems as scope companions. -/
-theorem tanTheta_headline_generic_directed
+theorem tanTheta_directed_finiteDimensional_paperUINorm_rclike
     (N : PaperUnitaryInvariantNorm)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
@@ -108,7 +108,7 @@ unitary-invariant norm:
 As for the tangent wrapper above, this particular scalar-generic facade uses
 the finite-dimensional singular-value engine; arbitrary-dimensional and
 unbounded scope remains certified by the source-specific companion theorems. -/
-theorem sinTwoTheta_headline_generic_directed
+theorem sinTwoTheta_directed_finiteDimensional_paperUINorm_rclike
     (N : PaperUnitaryInvariantNorm)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
@@ -166,44 +166,6 @@ theorem sinTwoTheta_headline_generic_directed
   exact hle
 
 end FiniteGeneric
-
-/-- **Davis--Kahan 1970, Section 2 `tan (2 Theta)`, scalar-generic headline
-form.**
-
-This is a source-facing restatement of `tanTwoTheta_branchFree_paperUINorm`.
-It keeps the paper data visible in the declaration: a self-adjoint unperturbed
-operator `A`, a fully off-diagonal self-adjoint perturbation `H`, the ordered
-form gap `[a,b]`, an invariant graph coordinate `T` for the perturbed subspace,
-and an operator representing the branch-free `tan (2 Theta)` singular values.
-The conclusion is the paper's factor-two estimate for every source
-unitary-invariant norm. -/
-theorem tanTwoTheta_headline_generic
-    {𝕜 : Type u} [RCLike 𝕜]
-    {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
-    (N : PaperUnitaryInvariantNorm)
-    {A H T : E →L[𝕜] E}
-    {U : Submodule 𝕜 E} [FiniteDimensional 𝕜 U]
-    {a b : ℝ}
-    (hA : IsSelfAdjoint A)
-    (hH : IsSelfAdjoint H)
-    (hAU : ∀ x ∈ U, A x ∈ U)
-    (hHU : ∀ x ∈ U, H x ∈ Uᗮ)
-    (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hTmem : ∀ x, T x ∈ Uᗮ)
-    (hTzero : ∀ x ∈ Uᗮ, T x = 0)
-    (hab : a < b)
-    (hUb : ∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_𝕜)
-    (hUa : ∀ x ∈ Uᗮ, RCLike.re ⟪A x, x⟫_𝕜 ≤ a * ‖x‖ ^ 2)
-    (hinv : ∀ x ∈ U, ∃ y ∈ U, (A + H) (x + T x) = y + T y)
-    (tanTwoTheta : E →L[𝕜] E)
-    (π : ℕ ≃ ℕ)
-    (htan : ∀ n, approximationSingularValue (π n) tanTwoTheta =
-      DavisKahanTheory.absDoubleAngleTangent (approximationSingularValue n T))
-    (hHmem : N.Mem H) :
-    N.Mem tanTwoTheta ∧
-      (b - a) * N.gauge tanTwoTheta ≤ 2 * N.gauge H :=
-  tanTwoTheta_branchFree_paperUINorm N hA hH hAU hHU hHUperp hTmem hTzero
-    hab hUb hUa hinv tanTwoTheta π htan hHmem
 
 end
 

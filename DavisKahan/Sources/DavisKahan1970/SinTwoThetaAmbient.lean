@@ -55,9 +55,9 @@ of the two operators, under which `‖H‖` is unchanged.
 
 ## Main results
 
-* `TauCeti.DavisKahan1970.sinTwoTheta_wholeSpace_all_kyFan`: the Ky Fan form,
+* `TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_kyFan_complex`: the Ky Fan form,
   `δ · kyFan_k (sin 2Θ) ≤ 2 · kyFan_k (B - A)` for every `k`.
-* `TauCeti.DavisKahan1970.sinTwoTheta_wholeSpace_paperUINorm`: the source form,
+* `TauCeti.DavisKahan1970.sinTwoTheta_ambient_bounded_paperUINorm_complex`: the source form,
   `δ · N (sin 2Θ) ≤ 2 · N (B - A)` for every unitarily invariant norm `N` in the
   paper's sense.
 
@@ -362,7 +362,7 @@ private theorem kyFan_reflectionDisplacement_le
 
 /-- **The whole-space `sin 2Θ` theorem, Ky Fan form.**  Equation (7.5) of
 Davis--Kahan 1970 at every finite Ky Fan gauge. -/
-theorem sinTwoTheta_wholeSpace_all_kyFan
+theorem sinTwoTheta_ambient_bounded_kyFan_complex
     (hA : IsSelfAdjoint A) (_hB : IsSelfAdjoint B)
     (hU : Reduces A U) (hV : Reduces B V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
@@ -417,7 +417,7 @@ singular sequences; taking an even Ky Fan prefix, pinching, and then using the
 same multiplicity identity for the trial off-diagonal pair removes the second
 copy.  The result is the printed factor `2`, rather than the factor `4` from a
 triangle inequality on the two off-diagonal blocks. -/
-theorem sinTwoTheta_directedResidual_all_kyFan
+theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -550,7 +550,7 @@ theorem sinTwoTheta_directedResidual_all_kyFan
 
 /-- **The directed residual `sin 2Θ₀` theorem for every source unitarily
 invariant norm.**  This is the paper-norm lift of
-`sinTwoTheta_directedResidual_all_kyFan`, retaining the sharp factor `2`.
+`sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex`, retaining the sharp factor `2`.
 
 The residual acts from the trial subspace into the ambient space, whereas the
 canonical doubled-angle block is ambient-to-ambient.  Before invoking the
@@ -558,7 +558,7 @@ homogeneous Fan-dominance adapter, extend the residual by zero on `Vᗮ` using
 `V.subtypeL.adjoint`.  This preserves its complete approximation-singular
 sequence, hence every paper norm, and keeps the norm comparison within one
 operator type. -/
-theorem sinTwoTheta_directedResidual_paperUINorm
+theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
@@ -587,7 +587,7 @@ theorem sinTwoTheta_directedResidual_paperUINorm
     intro k
     rw [kyFanApproximationGauge_smul, htwo,
       hsameR.kyFanApproximationGauge_eq k]
-    exact sinTwoTheta_directedResidual_all_kyFan
+    exact sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
       (A := A) (U := U) (V := V) hA hU hd hab hUspec hUspec' M k
   have hMem2 : N.Mem (((2 : ℝ) : ℂ) • R0) := by
     intro htop
@@ -603,7 +603,7 @@ theorem sinTwoTheta_directedResidual_paperUINorm
 /-- **The whole-space `sin 2Θ` theorem for every source unitarily invariant
 norm**: `δ ‖sin 2Θ‖ ≤ 2 ‖H‖`, the second conclusion of the Section 2 `sin 2Θ`
 theorem and equation (7.5) of Section 7. -/
-theorem sinTwoTheta_wholeSpace_paperUINorm
+theorem sinTwoTheta_ambient_bounded_paperUINorm_complex
     (N : PaperUnitaryInvariantNorm)
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     (hU : Reduces A U) (hV : Reduces B V)
@@ -621,7 +621,7 @@ theorem sinTwoTheta_wholeSpace_paperUINorm
         kyFanApproximationGauge k (((2 : ℝ) : ℂ) • (B - A)) := by
     intro k
     rw [kyFanApproximationGauge_smul, htwo]
-    exact sinTwoTheta_wholeSpace_all_kyFan hA hB hU hV hd hab hUspec hUspec' k
+    exact sinTwoTheta_ambient_bounded_kyFan_complex hA hB hU hV hd hab hUspec hUspec' k
   have hMem2 : N.Mem (((2 : ℝ) : ℂ) • (B - A)) := by
     intro htop
     rw [N.extendedGauge_smul, htwo] at htop

@@ -38,11 +38,11 @@ itself never has to be transported.
 
 * `norm_paperSinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent`: real ambient
   uniform transversality from real trial-block form bounds and the printed (3.5);
-* `tanTheta_unbounded_ambient_paperUINorm_real_of_data`: the ambient estimate over real
+* `tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_real`: the ambient estimate over real
   trial-block data;
-* `tanTheta_unbounded_ambient_paperUINorm_real_exact`: the specialization with an
+* `tanTheta_ambient_unboundedOperator_boundedRitz_paperUINorm_real`: the specialization with an
   unbounded ambient operator but bounded Ritz compression;
-* `tanTheta_unboundedCompression_ambient_paperUINorm_real_exact`: the Appendix-complete
+* `tanTheta_ambient_unboundedRitz_raw_paperUINorm_real`: the Appendix-complete
   endpoint in which the Ritz compression itself may be unbounded.
 
 ## References
@@ -159,7 +159,7 @@ assumption of Section 3.
 Uniform transversality is derived, not assumed, and membership of `tan Θ` in the norm's
 ideal is concluded rather than hypothesised.  No dimension hypothesis, no compactness
 hypothesis, and the constant is the printed `δ`. -/
-theorem tanTheta_unbounded_ambient_paperUINorm_real_of_data
+theorem tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     (data : Theorem63TrialData U V)
     (H : E →L[ℝ] E) (hH : IsSelfAdjoint H)
@@ -179,7 +179,7 @@ theorem tanTheta_unbounded_ambient_paperUINorm_real_of_data
   have hMemC : N.Mem (complexify H) :=
     (PaperUnitaryInvariantNorm.mem_complexify_iff N H).2 hMem
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTheta_unbounded_ambient_paperUINorm_of_data_of_transversality
+    tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_complex_of_transversality
       (E := RealComplexification E) N (complexifyTrialData data) (complexify H)
       ((complexify_isSelfAdjoint_iff H).2 hH) hdelta
       (complexifyTrialData_compression_upper data hCompression)
@@ -209,7 +209,7 @@ Nothing here is a complex theorem with real hypotheses: the space, the operator,
 subspaces, the perturbation, the angle operator and the gauge are all real.  Only the
 Appendix Ky Fan passage is proved by complexification, at the finite Ky Fan level where
 approximation numbers are preserved exactly. -/
-theorem tanTheta_unbounded_ambient_paperUINorm_real_exact
+theorem tanTheta_ambient_unboundedOperator_boundedRitz_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     (A : E →ₗ.[ℝ] E)
     (D : UnboundedTrialBlock A U)
@@ -227,7 +227,7 @@ theorem tanTheta_unbounded_ambient_paperUINorm_real_exact
     (hMem : N.Mem H) :
     N.Mem (paperTanAngleOperatorR U V) ∧
       delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H :=
-  tanTheta_unbounded_ambient_paperUINorm_real_of_data N
+  tanTheta_ambient_unboundedOperator_boundedRitzData_paperUINorm_real N
     (Theorem63TrialData.ofUnbounded D V) H hH hdelta hCompression
     (fun z => by
       simpa using crossed_lower_of_reducing (𝕜 := ℝ) A D V hVdom hVcomm
@@ -304,7 +304,7 @@ remain genuinely real.  The complex proof performs the spectral cutoff on the
 complexified Ritz compression and the bounded two-corner ambient assembly; exact
 complexification identities then descend the result without changing the
 constant or norm class. -/
-theorem tanTheta_unboundedCompression_ambient_paperUINorm_real_of_data
+theorem tanTheta_ambient_unboundedRitzData_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     (D : UnboundedCompressionTrialData U)
     (H : E →L[ℝ] E) (hH : IsSelfAdjoint H)
@@ -326,7 +326,7 @@ theorem tanTheta_unboundedCompression_ambient_paperUINorm_real_of_data
   have hMemC : N.Mem (complexify H) :=
     (PaperUnitaryInvariantNorm.mem_complexify_iff N H).2 hMem
   obtain ⟨hmemC, hboundC⟩ :=
-    tanTheta_unboundedCompression_ambient_paperUINorm_of_data_of_transversality
+    tanTheta_ambient_unboundedRitzData_paperUINorm_complex_of_transversality
       (E := RealComplexification E) N (complexifyUnboundedCompressionTrialData D)
       (complexify H) ((complexify_isSelfAdjoint_iff H).2 hH) hdelta
       (complexifyUnboundedCompressionTrialData_compression_upper D hupper)
@@ -343,7 +343,7 @@ theorem tanTheta_unboundedCompression_ambient_paperUINorm_real_of_data
 Both the ambient self-adjoint operator and the Ritz compression may be
 unbounded.  The residual and perturbation remain bounded, exactly as required
 for the displayed unitary-invariant norm inequality. -/
-theorem tanTheta_unboundedCompression_ambient_paperUINorm_real_exact
+theorem tanTheta_ambient_unboundedRitz_raw_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     (D : UnboundedCompressionTrialData U)
     (A : E →ₗ.[ℝ] E)
@@ -364,7 +364,7 @@ theorem tanTheta_unboundedCompression_ambient_paperUINorm_real_exact
     (hMem : N.Mem H) :
     N.Mem (paperTanAngleOperatorR U V) ∧
       delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H := by
-  refine tanTheta_unboundedCompression_ambient_paperUINorm_real_of_data
+  refine tanTheta_ambient_unboundedRitzData_paperUINorm_real
     N D H hH hdelta hupper ?_ h35 hResidual hMem
   intro z
   simpa using D.crossed_lower_of_reducing V A hZA haction hVdom hVcomm
@@ -372,7 +372,7 @@ theorem tanTheta_unboundedCompression_ambient_paperUINorm_real_exact
 
 /-! ### The constructor-first interface, over `ℝ`
 
-The real mirror of `tanTheta_unbounded_ambient_ritz_paperUINorm`.  The four
+The real mirror of `tanTheta_ambient_unboundedRitz_paperUINorm_complex`.  The four
 structural facts that tie the compression data to the ambient operator and say
 that `Vᗮ` reduces it are replaced by the two objects that carry them,
 `DavisKahan.UnboundedRitzPair` and `DavisKahan.ReducingComplement`; both are
@@ -381,7 +381,7 @@ scalar-generic, so no real-specific vocabulary is introduced. -/
 /-- **Davis--Kahan 1970, `tan Θ`, unbounded ambient form over `ℝ`, taking the Ritz
 pair and the reducing complement as objects.**
 
-`tanTheta_unboundedCompression_ambient_paperUINorm_real_exact` with its four
+`tanTheta_ambient_unboundedRitz_raw_paperUINorm_real` with its four
 structural arguments replaced by `DavisKahan.UnboundedRitzPair A U` and
 `DavisKahan.ReducingComplement A V`.  The mathematics -- semiboundedness of the
 compression, coercivity on the unwanted subspace, and the crossed-defect standing
@@ -389,7 +389,7 @@ condition (3.5) -- is unchanged and still supplied by the caller.
 
 Everything here is real: the space, the operator, the subspaces, the
 perturbation, the ambient tangent `paperTanAngleOperatorR U V`, and the gauge. -/
-theorem tanTheta_unbounded_ambient_ritz_paperUINorm_real
+theorem tanTheta_ambient_unboundedRitz_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     {A : E →ₗ.[ℝ] E}
     (D : DavisKahan.UnboundedRitzPair A U)
@@ -404,7 +404,7 @@ theorem tanTheta_unbounded_ambient_ritz_paperUINorm_real
     (hMem : N.Mem H) :
     N.Mem (paperTanAngleOperatorR U V) ∧
       delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H :=
-  tanTheta_unboundedCompression_ambient_paperUINorm_real_exact N D.trial A H hH
+  tanTheta_ambient_unboundedRitz_raw_paperUINorm_real N D.trial A H hH
     hdelta D.mem_domain D.action_eq hV.mapsDomain hV.commutes hupper hUnwanted h35
     hResidual hMem
 

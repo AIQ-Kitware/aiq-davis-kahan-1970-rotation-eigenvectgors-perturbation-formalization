@@ -7,7 +7,7 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.Lemma61
 import DavisKahan.Sources.DavisKahan1970.SineTheta.OperatorAngleBridge
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.SubspaceSingularTransport
 import DavisKahan.SpectralTheory.ReducingSubspace.RestrictionExtras
-import DavisKahan.Sylvester.Unbounded.LegacyGap
+import DavisKahan.Sylvester.Unbounded.FormBoundedGap
 
 /-!
 # Davis--Kahan Proposition 6.1: the symmetric sine theorem

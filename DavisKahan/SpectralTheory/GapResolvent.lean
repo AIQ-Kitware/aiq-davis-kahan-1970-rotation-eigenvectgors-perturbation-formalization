@@ -40,7 +40,7 @@ The replacement lives in
 and is Spectra-free.  The two intermediate theorems were deleted rather than
 kept: they were scaffolding for the PVM route, nothing outside this file used
 them, and retaining them would have kept the whole projection-valued-measure
-layer on the critical path of `dev/tauceti/spectra-removal-plan.md`.  They
+layer on the critical path of the completed Spectra removal.  They
 remain in the history at `a58913e`.
 
 This module is Spectra-free, and as the note here used to predict, it has been

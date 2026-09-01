@@ -25,7 +25,7 @@ in `ℝ≥0∞`, so it is defined for every bounded operator and is `∞` exactl
 The nuclear norm is the supremum of the Ky Fan gauges, so its triangle inequality *is* the
 Ky Fan triangle inequality, taken to the limit.  That inequality is the one whose only
 proof in this repository used to run through `vendor/Spectra`'s projection-valued measures;
-since 2026-07-28 it is `ContinuousLinearMap.kyFanGauge_add_le`, proved from Mathlib's
+since 2026-07-28 it is `ContinuousLinearMap.kyFanGauge_add_le_complex`, proved from Mathlib's
 continuous functional calculus, and the trace-class ideal follows immediately.
 
 **Everything is stated over `RCLike 𝕜`.**  The Ky Fan triangle inequality is what the scalar

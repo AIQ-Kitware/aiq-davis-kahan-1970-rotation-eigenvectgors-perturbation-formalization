@@ -45,7 +45,7 @@ variable {E F G H : Type v}
   [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
 /-- Addition preserves the paper Hilbert--Schmidt class. -/
-theorem isPaperHilbertSchmidt_add
+theorem isPaperHilbertSchmidt_add_complex
     {A B : E →L[ℂ] F}
     (hA : IsPaperHilbertSchmidt A)
     (hB : IsPaperHilbertSchmidt B) :
@@ -65,7 +65,7 @@ theorem paperHilbertSchmidtTensor_add
     (hA : IsPaperHilbertSchmidt A)
     (hB : IsPaperHilbertSchmidt B) :
     paperHilbertSchmidtTensor (A + B)
-        (isPaperHilbertSchmidt_add hA hB) =
+        (isPaperHilbertSchmidt_add_complex hA hB) =
       paperHilbertSchmidtTensor A hA +
         paperHilbertSchmidtTensor B hB := by
   apply ofLp_injective (paperHSBasis _)
@@ -75,13 +75,13 @@ theorem paperHilbertSchmidtTensor_add
     toOperator_paperHilbertSchmidtTensor]
 
 /-- The paper Hilbert--Schmidt norm satisfies the triangle inequality. -/
-theorem paperHilbertSchmidtNorm_add_le
+theorem paperHilbertSchmidtNorm_add_le_complex
     {A B : E →L[ℂ] F}
     (hA : IsPaperHilbertSchmidt A)
     (hB : IsPaperHilbertSchmidt B) :
     paperHilbertSchmidtNorm (A + B) ≤
       paperHilbertSchmidtNorm A + paperHilbertSchmidtNorm B := by
-  let hAB := isPaperHilbertSchmidt_add hA hB
+  let hAB := isPaperHilbertSchmidt_add_complex hA hB
   rw [← norm_paperHilbertSchmidtTensor (A + B) hAB,
     paperHilbertSchmidtTensor_add hA hB,
     ← norm_paperHilbertSchmidtTensor A hA,
@@ -109,7 +109,7 @@ theorem isPaperHilbertSchmidt_sub
     (hB : IsPaperHilbertSchmidt B) :
     IsPaperHilbertSchmidt (A - B) := by
   rw [sub_eq_add_neg]
-  exact isPaperHilbertSchmidt_add hA ((isPaperHilbertSchmidt_neg_iff B).2 hB)
+  exact isPaperHilbertSchmidt_add_complex hA ((isPaperHilbertSchmidt_neg_iff B).2 hB)
 
 /-- The canonical tensor respects subtraction. -/
 theorem paperHilbertSchmidtTensor_sub
@@ -127,7 +127,7 @@ theorem paperHilbertSchmidtTensor_sub
 
 /-- A sequence Cauchy in the paper square norm converges to a paper
 Hilbert--Schmidt operator in that norm. -/
-theorem paperHilbertSchmidt_complete
+theorem paperHilbertSchmidt_complete_complex
     (A : ℕ → E →L[ℂ] F)
     (hA : ∀ n, IsPaperHilbertSchmidt (A n))
     (hcauchy : ∀ ε : ℝ, 0 < ε → ∃ N, ∀ m n,
@@ -192,7 +192,7 @@ noncomputable def hilbertSchmidtComplex :
         exact ENNReal.zero_ne_top
       add_mem := by
         intro E F _ _ _ _ _ _ A B hA hB
-        exact isPaperHilbertSchmidt_add hA hB
+        exact isPaperHilbertSchmidt_add_complex hA hB
       smul_mem := by
         intro E F _ _ _ _ _ _ c A hA
         by_cases hc : c = 0
@@ -216,7 +216,7 @@ noncomputable def hilbertSchmidtComplex :
         exact paperHilbertSchmidtNorm_zero
       gauge_add_le := by
         intro E F _ _ _ _ _ _ A B hA hB
-        exact paperHilbertSchmidtNorm_add_le hA hB
+        exact paperHilbertSchmidtNorm_add_le_complex hA hB
       gauge_smul := by
         intro E F _ _ _ _ _ _ c A hA
         exact paperHilbertSchmidtNorm_smul c A hA
@@ -231,7 +231,7 @@ noncomputable def hilbertSchmidtComplex :
         exact opNorm_le_paperHilbertSchmidtNorm hA
       gauge_complete := by
         intro E F _ _ _ _ _ _ A hA hcauchy
-        exact paperHilbertSchmidt_complete A hA hcauchy }
+        exact paperHilbertSchmidt_complete_complex A hA hcauchy }
 
 end
 

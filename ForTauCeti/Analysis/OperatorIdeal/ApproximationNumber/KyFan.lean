@@ -446,7 +446,7 @@ omit [CompleteSpace E] [CompleteSpace F] in
 
 This is the general statement: `kyFanGauge_add_le_of_exists_finiteRestriction` needs a finite
 source restriction for every tolerance, and `HasMinMaxLowerBound` is exactly what produces
-one.  The two concrete fields are corollaries — `kyFanGauge_add_le` over `ℂ` below and
+one.  The two concrete fields are corollaries — `kyFanGauge_add_le_complex` over `ℂ` below and
 `TauCeti.ApproximationNumber.kyFanGauge_add_le_real` over `ℝ` — and neither repeats any part
 of the argument. -/
 theorem kyFanGauge_add_le_of_hasMinMaxLowerBound (h : HasMinMaxLowerBound 𝕜 E F)
@@ -477,7 +477,7 @@ This is the inequality that makes every Ky Fan gauge a norm, and hence the one e
 symmetric operator ideal built on approximation numbers depends on.  The argument is
 `kyFanGauge_add_le_of_exists_finiteRestriction`; what is complex-specific is only the
 min-max input it consumes. -/
-theorem kyFanGauge_add_le (S T : E →L[ℂ] F) (k : ℕ) :
+theorem kyFanGauge_add_le_complex (S T : E →L[ℂ] F) (k : ℕ) :
     (S + T).kyFanGauge k ≤ S.kyFanGauge k + T.kyFanGauge k :=
   kyFanGauge_add_le_of_hasMinMaxLowerBound hasMinMaxLowerBound_complex S T k
 

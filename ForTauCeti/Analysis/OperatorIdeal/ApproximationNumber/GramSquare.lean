@@ -252,7 +252,7 @@ theorem approximationNumber_gramOperator_le_sq (X : E0 →L[ℂ] E1) (n : ℕ) :
 
 `aₙ(X†X) = aₙ(X)²`.  This is the step that lets an approximation-number domination at the
 first power be squared and summed into a Ky Fan statement about squared displacements. -/
-theorem approximationNumber_gramOperator (X : E0 →L[ℂ] E1) (n : ℕ) :
+theorem approximationNumber_gramOperator_complex (X : E0 →L[ℂ] E1) (n : ℕ) :
     (gramOperator X).approximationNumber n = X.approximationNumber n ^ 2 :=
   le_antisymm (approximationNumber_gramOperator_le_sq X n)
     (sq_approximationNumber_le_approximationNumber_gramOperator X n)

@@ -95,21 +95,52 @@ The extraction is a copy of the package directories, so every module keeps its
 upstream path, namespace and provenance header. The libraries build against a pinned
 Mathlib and a pinned Tau Ceti, recorded in `lakefile.toml` and `lake-manifest.json`.
 
+## Two entries
+
+| entry | what is compared |
+| --- | --- |
+| root (`comparator.json`) | the operator-norm sin-Θ bound described above: one theorem, finite dimensions, one norm |
+| `registry/dk-section-two/` | **the four unnumbered theorems Davis and Kahan open Section 2 with**, at the printed scope — arbitrary dimension, an unbounded self-adjoint ambient operator, an arbitrary unitarily invariant norm, half-infinite separating intervals, and a reducing rather than spectrally selected trial subspace |
+
+The Section 2 entry is the paper's headline package: seven printed inequality
+clauses in all — `sin Θ`, and a directed and an ambient clause each for `tan Θ`,
+`sin 2Θ` and `tan 2Θ` — with the printed residual on the right and the printed
+constants one and two. The two tangent families additionally *conclude*, rather
+than assume, that no principal angle sits at the tangent's pole: Lean's
+`Real.tan` is total, so a pole would otherwise be silently valued at zero.
+
+Two scope decisions in that entry are worth stating here, because each was a
+defect an earlier draft contained.
+
+* The `sin 2Θ` directed clause takes a **bounded** trial compression. That is
+  what the Appendix to Section 6 supports: it relaxes the sine family to allow
+  *one* of the two exact blocks to be unbounded, reserves "both may be unbounded"
+  for the tangent theorem, and names no double-angle result at all.
+* A **doubled angle is presented by its own sine**, never by doubling the single
+  angle. `t ↦ sin 2t` is not monotone on `[0, π/2]`, so no indexwise map carries
+  the ordered singular values of `sin Θ` to those of `sin 2Θ`; principal angles
+  `75°` and `30°` already order the two sequences oppositely.
+
 ## Layout
 
 ```
-Challenge.lean      the Palomar statement, against Mathlib alone, with a
+Challenge.lean      the root Palomar statement, against Mathlib alone, with a
                     deliberate statement-side hole
 Solution.lean       the same declaration, supplied from the libraries below
-comparator.json     what Comparator compares, and the permitted axioms
-formalization.yaml  registry metadata
+comparator.json     what Comparator compares there, and the permitted axioms
+formalization.yaml  registry metadata for the root entry
+Palomar/            one directory per additional entry:
+  DKSectionTwo/     Challenge.lean and Solution.lean for the Section 2 entry
+registry/           one directory per additional entry, with its comparator.json
+                    and its formalization.yaml
 ForTauCeti/         reusable mathematics, in its final `TauCeti.*` namespaces
 DavisKahan/         the Davis--Kahan development, whose four Section 2 theorems
                     are inventoried in
                     DavisKahan/Sources/DavisKahan1970/SectionTwo.lean
 ```
 
-`lake build` builds the entry. `lake build ForTauCeti` and `lake build DavisKahan` build the libraries.
+`lake build` builds the root entry. `lake build ForTauCeti`, `lake build DavisKahan`
+and `lake build Palomar` build the libraries.
 
 ## Verifying locally
 

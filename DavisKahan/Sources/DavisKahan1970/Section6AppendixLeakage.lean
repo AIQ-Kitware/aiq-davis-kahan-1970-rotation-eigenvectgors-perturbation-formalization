@@ -167,7 +167,7 @@ domain.  This is the basis-free Pythagorean identity used in Lemma 6.3.
 Stated over `ℂ` because the column-energy bridge it uses is; the real form is
 `paperHilbertSchmidtEnergy_domain_projection_add_real`, obtained by
 complexification. -/
-theorem paperHilbertSchmidtEnergy_domain_projection_add
+theorem paperHilbertSchmidtEnergy_domain_projection_add_complex
     (L : E' →L[ℂ] F')
     (P : Submodule ℂ E') [P.HasOrthogonalProjection]
     -- carried for source fidelity: Davis--Kahan Lemma 6.3 states this for
@@ -237,7 +237,7 @@ Everything in the proof of the lemma except the Pythagorean splitting of the
 square energy over `P + (1 - P)` is independent of the scalar field, so the
 splitting is taken here as a hypothesis on the one operator that needs it.
 Over `ℂ` the hypothesis is discharged by
-`paperHilbertSchmidtEnergy_domain_projection_add`, over `ℝ` by
+`paperHilbertSchmidtEnergy_domain_projection_add_complex`, over `ℝ` by
 `paperHilbertSchmidtEnergy_domain_projection_add_real`. -/
 theorem lemma6_3_approximationNumber_leakage_of_energySplit
     (K : E →L[𝕜] F)
@@ -349,7 +349,7 @@ The block hypothesis is the source-faithful `K ∘ P = Q ∘ K ∘ P`, and the
 positive-prefix hypothesis `0 < n` is explicit because the proof controls the
 operator norm through the zeroth approximation number.  The rank bound on `P`
 is retained for source symmetry; only the bound on `Q` is used. -/
-theorem lemma6_3_approximationNumber_leakage
+theorem lemma6_3_approximationNumber_leakage_complex
     (K : E' →L[ℂ] F')
     (P : Submodule ℂ E') [P.HasOrthogonalProjection]
     (Q : Submodule ℂ F') [Q.HasOrthogonalProjection]
@@ -362,14 +362,14 @@ theorem lemma6_3_approximationNumber_leakage
     ‖Q.starProjection ∘L K ∘L (1 - P.starProjection)‖ < η := by
   refine lemma6_3_approximationNumber_leakage_of_energySplit
     K P Q n hn η hη hKP hrankQ ?_ hnear
-  refine paperHilbertSchmidtEnergy_domain_projection_add
+  refine paperHilbertSchmidtEnergy_domain_projection_add_complex
     (Q.starProjection ∘L K) P ?_
   exact isPaperHilbertSchmidt_of_rank_le
     ((rank_starProjection_comp_le K Q).trans hrankQ)
 
 /-- Finite-dimensional singular-value specialization of Lemma 6.3, with the
 source-faithful block hypothesis. -/
-theorem lemma6_3_singularValue_leakage
+theorem lemma6_3_singularValue_leakage_complex
     [FiniteDimensional ℂ E'] [FiniteDimensional ℂ F']
     (K : E' →L[ℂ] F')
     (P : Submodule ℂ E') [P.HasOrthogonalProjection]
@@ -385,7 +385,7 @@ theorem lemma6_3_singularValue_leakage
         ∑ i ∈ Finset.range n,
           ((LinearMap.singularValues K.toLinearMap i : ℝ) ^ 2) - η ^ 2) :
     ‖Q.starProjection ∘L K ∘L (1 - P.starProjection)‖ < η := by
-  apply lemma6_3_approximationNumber_leakage
+  apply lemma6_3_approximationNumber_leakage_complex
     K P Q n hn η hη hKP hrankP hrankQ
   simpa only [approximationEnergy_eq_singularValues] using hnear
 

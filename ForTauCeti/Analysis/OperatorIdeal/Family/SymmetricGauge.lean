@@ -28,7 +28,7 @@ sequence of approximation numbers.
 Each structure field is one approximation-number fact composed with one law of
 `SymmetricGauge.extend`; no new analysis happens here.
 
-* `gauge_add_le` — `ContinuousLinearMap.kyFanGauge_add_le` says the prefix sums
+* `gauge_add_le` — `ContinuousLinearMap.kyFanGauge_add_le_complex` says the prefix sums
   of `a(A + B)` are dominated by those of `a(A) + a(B)`, which
   `SymmetricGauge.extend_le_extend_of_forall_sum_le` converts into a statement
   about the gauge, and `SymmetricGauge.extend_add_le` then splits the right-hand
@@ -42,7 +42,7 @@ Each structure field is one approximation-number fact composed with one law of
 
 ## Why `ℂ`
 
-`ContinuousLinearMap.kyFanGauge_add_le` is unconditional over `ℂ`.  Its
+`ContinuousLinearMap.kyFanGauge_add_le_complex` is unconditional over `ℂ`.  Its
 `RCLike`-generic counterpart carries a `HasMinMaxLowerBoundEverywhere` typeclass,
 so a general-field version of this construction would have to carry it too.  The
 roadmap states the family over `ℂ`, and this is the reason.
@@ -99,11 +99,11 @@ variable {E F : Type*}
   [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
 
 /-- Prefix sums of `approxSeq (A + B)` are dominated by those of the sum
-sequence.  This is `kyFanGauge_add_le` pushed into `ℝ≥0∞`. -/
+sequence.  This is `kyFanGauge_add_le_complex` pushed into `ℝ≥0∞`. -/
 theorem approxSeq_prefix_add_le (A B : E →L[ℂ] F) (k : ℕ) :
     ∑ n ∈ Finset.range k, approxSeq (A + B) n
       ≤ ∑ n ∈ Finset.range k, (approxSeq A n + approxSeq B n) := by
-  have hky := ContinuousLinearMap.kyFanGauge_add_le A B k
+  have hky := ContinuousLinearMap.kyFanGauge_add_le_complex A B k
   simp only [ContinuousLinearMap.kyFanGauge] at hky
   -- Both sides are `ofReal` of a finite sum of nonnegative reals.
   have hL : ∑ n ∈ Finset.range k, approxSeq (A + B) n

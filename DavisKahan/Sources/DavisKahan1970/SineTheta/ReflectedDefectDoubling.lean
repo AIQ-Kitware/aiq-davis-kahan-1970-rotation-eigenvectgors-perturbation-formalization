@@ -49,17 +49,6 @@ variable {𝕜 : Type u} [RCLike 𝕜]
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
   [CompleteSpace E]
 
-omit [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
-  [CompleteSpace E] in
-/-- Equal subspaces have equal orthogonal-projection operators.  Keeping this as
-an operator equality avoids dependent rewrites through
-`HasOrthogonalProjection`. -/
-private theorem starProjection_congr {U W : Submodule 𝕜 E}
-    [U.HasOrthogonalProjection] [W.HasOrthogonalProjection] (h : U = W) :
-    U.starProjection = W.starProjection := by
-  cases h
-  rfl
-
 omit [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜] [CompleteSpace E] in
 /-- The projection onto a mirrored subspace is the conjugated projection. -/
 private theorem starProjection_map_reflectionOperator
@@ -108,7 +97,7 @@ private theorem reflectedDefectBlocks_same
     starProjection_map_reflectionOperator U V
   have hWperpProj : Wᗮ.starProjection =
       V.reflectionOperator ∘L Uᗮ.starProjection ∘L V.reflectionOperator := by
-    rw [← starProjection_congr hperp]
+    rw [← Submodule.starProjection_congr hperp]
     exact starProjection_map_reflectionOperator Uᗮ V
   have hB₀adj : (paperProjectionBlock Wᗮ U D).adjoint =
       U.starProjection ∘L D ∘L Wᗮ.starProjection := by
@@ -123,7 +112,7 @@ private theorem reflectedDefectBlocks_same
       -(V.reflectionOperator ∘L (paperProjectionBlock Wᗮ U D).adjoint ∘L
         V.reflectionOperator) := by
     have hWW : Wᗮᗮ.starProjection = W.starProjection :=
-      starProjection_congr (Submodule.orthogonal_orthogonal W)
+      Submodule.starProjection_congr (Submodule.orthogonal_orthogonal W)
     rw [hB₀adj, paperProjectionBlock, hWW, hWproj, hWperpProj]
     ext x
     simp only [ContinuousLinearMap.comp_apply, neg_apply]
@@ -169,7 +158,7 @@ private theorem offDiagonalBlocks_same
   have hperpBlock : paperProjectionBlock Vᗮᗮ Vᗮ S =
       paperProjectionBlock V Vᗮ S := by
     have hp : Vᗮᗮ.starProjection = V.starProjection :=
-      starProjection_congr (Submodule.orthogonal_orthogonal V)
+      Submodule.starProjection_congr (Submodule.orthogonal_orthogonal V)
     unfold paperProjectionBlock
     rw [hp]
   intro n
@@ -204,7 +193,7 @@ theorem kyFan_reflectionDefectBlock_le_two_mul
       (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[𝕜] E)).starProjection ∘L D ∘L
           U.starProjection = paperProjectionBlock Wᗮ U D := by
     unfold paperProjectionBlock
-    rw [starProjection_congr hperp]
+    rw [Submodule.starProjection_congr hperp]
   rw [hstart]
   have hpairD := paperDiagonalPair_even_kyFan_eq_two_mul_of_same Wᗮ U D
     (reflectedDefectBlocks_same hS U V) k
@@ -215,7 +204,7 @@ theorem kyFan_reflectionDefectBlock_le_two_mul
       Vᗮ.starProjection ∘L S ∘L V.starProjection +
         V.starProjection ∘L S ∘L Vᗮ.starProjection := by
     have hp : Vᗮᗮ.starProjection = V.starProjection :=
-      starProjection_congr (Submodule.orthogonal_orthogonal V)
+      Submodule.starProjection_congr (Submodule.orthogonal_orthogonal V)
     unfold paperDiagonalPair
     rw [hp]
   have hoffdiag : D = (-2 : 𝕜) • paperDiagonalPair Vᗮ V S := by

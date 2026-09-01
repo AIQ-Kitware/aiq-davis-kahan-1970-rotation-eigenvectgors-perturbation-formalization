@@ -101,12 +101,9 @@ qualified as finite-dimensional.
 - `Specialized/` contains distinct useful secondary endpoints.
 - `Alternative/` contains proof-complete duplicate or lower-dependency proofs
   and noncanonical wrapper APIs retained for explicit reuse and cherry-picking.
-- `Experimental/` is a drained staging area, kept out of the production
-  aggregate. Its former contents were promoted to the owners above or deleted;
-  see `Experimental/README.md` for what went where.
 
 The dependency direction is deliberate: canonical bounded and finite modules
-must not import `Sources`, `Specialized`, `Alternative`, or `Experimental`.
+must not import `Sources`, `Specialized`, or `Alternative`.
 Those branches are leaves built on the canonical library.
 
 `import DavisKahan` exposes the supported bounded-operator and

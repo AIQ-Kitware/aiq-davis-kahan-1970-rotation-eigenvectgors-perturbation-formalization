@@ -35,7 +35,7 @@ between projection estimates and operator Riccati equations.
 /-! ## Donor API audit and execution plan
 
 The graph-subspace vendor survey is recorded in
-`dev/graph-subspace-vendor-survey-2026-07-14.md`.  The immediate proof should
+the 2026-07-14 graph-subspace donor survey (Git history).  The immediate proof should
 reuse the pinned Mathlib APIs below rather than rebuilding closed-range or
 inverse-continuity arguments locally.
 

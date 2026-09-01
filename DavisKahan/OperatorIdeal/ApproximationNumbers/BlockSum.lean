@@ -738,7 +738,7 @@ ambient space `H`.  Read through Mathlib's isometric decomposition
 `H ≃ₗᵢ WithLp 2 (U × Uᗮ)` it becomes literally the block sum of the two compressions,
 which is the form the exact Ky Fan prefix formula
 `kyFanApproximationGauge_continuousOrthogonalBlockSum` consumes.  Together with
-`TauCeti.ApproximationNumber.kyFanApproximationGauge_conj_eq` — the gauge is unchanged by
+`TauCeti.ApproximationNumber.kyFanApproximationGauge_conj_eq_complex` — the gauge is unchanged by
 conjugation with a contraction pair — this is what turns a statement about the two
 *restricted* displacements into one about the full displacement, which is Davis--Kahan
 Proposition 4.3's route.

@@ -16,7 +16,7 @@ three stronger interval/exterior and ordered gap configurations.
 ## Migration note (phase S2, 2026-07-28)
 
 The spectrum here was `Spectra.Resolvent.spectrum : Set ℝ` and is now
-`TauCeti.LinearPMap.spectrum : Set ℂ` (`dev/tauceti/spectra-removal-plan.md`).
+`TauCeti.LinearPMap.spectrum : Set ℂ` (the completed Spectra removal).
 The separation is therefore measured by `‖lam - α‖` in `ℂ` rather than `|lam - α|`
 in `ℝ`.  This is the *same* condition whenever the operators are self-adjoint —
 their spectra are real — and it is the honest statement otherwise, which the

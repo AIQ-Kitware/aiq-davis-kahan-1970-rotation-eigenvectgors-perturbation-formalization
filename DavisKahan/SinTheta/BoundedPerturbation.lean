@@ -47,7 +47,7 @@ omit [CompleteSpace H] in
 
 Was stated over `Spectra.Operator.perturbedOp` until 2026-07-28; the canonical
 object is now `TauCeti.LinearPMap.perturb`
-(`dev/tauceti/spectra-removal-plan.md`). -/
+(the completed Spectra removal). -/
 theorem toLinearPMap_addBounded_eq_perturbedOp
     (A : H →ₗ.[𝕜] H) (V : H →L[𝕜] H) :
     (TauCeti.LinearPMap.addBounded A V) =

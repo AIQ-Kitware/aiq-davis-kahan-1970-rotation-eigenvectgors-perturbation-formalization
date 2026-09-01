@@ -5,9 +5,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.SinTheta.Unbounded.AllGap
 import DavisKahan.SinTheta.Unbounded.Core
+import DavisKahan.SinTheta.Unbounded.FormBoundedGap
 import DavisKahan.SinTheta.Unbounded.Gauge
 import DavisKahan.SinTheta.Unbounded.IntervalExterior
-import DavisKahan.SinTheta.Unbounded.LegacyGap
 import DavisKahan.SinTheta.Unbounded.OpNorm
 import DavisKahan.SinTheta.Unbounded.SpectrumGap
 

@@ -3,7 +3,7 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, GPT-5.6 Sol
 -/
-import DavisKahan.Sources.DavisKahan1970.TanTwoThetaWholeSpace
+import DavisKahan.Sources.DavisKahan1970.TanTwoThetaAmbient
 import DavisKahan.DoubleAngle.TanTwoThetaApproximatePair
 
 /-!
@@ -203,7 +203,7 @@ and `hcorner`.  `hblockModulus` deliberately identifies the ambient modulus with
 the two complementary off-diagonal blocks of `K`; this is the exact bridge the
 branch-free reflection construction must supply.  No branch or graph-coordinate
 monotonicity assumption occurs here. -/
-theorem tanTwoTheta_wholeSpace_branchFree_all_kyFan_of_block
+theorem tanTwoTheta_ambient_bounded_kyFan_complex_of_block
     {H K : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {a b : ℝ}
@@ -256,7 +256,7 @@ theorem tanTwoTheta_wholeSpace_branchFree_all_kyFan_of_block
   linarith [hcombine.trans hpinch]
 
 /-- **Branch-independent ambient assembly, source UI-norm form.** -/
-theorem tanTwoTheta_wholeSpace_branchFree_paperUINorm_of_block
+theorem tanTwoTheta_ambient_bounded_paperUINorm_complex_of_block
     (N : PaperUnitaryInvariantNorm)
     {H K : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -278,7 +278,7 @@ theorem tanTwoTheta_wholeSpace_branchFree_paperUINorm_of_block
         kyFanApproximationGauge k (((2 : ℝ) : ℂ) • H) := by
     intro k
     rw [kyFanApproximationGauge_smul, htwo]
-    exact tanTwoTheta_wholeSpace_branchFree_all_kyFan_of_block hH hK hab
+    exact tanTwoTheta_ambient_bounded_kyFan_complex_of_block hH hK hab
       hblockModulus hcorner k
   have hMem2 : N.Mem (((2 : ℝ) : ℂ) • H) := by
     intro htop

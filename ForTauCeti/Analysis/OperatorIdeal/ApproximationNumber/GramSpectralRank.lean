@@ -135,7 +135,7 @@ theorem natCast_succ_le_rank_gramProjection_Ici_of_lt_approximationNumber
   let P : E0 →L[ℂ] E0 :=
     (gramSpectralPVM X).proj (Set.Ici (r ^ 2)) measurableSet_Ici
   obtain ⟨s, hrs, v, hv, hV⟩ :=
-    X.exists_linearIndependent_lowerBound_of_lt_approximationNumber n hr0 hr
+    X.exists_linearIndependent_lowerBound_of_lt_approximationNumber_complex n hr0 hr
   let V : Submodule ℂ E0 := Submodule.span ℂ (Set.range v)
   let b : Module.Basis (Fin (n + 1)) ℂ V := Module.Basis.span hv
   let W : Submodule ℂ E0 := P.range

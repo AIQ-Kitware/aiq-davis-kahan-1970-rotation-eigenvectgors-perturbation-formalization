@@ -360,6 +360,30 @@ theorem prefixGauge_adjoint
     N.prefixGauge n A.adjoint = N.prefixGauge n A := by
   rw [prefixGauge, prefixGauge, approximationPrefix_adjoint]
 
+/-- **Equal approximation numbers give equal gauges, between different pairs of
+spaces.**
+
+`gauge_eq_of_sameApproximationSingularValues` needs the two operators to have the
+same domain and codomain.  A source norm sees only the singular-value sequence,
+so no such restriction is needed, and the rectangular form is what relates an
+ambient projection block `E → E` to its compression `Γ → Ω`. -/
+theorem extendedGauge_eq_of_hasSameApproximationNumbers
+    {𝕜 : Type u} [RCLike 𝕜]
+    {E₁ F₁ E₂ F₂ : Type v}
+    [NormedAddCommGroup E₁] [InnerProductSpace 𝕜 E₁] [CompleteSpace E₁]
+    [NormedAddCommGroup F₁] [InnerProductSpace 𝕜 F₁] [CompleteSpace F₁]
+    [NormedAddCommGroup E₂] [InnerProductSpace 𝕜 E₂] [CompleteSpace E₂]
+    [NormedAddCommGroup F₂] [InnerProductSpace 𝕜 F₂] [CompleteSpace F₂]
+    (N : PaperUnitaryInvariantNorm) {A : E₁ →L[𝕜] F₁} {B : E₂ →L[𝕜] F₂}
+    (h : A.HasSameApproximationNumbers B) :
+    N.extendedGauge A = N.extendedGauge B := by
+  unfold PaperUnitaryInvariantNorm.extendedGauge
+  refine iSup_congr fun n => ?_
+  have hpre : approximationPrefix n A = approximationPrefix n B := by
+    funext i
+    exact h (i : ℕ)
+  rw [prefixGauge, prefixGauge, hpre]
+
 /-- Equality of complete approximation singular-value sequences gives equality
 for every paper-defined norm, including simultaneous ideal membership. -/
 theorem gauge_eq_of_sameApproximationSingularValues

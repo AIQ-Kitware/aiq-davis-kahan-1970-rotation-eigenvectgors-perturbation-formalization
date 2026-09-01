@@ -21,7 +21,7 @@ Each is a wrapper over two independently proved theorems and adds no mathematics
   carries the classification *content* with no compactness, no finite dimension and no
   separability; and
 * the spectral-multiplicity translation of its generic invariant --
-  `TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv` over `ℂ`, and
+  `TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv_complex` over `ℂ`, and
   `TauCeti.DavisKahan.RealSpectralRestriction.sameSpectralMultiplicity_iff_operatorUnitaryEquiv_real`
   over `ℝ` -- which is Hahn--Hellinger, and which Mathlib has for no scalar field.
 
@@ -189,7 +189,7 @@ invariant for ordered pairs of subspaces of a complex Hilbert space.
 
 See the module docstring for the choice of angle operator and for the status of the separability
 hypothesis. -/
-theorem theorem3_1_spectralMultiplicity_classification
+theorem theorem3_1_spectralMultiplicity_classification_complex
     [TopologicalSpace.SeparableSpace H₁] :
     PairOfSubspacesUnitaryEquivalent U₁ V₁ U₂ V₂ ↔
       SameHalmosTrivialDimensions U₁ V₁ U₂ V₂ ∧
@@ -199,12 +199,12 @@ theorem theorem3_1_spectralMultiplicity_classification
   rw [twoProjection_operator_classification]
   constructor
   · rintro ⟨htriv, hgen⟩
-    refine ⟨htriv, sameSpectralMultiplicity_of_operatorUnitaryEquiv _ _ ?_ ?_⟩
+    refine ⟨htriv, sameSpectralMultiplicity_of_operatorUnitaryEquiv_complex _ _ ?_ ?_⟩
     · exact isSelfAdjoint_genericCosineBlock U₁ V₁
     · exact (operatorUnitaryEquiv_iff_boundedOperatorsUnitaryEquivalent _ _).2 hgen
   · rintro ⟨htriv, hmult⟩
     exact ⟨htriv, (operatorUnitaryEquiv_iff_boundedOperatorsUnitaryEquivalent _ _).1
-      (operatorUnitaryEquiv_of_sameSpectralMultiplicity _ _ hmult)⟩
+      (operatorUnitaryEquiv_of_sameSpectralMultiplicity_complex _ _ hmult)⟩
 
 end ComplexClassification
 

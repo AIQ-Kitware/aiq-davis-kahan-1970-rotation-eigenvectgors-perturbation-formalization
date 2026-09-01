@@ -26,7 +26,8 @@ spectral coordinate on the assembled `L²` space.
 
 ## The chain
 
-1. `exists_countable_isHilbertSum_lp_diagMeasure`: `H` is the Hilbert sum of the `L²` spaces of
+1. `exists_countable_isHilbertSum_lp_diagMeasure_complex`: `H` is the Hilbert sum of the `L²`
+spaces of
    the scalar spectral measures of countably many vectors, with `a` acting by coordinate
    multiplication on each.
 2. `embLpEquiv`: those measures move off the `spectrum` subtype onto `ℂ`, where models of
@@ -46,8 +47,10 @@ normalisation needs, since ranks count *earlier* indices.
 * `TauCeti.MultiplicityDatum.multiplicity` and `TauCeti.MultiplicityDatum.mem_level_iff`: the
   **cardinal-valued multiplicity function**, and the fact that the datum's level sets are
   exactly its super-level sets.  `measurable_multiplicity` proves it measurable.
-* `TauCeti.exists_hasMultiplicityModel`: **existence of a model.**
-* `TauCeti.operatorUnitaryEquiv_of_measureEquiv`: **data agreeing up to measure class and null
+* `TauCeti.exists_hasMultiplicityModel`: **existence of a
+model.**
+* `TauCeti.operatorUnitaryEquiv_of_measureEquiv_complex`: **data agreeing up to measure class and
+null
   sets present unitarily equivalent operators.**
 
 ## Provenance
@@ -512,9 +515,11 @@ theorem MultiplicityDatum.operator_eq_mulLpField_of_le {𝕜 : Type*} [RCLike �
   simp only [Function.comp_apply, coordTruncField, coordTrunc_eq_self hp,
     coordTrunc_eq_self (hp.trans hle)]
 
-/-- **Data agreeing up to measure class and null sets have model measures in the same class.**
+/-- **Data agreeing up to measure class and null sets have model measures in the same
+class.**
 
-Split out of `operatorUnitaryEquiv_of_measureEquiv` because it is scalar-field independent -- the
+Split out of `operatorUnitaryEquiv_of_measureEquiv_complex` because it is scalar-field independent
+-- the
 model *measure* never mentions `𝕜` -- and the real classification needs it at `𝕜 = ℝ`. -/
 theorem measureEquiv_measure_of_measureEquiv_base {𝕜 : Type*} [RCLike 𝕜]
     {D E : MultiplicityDatum 𝕜} (hbase : MeasureEquiv D.base E.base)
@@ -533,7 +538,7 @@ The measure classes of the two model measures agree fibrewise -- restricting one
 almost-equal sets gives literally the same measure, and the bases are equivalent -- so the
 Radon--Nikodym unitary applies once the two coordinate symbols are truncated at a common
 bound. -/
-theorem operatorUnitaryEquiv_of_measureEquiv {D E : MultiplicityDatum ℂ}
+theorem operatorUnitaryEquiv_of_measureEquiv_complex {D E : MultiplicityDatum ℂ}
     (hbase : MeasureEquiv D.base E.base)
     (hlevel : ∀ k, D.base (symmDiff (D.level k) (E.level k)) = 0) :
     OperatorUnitaryEquiv D.operator E.operator := by
@@ -578,7 +583,7 @@ theorem exists_hasMultiplicityModel [TopologicalSpace.SeparableSpace H] (ha : Is
   have hmeasSpec : MeasurableSet (spectrum ℂ a) := (spectrum.isCompact a).isClosed.measurableSet
   have hemb : MeasurableEmbedding ((↑) : spectrum ℂ a → ℂ) :=
     MeasurableEmbedding.subtype_coe hmeasSpec
-  obtain ⟨ξ, hsum⟩ := exists_countable_isHilbertSum_lp_diagMeasure ha
+  obtain ⟨ξ, hsum⟩ := exists_countable_isHilbertSum_lp_diagMeasure_complex ha
   have hfin : ∀ n, IsFiniteMeasure (Measure.map ((↑) : spectrum ℂ a → ℂ)
       (diagMeasure ha (ξ n))) := fun n => Measure.isFiniteMeasure_map _ _
   have hsum' : IsHilbertSum ℂ

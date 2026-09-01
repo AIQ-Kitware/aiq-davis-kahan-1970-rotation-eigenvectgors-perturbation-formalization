@@ -141,14 +141,15 @@ theorem exists_linearIsometryEquiv_lp_realSpectrumDiagMeasure (ha : IsSelfAdjoin
 
 /-- **The real-spectrum cyclic decomposition of a separable space, indexed by `ℕ`.**
 
-This is `exists_countable_isHilbertSum_lp_diagMeasure` transported; in particular the enumeration
+This is `exists_countable_isHilbertSum_lp_diagMeasure_complex` transported; in particular the
+enumeration
 and the zero-padding of `SeparableCyclic.lean` are reused rather than repeated, because the
 transport does not touch the index. -/
 theorem exists_countable_isHilbertSum_lp_realSpectrumDiagMeasure
     [TopologicalSpace.SeparableSpace H] (ha : IsSelfAdjoint a) :
     ∃ ξ : ℕ → H, IsHilbertSum ℂ (fun n => Lp ℂ 2 (realSpectrumDiagMeasure ha (ξ n)))
       (fun n => realSpectrumCyclicIsometry ha (ξ n)) := by
-  obtain ⟨ξ, hsum⟩ := exists_countable_isHilbertSum_lp_diagMeasure ha.isStarNormal
+  obtain ⟨ξ, hsum⟩ := exists_countable_isHilbertSum_lp_diagMeasure_complex ha.isStarNormal
   exact ⟨ξ, isHilbertSum_lp_realSpectrumDiagMeasure_of_isHilbertSum ha hsum⟩
 
 end Decomposition

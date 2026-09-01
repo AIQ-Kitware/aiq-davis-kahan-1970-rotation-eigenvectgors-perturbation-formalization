@@ -45,3 +45,12 @@ name = "Challenge"
 
 [[lean_lib]]
 name = "Solution"
+
+# The Section 2 Palomar entry. `Palomar/DKSectionTwo/Challenge.lean` states Davis
+# and Kahan's four unnumbered Section 2 theorems against Mathlib alone, with four
+# deliberate statement-side holes; `Palomar/DKSectionTwo/Solution.lean` repeats the
+# vocabulary verbatim and proves the same four declarations from the libraries
+# above. Comparator checks that the two agree.
+[[lean_lib]]
+name = "Palomar"
+globs = ["Palomar.*"]

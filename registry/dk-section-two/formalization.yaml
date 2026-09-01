@@ -1,0 +1,139 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+#
+# Metadata for the Davis-Kahan 1970 extraction.
+#
+# This repository carries the proof. It is an extraction of the corresponding
+# packages from AIQ-Kitware/aiq-dkps-formalization, which remains authoritative;
+# see README.md for what that means for updates.
+version: v0.4
+project:
+  name: 'Davis-Kahan 1970: the four Section 2 theorems'
+  description: 'Machine-checked proofs of the four unnumbered theorems Davis and Kahan
+    open Section 2 with, at the scope the paper states them: a Hilbert space of arbitrary
+    dimension over the reals or the complexes, an ambient self-adjoint operator that may be
+    unbounded, an arbitrary unitarily invariant norm, and separating intervals that may be
+    half-infinite. Seven printed inequality clauses in all -- sin-Theta, and a directed and
+    an ambient clause each for tan-Theta, sin-2-Theta and tan-2-Theta -- with the printed
+    residual on the right, the printed constants one and two, and the trial subspace assumed
+    only to reduce the operator rather than to be selected spectrally. The two tangent
+    families additionally conclude, rather than assume, that no principal angle sits at the
+    tangent''s pole.'
+  authors:
+  - Jon Crall
+  - Edward Wang
+  license: Apache-2.0
+  responsible_maintainers:
+  - Jon Crall
+# `repository` is omitted deliberately. Current Palomar policy omits it when the
+# submitted repository contains the substantive development, and records that
+# default as `substantive-development` in the mechanical report; the explicit
+# `repository.role` spelling is still accepted but unnecessary. This repository
+# physically contains the proof -- ForTauCeti and DavisKahan, copied verbatim and
+# built here -- so it is a substantive development, not a thin wrapper.
+classification:
+  arxiv:
+  - math.FA
+  - math.NA
+  msc2020:
+  - 47A55
+  - 47A15
+  - 15A42
+  - 65F15
+sources:
+- title: The rotation of eigenvectors by a perturbation. III
+  authors:
+  - Chandler Davis
+  - William M. Kahan
+  id: doi:10.1137/0707001
+  type: paper
+  location: SIAM Journal on Numerical Analysis 7(1), 1970, 1-46
+  relationship: formalizes
+  note: 'The compared theorems are the four unnumbered ones of Section 2, at the printed
+    scope, with no added hypothesis and no weakened conclusion. Two scope decisions are
+    disclosed. The sin-2-Theta directed clause takes a bounded trial compression, which is
+    what the Appendix to Section 6 supports: the Appendix relaxes the sine family to allow
+    one of the two exact blocks to be unbounded and reserves "both may be unbounded" for the
+    tangent theorem, and names no double-angle result at all. And a doubled angle is presented
+    by its own sine rather than by doubling the single angle, because t -> sin 2t is not
+    monotone on [0, pi/2] and so no indexwise map carries the ordered singular values of
+    sin Theta to those of sin 2 Theta. One disclosure about the wider formalization, not part
+    of this entry: printed Proposition 4.4 is false and carries a machine-checked
+    counterexample together with the natural Q-norm repair.'
+  author_endorsement: not-contacted
+status:
+  scope: 'Formalized and compared here: the four Section 2 theorems, seven printed
+    inequality clauses, at an arbitrary RCLike scalar field, arbitrary dimension, an
+    unbounded self-adjoint ambient operator, an arbitrary unitarily invariant norm, and
+    a reducing rather than spectrally selected trial subspace. Not compared here: the rest
+    of the 1970 paper -- Sections 3 to 10, the direct-rotation theory, the counterexamples,
+    and the sharpness material -- all of which is formalized in the `DavisKahan` library
+    included here. The source-order census and the semantic-audit apparatus that track that
+    wider coverage stay in the authoritative repository and are deliberately not duplicated
+    here; this repository does not make a completion claim about the 1970 paper.
+    `Palomar/DKSectionTwo/Challenge.lean` carries the four deliberate statement-side holes
+    the Comparator convention requires, and no library declaration in `ForTauCeti` or
+    `DavisKahan` is left incomplete.'
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+automation:
+  methods:
+  - method: agent
+    models:
+    - claude-opus-5
+    - claude-opus-4-8
+    - claude-fable-5
+    - gpt-5.6-terra
+    - gpt-5.6-sol
+    framework: Claude Code
+    tool_setup: Agents worked directly in the authoritative repository with the Lean
+      toolchain, running `lake build` and that repository's gate suite; the libraries here
+      are the extraction of the result. Model attribution is recorded per declaration in the
+      module provenance headers carried into this repository, and per commit in Co-Authored-By
+      trailers and in the measured token ledger, both of which stay in the authoritative
+      repository along with the gate suite.
+    cost:
+      wall_time: not tracked as elapsed time; the ledger records 44657 assistant turns across
+        1591 accounted commits
+      spend_usd: subscription-based; not tracked per commit
+      hardware: API-only
+    prompting_notes: 'Work was directed by task, not by prompt template: a scope decision
+      from the maintainer, then autonomous proof and audit work against the source censuses.
+      Adversarial review prompts are checked in under `dev/` and are part of the audit record.'
+  - method: manual
+    framework: n/a
+    tool_setup: The human maintainer set scope and priorities, ran builds and audits, inspected
+      theorem interfaces, coordinated subject-matter discussion with the applied-paper authors,
+      adjudicated source-fidelity questions, accepted or rejected proposed repairs, and decided
+      repository policy.
+  spend_usd: subscription-based; not tracked
+  notes: This is a heavily agent-authored formalization with human direction and review. The
+    Lean kernel is the proof checker, and it checks the libraries here exactly as it checks
+    them upstream. The mechanical gates that additionally audit dependency layering, axiom
+    closure, census consistency and comparator statement equality run in the authoritative
+    repository and are deliberately not duplicated here. Those checks do not establish that a
+    Lean statement says what a paper says, which is why every source paper carries a separate
+    clause-by-clause semantic review, also maintained there.
+fidelity:
+  divergences: 'None for the compared theorem: it is the printed statement at the stated scope.
+    Divergences elsewhere in the source paper are recorded in the substantive repository and
+    are summarized in the source note above.'
+review:
+  status: self-assessed
+  reviewers:
+  - Jon Crall
+  notes: 'No external peer review. What has happened, and should be read as exactly that:
+    kernel verification of every claimed declaration by `lake build`; repository gates auditing
+    dependency layers, axiom closure, docstring coverage, comparator statement equality and
+    census consistency; repeated adversarial source audits in which an independent agent was
+    asked to find a discrepancy between a printed statement and its Lean rendering, several
+    of which found real defects that are recorded in the censuses; and human coordinator review
+    of scope, theorem interfaces and repair decisions.
+
+    For Davis–Kahan 1970 the authoritative repository generates a self-contained
+    compiler-evidence bundle and source-order audit packet. That certificate proves elaboration
+    and declaration resolution. It does not prove source equivalence, and the completion
+    standard is deliberately three independent axes: source-facing implementation, compiler
+    verification, and hostile semantic acceptance. The census and audit apparatus that carries
+    those axes is not extracted here; this repository makes no completion claim about the
+    1970 paper.'

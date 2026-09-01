@@ -5,7 +5,7 @@ Staged for Mathlib: additions to `Mathlib/Analysis/InnerProductSpace/` (new file
 Block identities and spectral repulsion (plan steps G2.1, G2.2a) formalized by
 Claude Opus 4.8 (claude-opus-4-8[1m]); statement gate (G2.0) and the tan 2Θ
 headline proof (G2.2b) by Claude Fable 5 (claude-fable-5[1m]);
-`dev/davis-kahan-expert-completion-plan.md`.
+the July 2026 completion campaign (Git history).
 
 The subspace Davis–Kahan tan 2Θ theorem and its supporting bricks.  The
 *vanishing-pinch* hypothesis — the perturbation has no diagonal block with

@@ -16,7 +16,7 @@ at every Ky-Fan-dominant unitarily invariant ideal gauge
 (`DavisKahan/DoubleAngle/RealUnboundedIdeal.lean`), but its conclusion is about
 the *canonical reflected overlap block* `sinTwoThetaIdealBlock U V`, not about a
 named real angle operator.  Over `ℂ` the two are tied together by
-`norm_sinTwoThetaIdealBlock`; that identification is stated for
+`norm_sinTwoThetaIdealBlock_complex`; that identification is stated for
 `sinTwoAngleOperatorC`, so nothing carried it to the reals.
 
 This module supplies the missing geometric renaming, and with it the printed
@@ -136,7 +136,7 @@ theorem complexify_sinTwoThetaIdealBlock (U V : Submodule ℝ E)
 Hilbert space.**  The canonical reflected overlap block has exactly the norm of
 the real `sin 2Θ` of the pair.
 
-This is the real counterpart of `norm_sinTwoThetaIdealBlock`, whose statement is
+This is the real counterpart of `norm_sinTwoThetaIdealBlock_complex`, whose statement is
 about `sinTwoAngleOperatorC` and therefore never left the complex scalars. -/
 theorem norm_sinTwoThetaIdealBlock_real (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
@@ -144,7 +144,7 @@ theorem norm_sinTwoThetaIdealBlock_real (U V : Submodule ℝ E)
   rw [← norm_complexify (sinTwoThetaIdealBlock U V),
     ← norm_complexify (paperSinTwoAngleOperatorR U V),
     complexify_sinTwoThetaIdealBlock, complexify_paperSinTwoAngleOperatorR,
-    norm_sinTwoThetaIdealBlock,
+    norm_sinTwoThetaIdealBlock_complex,
     norm_paperSinTwoAngleOperatorC_eq_norm_sinTwoAngleOperatorC]
 
 /-! ## The printed operator-norm conclusions over a real Hilbert space

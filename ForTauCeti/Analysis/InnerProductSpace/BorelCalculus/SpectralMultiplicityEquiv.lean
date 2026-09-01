@@ -19,7 +19,7 @@ over `ℂ`, the relation is exactly unitary equivalence.
   measures lie in the same measure class and whose level sets agree up to null sets.  It is
   stated over an arbitrary `RCLike` scalar field: the spectral parameter and the base measure
   stay complex, and only the `L²` fibres and the model operator use `𝕜`.
-* `TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv` is the complex classification:
+* `TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv_complex` is the complex classification:
   two bounded self-adjoint operators on complex Hilbert spaces, the first separable, have the
   same multiplicity data if and only if they are unitarily equivalent.
 
@@ -42,7 +42,7 @@ in the structure only because that makes every hypothesis a plain `MeasurableSet
 Both classification theorems below stay at `𝕜 = ℂ`, for different reasons.
 
 * The direction from multiplicity data to unitary equivalence rests on
-  `TauCeti.operatorUnitaryEquiv_of_measureEquiv`, whose Radon--Nikodym unitary is complex.
+  `TauCeti.operatorUnitaryEquiv_of_measureEquiv_complex`, whose Radon--Nikodym unitary is complex.
 * The converse rests on `TauCeti.BorelCalculus.exists_hasMultiplicityModel`, complex
   Hahn--Hellinger, and that is where separability of the first space is spent: a model is built
   from a *countable* cyclic decomposition, and countability of the index is what lets the
@@ -57,11 +57,12 @@ theorem; only the *definition* above is shared, and it is already field-generic.
 ## Main results
 
 * `TauCeti.SameSpectralMultiplicity`: the relation.
-* `TauCeti.operatorUnitaryEquiv_of_sameSpectralMultiplicity`: same data implies unitary
+* `TauCeti.operatorUnitaryEquiv_of_sameSpectralMultiplicity_complex`: same data implies unitary
   equivalence, with no separability hypothesis on either space.
-* `TauCeti.sameSpectralMultiplicity_of_operatorUnitaryEquiv`: unitary equivalence implies the
+* `TauCeti.sameSpectralMultiplicity_of_operatorUnitaryEquiv_complex`: unitary equivalence implies
+the
   same data, for a self-adjoint operator on a separable space.
-* `TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv`: the classification.
+* `TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv_complex`: the classification.
 
 ## Provenance
 
@@ -93,8 +94,10 @@ parameter and base measure remain complex; only the `L²` fibres and model opera
 The measure class is `TauCeti.MeasureEquiv`, a named relation proved to be an `Equivalence` at
 the point of definition so that the quotient can be formed later.
 
-This is an existential over *presentations*, and it is what makes
-`TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv` provable.  It is **not** a canonical
+This is an existential over *presentations*, and it is what
+makes
+`TauCeti.sameSpectralMultiplicity_iff_operatorUnitaryEquiv_complex` provable.  It is **not** a
+canonical
 invariant: nothing here says the datum of an operator is unique. -/
 def SameSpectralMultiplicity (A : H₁ →L[𝕜] H₁) (B : H₂ →L[𝕜] H₂) : Prop :=
   ∃ D E : MultiplicityDatum 𝕜,
@@ -134,13 +137,14 @@ variable {H₂ : Type v} [NormedAddCommGroup H₂] [InnerProductSpace ℂ H₂]
 either space.
 
 Chain the two models: `A ≃ D.operator ≃ E.operator ≃ B`.  The statement remains at the complex
-specialization because the middle step `TauCeti.operatorUnitaryEquiv_of_measureEquiv` uses the
+specialization because the middle step `TauCeti.operatorUnitaryEquiv_of_measureEquiv_complex` uses
+the
 complex `rnDerivL2Equiv` API; the real analogue is proved separately from
 `TauCeti.operatorUnitaryEquiv_of_measureEquiv_real`. -/
-theorem operatorUnitaryEquiv_of_sameSpectralMultiplicity (A : H₁ →L[ℂ] H₁) (B : H₂ →L[ℂ] H₂)
+theorem operatorUnitaryEquiv_of_sameSpectralMultiplicity_complex (A : H₁ →L[ℂ] H₁) (B : H₂ →L[ℂ] H₂)
     (h : SameSpectralMultiplicity A B) : OperatorUnitaryEquiv A B := by
   obtain ⟨D, E, hAD, hBE, hbase, hlevel⟩ := h.exists_models
-  exact hAD.trans ((operatorUnitaryEquiv_of_measureEquiv hbase hlevel).trans hBE.symm)
+  exact hAD.trans ((operatorUnitaryEquiv_of_measureEquiv_complex hbase hlevel).trans hBE.symm)
 
 /-- **Unitary equivalence implies the same multiplicity data.**
 
@@ -149,7 +153,7 @@ separability of `H₁`: a model for `A` is built from a *countable* cyclic decom
 countability of the index is what lets the level-set normalisation run, since ranks count
 earlier indices.  `H₂` needs nothing -- `B` inherits `A`'s model along the given unitary, so the
 same datum serves for both. -/
-theorem sameSpectralMultiplicity_of_operatorUnitaryEquiv [CompleteSpace H₁]
+theorem sameSpectralMultiplicity_of_operatorUnitaryEquiv_complex [CompleteSpace H₁]
     [TopologicalSpace.SeparableSpace H₁] (A : H₁ →L[ℂ] H₁) (B : H₂ →L[ℂ] H₂)
     (hA : IsSelfAdjoint A) (h : OperatorUnitaryEquiv A B) : SameSpectralMultiplicity A B := by
   obtain ⟨D, hAD⟩ := BorelCalculus.exists_hasMultiplicityModel hA.isStarNormal
@@ -161,15 +165,16 @@ theorem sameSpectralMultiplicity_of_operatorUnitaryEquiv [CompleteSpace H₁]
 Hilbert space up to unitary equivalence.**
 
 Separability is carried on `H₁` only, and is needed for `→` alone; see
-`TauCeti.operatorUnitaryEquiv_of_sameSpectralMultiplicity` for the separability-free converse.
+`TauCeti.operatorUnitaryEquiv_of_sameSpectralMultiplicity_complex` for the separability-free
+converse.
 Self-adjointness of `B` is not needed: it follows from that of `A` along the unitary, and in the
 `←` direction it is not used at all. -/
-theorem sameSpectralMultiplicity_iff_operatorUnitaryEquiv [CompleteSpace H₁]
+theorem sameSpectralMultiplicity_iff_operatorUnitaryEquiv_complex [CompleteSpace H₁]
     [TopologicalSpace.SeparableSpace H₁] (A : H₁ →L[ℂ] H₁) (B : H₂ →L[ℂ] H₂)
     (hA : IsSelfAdjoint A) :
     SameSpectralMultiplicity A B ↔ OperatorUnitaryEquiv A B :=
-  ⟨operatorUnitaryEquiv_of_sameSpectralMultiplicity A B,
-    sameSpectralMultiplicity_of_operatorUnitaryEquiv A B hA⟩
+  ⟨operatorUnitaryEquiv_of_sameSpectralMultiplicity_complex A B,
+    sameSpectralMultiplicity_of_operatorUnitaryEquiv_complex A B hA⟩
 
 end ComplexClassification
 

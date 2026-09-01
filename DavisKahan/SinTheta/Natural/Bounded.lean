@@ -139,7 +139,7 @@ variable {E F : Type v}
 
 /-- Bounded real isometric theorem with a canonical descended spectral
 subspace. -/
-theorem sinTheta_bounded_real_spectralSubspace
+theorem sinTheta_bounded_spectralSubspace_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     (A : E →L[ℝ] E) (hA : A.IsSymmetric)
     (S : Set ℝ) (hS : MeasurableSet S)
@@ -190,7 +190,7 @@ theorem sinTheta_bounded_real_spectralSubspace
 
 /-- Bounded real lower-frame theorem with a canonical descended spectral
 subspace. -/
-theorem generalizedSinTheta_bounded_real_spectralSubspace
+theorem sinTheta_generalized_bounded_spectralSubspace_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     (A : E →L[ℝ] E) (hA : A.IsSymmetric)
     (S : Set ℝ) (hS : MeasurableSet S)

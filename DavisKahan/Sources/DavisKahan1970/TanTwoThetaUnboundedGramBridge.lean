@@ -6,6 +6,11 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedKyFan
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Lemma61
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.GramResolvent
+import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.TangentTransfer
+import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.SubspaceTransport
+import DavisKahan.DoubleAngle.AngleTransport
+import DavisKahan.InfiniteDimensional.DoubleAngle
+import DavisKahan.Geometry.Polar.DirectRotation
 import ForTauCeti.Analysis.SpecialFunctions.TanArcsin
 import DavisKahan.Sources.DavisKahan1970.Ideals.SpectralSelection
 
@@ -52,6 +57,8 @@ statement is about the two corners alone.
   equation.
 * `approximationNumber_reflectionTangentCorner_le` — Checkpoint A,
   `aₙ(T₀) ≤ tan (arcsin aₙ(S₀))`.
+* `approximationNumber_reflectionTangentCorner` — the same as an *equality*, so
+  the corner carries the paper's `|tan 2θⱼ|` sequence exactly.
 
 ## References
 
@@ -411,7 +418,7 @@ theorem approximationNumber_reflectionTangentCorner_le
     lt_of_le_of_lt (ContinuousLinearMap.approximationNumber_le_norm _ n) hX1
   have hres := approximationNumber_le_of_gramResolvent (reflectionSineCorner U Z)
     hX1 (gramOperator_reflectionTangentCorner_moebius hZsa hZ2 hCC) n
-  rw [approximationNumber_gramOperator (reflectionTangentCorner U Z) n] at hres
+  rw [approximationNumber_gramOperator_complex (reflectionTangentCorner U Z) n] at hres
   have hden : (0 : ℝ) < 1 - sig ^ 2 := by nlinarith
   have hsqrt : Real.sqrt (1 - sig ^ 2) * Real.sqrt (1 - sig ^ 2) = 1 - sig ^ 2 :=
     Real.mul_self_sqrt hden.le
@@ -423,6 +430,113 @@ theorem approximationNumber_reflectionTangentCorner_le
     ContinuousLinearMap.approximationNumber_nonneg _ _
   have ht0 : 0 ≤ Real.tan (Real.arcsin sig) := TanArcsin.tanArcsin_nonneg hsig0
   nlinarith [hres, htanSq]
+
+/-- **Checkpoint A, as an equality.**
+
+`aₙ(T₀) = tan (arcsin aₙ(S₀))` for every `n`: the directed tangent corner does
+not merely obey the tangent bound, it *is* the tangent of the angle the directed
+sine corner presents, singular value by singular value.
+
+The reverse of `approximationNumber_reflectionTangentCorner_le` was out of reach
+while only the forward Gram-resolvent transfer existed.  It is the *forward*
+transfer for the inverse Möbius map `u ↦ u/(1+u)`, which is what
+`TauCeti.ApproximationNumber.approximationNumber_le_of_gramContraction` supplies;
+`approximationNumber_eq_tanArcsin_of_gramMoebius` puts the two together, and the
+typed Gram relation `gramOperator_reflectionTangentCorner_moebius` is exactly its
+hypothesis.
+
+This is the statement a `tan 2Θ₀` bound in a unitarily invariant norm needs: the
+paper's `tan 2Θ₀` is the sequence `|tan 2θⱼ|`, and this says the corner's
+singular values are that sequence, each directed angle appearing once. -/
+theorem approximationNumber_reflectionTangentCorner
+    (hZsa : IsSelfAdjoint Z) (hZ2 : Z * Z = 1)
+    (hS1 : ‖U.offDiagonalPart Z‖ < 1) (n : ℕ) :
+    (reflectionTangentCorner U Z).approximationNumber n =
+      Real.tan (Real.arcsin
+        ((reflectionSineCorner U Z).approximationNumber n)) := by
+  have hCC : IsUnit (U.diagonalPart Z * U.diagonalPart Z) := by
+    refine isUnit_diagonalPart_sq hZ2 ?_
+    have h := norm_mul_le (U.offDiagonalPart Z) (U.offDiagonalPart Z)
+    nlinarith [norm_nonneg (U.offDiagonalPart Z)]
+  have hX1 : ‖reflectionSineCorner U Z‖ < 1 :=
+    lt_of_le_of_lt norm_reflectionSineCorner_le hS1
+  exact approximationNumber_eq_tanArcsin_of_gramMoebius (reflectionSineCorner U Z)
+    (reflectionTangentCorner U Z) hX1
+    (gramOperator_reflectionTangentCorner_moebius hZsa hZ2 hCC) n
+
+section IdealBlockBridge
+
+variable (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
+
+/-- **The directed sine corner carries the paper's `sin 2Θ₀` singular values.**
+
+`reflectionSineCorner U J_V : U → Uᗮ` is `P_{Uᗮ} J_V |_U`, the corner the
+unbounded `tan 2Θ` argument works in.  `DavisKahan.sinTwoThetaIdealBlock U V` is
+`P_U P_{J_V Uᗮ}`, the ambient block whose approximation numbers
+`DavisKahan.sinTwoThetaIdealBlock_hasSameApproximationNumbers` identifies with
+those of the paper's `sin 2Θ₀`.  The two have the same singular values.
+
+The route is three moves and no defect hypothesis: extending the corner to the
+ambient space gives `P_{Uᗮ} J_V P_U`; taking adjoints gives `P_U J_V P_{Uᗮ}`;
+and `P_{J_V Uᗮ} = J_V P_{Uᗮ} J_V` turns the ideal block into that same operator
+composed with the involution `J_V`, which no singular value sees.
+
+In particular each principal angle is counted **once**, as the directed
+statement requires -- the ambient `unboundedReflectionTangent U J_V` counts it
+twice, which is why the directed clause must not be routed through it. -/
+theorem hasSameApproximationNumbers_reflectionSineCorner_sinTwoThetaIdealBlock :
+    (reflectionSineCorner U V.reflectionOperator).HasSameApproximationNumbers
+      (DavisKahan.sinTwoThetaIdealBlock U V) := by
+  set J : H →L[ℂ] H := V.reflectionOperator with hJdef
+  have hJsa : IsSelfAdjoint J :=
+    TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V
+  have hJ2 : J * J = 1 := TauCeti.DavisKahan.reflectionOperator_mul_self_complex V
+  have hJJ : ∀ x, J (J x) = x := fun x => by
+    have h := congrArg (fun T : H →L[ℂ] H => T x) hJ2
+    simpa using h
+  have hJnorm : ‖J‖ ≤ 1 :=
+    ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => by
+      rw [TauCeti.norm_apply_of_isSelfAdjoint_of_mul_self hJsa hJ2, one_mul]
+  -- the corner, extended to the ambient space
+  have hamb : Uᗮ.subtypeL ∘L reflectionSineCorner U J ∘L U.subtypeL.adjoint
+      = Uᗮ.starProjection ∘L J ∘L U.starProjection := by
+    ext x
+    simp only [ContinuousLinearMap.comp_apply, reflectionSineCorner,
+      paperBlockCompression, Submodule.adjoint_subtypeL, Submodule.subtypeL_apply,
+      Submodule.coe_orthogonalProjectionOnto_apply]
+  -- its adjoint
+  have hstar : star (Uᗮ.starProjection ∘L J ∘L U.starProjection)
+      = U.starProjection ∘L J ∘L Uᗮ.starProjection := by
+    show star (Uᗮ.starProjection * J * U.starProjection) = _
+    rw [star_mul, star_mul, hJsa.star_eq,
+      (isSelfAdjoint_starProjection U).star_eq,
+      (isSelfAdjoint_starProjection Uᗮ).star_eq]
+    rfl
+  -- the ideal block is that adjoint, composed with the involution
+  have hblock : DavisKahan.sinTwoThetaIdealBlock U V
+      = (U.starProjection ∘L J ∘L Uᗮ.starProjection) ∘L J := by
+    rw [DavisKahan.sinTwoThetaIdealBlock,
+      DavisKahan.starProjection_map_unitary Uᗮ V.reflection]
+    unfold DavisKahan.boundedUnitaryConjugate
+    rw [Submodule.reflection_symm]
+    rfl
+  intro n
+  calc (reflectionSineCorner U J).approximationNumber n
+      = (Uᗮ.subtypeL ∘L reflectionSineCorner U J ∘L
+          U.subtypeL.adjoint).approximationNumber n :=
+        ((ContinuousLinearMap.hasSameApproximationNumbers_ambientSubspaceBlock U Uᗮ
+          (reflectionSineCorner U J)) n).symm
+    _ = (Uᗮ.starProjection ∘L J ∘L U.starProjection).approximationNumber n := by
+        rw [hamb]
+    _ = (U.starProjection ∘L J ∘L Uᗮ.starProjection).approximationNumber n := by
+        rw [← hstar, ContinuousLinearMap.star_eq_adjoint,
+          ContinuousLinearMap.approximationNumber_adjoint]
+    _ = ((U.starProjection ∘L J ∘L Uᗮ.starProjection) ∘L J).approximationNumber n :=
+        (ContinuousLinearMap.hasSameApproximationNumbers_comp_right hJnorm hJnorm
+          hJJ n).symm
+    _ = (DavisKahan.sinTwoThetaIdealBlock U V).approximationNumber n := by rw [hblock]
+
+end IdealBlockBridge
 
 /-! ### Checkpoint B: the Gram-selected vectors are fixed by the cutoff
 

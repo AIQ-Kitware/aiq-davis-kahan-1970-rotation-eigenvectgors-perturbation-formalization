@@ -172,6 +172,41 @@ theorem hasSameApproximationNumbers_includeCodomain
         _ = (V.subtypeL ∘L T).approximationNumber n := one_mul _
   exact key
 
+omit [CompleteSpace E] [CompleteSpace F] in
+/-- **Precomposition with an invertible contraction preserves every
+approximation singular value.**
+
+`J` and a right inverse `J'` both have norm at most one -- the case that matters
+is a self-adjoint unitary, where `J' = J` -- so each of `T` and `T ∘ J` is a
+contraction of the other and the two sequences coincide.
+
+This is unitary invariance of the singular-value sequence in the source
+variable, stated without a `LinearIsometryEquiv` so that a reflection operator
+already in bounded form can be used directly. -/
+theorem hasSameApproximationNumbers_comp_right
+    {T : E →L[𝕜] F} {J J' : E →L[𝕜] E}
+    (hJ : ‖J‖ ≤ 1) (hJ' : ‖J'‖ ≤ 1) (hinv : ∀ x, J (J' x) = x) :
+    HasSameApproximationNumbers (T ∘L J) T := by
+  refine (hasSameApproximationNumbers_iff _ _).mpr fun n => ?_
+  have hfactor : (T ∘L J) ∘L J' = T := by
+    ext x
+    simp only [ContinuousLinearMap.comp_apply, hinv]
+  refine le_antisymm ?_ ?_
+  · calc (T ∘L J).approximationNumber n ≤ T.approximationNumber n * ‖J‖ :=
+        T.approximationNumber_comp_le_mul_norm _ n
+      _ ≤ T.approximationNumber n * 1 := by
+          gcongr
+          exact ContinuousLinearMap.approximationNumber_nonneg _ _
+      _ = T.approximationNumber n := mul_one _
+  · calc T.approximationNumber n
+        = ((T ∘L J) ∘L J').approximationNumber n := by rw [hfactor]
+      _ ≤ (T ∘L J).approximationNumber n * ‖J'‖ :=
+          (T ∘L J).approximationNumber_comp_le_mul_norm _ n
+      _ ≤ (T ∘L J).approximationNumber n * 1 := by
+          gcongr
+          exact ContinuousLinearMap.approximationNumber_nonneg _ _
+      _ = (T ∘L J).approximationNumber n := mul_one _
+
 /-- Ambient extension of a rectangular subspace block preserves the complete
 singular-value sequence. -/
 theorem hasSameApproximationNumbers_ambientSubspaceBlock

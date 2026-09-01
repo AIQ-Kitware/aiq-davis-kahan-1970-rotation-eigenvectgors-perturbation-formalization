@@ -230,7 +230,7 @@ wants the two theorems below, not the bundled object. -/
 private def kyFanGaugeSeminorm (k : ℕ) : Seminorm ℂ (E →L[ℂ] F) where
   toFun T := T.kyFanGauge k
   map_zero' := kyFanGauge_zero k
-  add_le' S T := kyFanGauge_add_le S T k
+  add_le' S T := kyFanGauge_add_le_complex S T k
   neg' T := T.kyFanGauge_neg k
   smul' c T := kyFanGauge_smul c T k
 

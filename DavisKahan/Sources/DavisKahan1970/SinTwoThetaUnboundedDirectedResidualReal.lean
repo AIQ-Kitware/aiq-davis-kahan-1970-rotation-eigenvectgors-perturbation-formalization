@@ -265,6 +265,12 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_intervalExter
 The real mirror of the reducing endpoints in
 `SinTwoThetaUnboundedDirectedResidual.lean`. -/
 
+/-- **Davis--Kahan 1970, the directed half of the `sin 2Θ` theorem for an
+unbounded self-adjoint operator over a REAL Hilbert space, Ky Fan form, at an
+arbitrary reducing subspace.**
+
+`δ · kyFan_k (sin 2Θ₀) ≤ 2 · kyFan_k R` with the printed factor two and the
+trial subspace assumed only to reduce `A`. -/
 theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_kyFan_real
     (hA : IsSelfAdjoint A)
     {U : Submodule ℝ E} [U.HasOrthogonalProjection]
@@ -350,6 +356,12 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_kyFa
     _ ≤ 2 * kyFanApproximationGauge k R := by gcongr
 
 
+/-- **Davis--Kahan 1970, the directed half of the `sin 2Θ` theorem for an
+unbounded self-adjoint operator over a REAL Hilbert space, at every source
+unitarily invariant norm and at an arbitrary reducing subspace.**
+
+`δ N(sin 2Θ₀) ≤ 2 N(R)` with the printed residual and the printed factor two;
+nothing selects the trial subspace spectrally. -/
 theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_paperUINorm_real
     (N : PaperUnitaryInvariantNorm)
     (hA : IsSelfAdjoint A)

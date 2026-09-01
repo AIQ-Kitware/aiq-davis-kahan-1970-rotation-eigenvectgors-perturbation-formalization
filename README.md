@@ -63,12 +63,13 @@ beside it calls each from ordinary operator-theory hypotheses. Read those to see
 what the paper actually claims; the entry compared here is the one corner of it
 that Mathlib's vocabulary can state.
 
-Two disclosures about the wider formalization, neither part of this entry: printed
-Proposition 4.4 of the paper is false, and the `DavisKahan` library carries a
-machine-checked counterexample satisfying its printed hypotheses together with the
+Two disclosures about the wider formalization, neither part of *this* entry:
+printed Proposition 4.4 of the paper is false, and the `DavisKahan` library carries
+a machine-checked counterexample satisfying its printed hypotheses together with the
 natural Q-norm repair; and the Section 2 ambient tan-Θ theorem is not locally
 self-contained, since its printed statement omits a crossed-defect condition the
-paper introduces later and then treats as standing.
+paper introduces later and then treats as standing.  The second of those **is** part
+of the Section 2 entry below, where it is set out in full.
 
 ## Where this comes from
 
@@ -109,9 +110,25 @@ constants one and two. The two tangent families additionally *conclude*, rather
 than assume, that no principal angle sits at the tangent's pole: Lean's
 `Real.tan` is total, so a pole would otherwise be silently valued at zero.
 
-Two scope decisions in that entry are worth stating here, because each was a
-defect an earlier draft contained.
+Three qualifications in that entry are stated here, and again in its
+`formalization.yaml`, rather than left for a reader to find.
 
+* **The ambient `tan Θ` clause carries one hypothesis the Section 2 display does
+  not print**: `CrossedDefectsEquivalent U V`, the constructive form of the
+  paper's condition (3.5).  (3.5) is introduced in Section 3, made standing there
+  for the rest of the paper, and used by the Section 6 proof of that clause, so
+  the hypothesis is imported from the paper's later scope rather than read off the
+  local statement.  It is not decoration: the inequality and the no-pole
+  conclusion are both proved from it, and without it there is an
+  infinite-dimensional configuration — nested half-spaces, of the kind the
+  Proposition 3.2 remark exhibits — in which every printed hypothesis holds, `‖H‖`
+  is finite, and the ambient tangent is unbounded.  The formalization reads the
+  printed theorem under the paper's own global semantics, in which Section 1
+  declares such results vacuous when a displayed norm fails to exist; under the
+  competing literal reading the printed clause would be false as transcribed and
+  the Lean statement would be its repair.  Either way the hypothesis is not in the
+  display, and this repository says so rather than claiming otherwise.  The other
+  six clauses state exactly the printed hypotheses.
 * The `sin 2Θ` directed clause takes a **bounded** trial compression. That is
   what the Appendix to Section 6 supports: it relaxes the sine family to allow
   *one* of the two exact blocks to be unbounded, reserves "both may be unbounded"

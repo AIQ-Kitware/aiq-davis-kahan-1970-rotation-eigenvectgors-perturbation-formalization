@@ -17,7 +17,11 @@ project:
     residual on the right, the printed constants one and two, and the trial subspace assumed
     only to reduce the operator rather than to be selected spectrally. The two tangent
     families additionally conclude, rather than assume, that no principal angle sits at the
-    tangent''s pole.'
+    tangent''s pole. Six of the seven clauses state exactly the printed hypotheses; the
+    seventh, the ambient tan-Theta clause, additionally carries the paper''s condition
+    (3.5), which the Section 2 display does not print and which is imported from the later
+    standing scope in which the paper proves that clause. That source-interpretation
+    decision is set out in full under `sources` and `fidelity` below.'
   authors:
   - Jon Crall
   - Edward Wang
@@ -49,16 +53,51 @@ sources:
   location: SIAM Journal on Numerical Analysis 7(1), 1970, 1-46
   relationship: formalizes
   note: 'The compared theorems are the four unnumbered ones of Section 2, at the printed
-    scope, with no added hypothesis and no weakened conclusion. Two scope decisions are
-    disclosed. The sin-2-Theta directed clause takes a bounded trial compression, which is
+    scope and with no weakened conclusion. Three qualifications are disclosed rather than
+    left for a reader to discover.
+
+    (1) ONE ADDED HYPOTHESIS, IN ONE CLAUSE. The ambient tan-Theta clause carries
+    `CrossedDefectsEquivalent U V`, the constructive form of the paper''s condition (3.5):
+    the two crossing subspaces are isometrically isomorphic. This is not written in the
+    Section 2 display. (3.5) is introduced in Section 3, assumed standing there for the
+    remainder of the paper except where the contrary is stated, and used by the Section 6
+    proof of this very clause; the hypothesis is imported from that later standing scope,
+    not read off the local statement. It is consumed rather than decorative: both the
+    inequality and the no-pole conclusion are proved from it. The reason it is needed is
+    that nothing in the printed hypotheses constrains the crossing subspace on the other
+    side, and in infinite dimension -- and only there, since (3.5) is automatic when either
+    the subspace or its orthocomplement is finite-dimensional -- that subspace can be
+    nonzero, making the ambient angle contain a right angle, the ambient tangent unbounded,
+    and its displayed norm nonexistent while the perturbation norm is finite. This
+    formalization reads the printed theorem under the paper''s own global semantics, in
+    which Section 1 announces once that results of this kind are vacuous when a displayed
+    norm fails to exist. The competing literal reading -- take only the printed hypotheses
+    and value the missing norm as +infinity -- would make the printed ambient clause false
+    as transcribed, and is rejected because it would equally convict the Section 1
+    angle-doubling sentence and every later development that silently uses the direct
+    rotation. This is therefore a disclosed source-interpretation decision, not a claim
+    that the Section 2 display literally contains (3.5), and it is deliberately kept
+    distinct from the repository''s one genuine refutation (Proposition 4.4). The other six
+    clauses state exactly the printed hypotheses. The full four-layer analysis -- what the
+    display says, what the later standing scope says, what the source proof uses, and what
+    this formalization adopts -- is in the authoritative repository at
+    prose/distilled_literature/DavisKahan1970_part_III.tex (editorial audit note on
+    nonlocal source semantics of the Section 2 ambient tangent conclusion) and at
+    dev/davis-kahan-1970-formalization-result-inventory.json, entry S2-tan-theta, field
+    nonlocal_source_interpretation.
+
+    (2) The sin-2-Theta directed clause takes a bounded trial compression, which is
     what the Appendix to Section 6 supports: the Appendix relaxes the sine family to allow
     one of the two exact blocks to be unbounded and reserves "both may be unbounded" for the
-    tangent theorem, and names no double-angle result at all. And a doubled angle is presented
-    by its own sine rather than by doubling the single angle, because t -> sin 2t is not
-    monotone on [0, pi/2] and so no indexwise map carries the ordered singular values of
-    sin Theta to those of sin 2 Theta. One disclosure about the wider formalization, not part
-    of this entry: printed Proposition 4.4 is false and carries a machine-checked
-    counterexample together with the natural Q-norm repair.'
+    tangent theorem, and names no double-angle result at all.
+
+    (3) A doubled angle is presented by its own sine rather than by doubling the single
+    angle, because t -> sin 2t is not monotone on [0, pi/2] and so no indexwise map carries
+    the ordered singular values of sin Theta to those of sin 2 Theta.
+
+    One disclosure about the wider formalization, not part of this entry: printed
+    Proposition 4.4 is false and carries a machine-checked counterexample together with the
+    natural Q-norm repair.'
   author_endorsement: not-contacted
 status:
   scope: 'Formalized and compared here: the four Section 2 theorems, seven printed
@@ -115,9 +154,34 @@ automation:
     Lean statement says what a paper says, which is why every source paper carries a separate
     clause-by-clause semantic review, also maintained there.
 fidelity:
-  divergences: 'None for the compared theorem: it is the printed statement at the stated scope.
-    Divergences elsewhere in the source paper are recorded in the substantive repository and
-    are summarized in the source note above.'
+  divergences: 'One, in one of the seven compared clauses, and it is a scope qualification
+    rather than a weakened conclusion.
+
+    AMBIENT tan-Theta CARRIES THE PAPER''S CONDITION (3.5), WHICH THE SECTION 2 DISPLAY DOES
+    NOT PRINT. The Lean clause takes `CrossedDefectsEquivalent U V`; the printed Section 2
+    statement of the tan-Theta theorem lists only the ordered spectral gap and H_0 = 0, and
+    (3.5) has not been introduced at that point in the paper. The hypothesis is imported
+    from Section 3, where (3.5) is made standing for the remainder of the paper, and where
+    the Section 6 proof of this clause works. This formalization''s position is that the
+    printed theorem is true under the paper''s own global semantics -- Section 1 declares
+    results vacuous when a displayed norm fails to exist -- and that the (3.5)-qualified
+    Lean statement is the faithful rendering of those semantics. Under the competing
+    literal reading, in which only the printed hypotheses are taken and a missing norm is
+    valued at +infinity, the printed clause is false in infinite dimension and the Lean
+    statement is its repair. Either way, a reader must be told that the Lean hypothesis is
+    not in the printed display, and this entry does not claim otherwise. See the source
+    note above for the argument, and the authoritative repository for the four-layer
+    analysis and the explicit counter-configuration.
+
+    The other six clauses state exactly the printed hypotheses at the stated scope, with the
+    printed right-hand sides and constants. The two remaining qualifications recorded in the
+    source note -- the bounded trial compression in the sin-2-Theta directed clause, and the
+    presentation of a doubled angle by its own sine -- are scope and representation
+    decisions with source justification, not divergences from a printed hypothesis.
+
+    Divergences elsewhere in the source paper, including the refutation of printed
+    Proposition 4.4, are recorded in the substantive repository and summarized in the source
+    note above.'
 review:
   status: self-assessed
   reviewers:
@@ -128,7 +192,12 @@ review:
     census consistency; repeated adversarial source audits in which an independent agent was
     asked to find a discrepancy between a printed statement and its Lean rendering, several
     of which found real defects that are recorded in the censuses; and human coordinator review
-    of scope, theorem interfaces and repair decisions.
+    of scope, theorem interfaces and repair decisions. Those adversarial audits are what
+    produced the ambient tan-Theta disclosure recorded under `fidelity.divergences`: the
+    (3.5) hypothesis is a deliberate source-interpretation decision, taken and defended in
+    the open, and a reviewer who disagrees with it should challenge it at
+    dev/davis-kahan-1970-formalization-result-inventory.json, entry S2-tan-theta, field
+    nonlocal_source_interpretation, which is written to ask for an explicit verdict.
 
     For Davis–Kahan 1970 the authoritative repository generates a self-contained
     compiler-evidence bundle and source-order audit packet. That certificate proves elaboration

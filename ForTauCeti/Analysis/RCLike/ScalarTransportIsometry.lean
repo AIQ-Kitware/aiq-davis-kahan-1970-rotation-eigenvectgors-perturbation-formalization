@@ -45,7 +45,6 @@ variable {X Y : Type v}
   [NormedAddCommGroup Y] [InnerProductSpace 𝕜 Y]
 
 /-- **A linear isometric equivalence transports.** -/
-@[expose]
 noncomputable def linearIsometryEquiv (f : X ≃ₗᵢ[𝕜] Y) :
     ScalarTransport e X ≃ₗᵢ[𝕂] ScalarTransport e Y where
   toFun x := of (e := e) (f (out (e := e) x))
@@ -76,7 +75,6 @@ theorem submodule_inf (S T : Submodule 𝕜 X) :
   simp only [mem_submodule, Submodule.mem_inf]
 
 /-- Two subspaces with the same carrier give isometric coercions. -/
-@[expose]
 noncomputable def submoduleEquivOfEq {S T : Submodule 𝕜 X} (h : S = T) :
     (S : Submodule 𝕜 X) ≃ₗᵢ[𝕜] (T : Submodule 𝕜 X) where
   toFun x := ⟨(x : X), h ▸ x.2⟩

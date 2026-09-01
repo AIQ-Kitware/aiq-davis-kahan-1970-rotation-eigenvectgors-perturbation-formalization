@@ -447,8 +447,9 @@ def TangentDefined {X Y : Type v}
   ∀ n, Real.cos (Real.arcsin (singularValue S n)) ≠ 0
 
 /-- The crossed defect subspaces are isometrically isomorphic: the source's
-standing condition (3.5), assumed from Section 3 onward, which is what makes the
-ambient angle meaningful when the subspaces are not acute. -/
+condition (3.5), introduced in Section 3 and standing from there on, which is
+what makes the ambient angle meaningful when the subspaces are not acute.  It is
+*not* printed in the Section 2 display; see the note before `TanThetaResult`. -/
 def CrossedDefectsEquivalent (U V : Submodule 𝕜 E) : Prop :=
   Nonempty ((U ⊓ Vᗮ : Submodule 𝕜 E) ≃ₗᵢ[𝕜] (Uᗮ ⊓ V : Submodule 𝕜 E))
 
@@ -474,7 +475,28 @@ variable {E F G K : Type v}
   [NormedAddCommGroup K] [InnerProductSpace 𝕜 K] [CompleteSpace K]
 
 
-/-! ### `tan Θ` -/
+/-! ### `tan Θ`
+
+#### The ambient clause carries (3.5), which the Section 2 display does not print
+
+`TanThetaResult.ambient` below asks for `CrossedDefectsEquivalent U V`.  That is
+the source's condition (3.5), and **it is not written in the Section 2 display**:
+(3.5) is introduced in Section 3, made standing there for the rest of the paper,
+and the Section 6 proof of this very clause works inside that standing scope.
+The hypothesis is imported from the paper's later scope; it is not read off the
+local statement.
+
+It is not decoration.  Section 1 announces once that results are vacuous when a
+displayed norm fails to exist, and that the qualification will not be repeated at
+the individual statements; for this clause that convention does real work.
+Nothing in the printed hypotheses constrains the crossed defect `Uᗮ ⊓ V`, and
+when it is nonzero -- possible in infinite dimension, and only there -- the
+ambient angle has a right angle, `tan Θ` is unbounded, and `‖tan Θ‖` does not
+exist while `‖H‖` is finite.  Read literally, with the missing norm valued at
+`+∞`, the printed ambient clause would be false; read under the paper's own
+global semantics it is the (3.5)-qualified statement formalized here.  This
+formalization adopts the second reading, and says so rather than claiming the
+display contains the hypothesis. -/
 
 /-- **The two printed conclusions of the `tan Θ` theorem**, each with its own
 data and hypotheses: `δ ‖tan Θ₀‖ ≤ ‖R‖` for every trial subspace with
@@ -491,7 +513,9 @@ structure TanThetaResult (N : UINorm) (A : E →ₗ.[𝕜] E)
         TangentDefined (directedSineBlock U V) ∧
           N.SeqFinite (tanSeq (directedSineBlock U V)) ∧
           δ * N.seqNorm (tanSeq (directedSineBlock U V)) ≤ N.norm D.residual
-  /-- `δ ‖tan Θ‖ ≤ ‖H‖`: the ambient conclusion, on the whole perturbation. -/
+  /-- `δ ‖tan Θ‖ ≤ ‖H‖`: the ambient conclusion, on the whole perturbation.
+  `CrossedDefectsEquivalent` is the source's (3.5), standing from Section 3 but
+  absent from the Section 2 display; the note above says where it comes from. -/
   ambient : ∀ {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
       (D : RitzData A U), SemiboundedAbove D.compression α →
       ∀ (H : E →L[𝕜] E), IsSelfAdjoint H →

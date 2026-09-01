@@ -621,7 +621,7 @@ theorem UISeminorm.gauge_eq {n : ℕ} {G : Type v} [NormedAddCommGroup G]
 /-- **A Challenge unitarily invariant norm is a source unitarily invariant norm.**
 
 Field for field: the finite seminorms, the normalisation and the zero-padding
-axiom transfer with no adjustment, because the two definitions are the same
+condition transfer with no adjustment, because the two definitions are the same
 definition. -/
 def UINorm.toPaper (N : UINorm) : PaperUnitaryInvariantNorm where
   finiteNorm n := (N.finiteNorm n).toTauCeti

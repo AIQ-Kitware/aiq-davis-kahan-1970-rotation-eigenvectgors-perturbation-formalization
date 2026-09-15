@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.SinTheta.Unbounded.AllGap
 import DavisKahan.SpectralTheory.SpectralRestrictionOperator
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Natural spectral-projection inputs for the unbounded sine-theta theorem
 
@@ -19,6 +21,7 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
+
 
 
 universe v
@@ -78,7 +81,7 @@ measurable exact spectral set and a bounded residual extension. -/
 noncomputable def unboundedSinThetaDataOfSpectralSubspace
     (A : E →ₗ.[ℂ] E)
     (hA : IsSelfAdjoint A) (S : Set ℝ) (hS : MeasurableSet S)
-    (A0 : F →ₗ.[ℂ] F) (hA0 : IsSelfAdjoint A0)
+    (A0 : F →ₗ.[ℂ] F) (_hA0 : IsSelfAdjoint A0)
     (X Rop : F →L[ℂ] E)
     (hXdom : ∀ x : A0.domain, X (x : F) ∈ A.domain)
     (hReq : ∀ x : A0.domain,

@@ -351,7 +351,7 @@ theorem reducedCoordinateDirectSum_unitaryEquivalent
       (reducedCoordinateDirectSum D) D
       (ContinuousLinearMap.id ℂ _)
       (ContinuousLinearMap.id ℂ _) := by
-  have hid : IsUnitaryOperator
+  have hid : TauCeti.LinearPMap.IsUnitaryOperator
       (ContinuousLinearMap.id ℂ (DirectSumSpace (E0 := E0) (E1 := E1))) := by
     constructor
     · intro x

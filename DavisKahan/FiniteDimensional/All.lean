@@ -6,7 +6,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.FiniteDimensional.Core.All
 import DavisKahan.FiniteDimensional.DirectRotation.All
 import DavisKahan.FiniteDimensional.DoubleAngle.All
-import DavisKahan.FiniteDimensional.Norms.All
+import ForTauCeti.Analysis.InnerProductSpace.SchattenNorm
 import DavisKahan.FiniteDimensional.Residual.All
 import DavisKahan.FiniteDimensional.SinTheta.All
 import DavisKahan.FiniteDimensional.Sylvester.All

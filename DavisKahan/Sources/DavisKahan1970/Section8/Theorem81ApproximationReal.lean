@@ -6,7 +6,9 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Sources.DavisKahan1970.Section8.Theorem81Approximation
 import DavisKahan.BoundedOperator.BlockShift
 import DavisKahan.OperatorIdeal.ComplexificationApproximation
-import DavisKahan.Sources.DavisKahan1970.Section8.SourceTheorem81Real
+import DavisKahan.Sources.DavisKahan1970.Section8.Theorem81Real
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, Theorem 8.1(ii) over a REAL Hilbert space
@@ -331,7 +333,7 @@ theorem theorem8_1_upperCompressionRepulsion_real
             (complexify A + complexify K) (Qcᗮ.starProjection (ofReal x))⟫_ℂ -
           alpha * ‖Qcᗮ.starProjection (ofReal x)‖ ^ 2 := by
     rintro Qc _ rfl
-    exact DavisKahan1970.Section8.theorem8_1_upperCompressionRepulsion_source
+    exact DavisKahan1970.Section8.theorem8_1_upperCompressionRepulsion
       (complexify A) (complexify K) (complexifySubmodule P) hdelta hAc hKc
       (fun z hz => mapsTo_complexifySubmodule hAP hz)
       (fun z hz => re_inner_le_of_mem_complexifySubmodule hPlow hz)
@@ -394,7 +396,7 @@ theorem theorem8_1_lowerCompressionRepulsion_real
           RCLike.re ⟪Qc.starProjection (ofReal x),
             (complexify A + complexify K) (Qc.starProjection (ofReal x))⟫_ℂ := by
     rintro Qc _ rfl
-    exact DavisKahan1970.Section8.theorem8_1_lowerCompressionRepulsion_source
+    exact DavisKahan1970.Section8.theorem8_1_lowerCompressionRepulsion
       (complexify A) (complexify K) (complexifySubmodule P) hdelta hAc hKc
       (fun z hz => mapsTo_complexifySubmodule hAP hz)
       (fun z hz => re_inner_le_of_mem_complexifySubmodule hPlow hz)
@@ -418,7 +420,7 @@ theorem theorem8_1_lowerCompressionRepulsion_real
   `aₙ(A₁ - α) ≤ aₙ(C₁⋆ (Λ₁ - α) C₁)`,
 
 with `Q` the real canonical low branch.  Descended from
-`theorem8_1_upperSandwichApproximation_source` through the block bridges and the
+`theorem8_1_upperSandwichApproximation` through the block bridges and the
 exact equality `approximationNumber_complexify`; no dimension hypothesis is
 introduced. -/
 theorem theorem8_1_upperSandwichApproximation_real
@@ -463,7 +465,7 @@ theorem theorem8_1_upperSandwichApproximation_real
           upperBlockShift (complexify A + complexify K) Qc alpha ∘L
           cosineBlock (complexifySubmodule P) Qc).approximationNumber n := by
     rintro Qc _ rfl
-    exact theorem8_1_upperSandwichApproximation_source (complexify A) (complexify K)
+    exact theorem8_1_upperSandwichApproximation (complexify A) (complexify K)
       (complexifySubmodule P) hdelta hAc hKc
       (fun z hz => mapsTo_complexifySubmodule hAP hz)
       (fun z hz => re_inner_le_of_mem_complexifySubmodule hPlow hz)
@@ -551,7 +553,7 @@ theorem theorem8_1_lowerSandwichApproximation_real
           lowerBlockShift (complexify A + complexify K) Qc alpha delta ∘L
           lowerCosineBlock (complexifySubmodule P) Qc).approximationNumber n := by
     rintro Qc _ rfl
-    exact theorem8_1_lowerSandwichApproximation_source (complexify A) (complexify K)
+    exact theorem8_1_lowerSandwichApproximation (complexify A) (complexify K)
       (complexifySubmodule P) hdelta hAc hKc
       (fun z hz => mapsTo_complexifySubmodule hAP hz)
       (fun z hz => re_inner_le_of_mem_complexifySubmodule hPlow hz)

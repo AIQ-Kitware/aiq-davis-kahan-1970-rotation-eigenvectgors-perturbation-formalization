@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalRestrictionSpectrum
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Nonempty restricted spectra for bounded self-adjoint compressions
 
@@ -36,7 +38,7 @@ variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 /-- A bounded self-adjoint operator on a nontrivial complex Hilbert space has a
 nonempty native real spectrum. -/
 theorem realSpectrum_nonempty_of_selfAdjoint [Nontrivial E]
-    (T : E →L[ℂ] E) (hT : IsSelfAdjointOperator T) :
+    (T : E →L[ℂ] E) (hT : T.IsSymmetric) :
     (realSpectrum T).Nonempty := by
   have hTsa : IsSelfAdjoint T :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hT
@@ -69,7 +71,7 @@ theorem realSpectrum_nonempty_of_selfAdjoint [Nontrivial E]
 /-- The restricted spectrum of a self-adjoint operator on a nontrivial
 invariant orthogonally complemented subspace is nonempty. -/
 theorem restrictedSpectrum_nonempty_of_invariant
-    (A : E →L[ℂ] E) (hA : IsSelfAdjointOperator A)
+    (A : E →L[ℂ] E) (hA : A.IsSymmetric)
     (U : Submodule ℂ E) [U.HasOrthogonalProjection] [Nontrivial U]
     (hU : InvariantFor A U) :
     (restrictedSpectrum A U).Nonempty := by
@@ -77,7 +79,7 @@ theorem restrictedSpectrum_nonempty_of_invariant
     (U.isComplete_coe_of_hasOrthogonalProjection).completeSpace_coe
   have hAsa : IsSelfAdjoint A :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hA
-  have hcompress : IsSelfAdjointOperator (compressOperator U A) :=
+  have hcompress : (compressOperator U A).IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
       (isSelfAdjoint_compressOperator hAsa U)
   rw [restrictedSpectrum_eq_realSpectrum_compressOperator A U hU]
@@ -87,7 +89,7 @@ theorem restrictedSpectrum_nonempty_of_invariant
 of the two oriented restricted-spectrum half-line configurations with no extra
 set-theoretic hypotheses. -/
 theorem _root_.TauCeti.DavisKahan.Foundation.OrderedInternalGap.exists_oriented_halfLine_center_of_nontrivial
-    (A : E →L[ℂ] E) (hA : IsSelfAdjointOperator A)
+    (A : E →L[ℂ] E) (hA : A.IsSymmetric)
     (U : Submodule ℂ E) [U.HasOrthogonalProjection]
     [Nontrivial U] [Nontrivial Uᗮ]
     {d : ℝ} (hgap : OrderedInternalGap A U d) :

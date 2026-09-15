@@ -17,11 +17,12 @@ cutoff proofs.
 -/
 
 open scoped InnerProductSpace Topology
+open TauCeti.DavisKahan.ExactSinTheta
 open Filter
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 universe v
 
@@ -390,6 +391,6 @@ theorem interfaceDoubleCutoff_sylvester_equation
 
 end ApproximationNumberEndpointAssumptions
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

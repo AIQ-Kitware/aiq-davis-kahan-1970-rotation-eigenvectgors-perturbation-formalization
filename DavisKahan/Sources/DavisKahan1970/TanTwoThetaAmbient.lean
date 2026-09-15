@@ -3,14 +3,19 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 5
 -/
-import DavisKahan.Geometry.Angle.PaperTanAngle
+import DavisKahan.Geometry.Angle.TanAngleFunctionalCalculus
 import DavisKahan.Sources.DavisKahan1970.AmbientBlockVocabulary
 import DavisKahan.InfiniteDimensional.TanTwoTheta.CanonicalTangentBridge
-import DavisKahan.InfiniteDimensional.TanTwoTheta.PaperFaithfulUINorm
+import DavisKahan.InfiniteDimensional.TanTwoTheta.SelectedBranchSymmetricNorming
 import DavisKahan.InfiniteDimensional.TanTwoTheta.QuarterAcuteFormGap
 import DavisKahan.Sources.DavisKahan1970.SharpIdeal
 import DavisKahan.Sources.DavisKahan1970.TanThetaAmbient
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # The whole-space half of the `tan 2Θ` theorem
@@ -54,7 +59,7 @@ perturbation `H`.  The complementary estimate the paper obtains from
 
 The directed corner is identified, *as an operator*, with the ambient graph
 tangent `2 Y (1 − Y⋆Y)⁻¹` of the contractive angular operator `Y` whose graph
-is `V` — this is `paperTanTwoBlockRepresentative_lowerBlock` — and hence with
+is `V` — this is `tanTwoBlockRepresentative_lowerBlock` — and hence with
 the rectangular coordinate tangent `2 X (1 − X⋆X)⁻¹`, for which the sharp
 Ky Fan estimate `δ · kyFanₖ(2X(1−X⋆X)⁻¹) ≤ 2 · kyFanₖ(B₀₁)` is already proved
 on an arbitrary Hilbert space.
@@ -90,20 +95,20 @@ itself, `tanTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex`
 the contractive Riccati coordinate and therefore needs `IsQuarterAcute U V`
 (`‖sin Θ‖ < √2/2`, every principal angle below `π/4`).  Quarter-acuteness is
 **concluded, not assumed**, from the paper's four ordered form bounds — the
-same configuration under which the directed `paperFaithful_tanTwoTheta_uiNorm`
+same configuration under which the directed `tanTwoTheta_selectedBranch_symmetricNorming`
 is proved, and the one Theorem 8.1 supplies.  The genuinely branch-free ambient
 statement is *not* proved here; see the module note below.
 
 ## Main results
 
-* `TauCeti.DavisKahan1970.paperTanTwoBlockRepresentative`: the explicit
+* `TauCeti.DavisKahan1970.tanTwoBlockRepresentative`: the explicit
   off-diagonal representative `Ξ`.
-* `TauCeti.DavisKahan1970.isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero`:
+* `TauCeti.DavisKahan1970.isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero`:
   `cos 2Θ` is invertible as soon as no principal angle is `π/4` — the
   branch-free replacement for the quarter-acute norm bound.
-* `TauCeti.DavisKahan1970.paperAbsTanTwoAngleOperatorC_eq_modulus_blockRepresentative`:
+* `TauCeti.DavisKahan1970.absTanTwoAngleOperatorC_eq_modulus_blockRepresentative`:
   `|Ξ| = |tan 2Θ|`, branch-free.
-* `TauCeti.DavisKahan1970.paperTanTwoAngleOperatorC_eq_modulus_blockRepresentative`:
+* `TauCeti.DavisKahan1970.directedTanTwoAngleOperatorC_eq_modulus_blockRepresentative`:
   its quarter-acute specialisation, `|Ξ| = tan 2Θ`.
 * `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_branchFree_kyFan_complex_of_corner` and
   `TauCeti.DavisKahan1970.tanTwoTheta_ambient_bounded_branchFree_symmetricNorming_complex_of_corner`: the
@@ -168,6 +173,7 @@ open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -175,14 +181,6 @@ universe v
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
   [CompleteSpace E]
-
-/-- A subspace admitting an orthogonal projection inside a complete ambient
-space is itself complete.  `local instance` does not propagate through imports,
-so it is reinstalled here. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionTanTwoTheta
-    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace ℂ G] [CompleteSpace G]
-    (U : Submodule ℂ G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 /-! ### The central numeral `2`
 
@@ -279,9 +277,20 @@ variable (U V : Submodule ℂ E)
 /-- **The off-diagonal block representative of the ambient double-angle
 tangent.**  It is supported entirely on the two cross blocks of `U ⊕ U^⊥`, and
 under uniform quarter transversality its modulus is exactly `tan 2Θ`. -/
-def paperTanTwoBlockRepresentative : E →L[ℂ] E :=
-  paperDiagonalPair Uᗮ U
-    (2 * (paperProjectorDifference U V * paperDoubleSecant U V))
+def tanTwoBlockRepresentative : E →L[ℂ] E :=
+  diagonalPair Uᗮ U
+    (2 * (projectorDifference U V * doubleSecant U V))
+
+/-- **The directed `tan 2Θ₀` corner, over `ℂ`.**
+
+The `U → Uᗮ` corner of the ambient double-angle tangent, read as an ambient
+operator.  This is the object the paper's directed `tan 2Θ₀` bound is stated on,
+and the complex counterpart of `tanTwoDirectedCornerR`; `tanTwoBlockRepresentative`
+is the same expression carried on both cross blocks, so the two differ exactly by
+which corner is kept. -/
+noncomputable def tanTwoDirectedCornerC : E →L[ℂ] E :=
+  projectionBlock Uᗮ U
+    (2 * (projectorDifference U V * doubleSecant U V))
 
 variable {U V}
 
@@ -295,29 +304,29 @@ private theorem starProjection_idem' (W : Submodule ℂ E)
 
 /-- Under uniform quarter transversality the operator `1 − 2 sin²Θ` is
 invertible: it is `cos 2Θ`, bounded away from `0`. -/
-theorem isUnit_one_sub_two_mul_paperProjectorDifference_sq
+theorem isUnit_one_sub_two_mul_projectorDifference_sq
     (htr : ‖sinAngleOperatorC U V‖ < Real.sqrt 2 / 2) :
-    IsUnit (1 - 2 * (paperProjectorDifference U V *
-      paperProjectorDifference U V)) := by
+    IsUnit (1 - 2 * (projectorDifference U V *
+      projectorDifference U V)) := by
   have hsq : Real.sqrt 2 / 2 * (Real.sqrt 2 / 2) = 1 / 2 := by
     have h2 : Real.sqrt 2 * Real.sqrt 2 = 2 := Real.mul_self_sqrt (by norm_num)
     nlinarith [h2]
-  have hD : ‖paperProjectorDifference U V‖ < Real.sqrt 2 / 2 := by
-    rw [norm_paperProjectorDifference]; exact htr
-  have hD0 : 0 ≤ ‖paperProjectorDifference U V‖ := norm_nonneg _
-  have hnorm : ‖2 * (paperProjectorDifference U V *
-      paperProjectorDifference U V)‖ < 1 := by
+  have hD : ‖projectorDifference U V‖ < Real.sqrt 2 / 2 := by
+    rw [norm_projectorDifference]; exact htr
+  have hD0 : 0 ≤ ‖projectorDifference U V‖ := norm_nonneg _
+  have hnorm : ‖2 * (projectorDifference U V *
+      projectorDifference U V)‖ < 1 := by
     have hdouble : (2 : E →L[ℂ] E) *
-        (paperProjectorDifference U V * paperProjectorDifference U V) =
-        paperProjectorDifference U V * paperProjectorDifference U V +
-          paperProjectorDifference U V * paperProjectorDifference U V := by
+        (projectorDifference U V * projectorDifference U V) =
+        projectorDifference U V * projectorDifference U V +
+          projectorDifference U V * projectorDifference U V := by
       rw [two_mul]
     rw [hdouble]
-    have hsum := norm_add_le (paperProjectorDifference U V *
-      paperProjectorDifference U V) (paperProjectorDifference U V *
-      paperProjectorDifference U V)
-    have hmul := norm_mul_le (paperProjectorDifference U V)
-      (paperProjectorDifference U V)
+    have hsum := norm_add_le (projectorDifference U V *
+      projectorDifference U V) (projectorDifference U V *
+      projectorDifference U V)
+    have hmul := norm_mul_le (projectorDifference U V)
+      (projectorDifference U V)
     nlinarith [Real.sqrt_nonneg 2]
   rw [← Units.val_oneSub _ hnorm]
   exact Units.isUnit _
@@ -338,12 +347,12 @@ turn; what it does need, and derives from the gap, is that no principal angle
 is exactly `π/4`.  Since `cos (2 arcsin s) = 1 − 2s²`, the condition on the
 angle spectrum is this condition on the sine spectrum. -/
 theorem one_sub_two_sq_ne_zero_of_cos_two_ne_zero
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0)
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0)
     {s : ℝ} (hs : s ∈ spectrum ℝ (sinAngleOperatorC U V)) :
     (1 : ℝ) - 2 * (s * s) ≠ 0 := by
   have hsi := spectrum_sinAngleOperatorC_subset_Icc U V hs
-  have hmem : Real.arcsin s ∈ spectrum ℝ (paperAngleOperatorC U V) := by
-    rw [paperAngleOperatorC,
+  have hmem : Real.arcsin s ∈ spectrum ℝ (angleOperatorC U V) := by
+    rw [angleOperatorC,
       cfc_map_spectrum (R := ℝ) (f := Real.arcsin) (a := sinAngleOperatorC U V)
         (isSelfAdjoint_sinAngleOperatorC U V)
         Real.continuous_arcsin.continuousOn]
@@ -361,9 +370,9 @@ theorem one_sub_two_sq_ne_zero_of_cos_two_ne_zero
 `π/4`, so the doubled angle is below `π/2`. -/
 theorem cos_two_ne_zero_of_norm_sinAngleOperatorC_lt
     (htr : ‖sinAngleOperatorC U V‖ < Real.sqrt 2 / 2)
-    {t : ℝ} (ht : t ∈ spectrum ℝ (paperAngleOperatorC U V)) :
+    {t : ℝ} (ht : t ∈ spectrum ℝ (angleOperatorC U V)) :
     Real.cos (2 * t) ≠ 0 := by
-  have h := spectrum_paperAngleOperatorC_lt_pi_div_four U V htr ht
+  have h := spectrum_angleOperatorC_lt_pi_div_four U V htr ht
   exact ne_of_gt (Real.cos_pos_of_mem_Ioo
     ⟨by linarith [Real.pi_pos, h.1], by linarith [h.2]⟩)
 
@@ -393,15 +402,15 @@ private theorem cfc_one_sub_two_sq' :
 /-- **`cos 2Θ` is invertible as soon as no principal angle is `π/4`.**
 
 This is the branch-free replacement for
-`isUnit_one_sub_two_mul_paperProjectorDifference_sq`: it asks only that the
+`isUnit_one_sub_two_mul_projectorDifference_sq`: it asks only that the
 angles avoid the pole of the doubled tangent, not that they lie on one
 particular side of it.  Compactness of the spectrum turns the pointwise
 condition into the uniform separation invertibility needs. -/
-theorem isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
-    IsUnit (1 - 2 * (paperProjectorDifference U V *
-      paperProjectorDifference U V)) := by
-  rw [paperProjectorDifference_sq, cfc_one_sub_two_sq']
+theorem isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    IsUnit (1 - 2 * (projectorDifference U V *
+      projectorDifference U V)) := by
+  rw [projectorDifference_sq, cfc_one_sub_two_sq']
   exact (isUnit_cfc_iff (fun t : ℝ => 1 - 2 * (t * t)) (sinAngleOperatorC U V)
       (by fun_prop) (isSelfAdjoint_sinAngleOperatorC U V)).mpr
     fun t ht => one_sub_two_sq_ne_zero_of_cos_two_ne_zero hcos ht
@@ -413,20 +422,20 @@ This is the direction needed by the literal Section 2 `tan 2θ` wrapper: the
 ordered gap first proves invertibility of the reflection's diagonal part, and
 that operator is the signed doubled cosine.  The source does not assume pole
 exclusion; it is recovered here from the resulting unit. -/
-theorem cos_two_ne_zero_of_isUnit_one_sub_two_mul_paperProjectorDifference_sq
-    (hinv : IsUnit (1 - 2 * (paperProjectorDifference U V *
-      paperProjectorDifference U V))) :
-    ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0 := by
+theorem cos_two_ne_zero_of_isUnit_one_sub_two_mul_projectorDifference_sq
+    (hinv : IsUnit (1 - 2 * (projectorDifference U V *
+      projectorDifference U V))) :
+    ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0 := by
   have hinv' : IsUnit
       (cfc (fun s : ℝ => 1 - 2 * (s * s)) (sinAngleOperatorC U V)) := by
-    rw [← cfc_one_sub_two_sq', ← paperProjectorDifference_sq]
+    rw [← cfc_one_sub_two_sq', ← projectorDifference_sq]
     exact hinv
   have hnonzero : ∀ s ∈ spectrum ℝ (sinAngleOperatorC U V),
       (1 : ℝ) - 2 * (s * s) ≠ 0 :=
     (isUnit_cfc_iff (fun s : ℝ => 1 - 2 * (s * s)) (sinAngleOperatorC U V)
       (by fun_prop) (isSelfAdjoint_sinAngleOperatorC U V)).mp hinv'
   intro t ht
-  rw [paperAngleOperatorC,
+  rw [angleOperatorC,
     cfc_map_spectrum (R := ℝ) (f := Real.arcsin) (a := sinAngleOperatorC U V)
       (isSelfAdjoint_sinAngleOperatorC U V)
       Real.continuous_arcsin.continuousOn] at ht
@@ -445,9 +454,9 @@ theorem cos_two_ne_zero_of_isUnit_one_sub_two_mul_paperProjectorDifference_sq
 tangent, as an operator identity of functional calculi — and **branch-free**:
 the hypothesis is only the paper's `cos 2θ ≠ 0`, so principal angles past
 `π/4` are allowed. -/
-theorem paperAbsTanTwo_sq_mul_cos_two_sq
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
-    paperAbsTanTwoAngleOperatorC U V * paperAbsTanTwoAngleOperatorC U V *
+theorem absTanTwo_sq_mul_cos_two_sq
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    absTanTwoAngleOperatorC U V * absTanTwoAngleOperatorC U V *
         ((1 - 2 * (sinAngleOperatorC U V * sinAngleOperatorC U V)) *
           (1 - 2 * (sinAngleOperatorC U V * sinAngleOperatorC U V))) =
       4 * (sinAngleOperatorC U V * sinAngleOperatorC U V -
@@ -456,7 +465,7 @@ theorem paperAbsTanTwo_sq_mul_cos_two_sq
   set S := sinAngleOperatorC U V with hS
   have hSsa : IsSelfAdjoint S := isSelfAdjoint_sinAngleOperatorC U V
   have hcontTan : ContinuousOn (fun t : ℝ => |Real.tan (2 * t)|)
-      (spectrum ℝ (paperAngleOperatorC U V)) := by
+      (spectrum ℝ (angleOperatorC U V)) := by
     refine ContinuousOn.abs (Real.continuousOn_tan.comp (by fun_prop) ?_)
     intro t ht
     exact hcos t ht
@@ -470,19 +479,19 @@ theorem paperAbsTanTwo_sq_mul_cos_two_sq
   have hcompSq : ContinuousOn
       (fun t : ℝ => |Real.tan (2 * t)| * |Real.tan (2 * t)|)
       (Real.arcsin '' spectrum ℝ S) := by
-    have : (Real.arcsin '' spectrum ℝ S) ⊆ spectrum ℝ (paperAngleOperatorC U V) := by
-      rw [paperAngleOperatorC,
+    have : (Real.arcsin '' spectrum ℝ S) ⊆ spectrum ℝ (angleOperatorC U V) := by
+      rw [angleOperatorC,
         cfc_map_spectrum (R := ℝ) (f := Real.arcsin) (a := S) hSsa harcsin]
     exact (hcontTan.mul hcontTan).mono this
   have htanSq :
-      paperAbsTanTwoAngleOperatorC U V * paperAbsTanTwoAngleOperatorC U V =
+      absTanTwoAngleOperatorC U V * absTanTwoAngleOperatorC U V =
       cfc ((fun t : ℝ => |Real.tan (2 * t)| * |Real.tan (2 * t)|) ∘ Real.arcsin)
         S := by
-    rw [paperAbsTanTwoAngleOperatorC,
+    rw [absTanTwoAngleOperatorC,
       ← cfc_mul (fun t : ℝ => |Real.tan (2 * t)|)
         (fun t : ℝ => |Real.tan (2 * t)|)
-        (paperAngleOperatorC U V) hcontTan hcontTan,
-      paperAngleOperatorC, ← hS,
+        (angleOperatorC U V) hcontTan hcontTan,
+      angleOperatorC, ← hS,
       ← cfc_comp (fun t : ℝ => |Real.tan (2 * t)| * |Real.tan (2 * t)|)
         Real.arcsin S hSsa hcompSq harcsin]
   have hcosop : (1 : E →L[ℂ] E) - 2 * (S * S) =
@@ -564,43 +573,43 @@ tangent, the signed functional calculus is continuous on the angle spectrum,
 and taking its operator modulus is the same as applying `t ↦ |tan (2t)|`
 pointwise.  This bridge lets the branch-free proof below expose a literally
 paper-facing conclusion while retaining the positive representative internally. -/
-theorem paperAbsTanTwoAngleOperatorC_eq_modulus_paperTanTwoAngleOperatorC
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
-    paperAbsTanTwoAngleOperatorC U V =
-      (paperTanTwoAngleOperatorC U V).modulus := by
+theorem absTanTwoAngleOperatorC_eq_modulus_directedTanTwoAngleOperatorC
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    absTanTwoAngleOperatorC U V =
+      (tanTwoAngleOperatorC U V).modulus := by
   have hcontTan : ContinuousOn (fun t : ℝ => Real.tan (2 * t))
-      (spectrum ℝ (paperAngleOperatorC U V)) :=
+      (spectrum ℝ (angleOperatorC U V)) :=
     Real.continuousOn_tan.comp (by fun_prop) hcos
   have hcontAbs : ContinuousOn (fun t : ℝ => |Real.tan (2 * t)|)
-      (spectrum ℝ (paperAngleOperatorC U V)) :=
+      (spectrum ℝ (angleOperatorC U V)) :=
     ContinuousOn.abs hcontTan
   refine ContinuousLinearMap.eq_modulus_of_nonneg_of_mul_self_eq
-    (paperAbsTanTwoAngleOperatorC_nonneg U V) ?_
-  have hself := isSelfAdjoint_paperTanTwoAngleOperatorC U V
-  rw [comp_eq_mul', hself.adjoint_eq, paperAbsTanTwoAngleOperatorC,
-    paperTanTwoAngleOperatorC,
+    (absTanTwoAngleOperatorC_nonneg U V) ?_
+  have hself := isSelfAdjoint_tanTwoAngleOperatorC U V
+  rw [comp_eq_mul', hself.adjoint_eq, absTanTwoAngleOperatorC,
+    tanTwoAngleOperatorC,
     ← cfc_mul (fun t : ℝ => |Real.tan (2 * t)|)
-      (fun t : ℝ => |Real.tan (2 * t)|) (paperAngleOperatorC U V)
+      (fun t : ℝ => |Real.tan (2 * t)|) (angleOperatorC U V)
       hcontAbs hcontAbs,
     ← cfc_mul (fun t : ℝ => Real.tan (2 * t))
-      (fun t : ℝ => Real.tan (2 * t)) (paperAngleOperatorC U V)
+      (fun t : ℝ => Real.tan (2 * t)) (angleOperatorC U V)
       hcontTan hcontTan]
   exact cfc_congr fun _ _ => abs_mul_abs_self _
 
 /-- **`tan²2Θ · cos²2Θ = sin²2Θ`** in the quarter-acute branch, where the
 ambient double-angle tangent is nonnegative and therefore equal to its
 branch-free counterpart. -/
-theorem paperTanTwo_sq_mul_cos_two_sq
+theorem tanTwo_sq_mul_cos_two_sq
     (htr : ‖sinAngleOperatorC U V‖ < Real.sqrt 2 / 2) :
-    paperTanTwoAngleOperatorC U V * paperTanTwoAngleOperatorC U V *
+    tanTwoAngleOperatorC U V * tanTwoAngleOperatorC U V *
         ((1 - 2 * (sinAngleOperatorC U V * sinAngleOperatorC U V)) *
           (1 - 2 * (sinAngleOperatorC U V * sinAngleOperatorC U V))) =
       4 * (sinAngleOperatorC U V * sinAngleOperatorC U V -
         sinAngleOperatorC U V * sinAngleOperatorC U V *
           (sinAngleOperatorC U V * sinAngleOperatorC U V)) := by
-  have h := paperAbsTanTwo_sq_mul_cos_two_sq
+  have h := absTanTwo_sq_mul_cos_two_sq
     (fun _ ht => cos_two_ne_zero_of_norm_sinAngleOperatorC_lt htr ht)
-  rwa [paperAbsTanTwoAngleOperatorC_eq_paperTanTwoAngleOperatorC U V htr] at h
+  rwa [absTanTwoAngleOperatorC_eq_directedTanTwoAngleOperatorC U V htr] at h
 
 end Identification
 
@@ -611,230 +620,230 @@ section Modulus
 
 variable {U V : Submodule ℂ E}
   [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-  (hinv : IsUnit (1 - 2 * (paperProjectorDifference U V *
-    paperProjectorDifference U V)))
+  (hinv : IsUnit (1 - 2 * (projectorDifference U V *
+    projectorDifference U V)))
 
 include hinv
 
 omit [CompleteSpace E] in
 private theorem doubleSecant_mul_cancel :
-    (1 - 2 * (paperProjectorDifference U V * paperProjectorDifference U V)) *
-      paperDoubleSecant U V = 1 :=
+    (1 - 2 * (projectorDifference U V * projectorDifference U V)) *
+      doubleSecant U V = 1 :=
   Ring.mul_inverse_cancel _
     (hinv)
 
 omit [CompleteSpace E] in
 private theorem doubleSecant_mul_cancel' :
-    paperDoubleSecant U V *
-      (1 - 2 * (paperProjectorDifference U V * paperProjectorDifference U V)) = 1 :=
+    doubleSecant U V *
+      (1 - 2 * (projectorDifference U V * projectorDifference U V)) = 1 :=
   Ring.inverse_mul_cancel _
     (hinv)
 
 omit [CompleteSpace E] in
 private theorem doubleSecant_comm_projectorDifference :
-    paperProjectorDifference U V * paperDoubleSecant U V =
-      paperDoubleSecant U V * paperProjectorDifference U V :=
+    projectorDifference U V * doubleSecant U V =
+      doubleSecant U V * projectorDifference U V :=
   inverse_comm' (hinv)
     (by noncomm_ring)
 
 omit [CompleteSpace E] in
 private theorem doubleSecant_comm_starProjection :
-    paperDoubleSecant U V * U.starProjection =
-      U.starProjection * paperDoubleSecant U V :=
+    doubleSecant U V * U.starProjection =
+      U.starProjection * doubleSecant U V :=
   (inverse_comm' (hinv)
     (by
       have h := proj_comm_sq' (starProjection_idem' U)
-        (paperProjectorDifference_anticommutator (U := U) (V := V))
+        (projectorDifference_anticommutator (U := U) (V := V))
       have hp2 : U.starProjection *
-            (2 * (paperProjectorDifference U V * paperProjectorDifference U V)) =
-          2 * (paperProjectorDifference U V * paperProjectorDifference U V) *
+            (2 * (projectorDifference U V * projectorDifference U V)) =
+          2 * (projectorDifference U V * projectorDifference U V) *
             U.starProjection := by
         calc U.starProjection *
-              (2 * (paperProjectorDifference U V * paperProjectorDifference U V))
+              (2 * (projectorDifference U V * projectorDifference U V))
             = 2 * (U.starProjection *
-                (paperProjectorDifference U V * paperProjectorDifference U V)) := by
+                (projectorDifference U V * projectorDifference U V)) := by
               rw [← mul_assoc, two_comm' U.starProjection, mul_assoc]
-          _ = 2 * (paperProjectorDifference U V * paperProjectorDifference U V *
+          _ = 2 * (projectorDifference U V * projectorDifference U V *
                 U.starProjection) := by rw [h]
-          _ = 2 * (paperProjectorDifference U V * paperProjectorDifference U V) *
+          _ = 2 * (projectorDifference U V * projectorDifference U V) *
                 U.starProjection := by noncomm_ring
       rw [mul_sub, sub_mul, mul_one, one_mul, hp2])).symm
 
 omit [CompleteSpace E] in
 private theorem doubleSecant_comm_starProjection_compl :
-    paperDoubleSecant U V * (1 - U.starProjection) =
-      (1 - U.starProjection) * paperDoubleSecant U V := by
-  have h : paperDoubleSecant U V * (1 - U.starProjection) =
-      paperDoubleSecant U V - paperDoubleSecant U V * U.starProjection := by
+    doubleSecant U V * (1 - U.starProjection) =
+      (1 - U.starProjection) * doubleSecant U V := by
+  have h : doubleSecant U V * (1 - U.starProjection) =
+      doubleSecant U V - doubleSecant U V * U.starProjection := by
     noncomm_ring
   rw [h, doubleSecant_comm_starProjection hinv]
   noncomm_ring
 
 private theorem doubleSecant_selfAdjoint :
-    star (paperDoubleSecant U V) = paperDoubleSecant U V := by
-  rw [paperDoubleSecant,
+    star (doubleSecant U V) = doubleSecant U V := by
+  rw [doubleSecant,
     star_inverse' (hinv)]
   congr 1
   rw [star_sub, star_one, star_mul, two_star', star_mul,
-    isSelfAdjoint_paperProjectorDifference.star_eq, two_comm']
+    isSelfAdjoint_projectorDifference.star_eq, two_comm']
 
 omit [CompleteSpace E] in
 private theorem doubleSecant_comm_lower :
-    ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection) *
-        paperDoubleSecant U V =
-      paperDoubleSecant U V *
-        ((1 - U.starProjection) * paperProjectorDifference U V *
+    ((1 - U.starProjection) * projectorDifference U V * U.starProjection) *
+        doubleSecant U V =
+      doubleSecant U V *
+        ((1 - U.starProjection) * projectorDifference U V *
           U.starProjection) := by
   have hRp := doubleSecant_comm_starProjection hinv
   have hRD := doubleSecant_comm_projectorDifference hinv
   have hRc := doubleSecant_comm_starProjection_compl hinv
-  calc ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection) *
-        paperDoubleSecant U V
-      = (1 - U.starProjection) * paperProjectorDifference U V *
-          (U.starProjection * paperDoubleSecant U V) := by noncomm_ring
-    _ = (1 - U.starProjection) * paperProjectorDifference U V *
-          (paperDoubleSecant U V * U.starProjection) := by rw [hRp]
+  calc ((1 - U.starProjection) * projectorDifference U V * U.starProjection) *
+        doubleSecant U V
+      = (1 - U.starProjection) * projectorDifference U V *
+          (U.starProjection * doubleSecant U V) := by noncomm_ring
+    _ = (1 - U.starProjection) * projectorDifference U V *
+          (doubleSecant U V * U.starProjection) := by rw [hRp]
     _ = (1 - U.starProjection) *
-          (paperProjectorDifference U V * paperDoubleSecant U V) *
+          (projectorDifference U V * doubleSecant U V) *
           U.starProjection := by noncomm_ring
     _ = (1 - U.starProjection) *
-          (paperDoubleSecant U V * paperProjectorDifference U V) *
+          (doubleSecant U V * projectorDifference U V) *
           U.starProjection := by rw [hRD]
-    _ = ((1 - U.starProjection) * paperDoubleSecant U V) *
-          paperProjectorDifference U V * U.starProjection := by noncomm_ring
-    _ = (paperDoubleSecant U V * (1 - U.starProjection)) *
-          paperProjectorDifference U V * U.starProjection := by rw [hRc]
-    _ = paperDoubleSecant U V *
-          ((1 - U.starProjection) * paperProjectorDifference U V *
+    _ = ((1 - U.starProjection) * doubleSecant U V) *
+          projectorDifference U V * U.starProjection := by noncomm_ring
+    _ = (doubleSecant U V * (1 - U.starProjection)) *
+          projectorDifference U V * U.starProjection := by rw [hRc]
+    _ = doubleSecant U V *
+          ((1 - U.starProjection) * projectorDifference U V *
             U.starProjection) := by noncomm_ring
 
 omit [CompleteSpace E] in
 private theorem doubleSecant_comm_upper :
-    (U.starProjection * paperProjectorDifference U V *
-          (1 - U.starProjection)) * paperDoubleSecant U V =
-      paperDoubleSecant U V *
-        (U.starProjection * paperProjectorDifference U V *
+    (U.starProjection * projectorDifference U V *
+          (1 - U.starProjection)) * doubleSecant U V =
+      doubleSecant U V *
+        (U.starProjection * projectorDifference U V *
           (1 - U.starProjection)) := by
   have hRp := doubleSecant_comm_starProjection hinv
   have hRD := doubleSecant_comm_projectorDifference hinv
   have hRc := doubleSecant_comm_starProjection_compl hinv
-  calc (U.starProjection * paperProjectorDifference U V *
-        (1 - U.starProjection)) * paperDoubleSecant U V
-      = U.starProjection * paperProjectorDifference U V *
-          ((1 - U.starProjection) * paperDoubleSecant U V) := by noncomm_ring
-    _ = U.starProjection * paperProjectorDifference U V *
-          (paperDoubleSecant U V * (1 - U.starProjection)) := by rw [hRc]
+  calc (U.starProjection * projectorDifference U V *
+        (1 - U.starProjection)) * doubleSecant U V
+      = U.starProjection * projectorDifference U V *
+          ((1 - U.starProjection) * doubleSecant U V) := by noncomm_ring
+    _ = U.starProjection * projectorDifference U V *
+          (doubleSecant U V * (1 - U.starProjection)) := by rw [hRc]
     _ = U.starProjection *
-          (paperProjectorDifference U V * paperDoubleSecant U V) *
+          (projectorDifference U V * doubleSecant U V) *
           (1 - U.starProjection) := by noncomm_ring
     _ = U.starProjection *
-          (paperDoubleSecant U V * paperProjectorDifference U V) *
+          (doubleSecant U V * projectorDifference U V) *
           (1 - U.starProjection) := by rw [hRD]
-    _ = (U.starProjection * paperDoubleSecant U V) *
-          paperProjectorDifference U V * (1 - U.starProjection) := by noncomm_ring
-    _ = (paperDoubleSecant U V * U.starProjection) *
-          paperProjectorDifference U V * (1 - U.starProjection) := by rw [hRp]
-    _ = paperDoubleSecant U V *
-          (U.starProjection * paperProjectorDifference U V *
+    _ = (U.starProjection * doubleSecant U V) *
+          projectorDifference U V * (1 - U.starProjection) := by noncomm_ring
+    _ = (doubleSecant U V * U.starProjection) *
+          projectorDifference U V * (1 - U.starProjection) := by rw [hRp]
+    _ = doubleSecant U V *
+          (U.starProjection * projectorDifference U V *
             (1 - U.starProjection)) := by noncomm_ring
 
 omit [CompleteSpace E] in
 /-- The block representative in the explicit `U ⊕ U^⊥` corner form. -/
-theorem paperTanTwoBlockRepresentative_eq :
-    paperTanTwoBlockRepresentative U V =
-      2 * (((1 - U.starProjection) * paperProjectorDifference U V *
+theorem tanTwoBlockRepresentative_eq :
+    tanTwoBlockRepresentative U V =
+      2 * (((1 - U.starProjection) * projectorDifference U V *
             U.starProjection +
-          U.starProjection * paperProjectorDifference U V *
-            (1 - U.starProjection)) * paperDoubleSecant U V) := by
+          U.starProjection * projectorDifference U V *
+            (1 - U.starProjection)) * doubleSecant U V) := by
   have hUperp : Uᗮᗮ = U := Submodule.orthogonal_orthogonal U
   have hRp := doubleSecant_comm_starProjection hinv
   have hRc := doubleSecant_comm_starProjection_compl hinv
-  rw [paperTanTwoBlockRepresentative, paperDiagonalPair]
+  rw [tanTwoBlockRepresentative, diagonalPair]
   simp only [hUperp, Submodule.starProjection_orthogonal', comp_eq_mul']
   have h1 : (1 - U.starProjection) *
-        (2 * (paperProjectorDifference U V * paperDoubleSecant U V) *
+        (2 * (projectorDifference U V * doubleSecant U V) *
           U.starProjection) =
-      2 * ((1 - U.starProjection) * paperProjectorDifference U V *
-        U.starProjection * paperDoubleSecant U V) := by
+      2 * ((1 - U.starProjection) * projectorDifference U V *
+        U.starProjection * doubleSecant U V) := by
     calc (1 - U.starProjection) *
-          (2 * (paperProjectorDifference U V * paperDoubleSecant U V) *
+          (2 * (projectorDifference U V * doubleSecant U V) *
             U.starProjection)
-        = 2 * ((1 - U.starProjection) * paperProjectorDifference U V *
-            (paperDoubleSecant U V * U.starProjection)) := by noncomm_ring
-      _ = 2 * ((1 - U.starProjection) * paperProjectorDifference U V *
-            (U.starProjection * paperDoubleSecant U V)) := by rw [hRp]
-      _ = 2 * ((1 - U.starProjection) * paperProjectorDifference U V *
-            U.starProjection * paperDoubleSecant U V) := by noncomm_ring
+        = 2 * ((1 - U.starProjection) * projectorDifference U V *
+            (doubleSecant U V * U.starProjection)) := by noncomm_ring
+      _ = 2 * ((1 - U.starProjection) * projectorDifference U V *
+            (U.starProjection * doubleSecant U V)) := by rw [hRp]
+      _ = 2 * ((1 - U.starProjection) * projectorDifference U V *
+            U.starProjection * doubleSecant U V) := by noncomm_ring
   have h2 : U.starProjection *
-        (2 * (paperProjectorDifference U V * paperDoubleSecant U V) *
+        (2 * (projectorDifference U V * doubleSecant U V) *
           (1 - U.starProjection)) =
-      2 * (U.starProjection * paperProjectorDifference U V *
-        (1 - U.starProjection) * paperDoubleSecant U V) := by
+      2 * (U.starProjection * projectorDifference U V *
+        (1 - U.starProjection) * doubleSecant U V) := by
     calc U.starProjection *
-          (2 * (paperProjectorDifference U V * paperDoubleSecant U V) *
+          (2 * (projectorDifference U V * doubleSecant U V) *
             (1 - U.starProjection))
-        = 2 * (U.starProjection * paperProjectorDifference U V *
-            (paperDoubleSecant U V * (1 - U.starProjection))) := by noncomm_ring
-      _ = 2 * (U.starProjection * paperProjectorDifference U V *
-            ((1 - U.starProjection) * paperDoubleSecant U V)) := by rw [hRc]
-      _ = 2 * (U.starProjection * paperProjectorDifference U V *
-            (1 - U.starProjection) * paperDoubleSecant U V) := by noncomm_ring
+        = 2 * (U.starProjection * projectorDifference U V *
+            (doubleSecant U V * (1 - U.starProjection))) := by noncomm_ring
+      _ = 2 * (U.starProjection * projectorDifference U V *
+            ((1 - U.starProjection) * doubleSecant U V)) := by rw [hRc]
+      _ = 2 * (U.starProjection * projectorDifference U V *
+            (1 - U.starProjection) * doubleSecant U V) := by noncomm_ring
   rw [h1, h2]
   noncomm_ring
 
 /-- The block representative is self-adjoint: its two corners are adjoints of
 one another. -/
-theorem isSelfAdjoint_paperTanTwoBlockRepresentative :
-    IsSelfAdjoint (paperTanTwoBlockRepresentative U V) := by
-  have hD := isSelfAdjoint_paperProjectorDifference (U := U) (V := V)
+theorem isSelfAdjoint_tanTwoBlockRepresentative :
+    IsSelfAdjoint (tanTwoBlockRepresentative U V) := by
+  have hD := isSelfAdjoint_projectorDifference (U := U) (V := V)
   have hp := isSelfAdjoint_starProjection U
-  have hcross : star ((1 - U.starProjection) * paperProjectorDifference U V *
-      U.starProjection) = U.starProjection * paperProjectorDifference U V *
+  have hcross : star ((1 - U.starProjection) * projectorDifference U V *
+      U.starProjection) = U.starProjection * projectorDifference U V *
         (1 - U.starProjection) := by
     rw [star_mul, star_mul, star_sub, star_one, hp.star_eq, hD.star_eq]
     noncomm_ring
-  have hcross' : star (U.starProjection * paperProjectorDifference U V *
+  have hcross' : star (U.starProjection * projectorDifference U V *
       (1 - U.starProjection)) = (1 - U.starProjection) *
-        paperProjectorDifference U V * U.starProjection := by
+        projectorDifference U V * U.starProjection := by
     rw [star_mul, star_mul, star_sub, star_one, hp.star_eq, hD.star_eq]
     noncomm_ring
-  rw [IsSelfAdjoint, paperTanTwoBlockRepresentative_eq hinv, star_mul, two_star',
+  rw [IsSelfAdjoint, tanTwoBlockRepresentative_eq hinv, star_mul, two_star',
     star_mul, doubleSecant_selfAdjoint hinv, star_add, hcross, hcross', add_comm,
     add_mul, mul_add, ← doubleSecant_comm_lower hinv, ← doubleSecant_comm_upper hinv,
     two_comm']
 
 /-- **`Ξ⋆Ξ = tan²2Θ`.**  The block representative squares to
 `4 sin²Θ cos²Θ · cos⁻²2Θ`. -/
-theorem paperTanTwoBlockRepresentative_mul_self :
-    paperTanTwoBlockRepresentative U V * paperTanTwoBlockRepresentative U V =
+theorem tanTwoBlockRepresentative_mul_self :
+    tanTwoBlockRepresentative U V * tanTwoBlockRepresentative U V =
       4 * ((sinAngleOperatorC U V * sinAngleOperatorC U V -
           sinAngleOperatorC U V * sinAngleOperatorC U V *
             (sinAngleOperatorC U V * sinAngleOperatorC U V)) *
-        (paperDoubleSecant U V * paperDoubleSecant U V)) := by
+        (doubleSecant U V * doubleSecant U V)) := by
   have hsq := offDiagonal_sq (starProjection_idem' U)
-    (paperProjectorDifference_anticommutator (U := U) (V := V))
-  have hXR : ((1 - U.starProjection) * paperProjectorDifference U V *
-        U.starProjection + U.starProjection * paperProjectorDifference U V *
-        (1 - U.starProjection)) * paperDoubleSecant U V =
-      paperDoubleSecant U V * ((1 - U.starProjection) *
-        paperProjectorDifference U V * U.starProjection +
-        U.starProjection * paperProjectorDifference U V *
+    (projectorDifference_anticommutator (U := U) (V := V))
+  have hXR : ((1 - U.starProjection) * projectorDifference U V *
+        U.starProjection + U.starProjection * projectorDifference U V *
+        (1 - U.starProjection)) * doubleSecant U V =
+      doubleSecant U V * ((1 - U.starProjection) *
+        projectorDifference U V * U.starProjection +
+        U.starProjection * projectorDifference U V *
         (1 - U.starProjection)) := by
     rw [add_mul, mul_add, doubleSecant_comm_lower hinv, doubleSecant_comm_upper hinv]
-  rw [paperTanTwoBlockRepresentative_eq hinv]
-  set X : E →L[ℂ] E := (1 - U.starProjection) * paperProjectorDifference U V *
-    U.starProjection + U.starProjection * paperProjectorDifference U V *
+  rw [tanTwoBlockRepresentative_eq hinv]
+  set X : E →L[ℂ] E := (1 - U.starProjection) * projectorDifference U V *
+    U.starProjection + U.starProjection * projectorDifference U V *
     (1 - U.starProjection) with hXdef
-  calc 2 * (X * paperDoubleSecant U V) * (2 * (X * paperDoubleSecant U V))
-      = 4 * (X * (paperDoubleSecant U V * X) * paperDoubleSecant U V) := by
+  calc 2 * (X * doubleSecant U V) * (2 * (X * doubleSecant U V))
+      = 4 * (X * (doubleSecant U V * X) * doubleSecant U V) := by
         noncomm_ring
-    _ = 4 * ((X * X) * (paperDoubleSecant U V * paperDoubleSecant U V)) := by
+    _ = 4 * ((X * X) * (doubleSecant U V * doubleSecant U V)) := by
         rw [← hXR]; noncomm_ring
     _ = 4 * ((sinAngleOperatorC U V * sinAngleOperatorC U V -
           sinAngleOperatorC U V * sinAngleOperatorC U V *
             (sinAngleOperatorC U V * sinAngleOperatorC U V)) *
-        (paperDoubleSecant U V * paperDoubleSecant U V)) := by
-        rw [hXdef, hsq, paperProjectorDifference_sq]
+        (doubleSecant U V * doubleSecant U V)) := by
+        rw [hXdef, hsq, projectorDifference_sq]
 
 end Modulus
 
@@ -851,7 +860,7 @@ section ModulusBranchFree
 
 variable {U V : Submodule ℂ E}
   [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-  (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0)
+  (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0)
 
 include hcos
 
@@ -867,26 +876,26 @@ unitarily invariant norm.
 is what makes `tan 2Θ` a bounded operator at all; principal angles are free to
 exceed `π/4`, and where they do, `tan 2θ` is negative and `|tan 2Θ|` is the
 object the norm sees. -/
-theorem paperAbsTanTwoAngleOperatorC_eq_modulus_blockRepresentative :
-    paperAbsTanTwoAngleOperatorC U V =
-      (paperTanTwoBlockRepresentative U V).modulus := by
-  have hinv := isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero
+theorem absTanTwoAngleOperatorC_eq_modulus_blockRepresentative :
+    absTanTwoAngleOperatorC U V =
+      (tanTwoBlockRepresentative U V).modulus := by
+  have hinv := isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero
     hcos
   refine ContinuousLinearMap.eq_modulus_of_nonneg_of_mul_self_eq
-    (paperAbsTanTwoAngleOperatorC_nonneg U V) ?_
-  have hself := isSelfAdjoint_paperTanTwoBlockRepresentative hinv
-  have hadj : (paperTanTwoBlockRepresentative U V).adjoint ∘L
-      paperTanTwoBlockRepresentative U V =
-      paperTanTwoBlockRepresentative U V * paperTanTwoBlockRepresentative U V := by
+    (absTanTwoAngleOperatorC_nonneg U V) ?_
+  have hself := isSelfAdjoint_tanTwoBlockRepresentative hinv
+  have hadj : (tanTwoBlockRepresentative U V).adjoint ∘L
+      tanTwoBlockRepresentative U V =
+      tanTwoBlockRepresentative U V * tanTwoBlockRepresentative U V := by
     rw [comp_eq_mul', hself.adjoint_eq]
-  rw [hadj, paperTanTwoBlockRepresentative_mul_self hinv]
+  rw [hadj, tanTwoBlockRepresentative_mul_self hinv]
   have hcancel := doubleSecant_mul_cancel hinv
   have hcancel' := doubleSecant_mul_cancel' hinv
-  rw [paperProjectorDifference_sq] at hcancel hcancel'
-  set T := paperAbsTanTwoAngleOperatorC U V with hT
+  rw [projectorDifference_sq] at hcancel hcancel'
+  set T := absTanTwoAngleOperatorC U V with hT
   set N2 : E →L[ℂ] E :=
     1 - 2 * (sinAngleOperatorC U V * sinAngleOperatorC U V) with hN2
-  set S2 : E →L[ℂ] E := paperDoubleSecant U V with hS2
+  set S2 : E →L[ℂ] E := doubleSecant U V with hS2
   calc T * T
       = T * T * ((N2 * S2) * (N2 * S2)) := by rw [hcancel, mul_one, mul_one]
     _ = (T * T * (N2 * N2)) * (S2 * S2) := by
@@ -898,7 +907,7 @@ theorem paperAbsTanTwoAngleOperatorC_eq_modulus_blockRepresentative :
     _ = 4 * ((sinAngleOperatorC U V * sinAngleOperatorC U V -
           sinAngleOperatorC U V * sinAngleOperatorC U V *
             (sinAngleOperatorC U V * sinAngleOperatorC U V))) * (S2 * S2) := by
-        rw [hT, hN2, paperAbsTanTwo_sq_mul_cos_two_sq hcos]
+        rw [hT, hN2, absTanTwo_sq_mul_cos_two_sq hcos]
     _ = 4 * ((sinAngleOperatorC U V * sinAngleOperatorC U V -
           sinAngleOperatorC U V * sinAngleOperatorC U V *
             (sinAngleOperatorC U V * sinAngleOperatorC U V)) *
@@ -912,15 +921,15 @@ variable {U V : Submodule ℂ E}
   [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
 
 /-- The quarter-acute specialisation of
-`paperAbsTanTwoAngleOperatorC_eq_modulus_blockRepresentative`, in which the
+`absTanTwoAngleOperatorC_eq_modulus_blockRepresentative`, in which the
 ambient tangent is nonnegative and the modulus is the literal `tan 2Θ`. -/
-theorem paperTanTwoAngleOperatorC_eq_modulus_blockRepresentative
+theorem directedTanTwoAngleOperatorC_eq_modulus_blockRepresentative
     (htr : ‖sinAngleOperatorC U V‖ < Real.sqrt 2 / 2) :
-    paperTanTwoAngleOperatorC U V =
-      (paperTanTwoBlockRepresentative U V).modulus := by
-  have h := paperAbsTanTwoAngleOperatorC_eq_modulus_blockRepresentative
+    tanTwoAngleOperatorC U V =
+      (tanTwoBlockRepresentative U V).modulus := by
+  have h := absTanTwoAngleOperatorC_eq_modulus_blockRepresentative
     (fun _ ht => cos_two_ne_zero_of_norm_sinAngleOperatorC_lt htr ht)
-  rwa [paperAbsTanTwoAngleOperatorC_eq_paperTanTwoAngleOperatorC U V htr] at h
+  rwa [absTanTwoAngleOperatorC_eq_directedTanTwoAngleOperatorC U V htr] at h
 
 end ModulusQuarterAcute
 
@@ -1078,24 +1087,24 @@ variable {U V : Submodule ℂ E}
 /-- `IsQuarterAcute` *is* uniform transversality at the quarter turn. -/
 theorem norm_sinAngleOperatorC_lt_of_isQuarterAcute (hq : IsQuarterAcute U V) :
     ‖sinAngleOperatorC U V‖ < Real.sqrt 2 / 2 := by
-  rw [← norm_paperProjectorDifference, paperProjectorDifference,
+  rw [← norm_projectorDifference, projectorDifference,
     show V.starProjection - U.starProjection =
       -(U.starProjection - V.starProjection) from by abel, norm_neg]
   exact hq
 
 omit [CompleteSpace E] in
 private theorem projectionBlock_lower' (K : E →L[ℂ] E) :
-    paperProjectionBlock Uᗮ U K =
+    projectionBlock Uᗮ U K =
       (1 - U.starProjection) * K * U.starProjection := by
-  rw [paperProjectionBlock, Submodule.starProjection_orthogonal', comp_eq_mul',
+  rw [projectionBlock, Submodule.starProjection_orthogonal', comp_eq_mul',
     comp_eq_mul', mul_assoc]
 
 omit [CompleteSpace E] in
 private theorem projectionBlock_upper' (K : E →L[ℂ] E) :
-    paperProjectionBlock Uᗮᗮ Uᗮ K =
+    projectionBlock Uᗮᗮ Uᗮ K =
       U.starProjection * K * (1 - U.starProjection) := by
   have hUperp : Uᗮᗮ = U := Submodule.orthogonal_orthogonal U
-  rw [paperProjectionBlock]
+  rw [projectionBlock]
   simp only [hUperp, Submodule.starProjection_orthogonal']
   rw [mul_assoc]
   rfl
@@ -1104,20 +1113,20 @@ omit [CompleteSpace E] in
 private theorem projectionBlock_smul' (Ω Γ : Submodule ℂ E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (c : ℂ) (K : E →L[ℂ] E) :
-    paperProjectionBlock Ω Γ (c • K) = c • paperProjectionBlock Ω Γ K := by
+    projectionBlock Ω Γ (c • K) = c • projectionBlock Ω Γ K := by
   ext x
-  simp [paperProjectionBlock]
+  simp [projectionBlock]
 
 /-- **The directed corner of the block representative is the ambient graph
 tangent.**  This is the operator identity that lets the sharp Riccati Ky Fan
 estimate, stated for `2 X (1 − X⋆X)⁻¹`, be read as an estimate on the corner. -/
-theorem paperTanTwoBlockRepresentative_lowerBlock (hq : IsQuarterAcute U V) :
-    paperProjectionBlock Uᗮ U
-        (2 * (paperProjectorDifference U V * paperDoubleSecant U V)) =
+theorem tanTwoBlockRepresentative_lowerBlock (hq : IsQuarterAcute U V) :
+    projectionBlock Uᗮ U
+        (2 * (projectorDifference U V * doubleSecant U V)) =
       doubleAngleTangentOperator (quarterAcuteAngularOperator U V hq)
         (norm_quarterAcuteAngularOperator_lt_one U V hq) := by
   have htr := norm_sinAngleOperatorC_lt_of_isQuarterAcute hq
-  have hinv := isUnit_one_sub_two_mul_paperProjectorDifference_sq htr
+  have hinv := isUnit_one_sub_two_mul_projectorDifference_sq htr
   have hang : IsAngularOperator U (quarterAcuteAngularOperator U V hq) :=
     quarterAcuteAngularOperator_isAngularOperator U V hq
   have hYc : ‖quarterAcuteAngularOperator U V hq‖ < 1 :=
@@ -1198,9 +1207,9 @@ theorem paperTanTwoBlockRepresentative_lowerBlock (hq : IsQuarterAcute U V) :
     have h := projection_graphSubspace_formula U (quarterAcuteAngularOperator U V hq)
       hang
     simp only [graphSubspace_quarterAcuteAngularOperator U V hq] at h
-    rw [show (V.starProjection : E →L[ℂ] E) = DavisKahan.projection V from rfl, h,
+    rw [show (V.starProjection : E →L[ℂ] E) = V.starProjection from rfl, h,
       graphProjectionFormula,
-      show (DavisKahan.projection U : E →L[ℂ] E) = U.starProjection from rfl, hYp,
+      show (U.starProjection : E →L[ℂ] E) = U.starProjection from rfl, hYp,
       star_add, hpsa]
   have hcorner := graph_corner (p := U.starProjection)
     (Y := quarterAcuteAngularOperator U V hq)
@@ -1208,8 +1217,8 @@ theorem paperTanTwoBlockRepresentative_lowerBlock (hq : IsQuarterAcute U V) :
       quarterAcuteAngularOperator U V hq))
     (Mi := Ring.inverse (1 - star (quarterAcuteAngularOperator U V hq) *
       quarterAcuteAngularOperator U V hq))
-    (S2 := paperDoubleSecant U V) (Q := V.starProjection)
-    (D := paperProjectorDifference U V)
+    (S2 := doubleSecant U V) (Q := V.starProjection)
+    (D := projectorDifference U V)
     hpp hQQ hYp hpY hsYp hRp hQ rfl
     (Ring.inverse_mul_cancel _ hNunit) (Ring.mul_inverse_cancel _ hMunit)
     hGp hpG hMip (doubleSecant_mul_cancel' hinv)
@@ -1235,7 +1244,7 @@ variable {A H : E →L[ℂ] E} {U V : Submodule ℂ E}
 omit [CompleteSpace E] in
 private theorem isOffDiagonal_of_maps_orthogonal'
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U) :
-    IsOffDiagonal U H := by
+    Submodule.IsOffDiagonal U H := by
   change U.diagonalPart H = 0
   apply ContinuousLinearMap.ext
   intro x
@@ -1251,19 +1260,19 @@ private theorem isOffDiagonal_of_maps_orthogonal'
     add_apply, hPzero, hQzero, add_zero, zero_apply]
 
 private theorem kyFan_upperBlock_eq_compression (K : E →L[ℂ] E) (k : ℕ) :
-    kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ K) =
-      kyFanApproximationGauge k (paperBlockCompression U Uᗮ K) := by
-  have heq : paperProjectionBlock Uᗮᗮ Uᗮ K = paperProjectionBlock U Uᗮ K := by
-    simp only [paperProjectionBlock, Submodule.orthogonal_orthogonal]
+    kyFanApproximationGauge k (projectionBlock Uᗮᗮ Uᗮ K) =
+      kyFanApproximationGauge k (blockCompression U Uᗮ K) := by
+  have heq : projectionBlock Uᗮᗮ Uᗮ K = projectionBlock U Uᗮ K := by
+    simp only [projectionBlock, Submodule.orthogonal_orthogonal]
   rw [heq]
-  exact (paperProjectionBlock_same_compression U Uᗮ K).kyFanApproximationGauge_eq k
+  exact (projectionBlock_same_compression U Uᗮ K).kyFanApproximationGauge_eq k
 
 private theorem kyFan_lowerBlock_eq_upperBlock (K : E →L[ℂ] E)
     (hK : IsSelfAdjoint K) (k : ℕ) :
-    kyFanApproximationGauge k (paperProjectionBlock Uᗮ U K) =
-      kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ K) := by
-  have hadj : paperProjectionBlock Uᗮᗮ Uᗮ K =
-      (paperProjectionBlock Uᗮ U K).adjoint := by
+    kyFanApproximationGauge k (projectionBlock Uᗮ U K) =
+      kyFanApproximationGauge k (projectionBlock Uᗮᗮ Uᗮ K) := by
+  have hadj : projectionBlock Uᗮᗮ Uᗮ K =
+      (projectionBlock Uᗮ U K).adjoint := by
     rw [projectionBlock_upper', projectionBlock_lower']
     show _ = star _
     simp only [star_mul, star_sub, star_one,
@@ -1276,7 +1285,7 @@ private theorem kyFan_lowerBlock_eq_upperBlock (K : E →L[ℂ] E)
 `δ · kyFanₖ(tan 2Θ₀) ≤ 2 · kyFanₖ(R)`, with the *residual* `R = P_{U^⊥} H P_U`
 on the right rather than the whole perturbation.  The directed object is the
 lower corner of the ambient block representative, which
-`paperTanTwoBlockRepresentative_lowerBlock` identifies with the graph tangent
+`tanTwoBlockRepresentative_lowerBlock` identifies with the graph tangent
 `2 X (1 − X⋆X)⁻¹`.
 
 This strengthening is what makes the ambient half sharp: `H` is fully
@@ -1291,19 +1300,20 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     (hq : IsQuarterAcute U V) (k : ℕ) :
     (b - a) * kyFanApproximationGauge k
-        (paperProjectionBlock Uᗮ U
-          (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
-      2 * kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ H) := by
-  have hAsym : IsSelfAdjointOperator A :=
+        (projectionBlock Uᗮ U
+          (2 * (projectorDifference U V * doubleSecant U V))) ≤
+      2 * kyFanApproximationGauge k (projectionBlock Uᗮᗮ Uᗮ H) := by
+  have hAsym : A.IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
-  have hHsym : IsSelfAdjointOperator H :=
+  have hHsym : H.IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hH
-  have hAHsym : IsSelfAdjointOperator (A + H) := by
+  have hAHsym : (A + H).IsSymmetric := by
     have h := hAsym.add hHsym
     rwa [← ContinuousLinearMap.toLinearMap_add] at h
-  have hUreduces : Reduces A U := reduces_orthogonalComplement hAsym hAU
-  have hVreduces : Reduces (A + H) V := reduces_orthogonalComplement hAHsym hAplusH_V
-  have hoff : IsOffDiagonal U H := isOffDiagonal_of_maps_orthogonal' hHU hHUperp
+  have hUreduces : A.Reduces U := ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAsym hAU
+  have hVreduces : ContinuousLinearMap.Reduces (A + H) V :=
+    ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAHsym hAplusH_V
+  have hoff : Submodule.IsOffDiagonal U H := isOffDiagonal_of_maps_orthogonal' hHU hHUperp
   let B : BlockOperatorData (𝕜 := ℂ) (E0 := U) (E1 := Uᗮ) :=
     TauCeti.DavisKahanExt.subspaceBlockOperatorData (A + H) U hAHsym
   let X : U →L[ℂ] Uᗮ := TauCeti.DavisKahanExt.quarterAcuteAngularCoordinate U V hq
@@ -1386,18 +1396,18 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
         (TauCeti.DavisKahanExt.quarterAcuteAngularOperator_isAngularOperator U V hq)
         hYc
   have hleft : kyFanApproximationGauge k
-      (paperProjectionBlock Uᗮ U
-        (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) =
+      (projectionBlock Uᗮ U
+        (2 * (projectorDifference U V * doubleSecant U V))) =
       kyFanApproximationGauge k (doubleAngleTangentOperator X hXc) := by
-    rw [paperTanTwoBlockRepresentative_lowerBlock hq, hambient]
+    rw [tanTwoBlockRepresentative_lowerBlock hq, hambient]
     exact (sameApproximationSingularValues_ambientSubspaceBlock U Uᗮ
       (doubleAngleTangentOperator X hXc)).kyFanApproximationGauge_eq k
   -- the right-hand side: the shifted block's cross entry is the upper block of `H`
   have hDB01 : Dd.B01 = -B.B01 := rfl
   have hright : kyFanApproximationGauge k Dd.B01 =
-      kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ H) := by
+      kyFanApproximationGauge k (projectionBlock Uᗮᗮ Uᗮ H) := by
     rw [hDB01, kyFanApproximationGauge_neg, kyFan_upperBlock_eq_compression H k,
-      hB01, paperBlockCompression, Submodule.adjoint_subtypeL]
+      hB01, blockCompression, Submodule.adjoint_subtypeL]
   rw [hleft, ← hright]
   exact hraw
 
@@ -1418,70 +1428,70 @@ branch, through the contractive Riccati coordinate; a branch-free supply of the
 same estimate is the one thing the branch-free ambient theorem still needs. -/
 theorem tanTwoTheta_ambient_bounded_branchFree_kyFan_complex_of_corner
     (hH : IsSelfAdjoint H) (hab : a < b)
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0)
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0)
     (hcorner : ∀ j : ℕ,
       (b - a) * kyFanApproximationGauge j
-          (paperProjectionBlock Uᗮ U
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
-        2 * kyFanApproximationGauge j (paperProjectionBlock Uᗮᗮ Uᗮ H)) :
+          (projectionBlock Uᗮ U
+            (2 * (projectorDifference U V * doubleSecant U V))) ≤
+        2 * kyFanApproximationGauge j (projectionBlock Uᗮᗮ Uᗮ H)) :
     ∀ k : ℕ,
-      (b - a) * kyFanApproximationGauge k (paperAbsTanTwoAngleOperatorC U V) ≤
+      (b - a) * kyFanApproximationGauge k (absTanTwoAngleOperatorC U V) ≤
         2 * kyFanApproximationGauge k H := by
   intro k
-  have hinv := isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero
+  have hinv := isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero
     hcos
   have hd : (0 : ℝ) < (b - a) / 2 := by linarith
   have hcnorm : ‖((((b - a) / 2 : ℝ)) : ℂ)‖ = (b - a) / 2 := by
     rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hd]
   have hKsa : IsSelfAdjoint
-      (2 * (paperProjectorDifference U V * paperDoubleSecant U V)) := by
+      (2 * (projectorDifference U V * doubleSecant U V)) := by
     rw [IsSelfAdjoint, star_mul, star_mul, two_star',
       doubleSecant_selfAdjoint hinv,
-      isSelfAdjoint_paperProjectorDifference.star_eq,
+      isSelfAdjoint_projectorDifference.star_eq,
       ← doubleSecant_comm_projectorDifference hinv, two_comm']
   have h₀ : ∀ j : ℕ,
-      kyFanApproximationGauge j (paperProjectionBlock Uᗮ U
+      kyFanApproximationGauge j (projectionBlock Uᗮ U
           (((((b - a) / 2 : ℝ)) : ℂ) •
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V)))) ≤
-        kyFanApproximationGauge j (paperProjectionBlock Uᗮ U H) := by
+            (2 * (projectorDifference U V * doubleSecant U V)))) ≤
+        kyFanApproximationGauge j (projectionBlock Uᗮ U H) := by
     intro j
     rw [projectionBlock_smul', kyFanApproximationGauge_smul, hcnorm,
       kyFan_lowerBlock_eq_upperBlock H hH j]
     linarith [hcorner j]
   have h₁ : ∀ j : ℕ,
-      kyFanApproximationGauge j (paperProjectionBlock Uᗮᗮ Uᗮ
+      kyFanApproximationGauge j (projectionBlock Uᗮᗮ Uᗮ
           (((((b - a) / 2 : ℝ)) : ℂ) •
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V)))) ≤
-        kyFanApproximationGauge j (paperProjectionBlock Uᗮᗮ Uᗮ H) := by
+            (2 * (projectorDifference U V * doubleSecant U V)))) ≤
+        kyFanApproximationGauge j (projectionBlock Uᗮᗮ Uᗮ H) := by
     intro j
     rw [projectionBlock_smul', kyFanApproximationGauge_smul, hcnorm,
       ← kyFan_lowerBlock_eq_upperBlock _ hKsa j]
     linarith [hcorner j]
-  have hcombine := paperLemma61_all_kyFan Uᗮ U
+  have hcombine := lemma61_all_kyFan Uᗮ U
     (((((b - a) / 2 : ℝ)) : ℂ) •
-      (2 * (paperProjectorDifference U V * paperDoubleSecant U V)))
+      (2 * (projectorDifference U V * doubleSecant U V)))
     (((((b - a) / 2 : ℝ)) : ℂ) •
-      (2 * (paperProjectorDifference U V * paperDoubleSecant U V)))
+      (2 * (projectorDifference U V * doubleSecant U V)))
     H H h₀ h₁ k
-  have hsum : paperProjectionBlock Uᗮ U
+  have hsum : projectionBlock Uᗮ U
         (((((b - a) / 2 : ℝ)) : ℂ) •
-          (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) +
-      paperProjectionBlock Uᗮᗮ Uᗮ
+          (2 * (projectorDifference U V * doubleSecant U V))) +
+      projectionBlock Uᗮᗮ Uᗮ
         (((((b - a) / 2 : ℝ)) : ℂ) •
-          (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) =
-      ((((b - a) / 2 : ℝ)) : ℂ) • paperTanTwoBlockRepresentative U V := by
-    rw [paperTanTwoBlockRepresentative, paperDiagonalPair, projectionBlock_smul',
+          (2 * (projectorDifference U V * doubleSecant U V))) =
+      ((((b - a) / 2 : ℝ)) : ℂ) • tanTwoBlockRepresentative U V := by
+    rw [tanTwoBlockRepresentative, diagonalPair, projectionBlock_smul',
       projectionBlock_smul', ← smul_add]
     rfl
-  have hsumH : paperProjectionBlock Uᗮ U H + paperProjectionBlock Uᗮᗮ Uᗮ H =
-      paperDiagonalPair Uᗮ U H := rfl
+  have hsumH : projectionBlock Uᗮ U H + projectionBlock Uᗮᗮ Uᗮ H =
+      diagonalPair Uᗮ U H := rfl
   rw [hsum, hsumH, kyFanApproximationGauge_smul, hcnorm] at hcombine
-  have hpinch := paperDiagonalPair_all_kyFan_le Uᗮ U H k
-  have hmodulus : kyFanApproximationGauge k (paperAbsTanTwoAngleOperatorC U V) =
-      kyFanApproximationGauge k (paperTanTwoBlockRepresentative U V) := by
-    rw [paperAbsTanTwoAngleOperatorC_eq_modulus_blockRepresentative hcos]
+  have hpinch := diagonalPair_all_kyFan_le Uᗮ U H k
+  have hmodulus : kyFanApproximationGauge k (absTanTwoAngleOperatorC U V) =
+      kyFanApproximationGauge k (tanTwoBlockRepresentative U V) := by
+    rw [absTanTwoAngleOperatorC_eq_modulus_blockRepresentative hcos]
     exact (ContinuousLinearMap.modulus_hasSameApproximationNumbers
-      (paperTanTwoBlockRepresentative U V)).kyFanGauge_eq k
+      (tanTwoBlockRepresentative U V)).kyFanGauge_eq k
   rw [hmodulus]
   linarith [hcombine.trans hpinch]
 
@@ -1500,18 +1510,18 @@ theorem tanTwoTheta_ambient_bounded_orderedForm_kyFan_complex
     (hVperpLow : ∀ x ∈ Vᗮ, RCLike.re ⟪(A + H) x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U) :
     ∀ k : ℕ,
-      (b - a) * kyFanApproximationGauge k (paperTanTwoAngleOperatorC U V) ≤
+      (b - a) * kyFanApproximationGauge k (tanTwoAngleOperatorC U V) ≤
         2 * kyFanApproximationGauge k H := by
   intro k
   have hq : IsQuarterAcute U V :=
-    isQuarterAcute_of_paper_form_gap_infinite A H U V hA hH hAU hAplusH_V hab
+    isQuarterAcute_of_orderedFormGap A H U V hA hH hAU hAplusH_V hab
       hUhigh hUperpLow hVhigh hVperpLow hHU hHUperp
   have htr := norm_sinAngleOperatorC_lt_of_isQuarterAcute hq
   have h := tanTwoTheta_ambient_bounded_branchFree_kyFan_complex_of_corner hH hab
     (fun _ ht => cos_two_ne_zero_of_norm_sinAngleOperatorC_lt htr ht)
     (fun j => tanTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex hA hH hAU hAplusH_V
       hab hUhigh hUperpLow hHU hHUperp hq j) k
-  rwa [paperAbsTanTwoAngleOperatorC_eq_paperTanTwoAngleOperatorC U V htr] at h
+  rwa [absTanTwoAngleOperatorC_eq_directedTanTwoAngleOperatorC U V htr] at h
 
 /-- **The source-norm ambient conclusion, reduced to the directed corner with no
 branch anywhere.**
@@ -1526,19 +1536,19 @@ half: supply `hcorner` without a branch. -/
 theorem tanTwoTheta_ambient_bounded_branchFree_symmetricNorming_complex_of_corner
     (N : SymmetricNormingFunction)
     (hH : IsSelfAdjoint H) (hab : a < b)
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0)
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0)
     (hcorner : ∀ j : ℕ,
       (b - a) * kyFanApproximationGauge j
-          (paperProjectionBlock Uᗮ U
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
-        2 * kyFanApproximationGauge j (paperProjectionBlock Uᗮᗮ Uᗮ H))
+          (projectionBlock Uᗮ U
+            (2 * (projectorDifference U V * doubleSecant U V))) ≤
+        2 * kyFanApproximationGauge j (projectionBlock Uᗮᗮ Uᗮ H))
     (hHmem : N.Mem H) :
-    N.Mem (paperAbsTanTwoAngleOperatorC U V) ∧
-      (b - a) * N.gauge (paperAbsTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
+    N.Mem (absTanTwoAngleOperatorC U V) ∧
+      (b - a) * N.gauge (absTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
   have htwo : ‖((2 : ℝ) : ℂ)‖ = 2 := by norm_num
   have hd : (0 : ℝ) < b - a := by linarith
   have hscaled : ∀ k : ℕ,
-      (b - a) * kyFanApproximationGauge k (paperAbsTanTwoAngleOperatorC U V) ≤
+      (b - a) * kyFanApproximationGauge k (absTanTwoAngleOperatorC U V) ≤
         kyFanApproximationGauge k (((2 : ℝ) : ℂ) • H) := by
     intro k
     rw [kyFanApproximationGauge_smul, htwo]
@@ -1570,12 +1580,12 @@ theorem tanTwoTheta_ambient_bounded_orderedForm_symmetricNorming_complex
     (hVperpLow : ∀ x ∈ Vᗮ, RCLike.re ⟪(A + H) x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     (hHmem : N.Mem H) :
-    N.Mem (paperTanTwoAngleOperatorC U V) ∧
-      (b - a) * N.gauge (paperTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
+    N.Mem (tanTwoAngleOperatorC U V) ∧
+      (b - a) * N.gauge (tanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
   have htwo : ‖((2 : ℝ) : ℂ)‖ = 2 := by norm_num
   have hd : (0 : ℝ) < b - a := by linarith
   have hscaled : ∀ k : ℕ,
-      (b - a) * kyFanApproximationGauge k (paperTanTwoAngleOperatorC U V) ≤
+      (b - a) * kyFanApproximationGauge k (tanTwoAngleOperatorC U V) ≤
         kyFanApproximationGauge k (((2 : ℝ) : ℂ) • H) := by
     intro k
     rw [kyFanApproximationGauge_smul, htwo]

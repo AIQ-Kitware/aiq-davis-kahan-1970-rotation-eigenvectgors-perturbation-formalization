@@ -6,6 +6,8 @@ Authors: Jon Crall, Claude Fable 5
 
 import DavisKahan.TanTheta.Theorem63FiniteSource
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Theorem 6.3 over abstract trial-block data
 
@@ -42,7 +44,7 @@ open scoped InnerProductSpace BigOperators
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactTanTheta
+namespace TanTheta
 
 open ExactSinTheta
 open Module (finrank)
@@ -59,7 +61,7 @@ the trial subspace, its compression back into the trial subspace, and the residu
 tied by the block identity.  For a bounded symmetric ambient operator these are
 `T ∘L Z.subtypeL`, `theorem63Compression T Z`, and `theorem63Residual T Z`; for an
 unbounded self-adjoint operator whose domain contains the trial subspace they are the
-bundled data of an `UnboundedTrialBlock`.
+bundled data of an `BoundedCompressionTrialBlock`.
 
 Every field is a bounded map, so the bundle is scalar-generic: it makes sense over a
 real Hilbert space exactly as it does over a complex one. -/
@@ -565,13 +567,13 @@ theorem ideal_of_formBounds (data : Theorem63TrialData Z V)
     (htan : HasTheorem63DirectedTangentApproximationNumbers Z V tanTheta0)
     (hResidual : N.Mem data.residual) :
     N.Mem tanTheta0 ∧ delta * N.gauge tanTheta0 ≤ N.gauge data.residual :=
-  ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta hResidual
+  ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hdelta hResidual
     (all_kyFan_core_of_formBounds data hdelta hMupper hcross tanTheta0 htan)
 
 end Chain
 
 end Theorem63TrialData
 
-end ExactTanTheta
+end TanTheta
 end DavisKahan
 end TauCeti

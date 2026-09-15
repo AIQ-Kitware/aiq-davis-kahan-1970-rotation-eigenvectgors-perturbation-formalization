@@ -85,7 +85,7 @@ theorem norm_u : ‖u‖ = 1 := by
 /-- `T u = c • v`: the operator moves the trial vector entirely out of the trial space. -/
 theorem T_u : T u = c • v := by
   ext i
-  fin_cases i <;> simp [T, u, v, entry, EuclideanSpace.basisFun_apply]
+  fin_cases i <;> simp [T, u, v, EuclideanSpace.basisFun_apply]
 
 /-- **The Rayleigh quotient vanishes**, so `spec(A_0) = {0}` and `alpha = 0`. -/
 theorem rayleigh_zero : ⟪T u, u⟫_ℝ = 0 := by
@@ -109,7 +109,7 @@ noncomputable def w : RealPlane := (Real.sqrt 2)⁻¹ • (u + v)
 theorem T_w : T w = c • w := by
   ext i
   fin_cases i <;>
-    simp [w, T, u, v, entry, EuclideanSpace.basisFun_apply, map_smul, map_add,
+    simp [w, T, u, v, EuclideanSpace.basisFun_apply, map_smul, map_add,
       PiLp.smul_apply, PiLp.add_apply] <;> ring
 
 /-- **The tangent quantity is `1`.**  The trial and orthogonal components of the

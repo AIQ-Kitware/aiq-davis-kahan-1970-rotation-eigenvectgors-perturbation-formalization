@@ -5,6 +5,7 @@ Authors: Jon Crall, Claude Fable 5, OpenAI GPT-5.6 Thinking
 -/
 module
 
+public import ForTauCeti.Analysis.RCLike.ScalarTransportFunctionalCalculus
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Commute
 public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
 public import Mathlib.Analysis.InnerProductSpace.Adjoint
@@ -25,34 +26,24 @@ alone determines the construction, and the endomorphism case `F = E` is a
 specialization rather than a separate definition (`modulus_eq_sqrt_star_mul_self`,
 `modulus_mul_self_eq_star_mul_self`).
 
-## The scalar field, and why there are typeclass hypotheses
+## Scalar infrastructure
 
-`CFC.sqrt` is a statement about the *algebra* `E →L[𝕜] E`, not about the scalar
-field of the Hilbert space, so nothing in this file is intrinsically complex.
-What *is* complex-only is the supply of instances: Mathlib derives
-`ContinuousFunctionalCalculus ℝ A IsSelfAdjoint` from
-`ContinuousFunctionalCalculus ℂ A IsStarNormal` by spectrum restriction
-(`IsSelfAdjoint.instContinuousFunctionalCalculus`), and registers
-`CStarAlgebra (E →L[ℂ] E)` only over `ℂ`. Mathlib says so itself: its
-`ContinuousLinearMap.instStarOrderedRingRCLike` is deliberately a lemma and not
-an instance, "because this takes `ContinuousFunctionalCalculus ℝ (H →L[𝕜] H)
-IsSelfAdjoint` as an argument, and for the moment we only have this for
-`𝕜 := ℂ`".
+`CFC.sqrt` is a statement about the real algebra `E →L[𝕜] E`.  For an arbitrary
+`RCLike 𝕜`, the required real algebra, scalar tower, and real self-adjoint continuous
+functional calculus are canonical constructions in `ForTauCeti`.  They are activated here
+as low-priority local instances.  They are intentionally not global instances: making the
+extra real scalar action globally visible changes elaboration of scalar multiplication in
+unrelated operator proofs.
 
-This module therefore carries that instance — together with the `ℝ`-algebra
-structure on `E →L[𝕜] E`, which Mathlib's
-`Mathlib/Analysis/InnerProductSpace/StarOrder.lean` also assumes rather than
-derives — as a hypothesis. Every hypothesis is discharged automatically at
-`𝕜 = ℂ`, so the complex API is unchanged and no consumer has to supply
-anything.
+Consequently the public modulus API below has only the mathematical Hilbert-space and
+completeness assumptions.  Callers do not supply `Algebra ℝ (E →L[𝕜] E)`,
+`IsScalarTower ℝ 𝕜 (E →L[𝕜] E)`, or a continuous-functional-calculus instance.
 
-**Its finite-dimensional counterpart.** `TauCeti.abs` in
-`ForTauCeti/Analysis/InnerProductSpace/PolarDecomposition.lean` is the square,
-`RCLike`-generic, finite-dimensional modulus, built from the spectral square root
-rather than from the continuous functional calculus. The two agree wherever both
-apply, by `TauCeti.abs_toContinuousLinearMap_eq_cfcAbs`. Neither subsumes the
-other: this one is rectangular and infinite-dimensional, that one needs no
-functional-calculus instance.
+**Its finite-dimensional counterpart.** `TauCeti.operatorAbs` in
+`ForTauCeti/Analysis/InnerProductSpace/Polar/Decomposition.lean` is the finite-dimensional
+`RCLike` modulus, built from the spectral square root rather than from the continuous functional
+calculus.  It is rectangular as well: for `A : E →ₗ[𝕜] F`, `operatorAbs A` acts on the source
+`E`.  `Polar/CFCBridge.lean` proves that its bounded realization agrees with `modulus`.
 
 ## Main results
 
@@ -85,7 +76,8 @@ functional-calculus instance.
   generalized to rectangular operators here, and reproved from the pointwise
   isometry instead of the C⋆-identity; the uniqueness and commutation results
   are likewise generalized.
-* Spectra influence: **none** — this module imports only Mathlib.
+* Spectra influence: **none** — the construction uses Mathlib together with the reusable
+  `ForTauCeti` scalar-transport functional calculus.
 -/
 
 public section
@@ -116,25 +108,11 @@ private theorem opNorm_eq_of_forall_norm_apply_eq {f : E →L[𝕜] F} {g : E �
     (f.opNorm_le_bound (norm_nonneg g) fun x => (h x).trans_le (g.le_opNorm x))
     (g.opNorm_le_bound (norm_nonneg f) fun x => (h x).symm.trans_le (f.le_opNorm x))
 
-/-! ### The functional-calculus hypotheses
+/-! ### Local scalar and functional-calculus instances -/
 
-The first two below are the scalar-action assumptions Mathlib itself makes when
-relating the Loewner order on `E →L[𝕜] E` to the continuous functional calculus
-(`Mathlib/Analysis/InnerProductSpace/StarOrder.lean`); they are found by
-typeclass inference at `𝕜 = ℝ` and at `𝕜 = ℂ` alike.  The third is the one
-genuinely field-dependent ingredient.  `StarOrderedRing` is *not* assumed: it
-follows from the three by `ContinuousLinearMap.instStarOrderedRingRCLike`, which
-Mathlib states for a general `RCLike` field and declines to register as an
-instance only because its hypothesis is unavailable outside `ℂ`.
-
-This is the same variable block `DavisKahan/InfiniteDimensional/SinTheta/General.lean`
-already uses for the square operator absolute value; keeping the two in step is
-deliberate. -/
-
-variable [Algebra ℝ (E →L[𝕜] E)] [IsScalarTower ℝ 𝕜 (E →L[𝕜] E)]
-  [ContinuousFunctionalCalculus ℝ (E →L[𝕜] E) IsSelfAdjoint]
-
-attribute [local instance] ContinuousLinearMap.instStarOrderedRingRCLike
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+  ContinuousLinearMap.instStarOrderedRingRCLike
 
 /-- The modulus `|T| = (T⋆ T)^(1/2)` of a bounded operator between Hilbert
 spaces: the positive square root, through the continuous functional
@@ -238,6 +216,12 @@ theorem norm_comp_modulus (D : E →L[𝕜] G) (T : E →L[𝕜] F) :
     _ = ‖(T ∘L D.adjoint).adjoint‖ := (LinearIsometryEquiv.norm_map adjoint _).symm
     _ = ‖D ∘L T.adjoint‖ := by rw [adjoint_comp, adjoint_adjoint]
 
+/-- Anything commuting with the Gram operator `T†T` commutes with `T.modulus`. -/
+theorem commute_modulus_of_commute_gram {T : E →L[𝕜] F} {b : E →L[𝕜] E}
+    (h : Commute (T.adjoint ∘L T) b) : Commute T.modulus b := by
+  rw [modulus, CFC.sqrt]
+  exact Commute.cfcₙ_nnreal h NNReal.sqrt
+
 /-- Moduli of operators whose Gram operators commute themselves commute.  The
 two operators may have different targets: both moduli act on the common source
 space. -/
@@ -255,6 +239,12 @@ theorem modulus_commute_modulus {S : E →L[𝕜] F} {T : E →L[𝕜] G}
 For `T : E →L[𝕜] E` the Gram operator is the C⋆-algebra element `star T * T`,
 so the modulus is the absolute value of `T` in the C⋆-algebra `E →L[𝕜] E`.
 These are specializations of the definition above, not a second construction. -/
+
+/-- Anything commuting with `star T * T` commutes with the modulus of the endomorphism `T`. -/
+theorem commute_modulus_of_commute_star_mul_self (T b : E →L[𝕜] E)
+    (h : Commute (star T * T) b) : Commute T.modulus b := by
+  apply commute_modulus_of_commute_gram
+  simpa [ContinuousLinearMap.star_eq_adjoint, ContinuousLinearMap.mul_def] using h
 
 /-- On an endomorphism the modulus is the C⋆-algebra absolute value. -/
 theorem modulus_eq_sqrt_star_mul_self (T : E →L[𝕜] E) :

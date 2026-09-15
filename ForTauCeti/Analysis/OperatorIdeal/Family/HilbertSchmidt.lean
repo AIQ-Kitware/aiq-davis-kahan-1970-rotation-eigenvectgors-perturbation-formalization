@@ -257,6 +257,81 @@ theorem hilbertSchmidtENorm_comp_le (L : F →L[𝕜] G) (T : E →L[𝕜] F) (R
   gcongr
   exact L.hilbertSchmidtENorm_comp_left_le T
 
+/-! ### Closure properties of the class
+
+The Hilbert--Schmidt operators form a self-adjoint two-sided ideal, and each of the
+closure facts below is the corresponding `hilbertSchmidtENorm` estimate read as a
+finiteness statement.  Nothing here needs a basis, a choice, or spectral theory: the
+`ℝ≥0∞`-valued norm already carries all of it.
+-/
+
+omit [CompleteSpace F] in
+/-- The zero operator is Hilbert--Schmidt. -/
+@[simp] theorem isHilbertSchmidt_zero : (0 : E →L[𝕜] F).IsHilbertSchmidt := by
+  simp [IsHilbertSchmidt]
+
+omit [CompleteSpace F] in
+/-- Negation does not change the class. -/
+@[simp] theorem isHilbertSchmidt_neg_iff (T : E →L[𝕜] F) :
+    (-T).IsHilbertSchmidt ↔ T.IsHilbertSchmidt := by
+  rw [IsHilbertSchmidt, IsHilbertSchmidt, hilbertSchmidtENorm_neg]
+
+omit [CompleteSpace F] in
+/-- A scalar multiple of a Hilbert--Schmidt operator is Hilbert--Schmidt. -/
+theorem IsHilbertSchmidt.smul {T : E →L[𝕜] F} (hT : T.IsHilbertSchmidt) (c : 𝕜) :
+    (c • T).IsHilbertSchmidt := by
+  rw [IsHilbertSchmidt, hilbertSchmidtENorm_smul]
+  exact ENNReal.mul_ne_top (by simp) hT
+
+omit [CompleteSpace F] in
+/-- Scaling by a nonzero scalar does not change the class. -/
+theorem isHilbertSchmidt_smul_iff {c : 𝕜} (hc : c ≠ 0) (T : E →L[𝕜] F) :
+    (c • T).IsHilbertSchmidt ↔ T.IsHilbertSchmidt := by
+  refine ⟨fun h => ?_, fun h => h.smul c⟩
+  have := h.smul c⁻¹
+  rwa [smul_smul, inv_mul_cancel₀ hc, one_smul] at this
+
+/-- **The class is closed under addition**, by the triangle inequality. -/
+theorem IsHilbertSchmidt.add {S T : E →L[𝕜] F}
+    (hS : S.IsHilbertSchmidt) (hT : T.IsHilbertSchmidt) : (S + T).IsHilbertSchmidt :=
+  ne_top_of_le_ne_top (ENNReal.add_ne_top.2 ⟨hS, hT⟩) (hilbertSchmidtENorm_add_le S T)
+
+/-- **The class is closed under subtraction.** -/
+theorem IsHilbertSchmidt.sub {S T : E →L[𝕜] F}
+    (hS : S.IsHilbertSchmidt) (hT : T.IsHilbertSchmidt) : (S - T).IsHilbertSchmidt := by
+  rw [sub_eq_add_neg]
+  exact hS.add ((isHilbertSchmidt_neg_iff T).2 hT)
+
+/-- **The class is self-adjoint.** -/
+@[simp] theorem isHilbertSchmidt_adjoint_iff (T : E →L[𝕜] F) :
+    T.adjoint.IsHilbertSchmidt ↔ T.IsHilbertSchmidt := by
+  rw [IsHilbertSchmidt, IsHilbertSchmidt, hilbertSchmidtENorm_adjoint]
+
+/-- Postcomposition with a bounded operator stays in the class. -/
+theorem IsHilbertSchmidt.comp_left {T : E →L[𝕜] F} (hT : T.IsHilbertSchmidt)
+    (A : F →L[𝕜] G) : (A ∘L T).IsHilbertSchmidt :=
+  ne_top_of_le_ne_top (ENNReal.mul_ne_top (by simp) hT)
+    (hilbertSchmidtENorm_comp_left_le A T)
+
+/-- Precomposition with a bounded operator stays in the class. -/
+theorem IsHilbertSchmidt.comp_right {T : F →L[𝕜] G} (hT : T.IsHilbertSchmidt)
+    (B : E →L[𝕜] F) : (T ∘L B).IsHilbertSchmidt :=
+  ne_top_of_le_ne_top (ENNReal.mul_ne_top hT (by simp))
+    (hilbertSchmidtENorm_comp_right_le T B)
+
+/-- **The two-sided ideal property**, as a statement about the class. -/
+theorem IsHilbertSchmidt.comp {T : E →L[𝕜] F} (hT : T.IsHilbertSchmidt)
+    (L : F →L[𝕜] G) (R : H →L[𝕜] E) : (L ∘L T ∘L R).IsHilbertSchmidt :=
+  (hT.comp_left L).comp_right R
+
+/-- **Every operator out of a finite-dimensional space is Hilbert--Schmidt**: the column
+sum has finitely many terms.  This is the entry point a finite-dimensional argument needs,
+and it is why the finite-dimensional theory never has to mention the class at all. -/
+theorem isHilbertSchmidt_of_finiteDimensional [FiniteDimensional 𝕜 E] (T : E →L[𝕜] F) :
+    T.IsHilbertSchmidt :=
+  (T.isHilbertSchmidt_iff_summable
+    (stdOrthonormalBasis 𝕜 E).toHilbertBasis).2 (summable_of_hasFiniteSupport (Set.toFinite _))
+
 /-- **Fatou for the Hilbert--Schmidt gauge.**  The gauge is lower semicontinuous along
 operator-norm convergence: if `T i → T` pointwise on a basis, the limit's energy is at most
 the `liminf` of the energies.
@@ -293,6 +368,101 @@ theorem hilbertSchmidtENorm_le_liminf {ι : Type*} (b : HilbertBasis ι 𝕜 E)
     _ ≤ Filter.liminf (fun n => (T n).hilbertSchmidtENorm ^ (2 : ℝ)) u :=
         Filter.liminf_le_liminf (Filter.Eventually.of_forall fun n => by
           rw [hT n]; exact ENNReal.sum_le_tsum s)
+
+
+/-! ### The real-valued norm
+
+The gauge of an operator ideal is `ℝ≥0∞`-valued, because a gauge has to be defined on
+operators outside the ideal.  An estimate *inside* the ideal is an inequality between real
+numbers, and stating it in `ℝ≥0∞` forces every consumer to carry finiteness through
+arithmetic that does not need it.  So the ideal keeps the extended norm and this is its
+real-valued reading, defined on all operators and equal to zero off the ideal.
+
+The two are interchangeable exactly where it matters: `ofReal_hilbertSchmidtNorm` turns a
+real statement into the extended one for a Hilbert--Schmidt operator, and
+`hilbertSchmidtNorm_eq_toReal` is the definition. -/
+
+/-- The real-valued Hilbert--Schmidt norm.  Zero off the ideal. -/
+@[expose]
+noncomputable def hilbertSchmidtNorm (T : E →L[𝕜] F) : ℝ := T.hilbertSchmidtENorm.toReal
+
+omit [CompleteSpace F] in
+/-- The real norm is the extended one read in `ℝ`; this is the definition. -/
+theorem hilbertSchmidtNorm_eq_toReal (T : E →L[𝕜] F) :
+    T.hilbertSchmidtNorm = T.hilbertSchmidtENorm.toReal := by
+  rw [hilbertSchmidtNorm]
+
+omit [CompleteSpace F] in
+/-- On the ideal, the real norm determines the extended one. -/
+theorem ofReal_hilbertSchmidtNorm {T : E →L[𝕜] F} (hT : T.IsHilbertSchmidt) :
+    ENNReal.ofReal T.hilbertSchmidtNorm = T.hilbertSchmidtENorm :=
+  ENNReal.ofReal_toReal hT
+
+omit [CompleteSpace F] in
+/-- The real Hilbert--Schmidt norm is nonnegative, on and off the ideal. -/
+@[simp] theorem hilbertSchmidtNorm_nonneg (T : E →L[𝕜] F) : 0 ≤ T.hilbertSchmidtNorm :=
+  ENNReal.toReal_nonneg
+
+omit [CompleteSpace F] in
+/-- The zero operator has zero real Hilbert--Schmidt norm. -/
+@[simp] theorem hilbertSchmidtNorm_zero : (0 : E →L[𝕜] F).hilbertSchmidtNorm = 0 := by
+  simp [hilbertSchmidtNorm]
+
+omit [CompleteSpace F] in
+/-- The real Hilbert--Schmidt norm is unchanged by negation. -/
+@[simp] theorem hilbertSchmidtNorm_neg (T : E →L[𝕜] F) :
+    (-T).hilbertSchmidtNorm = T.hilbertSchmidtNorm := by
+  simp [hilbertSchmidtNorm]
+
+omit [CompleteSpace F] in
+/-- **Absolute homogeneity**, in `ℝ`.  No finiteness is needed: both sides are `0`
+off the ideal, and `‖c‖ * 0 = 0`. -/
+theorem hilbertSchmidtNorm_smul (c : 𝕜) (T : E →L[𝕜] F) :
+    (c • T).hilbertSchmidtNorm = ‖c‖ * T.hilbertSchmidtNorm := by
+  rw [hilbertSchmidtNorm, hilbertSchmidtENorm_smul, ENNReal.toReal_mul,
+    hilbertSchmidtNorm, enorm_eq_nnnorm, ENNReal.coe_toReal, coe_nnnorm]
+
+/-- **Adjoint invariance**, in `ℝ`. -/
+theorem hilbertSchmidtNorm_adjoint (T : E →L[𝕜] F) :
+    T.adjoint.hilbertSchmidtNorm = T.hilbertSchmidtNorm := by
+  rw [hilbertSchmidtNorm, hilbertSchmidtNorm, hilbertSchmidtENorm_adjoint]
+
+/-- **The triangle inequality**, in `ℝ`, for two Hilbert--Schmidt operators.  Finiteness
+is needed: `ENNReal.toReal` sends `∞` to `0`, so the inequality is false without it. -/
+theorem hilbertSchmidtNorm_add_le {S T : E →L[𝕜] F}
+    (hS : S.IsHilbertSchmidt) (hT : T.IsHilbertSchmidt) :
+    (S + T).hilbertSchmidtNorm ≤ S.hilbertSchmidtNorm + T.hilbertSchmidtNorm := by
+  rw [hilbertSchmidtNorm, hilbertSchmidtNorm, hilbertSchmidtNorm,
+    ← ENNReal.toReal_add hS hT]
+  exact ENNReal.toReal_mono (ENNReal.add_ne_top.2 ⟨hS, hT⟩) (hilbertSchmidtENorm_add_le S T)
+
+/-- **The two-sided ideal bound**, in `ℝ`. -/
+theorem hilbertSchmidtNorm_comp_le (L : F →L[𝕜] G) {T : E →L[𝕜] F}
+    (hT : T.IsHilbertSchmidt) (R : H →L[𝕜] E) :
+    (L ∘L T ∘L R).hilbertSchmidtNorm ≤ ‖L‖ * T.hilbertSchmidtNorm * ‖R‖ := by
+  have hfin : ‖L‖ₑ * T.hilbertSchmidtENorm * ‖R‖ₑ ≠ ∞ :=
+    ENNReal.mul_ne_top (ENNReal.mul_ne_top (by simp) hT) (by simp)
+  have h := ENNReal.toReal_mono hfin (hilbertSchmidtENorm_comp_le L T R)
+  rwa [ENNReal.toReal_mul, ENNReal.toReal_mul, enorm_eq_nnnorm, enorm_eq_nnnorm,
+    ENNReal.coe_toReal, ENNReal.coe_toReal, coe_nnnorm, coe_nnnorm] at h
+
+/-- **Contractions do not enlarge the Hilbert--Schmidt norm.**  This is the
+two-sided ideal bound with both factors of norm at most one. -/
+theorem hilbertSchmidtNorm_comp_isometries_le (L : F →L[𝕜] G) {T : E →L[𝕜] F}
+    (hT : T.IsHilbertSchmidt) (R : H →L[𝕜] E) (hL : ‖L‖ ≤ 1) (hR : ‖R‖ ≤ 1) :
+    (L ∘L T ∘L R).hilbertSchmidtNorm ≤ T.hilbertSchmidtNorm := by
+  calc (L ∘L T ∘L R).hilbertSchmidtNorm
+      ≤ ‖L‖ * T.hilbertSchmidtNorm * ‖R‖ := hilbertSchmidtNorm_comp_le L hT R
+    _ ≤ 1 * T.hilbertSchmidtNorm * 1 := by
+        gcongr <;> simp [hilbertSchmidtNorm_nonneg T]
+    _ = T.hilbertSchmidtNorm := by ring
+
+/-- **The Hilbert--Schmidt norm dominates the operator norm**, in `ℝ`. -/
+theorem norm_le_hilbertSchmidtNorm {T : E →L[𝕜] F} (hT : T.IsHilbertSchmidt) :
+    ‖T‖ ≤ T.hilbertSchmidtNorm := by
+  have h := ENNReal.toReal_mono hT (enorm_le_hilbertSchmidtENorm T)
+  rwa [enorm_eq_nnnorm, ENNReal.coe_toReal, coe_nnnorm] at h
+
 
 end ContinuousLinearMap
 

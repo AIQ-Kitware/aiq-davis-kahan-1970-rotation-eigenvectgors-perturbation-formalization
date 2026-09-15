@@ -7,6 +7,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.TanTheta.Theorem63FiniteSource
 import DavisKahan.TanTheta.Theorem63InfiniteTrial
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan Section 2, tan Θ: the perturbation companion
 
@@ -47,11 +49,11 @@ actually controls.  It is the sharper statement in any case.
 open scoped InnerProductSpace BigOperators
 
 namespace TauCeti
-namespace DavisKahan
-namespace Section2
+namespace DavisKahan1970
 
-open ExactSinTheta
-open ExactTanTheta
+open TauCeti.DavisKahan
+open TauCeti.DavisKahan.ExactSinTheta
+open TauCeti.DavisKahan.TanTheta
 open Module (finrank)
 
 universe u
@@ -153,7 +155,8 @@ theorem theorem6_3_perturbation_equalRank
       delta * N.gauge (theorem63DirectedTangent Z V) ≤
         N.gauge (E ∘L Z.subtypeL) := by
   have : CompleteSpace Z := FiniteDimensional.complete ℂ Z
-  refine mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta hEmem ?_
+  refine mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hdelta
+    hEmem ?_
   intro k
   refine le_trans
     (theorem6_3_all_kyFan_core_directedTangent Z V T hT hV hdelta
@@ -170,7 +173,7 @@ invariant for the perturbed operator `T + E` and `T` reduces `V` with the source
 some tangent representative with the paper's approximation numbers satisfies
 `δ · N(tan Θ₀) ≤ N(E|_Z)` in every Fan-dominant unitarily invariant ideal gauge.  This is
 the perturbation companion of the equal-dimensional infinite/noncompact residual theorem
-`ExactTanTheta.theorem6_3_infiniteTrial_of_formBounds_exists`; the bridge is the same one
+`TanTheta.theorem6_3_infiniteTrial_of_formBounds_exists`; the bridge is the same one
 line of algebra as in the finite case. -/
 theorem theorem6_3_perturbation_infiniteTrial
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
@@ -193,7 +196,7 @@ theorem theorem6_3_perturbation_infiniteTrial
       (fun n => approximationSingularValue_sineBlock_lt_one_infiniteTrial T V Z hT hV
         hdelta hCompressionUpper hUnwantedLower n)
   refine ⟨tanTheta0, htan, ?_⟩
-  refine mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta hEmem fun k => ?_
+  refine mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hdelta hEmem fun k => ?_
   have hKyTan : kyFanApproximationGauge k tanTheta0 =
       ∑ n ∈ Finset.range k, Real.tan (Real.arcsin
         (approximationSingularValue n (theorem63DirectedSineBlock Z V))) := by
@@ -214,6 +217,5 @@ theorem theorem6_3_perturbation_infiniteTrial
   rw [hKyTan]
   exact hcore.trans hRE
 
-end Section2
-end DavisKahan
+end DavisKahan1970
 end TauCeti

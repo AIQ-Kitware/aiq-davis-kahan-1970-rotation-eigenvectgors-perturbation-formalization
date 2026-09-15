@@ -296,11 +296,11 @@ def HasDoubledRealReciprocalOrbitInterpolation
     ∃ U : Fin q → WithLp 2 (FR × FR) ≃ₗᵢ[ℝ] WithLp 2 (FR × FR),
       ∃ V : Fin q → WithLp 2 (ER × ER) ≃ₗᵢ[ℝ] WithLp 2 (ER × ER),
         (∀ i j,
-          delta • RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum
+          delta • UnitarilyInvariantSeminorm.orthogonalBlockSum
               (basisMatrixUnit eF eE i j) (basisMatrixUnit eF eE i j) =
             (alpha i - beta j) •
               ((∑ r, w r • unitaryOrbitAction (U r) (V r))
-                (RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum
+                (UnitarilyInvariantSeminorm.orthogonalBlockSum
                   (basisMatrixUnit eF eE i j) (basisMatrixUnit eF eE i j)))) ∧
         ∑ r, |w r| ≤ mass
 
@@ -840,12 +840,12 @@ theorem hasDoubledRealReciprocalOrbitInterpolation_of_finiteFourierInterpolation
     let d : ℝ := alpha i - beta j
     have horbit :
         ((∑ r, w r • unitaryOrbitAction (U r) (V r))
-            (RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum T T)) =
+            (UnitarilyInvariantSeminorm.orthogonalBlockSum T T)) =
           doubledComplexScalarAction
             (∑ r, a r * Complex.exp ((((t r * d : ℝ) : ℂ) * Complex.I))) T := by
       calc
         ((∑ r, w r • unitaryOrbitAction (U r) (V r))
-            (RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum T T)) =
+            (UnitarilyInvariantSeminorm.orthogonalBlockSum T T)) =
             ∑ r, ‖a r‖ •
               doubledPhaseAction (Complex.arg (a r) + t r * d) T := by
                 simp only [LinearMap.sum_apply, LinearMap.smul_apply, w]
@@ -856,7 +856,7 @@ theorem hasDoubledRealReciprocalOrbitInterpolation_of_finiteFourierInterpolation
                 change ‖a r‖ •
                     ((basisDoubledRealRotation eF
                         (fun i => Complex.arg (a r) + t r * alpha i)).toLinearMap ∘ₗ
-                      RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum T T ∘ₗ
+                      UnitarilyInvariantSeminorm.orthogonalBlockSum T T ∘ₗ
                         (basisDoubledRealRotation eE
                           (fun j => -(t r * beta j))).toLinearMap) = _
                 rw [show T = basisMatrixUnit eF eE i j by rfl,

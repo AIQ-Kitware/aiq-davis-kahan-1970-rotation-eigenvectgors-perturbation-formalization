@@ -6,6 +6,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.Transport
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Finite subdivision for spectral continuation
 
@@ -95,7 +98,7 @@ theorem exists_uniform_subdivision_fixedContourRieszOperator_norm_sub_lt_one
     (Γ : PiecewiseC1ClosedContour) (A V : H →L[ℂ] H)
     (delta : ℝ) (hdelta : 0 < delta)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A V t))
+      (operatorPath A V t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A V t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖) :

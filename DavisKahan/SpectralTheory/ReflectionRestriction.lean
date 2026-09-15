@@ -8,6 +8,11 @@ import DavisKahan.SinTheta.SpectralProjection
 import DavisKahan.Geometry.Angle.OperatorAngleComplex
 import ForTauCeti.Analysis.InnerProductSpace.Projection.Gap
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Reflection transport for unbounded spectral restrictions
 
@@ -22,7 +27,7 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 
-open TauCeti.DavisKahanExt
+
 open TauCeti.DavisKahan
 
 universe u v
@@ -86,8 +91,8 @@ noncomputable def reflectionPerturbation
 is self-adjoint. -/
 theorem reflectionPerturbation_isSelfAdjoint
     (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
-    (E : H →L[𝕜] H) (hE : IsSelfAdjointOperator E) :
-    IsSelfAdjointOperator (reflectionPerturbation V E) := by
+    (E : H →L[𝕜] H) (hE : E.IsSymmetric) :
+    (reflectionPerturbation V E).IsSymmetric := by
   apply hE.sub
   exact ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
     (isSelfAdjoint_boundedUnitaryConjugate V.reflection
@@ -129,6 +134,7 @@ The hypotheses are the two lemmas the spectral development already proves --
 `add_reflectionPerturbation_intertwines` over `ℂ`, and their real siblings -- so
 this lemma is scalar-generic even though those are not. -/
 
+omit [CompleteSpace H] in
 /-- **The reflected perturbation makes the operator the reflection conjugate.**
 
 `J` is an involutive isometry, so preserving `dom A` in one direction preserves
@@ -178,6 +184,53 @@ theorem addBounded_reflectionPerturbation_eq_unitaryConj
     _ = V.reflectionOperator (A ⟨V.reflection y, hJy⟩) :=
         hint ⟨V.reflection y, hJy⟩
     _ = (TauCeti.LinearPMap.unitaryConj V.reflection A) ⟨y, hz⟩ := rfl
+
+omit [CompleteSpace H] in
+/-- **The reflected perturbation intertwines whenever the reflection commutes with
+`A + E` on the domain.**
+
+`reflectionPerturbation V E = E − J E J` with `J = 2 P_V − 1`.  If `J` preserves
+`dom A` and `A + E` commutes with `J` there -- which is what "`V` reduces `A + E`"
+gives -- then `A + (E − J E J)` is the conjugate of `A` by `J`, so it carries
+`J x` to `J (A x)`.
+
+This is the scalar-generic core of `add_reflectionPerturbation_intertwines`, which
+is the special case where `V` is a spectral subspace of `A + E` over `ℂ`.  Stated
+from the commutation hypothesis directly so that a caller holding any reducing
+subspace of the perturbed operator, spectral or not, can use it. -/
+theorem addBounded_reflectionPerturbation_intertwines_of_commutes
+    {A : H →ₗ.[𝕜] H} (E : H →L[𝕜] H)
+    (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
+    (hmem : ∀ x : A.domain, V.reflectionOperator (x : H) ∈ A.domain)
+    (hcomm : ∀ x : A.domain,
+      A ⟨V.reflectionOperator (x : H), hmem x⟩ + E (V.reflectionOperator (x : H)) =
+        V.reflectionOperator (A x) + V.reflectionOperator (E (x : H)))
+    (x : A.domain) :
+    (TauCeti.LinearPMap.addBounded A (reflectionPerturbation V E))
+        ⟨V.reflectionOperator (x : H), hmem x⟩ = V.reflectionOperator (A x) := by
+  set J : H →L[𝕜] H := V.reflectionOperator with hJ
+  have hreflection (y : H) : V.reflection y = J y := rfl
+  have hJJ : J (J (x : H)) = (x : H) := by
+    change V.reflection (V.reflection (x : H)) = (x : H)
+    exact V.reflection_reflection (x : H)
+  have hDapply : reflectionPerturbation V E (J (x : H)) =
+      E (J (x : H)) - J (E (x : H)) := by
+    calc
+      reflectionPerturbation V E (J (x : H)) =
+          E (J (x : H)) - V.reflection (E (V.reflection.symm (J (x : H)))) := rfl
+      _ = E (J (x : H)) - V.reflection (E (V.reflection (J (x : H)))) := by
+        rw [Submodule.reflection_symm]
+      _ = E (J (x : H)) - J (E (J (J (x : H)))) := by
+        rw [hreflection (J (x : H)), hreflection (E (J (J (x : H))))]
+      _ = E (J (x : H)) - J (E (x : H)) := by rw [hJJ]
+  calc
+    (TauCeti.LinearPMap.addBounded A (reflectionPerturbation V E))
+        ⟨J (x : H), hmem x⟩
+        = A ⟨J (x : H), hmem x⟩ + reflectionPerturbation V E (J (x : H)) := rfl
+    _ = A ⟨J (x : H), hmem x⟩ + (E (J (x : H)) - J (E (x : H))) := by rw [hDapply]
+    _ = (A ⟨J (x : H), hmem x⟩ + E (J (x : H))) - J (E (x : H)) := by abel
+    _ = (J (A x) + J (E (x : H))) - J (E (x : H)) := by rw [hcomm x]
+    _ = J (A x) := add_sub_cancel_right _ _
 
 end ScalarGeneric
 
@@ -404,10 +457,10 @@ theorem directedGap_map_unitary
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (W : H ≃ₗᵢ[ℂ] H) :
-    directedGap
+    Submodule.directedProjectionGap
         (U.map (W.toLinearEquiv : H →ₗ[ℂ] H))
         (V.map (W.toLinearEquiv : H →ₗ[ℂ] H)) =
-      directedGap U V := by
+      U.directedProjectionGap V := by
   have hperpProjection :
       (V.map (W.toLinearEquiv : H →ₗ[ℂ] H))ᗮ.starProjection =
         boundedUnitaryConjugate W Vᗮ.starProjection := by
@@ -450,8 +503,8 @@ equal. -/
 theorem directedGap_reflection_symm
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    directedGap U (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) =
-      directedGap (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) U := by
+    U.directedProjectionGap (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) =
+      Submodule.directedProjectionGap (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) U := by
   have h := directedGap_map_unitary U
     (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) V.reflection
   simpa only [map_reflection_map_reflection] using h.symm
@@ -461,8 +514,8 @@ projection gap. -/
 theorem subspaceGap_eq_directedGap_reflection
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    subspaceGap U (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) =
-      directedGap U (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) := by
+    U.projectionGap (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) =
+      U.directedProjectionGap (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) := by
   let W := U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)
   change ‖U.starProjection - W.starProjection‖ =
     ‖Wᗮ.starProjection ∘L U.starProjection‖
@@ -471,7 +524,7 @@ theorem subspaceGap_eq_directedGap_reflection
       (Submodule.starProjection_orthogonal' W).symm,
     show (1 - U.starProjection : H →L[ℂ] H) = Uᗮ.starProjection from
       (Submodule.starProjection_orthogonal' U).symm]
-  change max (directedGap U W) (directedGap W U) = directedGap U W
+  change max (U.directedProjectionGap W) (W.directedProjectionGap U) = U.directedProjectionGap W
   rw [← directedGap_reflection_symm U V, max_self]
 
 omit [CompleteSpace H] in
@@ -491,7 +544,7 @@ omit [CompleteSpace H] in
 theorem subspaceGap_map_reflection
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    subspaceGap U (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) =
+    U.projectionGap (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) =
       ‖boundedReflectionDefect V U.starProjection‖ := by
   have hreflection :
       boundedUnitaryConjugate V.reflection U.starProjection =
@@ -517,12 +570,12 @@ sine-two-angle operator. -/
 theorem subspaceGap_map_reflection_eq_norm_sinTwoAngle
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    subspaceGap U (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) =
-      ‖sinTwoAngleOperatorC U V‖ := by
+    U.projectionGap (U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)) =
+      ‖directedSinTwoAngleOperatorC U V‖ := by
   rw [subspaceGap_map_reflection,
     boundedReflectionDefect_eq_neg_two_smul_offdiag, norm_smul,
     norm_reflectedOffdiag_add_eq V (isSelfAdjoint_starProjection U),
-    norm_sinTwoAngleOperatorC]
+    norm_directedSinTwoAngleOperatorC]
   norm_num
 
 /-- The orthogonal projection onto the complementary spectral range is the
@@ -675,7 +728,7 @@ of `C` preserves the original domain, because `C` and `A` have the same
 domain. -/
 theorem perturbedSpectralReflection_mem_domain
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (S : Set ℝ) (hS : MeasurableSet S) (x : A.domain) :
     (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
       (addBounded_isSelfAdjoint A hA E hE) S hS).reflectionOperator (x : H) ∈
@@ -691,7 +744,7 @@ spectral range of `A + E` is the same as adding the bounded operator
 `E - J E J`. -/
 theorem add_reflectionPerturbation_intertwines
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (S : Set ℝ) (hS : MeasurableSet S) (x : A.domain) :
     let C := TauCeti.LinearPMap.addBounded A E
     let hC : IsSelfAdjoint C := addBounded_isSelfAdjoint A hA E hE

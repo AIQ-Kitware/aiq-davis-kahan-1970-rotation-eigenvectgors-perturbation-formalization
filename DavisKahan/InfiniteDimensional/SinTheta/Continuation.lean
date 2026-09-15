@@ -47,7 +47,7 @@ structure ContinuedProjectionDatum
   margin : ℝ
   margin_pos : 0 < margin
   selfAdjoint : ∀ t ∈ parameterSet,
-    IsSelfAdjointOperator (operatorPath A V t)
+    (operatorPath A V t).IsSymmetric
   spectral_margin : ∀ t ∈ parameterSet, ∀ x : unitInterval,
     ∀ lam ∈ realSpectrum (operatorPath A V t),
       margin ≤ ‖Γ.path x - (lam : ℂ)‖

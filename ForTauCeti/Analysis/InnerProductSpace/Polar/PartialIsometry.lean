@@ -82,11 +82,11 @@ subspace gives `polarPartial`.
 
 ## Relation to the rest of the library
 
-`ForTauCeti/Analysis/InnerProductSpace/PolarDecomposition.lean` has the partial-isometry
+`ForTauCeti/Analysis/InnerProductSpace/Polar/Decomposition.lean` has the partial-isometry
 factor for `LinearMap` endomorphisms in **finite dimensions**;
-`ForTauCeti/Analysis/InnerProductSpace/PolarIsometry.lean` has the *invertible* case in
+`ForTauCeti/Analysis/InnerProductSpace/Polar/Isometry.lean` has the *invertible* case in
 general.  This is the general bounded statement that subsumes both directions of that gap,
-which is why `PolarIsometry.lean` no longer carries the request it once did.
+which is why `Polar/Isometry.lean` is its bounded-below specialization.
 
 ## Provenance
 
@@ -95,11 +95,9 @@ which is why `PolarIsometry.lean` no longer carries the request it once did.
 * Extraction class: **authored in place** for the Tau Ceti staging layer.
 * Original authors: Jon Crall, Claude Opus 5, OpenAI GPT-5.6 Sol.
 * Copyright (c) 2026 Kitware, Inc.; Apache 2.0.
-* Spectra influence: **none** in the proof.  The *motivation* is that
-  `DavisKahan/Geometry/Polar/{PolarIsometryFinal,Section3Nonacute}.lean` currently obtain
-  the general bounded polar decomposition from `Spectra.QuantumMechanics.Channels`, and
-  AGENTS.md records that the final migration target removes Spectra from the normal build.
-  No definition or proof here was read off Spectra's.
+* Spectra influence: **none**.  This module is the canonical bounded polar decomposition used
+  directly by the Davis--Kahan geometry; no parallel Spectra-derived polar API remains in the
+  supported source tree.
 
 ## The three polar factors, and how they relate
 
@@ -108,46 +106,28 @@ not tell a designed hierarchy from three independent
 attempts. The separating hypotheses are the carrier, the field, and whether the
 modulus is invertible:
 
-* `TauCeti.polarFactor`, in `PolarDecomposition.lean` — square `E →ₗ[𝕜] E`,
+* `TauCeti.polarFactor`, in `Polar/Decomposition.lean` — square `E →ₗ[𝕜] E`,
   `RCLike`, finite dimension; a genuine **unitary** factor.
-* `TauCeti.polarPartial`, in `PolarPartialIsometry.lean` — rectangular
-  `E →L[𝕜] F`, no invertibility assumed; a **partial isometry**.
-* `TauCeti.polarIsometryOfIsUnitModulus`, in `PolarIsometry.lean` — rectangular
-  `E →L[𝕜] F` over `ℂ` **and** the modulus a unit; then the factor is an
+* `TauCeti.polarPartial`, in `Polar/PartialIsometry.lean` — rectangular
+  `E →L[𝕜] F` over `RCLike`, no invertibility assumed; a **partial isometry**.
+* `TauCeti.polarIsometryOfIsUnitModulus`, in `Polar/Isometry.lean` — rectangular
+  `E →L[𝕜] F` over `RCLike` **and** the modulus a unit; then the factor is an
   **isometry**.
 
 Read down the list: dropping finite dimension costs the unitary and leaves a
-partial isometry; adding invertibility of the modulus buys it back as an
-isometry. That is the whole hierarchy.
+partial isometry; adding invertibility of the modulus gives an isometry.
 
-**Correction, 2026-08-04.**  The list above presents "the field" as one of the
-three separating hypotheses.  For this module that reading was wrong: nothing in
-the construction below needs `ℂ`.  What needs a hypothesis is `modulus`, which is
-a continuous functional calculus, and Mathlib supplies
-`ContinuousFunctionalCalculus ℝ (E →L[𝕜] E) IsSelfAdjoint` for `ℂ` only.  Keying
-the same construction on the *Gram identity* `A ∘L A = T⋆ ∘L T` with `A`
-self-adjoint, rather than on `A = |T|`, drops even that hypothesis;
-that is `Polar/GramContraction.lean`, over any `RCLike` field.  So the honest
-fourth entry is:
+`Polar/GramContraction.lean` is lower-level machinery for this construction rather than a
+fourth modulus or polar-factor API.  It starts from a self-adjoint `A` satisfying the Gram
+identity `A ∘L A = T⋆ ∘L T` and constructs the contraction needed here.  This module applies
+that machinery to the canonical `A = T.modulus` and carries the full partial-isometry API
+(`W W⋆ W = W`, the initial and final spaces, uniqueness, `|M⋆| = W |M| W⋆`).
 
-* `ContinuousLinearMap.gramContraction`, in `GramContraction.lean` — rectangular
-  `E →L[𝕜] F` over **any `RCLike` field**, the Gram square root supplied as a
-  hypothesis; a **partial isometry**, with `W A = T` and `W⋆ T = A`.
-
-This module keeps its own value: it *constructs* the modulus rather than
-assuming one, and it carries the full partial-isometry API (`W W⋆ W = W`, the
-initial and final spaces, uniqueness, `|M⋆| = W |M| W⋆`).  `GramContraction.lean`
-proves only the two factorisation identities and the contraction bound, which is
-what a symmetric-norm-ideal argument consumes.
-
-**Update, 2026-08-09.**  `ContinuousLinearMap.modulus` is now `RCLike`-generic
-(`ForTauCeti/Analysis/InnerProductSpace/OperatorModulus.lean`), carrying the
-continuous functional calculus on `E →L[𝕜] E` as a typeclass hypothesis rather
-than fixing `𝕜 = ℂ`.  This module follows it: everything below is stated over a
-general `RCLike` field under that same hypothesis, which typeclass inference
-discharges at `𝕜 = ℂ`.  The three results about `|M⋆|` and `W(M⋆)` additionally
-need the calculus on `F →L[𝕜] F`, since the modulus of the adjoint lives on the
-target space; those carry it in their own binders.
+`ContinuousLinearMap.modulus` is `RCLike`-generic with its scalar and functional-calculus
+infrastructure selected locally inside the reusable operator modules.  The polar decomposition
+therefore has only the Hilbert-space and completeness assumptions below.  Results involving
+`|M⋆|` use the same canonical infrastructure on the target space without adding hypotheses to
+their public signatures.
 -/
 
 public section
@@ -162,11 +142,6 @@ variable {𝕜 : Type*} [RCLike 𝕜]
 variable {E : Type u} {F : Type v}
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
   [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-variable [Algebra ℝ (E →L[𝕜] E)] [IsScalarTower ℝ 𝕜 (E →L[𝕜] E)]
-  [ContinuousFunctionalCalculus ℝ (E →L[𝕜] E) IsSelfAdjoint]
-
-attribute [local instance] ContinuousLinearMap.instStarOrderedRingRCLike
-
 /-- The **initial space** of the polar decomposition of `M`: the closure of the range of
 the modulus.  `M.polarPartial` is isometric on it and zero on its orthogonal complement,
 and it is exactly `(ker M)ᗮ` (`polarInitial_orthogonal_eq_ker`). -/
@@ -180,7 +155,7 @@ theorem modulus_apply_mem_polarInitial (M : E →L[𝕜] F) (x : E) :
   Submodule.le_topologicalClosure _ ⟨x, rfl⟩
 
 /-- The initial space is complete, being a topological closure.  This is what
-lets `polarPartialAux` be built by continuous extension. -/
+lets `polarInitialMap` be built by continuous extension. -/
 instance (M : E →L[𝕜] F) : CompleteSpace M.polarInitial :=
   Submodule.topologicalClosure.completeSpace _
 
@@ -219,14 +194,14 @@ theorem norm_apply_le_norm_modulusCorestrict (M : E →L[𝕜] F) (x : E) :
 
 /-- The isometry `|M| x ↦ M x`, extended from the dense range of the modulus to the whole
 initial space. -/
-noncomputable def polarPartialAux (M : E →L[𝕜] F) : M.polarInitial →L[𝕜] F :=
+noncomputable def polarInitialMap (M : E →L[𝕜] F) : M.polarInitial →L[𝕜] F :=
   M.toLinearMap.extendOfNorm M.modulusCorestrict
 
 /-- The extension undoes the modulus on the dense range: `W₀ (|M| x) = M x`.
 This is the defining property carried across by continuity. -/
 @[simp]
-theorem polarPartialAux_modulusCorestrict (M : E →L[𝕜] F) (x : E) :
-    M.polarPartialAux (M.modulusCorestrict x) = M x :=
+theorem polarInitialMap_modulusCorestrict (M : E →L[𝕜] F) (x : E) :
+    M.polarInitialMap (M.modulusCorestrict x) = M x :=
   LinearMap.extendOfNorm_eq M.denseRange_modulusCorestrict
     ⟨1, M.norm_apply_le_norm_modulusCorestrict⟩ x
 
@@ -235,13 +210,13 @@ theorem polarPartialAux_modulusCorestrict (M : E →L[𝕜] F) (x : E) :
 Isometric on `M.polarInitial` and zero on its orthogonal complement, with
 `M.polarPartial ∘L |M| = M` unconditionally. -/
 noncomputable def polarPartial (M : E →L[𝕜] F) : E →L[𝕜] F :=
-  M.polarPartialAux ∘L M.polarInitial.orthogonalProjectionOnto
+  M.polarInitialMap ∘L M.polarInitial.orthogonalProjectionOnto
 
 /-- `polarPartial` unfolded: project onto the initial space, then apply the
 continuous extension.  The projection is what makes `W` vanish off the initial
 space, i.e. on `ker M`. -/
 theorem polarPartial_apply (M : E →L[𝕜] F) (x : E) :
-    M.polarPartial x = M.polarPartialAux (M.polarInitial.orthogonalProjectionOnto x) := (rfl)
+    M.polarPartial x = M.polarInitialMap (M.polarInitial.orthogonalProjectionOnto x) := (rfl)
 /-- **The polar identity.**  `M = W |M|` with `W` the polar partial isometry, for every
 bounded `M` and with no invertibility hypothesis. -/
 @[simp]
@@ -253,7 +228,7 @@ theorem polarPartial_apply_modulus (M : E →L[𝕜] F) (x : E) :
       = M.modulusCorestrict x := by
     apply Subtype.ext
     simpa using Submodule.starProjection_eq_self_iff.mpr hmem
-  rw [hproj, polarPartialAux_modulusCorestrict]
+  rw [hproj, polarInitialMap_modulusCorestrict]
 
 /-- **The polar identity in composed form**: `W ∘L |M| = M`, unconditionally.
 The pointwise version is `polarPartial_apply_modulus`; this is the form that
@@ -272,12 +247,12 @@ theorem inner_modulus_left (M : E →L[𝕜] F) (x z : E) :
 
 /-- The extension is an isometry on the whole initial space: it is one on the dense range
 of the modulus, and both sides are continuous. -/
-theorem norm_polarPartialAux_apply (M : E →L[𝕜] F) (y : M.polarInitial) :
-    ‖M.polarPartialAux y‖ = ‖y‖ := by
-  have heq : Set.EqOn (fun z : M.polarInitial => ‖M.polarPartialAux z‖)
+theorem norm_polarInitialMap_apply (M : E →L[𝕜] F) (y : M.polarInitial) :
+    ‖M.polarInitialMap y‖ = ‖y‖ := by
+  have heq : Set.EqOn (fun z : M.polarInitial => ‖M.polarInitialMap z‖)
       (fun z : M.polarInitial => ‖z‖) (Set.range M.modulusCorestrict) := by
     rintro _ ⟨x, rfl⟩
-    simp only [polarPartialAux_modulusCorestrict]
+    simp only [polarInitialMap_modulusCorestrict]
     exact (M.norm_modulus_apply x).symm
   exact congrFun (Continuous.ext_on M.denseRange_modulusCorestrict
     (by fun_prop) (by fun_prop) heq) y
@@ -289,7 +264,7 @@ theorem norm_polarPartial_apply_of_mem (M : E →L[𝕜] F) {y : E} (hy : y ∈ 
   have hproj : M.polarInitial.orthogonalProjectionOnto y = ⟨y, hy⟩ := by
     apply Subtype.ext
     simpa using Submodule.starProjection_eq_self_iff.mpr hy
-  rw [hproj, M.norm_polarPartialAux_apply ⟨y, hy⟩]
+  rw [hproj, M.norm_polarInitialMap_apply ⟨y, hy⟩]
   rfl
 
 /-- The polar partial isometry vanishes off the initial space. -/
@@ -510,15 +485,15 @@ theorem isIdempotentElem_polarPartial_comp_adjoint (M : E →L[𝕜] F) :
     _ = M.polarPartial ∘L M.polarPartial.adjoint := by rw [h]
 
 /-- The partial isometry, bundled as a `LinearIsometry` on the initial space. -/
-noncomputable def polarLinearIsometryAux (M : E →L[𝕜] F) :
+noncomputable def polarInitialIsometry (M : E →L[𝕜] F) :
     M.polarInitial →ₗᵢ[𝕜] F where
-  toLinearMap := M.polarPartialAux.toLinearMap
-  norm_map' := M.norm_polarPartialAux_apply
+  toLinearMap := M.polarInitialMap.toLinearMap
+  norm_map' := M.norm_polarInitialMap_apply
 
 /-- Every vector in the range of the partial isometry already comes from the initial
 space, because the projection is the identity there. -/
-theorem range_polarPartial_eq_range_aux (M : E →L[𝕜] F) :
-    Set.range M.polarPartial = Set.range M.polarPartialAux := by
+theorem range_polarPartial_eq_range_polarInitialMap (M : E →L[𝕜] F) :
+    Set.range M.polarPartial = Set.range M.polarInitialMap := by
   apply Set.Subset.antisymm
   · rintro _ ⟨x, rfl⟩
     exact ⟨M.polarInitial.orthogonalProjectionOnto x, rfl⟩
@@ -533,10 +508,10 @@ theorem range_polarPartial_eq_range_aux (M : E →L[𝕜] F) :
 initial space, and that space is complete. -/
 theorem isClosed_range_polarPartial (M : E →L[𝕜] F) :
     IsClosed (Set.range M.polarPartial) := by
-  rw [M.range_polarPartial_eq_range_aux]
-  have hrange : Set.range M.polarPartialAux = Set.range M.polarLinearIsometryAux := (rfl)
+  rw [M.range_polarPartial_eq_range_polarInitialMap]
+  have hrange : Set.range M.polarInitialMap = Set.range M.polarInitialIsometry := (rfl)
   rw [hrange, ← Set.image_univ]
-  exact ((LinearIsometry.isComplete_image_iff M.polarLinearIsometryAux).mpr
+  exact ((LinearIsometry.isComplete_image_iff M.polarInitialIsometry).mpr
     isComplete_univ).isClosed
 
 /-- **The range of the partial isometry is the closure of the range of `M`** — the *final*
@@ -548,19 +523,19 @@ theorem range_polarPartial (M : E →L[𝕜] F) :
   · rintro _ ⟨y, rfl⟩
     have hclosed : IsClosed
         {w : M.polarInitial |
-          M.polarPartialAux w ∈ (LinearMap.range M.toLinearMap).topologicalClosure} :=
-      (Submodule.isClosed_topologicalClosure _).preimage M.polarPartialAux.continuous
-    have hgen : ∀ x : E, M.polarPartialAux (M.modulusCorestrict x)
+          M.polarInitialMap w ∈ (LinearMap.range M.toLinearMap).topologicalClosure} :=
+      (Submodule.isClosed_topologicalClosure _).preimage M.polarInitialMap.continuous
+    have hgen : ∀ x : E, M.polarInitialMap (M.modulusCorestrict x)
         ∈ (LinearMap.range M.toLinearMap).topologicalClosure := by
       intro x
-      rw [polarPartialAux_modulusCorestrict]
+      rw [polarInitialMap_modulusCorestrict]
       exact Submodule.le_topologicalClosure _ ⟨x, rfl⟩
     -- states the goal with the definition unfolded, in the shape the next step needs;
     -- there is no `_apply` lemma to rewrite with here.
     change M.polarPartial y ∈ _
     rw [polarPartial_apply]
     exact M.denseRange_modulusCorestrict.induction_on
-      (p := fun w => M.polarPartialAux w ∈
+      (p := fun w => M.polarInitialMap w ∈
         (LinearMap.range M.toLinearMap).topologicalClosure)
       (M.polarInitial.orthogonalProjectionOnto y) hclosed hgen
   · refine Submodule.topologicalClosure_minimal _ ?_ ?_
@@ -612,8 +587,7 @@ This is the other half of the polar decomposition — alongside `M = W |M|` it g
 `M = |M⋆| W` — and it identifies the final space as the initial space of `M⋆`.  The proof
 is uniqueness of the positive square root: `W |M| W⋆` is positive, and both it squared and
 `M M⋆` reduce to `W (M⋆ M) W⋆`. -/
-theorem modulus_adjoint [Algebra ℝ (F →L[𝕜] F)] [IsScalarTower ℝ 𝕜 (F →L[𝕜] F)]
-    [ContinuousFunctionalCalculus ℝ (F →L[𝕜] F) IsSelfAdjoint] (M : E →L[𝕜] F) :
+theorem modulus_adjoint (M : E →L[𝕜] F) :
     M.adjoint.modulus = M.polarPartial ∘L M.modulus ∘L M.polarPartial.adjoint := by
   refine (eq_modulus_of_nonneg_of_mul_self_eq ?_ ?_).symm
   · rw [ContinuousLinearMap.nonneg_iff_isPositive]
@@ -642,9 +616,7 @@ theorem modulus_adjoint [Algebra ℝ (F →L[𝕜] F)] [IsScalarTower ℝ 𝕜 (
     rw [hP, hS, hMadj, hM]
 
 /-- The second polar identity, `M = |M⋆| W`. -/
-theorem modulus_adjoint_comp_polarPartial [Algebra ℝ (F →L[𝕜] F)]
-    [IsScalarTower ℝ 𝕜 (F →L[𝕜] F)]
-    [ContinuousFunctionalCalculus ℝ (F →L[𝕜] F) IsSelfAdjoint] (M : E →L[𝕜] F) :
+theorem modulus_adjoint_comp_polarPartial (M : E →L[𝕜] F) :
     M.adjoint.modulus ∘L M.polarPartial = M := by
   rw [M.modulus_adjoint]
   calc (M.polarPartial ∘L M.modulus ∘L M.polarPartial.adjoint) ∘L M.polarPartial
@@ -711,9 +683,7 @@ theorem starProjection_comp_adjoint_polarPartial (M : E →L[𝕜] F) :
 
 /-- **`W(M⋆) = W(M)⋆`**: the partial isometry of the adjoint is the adjoint of the partial
 isometry.  By uniqueness, since `W⋆ |M⋆| = M⋆` and `W⋆` vanishes on `ker M⋆`. -/
-theorem polarPartial_adjoint [Algebra ℝ (F →L[𝕜] F)]
-    [IsScalarTower ℝ 𝕜 (F →L[𝕜] F)]
-    [ContinuousFunctionalCalculus ℝ (F →L[𝕜] F) IsSelfAdjoint] (M : E →L[𝕜] F) :
+theorem polarPartial_adjoint (M : E →L[𝕜] F) :
     M.adjoint.polarPartial = M.polarPartial.adjoint := by
   refine (M.adjoint.eq_polarPartial_of_comp_modulus M.polarPartial.adjoint ?_ ?_).symm
   · -- W⋆ |M⋆| = W⋆ W |M| W⋆ = P |M| W⋆ = |M| W⋆ = M⋆
@@ -833,7 +803,7 @@ theorem polarPartial_comp_adjoint (M : E →L[𝕜] F) :
 When `|M|` is invertible the partial isometry is given by the closed formula
 `M |M|⁻¹`, and its initial space is everything.  This reconciles the general
 construction with the light one in
-`ForTauCeti/Analysis/InnerProductSpace/PolarIsometry.lean`, which defines
+`ForTauCeti/Analysis/InnerProductSpace/Polar/Isometry.lean`, which defines
 `polarIsometryOfIsUnitModulus M := M ∘L Ring.inverse M.modulus` directly and needs no
 polar-decomposition theory: the two agree exactly where the light one is
 meaningful, so it is a specialisation rather than a rival construction. -/

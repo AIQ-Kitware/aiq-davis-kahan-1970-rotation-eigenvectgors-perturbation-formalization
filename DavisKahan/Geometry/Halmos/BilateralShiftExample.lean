@@ -7,6 +7,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Geometry.Halmos.CrossedDefectGap
 import Mathlib.Analysis.InnerProductSpace.l2Space
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The bilateral shift and its coordinate half-spaces
 
@@ -47,6 +49,7 @@ open scoped InnerProductSpace
 
 namespace TauCeti
 namespace DavisKahan
+
 
 
 universe u
@@ -200,8 +203,8 @@ theorem map_coordinateHalfSpace (b : HilbertBasis ℤ 𝕜 H) (k : ℤ) :
 onto the cut at `k+1`.  This is the hypothesis printed as (1.4) in
 Davis--Kahan 1970. -/
 theorem bilateralShiftL_intertwines (b : HilbertBasis ℤ 𝕜 H) (k : ℤ) :
-    bilateralShiftL b * projection (coordinateHalfSpace b k) =
-      projection (coordinateHalfSpace b (k + 1)) * bilateralShiftL b := by
+    bilateralShiftL b * Submodule.starProjection (coordinateHalfSpace b k) =
+      Submodule.starProjection (coordinateHalfSpace b (k + 1)) * bilateralShiftL b := by
   ext y
   simp only [mul_apply_eq_comp]
   exact (starProjection_of_map_eq (bilateralShift b)
@@ -336,20 +339,22 @@ Read in the order `(U, V)` the symmetric identity happens to hold, because the
 defect sits on the side that already realizes the maximum; the refutation is
 therefore stated in the order that exposes it. -/
 theorem directedGap_asymmetric_coordinateHalfSpace (b : HilbertBasis ℤ 𝕜 H) :
-    directedGap (coordinateHalfSpace b 0) (coordinateHalfSpace b 1) = 1 ∧
-      directedGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0) = 0 ∧
-      subspaceGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0) ≠
-        directedGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0) := by
-  have hone : directedGap (coordinateHalfSpace b 0) (coordinateHalfSpace b 1) = 1 :=
+    Submodule.directedProjectionGap (coordinateHalfSpace b 0) (coordinateHalfSpace b 1) = 1 ∧
+      Submodule.directedProjectionGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0) = 0 ∧
+      Submodule.projectionGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0) ≠
+        Submodule.directedProjectionGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0) := by
+  have hone : Submodule.directedProjectionGap (coordinateHalfSpace b 0) (coordinateHalfSpace b 1)
+    = 1 :=
     Submodule.directedProjectionGap_eq_one_of_inf_orthogonal_ne_bot _ _
       (halmosSourceDefect_coordinateHalfSpace_ne_bot b)
-  have hzero : directedGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0) = 0 :=
+  have hzero : Submodule.directedProjectionGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0)
+    = 0 :=
     Submodule.directedProjectionGap_eq_zero_of_le
       (coordinateHalfSpace_le_coordinateHalfSpace b (by norm_num))
   refine ⟨hone, hzero, ?_⟩
-  have hmax : subspaceGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0)
-      = max (directedGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0))
-        (directedGap (coordinateHalfSpace b 0) (coordinateHalfSpace b 1)) :=
+  have hmax : Submodule.projectionGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0)
+      = max (Submodule.directedProjectionGap (coordinateHalfSpace b 1) (coordinateHalfSpace b 0))
+        (Submodule.directedProjectionGap (coordinateHalfSpace b 0) (coordinateHalfSpace b 1)) :=
     Submodule.projectionGap_eq_max_directedProjectionGap _ _
   rw [hmax, hone, hzero]
   norm_num

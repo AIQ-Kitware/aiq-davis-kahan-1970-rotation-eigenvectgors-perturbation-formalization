@@ -7,6 +7,11 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.CommonCore
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Theorem61Universal
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Theorem62
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Literal graph-core forms of the generalized sine theorems
 
@@ -28,11 +33,10 @@ noncomputable section
 
 universe u v
 
-open TauCeti.DavisKahanExt
 
 /-- Scalar-generic source bookkeeping with the residual equation supplied on a
 graph core of the trial operator. -/
-structure PaperCommonCoreSinThetaData
+structure CommonCoreSinThetaData
     (𝕜 : Type u) [RCLike 𝕜]
     (E F G H : Type v)
     [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
@@ -50,13 +54,13 @@ structure PaperCommonCoreSinThetaData
   A₀_selfAdjoint : IsSelfAdjoint A₀
   Λ₁_selfAdjoint : IsSelfAdjoint Λ₁
   exact_decomposition : OrthogonalExactDecomposition F₀ F₁
-  core_residual : PaperCommonCoreResidualData A A₀ E₀ R
+  core_residual : CommonCoreResidualData A A₀ E₀ R
   F₁_maps_domain : ∀ y : Λ₁.domain, F₁ (y : G) ∈ A.domain
   F₁_intertwines : ∀ y : Λ₁.domain,
     A ⟨F₁ (y : G), F₁_maps_domain y⟩ =
       F₁ (Λ₁ y)
 
-namespace PaperCommonCoreSinThetaData
+namespace CommonCoreSinThetaData
 
 /-- The accepted full-domain bookkeeping obtained by the graph-core extension
 argument. -/
@@ -67,9 +71,9 @@ noncomputable def toUnboundedSinThetaData
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
     [NormedAddCommGroup H] [InnerProductSpace 𝕜 H] [CompleteSpace H]
-    (P : PaperCommonCoreSinThetaData 𝕜 E F G H) :
+    (P : CommonCoreSinThetaData 𝕜 E F G H) :
     UnboundedSinThetaData (𝕜 := 𝕜) (E := E) (F := F) (G := G) :=
-  unboundedSinThetaDataOfPaperCommonCore
+  unboundedSinThetaDataOfCommonCore
     P.A P.A₀ P.Λ₁ P.E₀ P.F₁ P.R P.core_residual P.A_selfAdjoint.isClosed
     P.F₁_maps_domain P.F₁_intertwines
 
@@ -82,10 +86,10 @@ theorem toUnboundedSinThetaData_residual
     [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
     [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
     [NormedAddCommGroup H] [InnerProductSpace 𝕜 H] [CompleteSpace H]
-    (P : PaperCommonCoreSinThetaData 𝕜 E F G H) :
+    (P : CommonCoreSinThetaData 𝕜 E F G H) :
     P.toUnboundedSinThetaData.residual = P.R := rfl
 
-end PaperCommonCoreSinThetaData
+end CommonCoreSinThetaData
 
 section Complex
 
@@ -96,8 +100,8 @@ variable {E F G H : Type v}
   [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
 /-- Theorem 6.1 data with the residual equation supplied only on a graph core. -/
-structure PaperCommonCoreTheorem61Data where
-  source : PaperCommonCoreSinThetaData ℂ E F G H
+structure CommonCoreTheorem61Data where
+  source : CommonCoreSinThetaData ℂ E F G H
   gap : ℝ
   epsilon : ℝ
   gap_pos : 0 < gap
@@ -106,13 +110,13 @@ structure PaperCommonCoreTheorem61Data where
   spectral_gap :
     FormBoundedSylvesterGap source.A₀ source.Λ₁ gap
 
-namespace PaperCommonCoreTheorem61Data
+namespace CommonCoreTheorem61Data
 
 /-- Package common-core Theorem 6.1 source data as the general Theorem 6.1 record. -/
-noncomputable def toPaperTheorem61Data
-    (P : PaperCommonCoreTheorem61Data
+noncomputable def toTheorem61Data
+    (P : CommonCoreTheorem61Data
       (E := E) (F := F) (G := G) (H := H)) :
-    PaperTheorem61Data (E := E) (F := F) (G := G) (H := H) where
+    Theorem61Data (E := E) (F := F) (G := G) (H := H) where
   data := P.source.toUnboundedSinThetaData
   exactMap := P.source.F₀
   ambient_selfAdjoint := P.source.A_selfAdjoint
@@ -131,22 +135,22 @@ theorem result_every_unitarilyInvariantNorm_across
     {E₀ F₀ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace ℂ E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace ℂ F₀] [CompleteSpace F₀]
-    (P : PaperCommonCoreTheorem61Data
+    (P : CommonCoreTheorem61Data
       (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentativeAcross
-      (E₀ := E₀) (F₀ := F₀) P.toPaperTheorem61Data.canonicalSinTheta)
+    (S : SinThetaRepresentativeAcross
+      (E₀ := E₀) (F₀ := F₀) P.toTheorem61Data.canonicalSinTheta)
     (N : SymmetricNormingFunction) (hR : N.Mem P.source.R) :
     N.Mem S.operator ∧
       P.gap * P.epsilon * N.gauge S.operator ≤ N.gauge P.source.R := by
-  simpa [toPaperTheorem61Data,
-    PaperCommonCoreSinThetaData.toUnboundedSinThetaData] using
-    P.toPaperTheorem61Data.result_every_unitarilyInvariantNorm_across S N hR
+  simpa [toTheorem61Data,
+    CommonCoreSinThetaData.toUnboundedSinThetaData] using
+    P.toTheorem61Data.result_every_unitarilyInvariantNorm_across S N hR
 
-end PaperCommonCoreTheorem61Data
+end CommonCoreTheorem61Data
 
 /-- Theorem 6.2 data with the residual equation supplied only on a graph core. -/
-structure PaperCommonCoreTheorem62Data where
-  source : PaperCommonCoreSinThetaData ℂ E F G H
+structure CommonCoreTheorem62Data where
+  source : CommonCoreSinThetaData ℂ E F G H
   gap : ℝ
   epsilon : ℝ
   gap_pos : 0 < gap
@@ -154,13 +158,13 @@ structure PaperCommonCoreTheorem62Data where
   lower_frame : LowerFrameBound source.E₀ epsilon
   spectral_distance : PairwiseSpectrumGap source.A₀ source.Λ₁ gap
 
-namespace PaperCommonCoreTheorem62Data
+namespace CommonCoreTheorem62Data
 
 /-- Package common-core Theorem 6.2 source data as the general Theorem 6.2 record. -/
-noncomputable def toPaperTheorem62Data
-    (P : PaperCommonCoreTheorem62Data
+noncomputable def toTheorem62Data
+    (P : CommonCoreTheorem62Data
       (E := E) (F := F) (G := G) (H := H)) :
-    PaperTheorem62Data (E := E) (F := F) (G := G) (H := H) where
+    Theorem62Data (E := E) (F := F) (G := G) (H := H) where
   data := P.source.toUnboundedSinThetaData
   exactMap := P.source.F₀
   ambient_selfAdjoint := P.source.A_selfAdjoint
@@ -179,19 +183,19 @@ theorem result_across
     {E₀ F₀ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace ℂ E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace ℂ F₀] [CompleteSpace F₀]
-    (P : PaperCommonCoreTheorem62Data
+    (P : CommonCoreTheorem62Data
       (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentativeAcross
-      (E₀ := E₀) (F₀ := F₀) P.toPaperTheorem62Data.canonicalSinTheta)
-    (hR : IsPaperHilbertSchmidt P.source.R) :
-    IsPaperHilbertSchmidt S.operator ∧
-      P.gap * P.epsilon * paperHilbertSchmidtNorm S.operator ≤
-        paperHilbertSchmidtNorm P.source.R := by
-  simpa [toPaperTheorem62Data,
-    PaperCommonCoreSinThetaData.toUnboundedSinThetaData] using
-    P.toPaperTheorem62Data.result_across S hR
+    (S : SinThetaRepresentativeAcross
+      (E₀ := E₀) (F₀ := F₀) P.toTheorem62Data.canonicalSinTheta)
+    (hR : approximationNumberEnergy P.source.R ≠ ⊤) :
+    approximationNumberEnergy S.operator ≠ ⊤ ∧
+      P.gap * P.epsilon * ContinuousLinearMap.hilbertSchmidtNorm S.operator ≤
+        ContinuousLinearMap.hilbertSchmidtNorm P.source.R := by
+  simpa [toTheorem62Data,
+    CommonCoreSinThetaData.toUnboundedSinThetaData] using
+    P.toTheorem62Data.result_across S hR
 
-end PaperCommonCoreTheorem62Data
+end CommonCoreTheorem62Data
 
 end Complex
 
@@ -204,8 +208,8 @@ variable {E F G H : Type v}
   [NormedAddCommGroup H] [InnerProductSpace ℝ H] [CompleteSpace H]
 
 /-- Real Theorem 6.1 data with the residual equation supplied on a graph core. -/
-structure PaperRealCommonCoreTheorem61Data where
-  source : PaperCommonCoreSinThetaData ℝ E F G H
+structure RealCommonCoreTheorem61Data where
+  source : CommonCoreSinThetaData ℝ E F G H
   gap : ℝ
   epsilon : ℝ
   gap_pos : 0 < gap
@@ -214,13 +218,13 @@ structure PaperRealCommonCoreTheorem61Data where
   spectral_gap :
     FormBoundedSylvesterGap source.A₀ source.Λ₁ gap
 
-namespace PaperRealCommonCoreTheorem61Data
+namespace RealCommonCoreTheorem61Data
 
 /-- Real-scalar packaging of common-core Theorem 6.1 source data. -/
-noncomputable def toPaperRealTheorem61Data
-    (P : PaperRealCommonCoreTheorem61Data
+noncomputable def toRealTheorem61Data
+    (P : RealCommonCoreTheorem61Data
       (E := E) (F := F) (G := G) (H := H)) :
-    PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H) where
+    RealTheorem61Data (E := E) (F := F) (G := G) (H := H) where
   data := P.source.toUnboundedSinThetaData
   exactMap := P.source.F₀
   ambient_selfAdjoint := P.source.A_selfAdjoint
@@ -239,22 +243,22 @@ theorem result_every_unitarilyInvariantNorm_across
     {E₀ F₀ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace ℝ E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace ℝ F₀] [CompleteSpace F₀]
-    (P : PaperRealCommonCoreTheorem61Data
+    (P : RealCommonCoreTheorem61Data
       (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentativeAcross
-      (E₀ := E₀) (F₀ := F₀) P.toPaperRealTheorem61Data.canonicalSinTheta)
+    (S : SinThetaRepresentativeAcross
+      (E₀ := E₀) (F₀ := F₀) P.toRealTheorem61Data.canonicalSinTheta)
     (N : SymmetricNormingFunction) (hR : N.Mem P.source.R) :
     N.Mem S.operator ∧
       P.gap * P.epsilon * N.gauge S.operator ≤ N.gauge P.source.R := by
-  simpa [toPaperRealTheorem61Data,
-    PaperCommonCoreSinThetaData.toUnboundedSinThetaData] using
-    P.toPaperRealTheorem61Data.result_every_unitarilyInvariantNorm_across S N hR
+  simpa [toRealTheorem61Data,
+    CommonCoreSinThetaData.toUnboundedSinThetaData] using
+    P.toRealTheorem61Data.result_every_unitarilyInvariantNorm_across S N hR
 
-end PaperRealCommonCoreTheorem61Data
+end RealCommonCoreTheorem61Data
 
 /-- Real Theorem 6.2 data with the residual equation supplied on a graph core. -/
-structure PaperRealCommonCoreTheorem62Data where
-  source : PaperCommonCoreSinThetaData ℝ E F G H
+structure RealCommonCoreTheorem62Data where
+  source : CommonCoreSinThetaData ℝ E F G H
   gap : ℝ
   epsilon : ℝ
   gap_pos : 0 < gap
@@ -264,13 +268,13 @@ structure PaperRealCommonCoreTheorem62Data where
     ∀ lam ∈ TauCeti.LinearPMap.realSpectrum source.A₀, ∀ α ∈ TauCeti.LinearPMap.realSpectrum source.Λ₁,
       gap ≤ |lam - α|
 
-namespace PaperRealCommonCoreTheorem62Data
+namespace RealCommonCoreTheorem62Data
 
 /-- Real-scalar packaging of common-core Theorem 6.2 source data. -/
-noncomputable def toPaperRealTheorem62Data
-    (P : PaperRealCommonCoreTheorem62Data
+noncomputable def toRealTheorem62Data
+    (P : RealCommonCoreTheorem62Data
       (E := E) (F := F) (G := G) (H := H)) :
-    PaperRealTheorem62Data (E := E) (F := F) (G := G) (H := H) where
+    RealTheorem62Data (E := E) (F := F) (G := G) (H := H) where
   data := P.source.toUnboundedSinThetaData
   exactMap := P.source.F₀
   ambient_selfAdjoint := P.source.A_selfAdjoint
@@ -289,19 +293,19 @@ theorem result_across
     {E₀ F₀ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace ℝ E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace ℝ F₀] [CompleteSpace F₀]
-    (P : PaperRealCommonCoreTheorem62Data
+    (P : RealCommonCoreTheorem62Data
       (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentativeAcross
-      (E₀ := E₀) (F₀ := F₀) P.toPaperRealTheorem62Data.canonicalSinTheta)
-    (hR : IsPaperHilbertSchmidt P.source.R) :
-    IsPaperHilbertSchmidt S.operator ∧
-      P.gap * P.epsilon * paperHilbertSchmidtNorm S.operator ≤
-        paperHilbertSchmidtNorm P.source.R := by
-  simpa [toPaperRealTheorem62Data,
-    PaperCommonCoreSinThetaData.toUnboundedSinThetaData] using
-    P.toPaperRealTheorem62Data.result_across S hR
+    (S : SinThetaRepresentativeAcross
+      (E₀ := E₀) (F₀ := F₀) P.toRealTheorem62Data.canonicalSinTheta)
+    (hR : approximationNumberEnergy P.source.R ≠ ⊤) :
+    approximationNumberEnergy S.operator ≠ ⊤ ∧
+      P.gap * P.epsilon * ContinuousLinearMap.hilbertSchmidtNorm S.operator ≤
+        ContinuousLinearMap.hilbertSchmidtNorm P.source.R := by
+  simpa [toRealTheorem62Data,
+    CommonCoreSinThetaData.toUnboundedSinThetaData] using
+    P.toRealTheorem62Data.result_across S hR
 
-end PaperRealCommonCoreTheorem62Data
+end RealCommonCoreTheorem62Data
 
 end Real
 

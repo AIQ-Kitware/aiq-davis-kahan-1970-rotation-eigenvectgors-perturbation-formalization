@@ -12,6 +12,11 @@ import DavisKahan.SpectralTheory.ResolventOperator
 import DavisKahan.Sylvester.Spectrum
 -- supplies `compressOperator` and its self-adjointness.
 import DavisKahan.InfiniteDimensional.Riccati.ContinuationWitnessOrientedBlocks
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 -- supplies `realSpectrum_compressOperator_eq_restrictedSpectrum`.
 
 /-!
@@ -64,6 +69,7 @@ open Set
 namespace TauCeti
 namespace DavisKahan
 
+
 open DavisKahanExt
 open TauCeti.DavisKahan.Foundation
 
@@ -83,7 +89,7 @@ omit [CompleteSpace H] in
 /-- **The numerical radius controls the norm.**  For a self-adjoint operator a
 two-sided form bound is a norm bound, with no loss.  This is Mathlib's
 Rayleigh-quotient description of the norm of a symmetric operator. -/
-theorem opNorm_le_of_abs_re_inner_le {S : H →L[ℂ] H} (hS : IsSelfAdjointOperator S)
+theorem opNorm_le_of_abs_re_inner_le {S : H →L[ℂ] H} (hS : S.IsSymmetric)
     {M : ℝ} (hM : 0 ≤ M)
     (hform : ∀ x : H, |RCLike.re ⟪S x, x⟫_ℂ| ≤ M * ‖x‖ ^ 2) : ‖S‖ ≤ M := by
   rw [ContinuousLinearMap.norm_eq_iSup_rayleighQuotient S hS]
@@ -185,7 +191,7 @@ omit [CompleteSpace H] in
 @[simp] theorem bandSymbol_apply (B : H →L[ℂ] H) (l r d : ℝ) (w : spectrum ℂ B) :
     bandSymbol B l r d w = bandCutoff l r d (TauCeti.BorelCalculus.reCoord w) := rfl
 
-variable (B : H →L[ℂ] H) (hB : IsSelfAdjointOperator B)
+variable (B : H →L[ℂ] H) (hB : B.IsSymmetric)
 
 /-- **With a two-sided gap, the band spectral projection is a continuous
 functional calculus.**  The two-sided cutoff agrees with the indicator of the
@@ -233,7 +239,7 @@ instance centralBandSubspace_hasOrthogonalProjection {l r d : ℝ} :
 
 /-- The band subspace reduces the operator it is cut from. -/
 theorem centralBandSubspace_reduces {l r d : ℝ} :
-    Reduces B (centralBandSubspace B hB (l := l) (r := r) (d := d)) :=
+    B.Reduces (centralBandSubspace B hB (l := l) (r := r) (d := d)) :=
   boundedSelfAdjointSpectralSubspace_reduces B hB _ _
 
 /-- The orthogonal projection onto the band subspace is the band spectral
@@ -393,7 +399,7 @@ theorem shiftedOperator_apply (l r : ℝ) (x : H) :
 
 omit [CompleteSpace H] hB in
 /-- Shifting by a real scalar preserves symmetry of the quadratic form. -/
-theorem inner_shiftedOperator_symm (hB' : IsSelfAdjointOperator B) (l r : ℝ) (u v : H) :
+theorem inner_shiftedOperator_symm (hB' : B.IsSymmetric) (l r : ℝ) (u v : H) :
     ⟪u, shiftedOperator B l r v⟫_ℂ = ⟪shiftedOperator B l r u, v⟫_ℂ := by
   have h : ⟪B u, v⟫_ℂ = ⟪u, B v⟫_ℂ := hB' u v
   rw [shiftedOperator_apply, shiftedOperator_apply, inner_sub_right, inner_sub_left,
@@ -531,7 +537,7 @@ theorem norm_shiftedOperator_ge_of_spectrumIn_gapExterior
   set S1 : U →L[ℂ] U := compressOperator U B with hS1def
   have hBsa : IsSelfAdjoint B :=
     (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric).mpr hB
-  have hS1 : IsSelfAdjointOperator S1 :=
+  have hS1 : S1.IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
       (isSelfAdjoint_compressOperator hBsa U)
   have hspecS1 : realSpectrum S1 ⊆ gapExterior l r d := by
@@ -596,7 +602,7 @@ reducing subspace. -/
 theorem commute_starProjection_centralBandSubspace
     {l r d : ℝ} (hd : 0 < d)
     (hgap : realSpectrum B ⊆ Set.Icc l r ∪ gapExterior l r d)
-    {U : Submodule ℂ H} [U.HasOrthogonalProjection] (hU : Reduces B U) :
+    {U : Submodule ℂ H} [U.HasOrthogonalProjection] (hU : B.Reduces U) :
     Commute (centralBandSubspace B hB (l := l) (r := r) (d := d)).starProjection
       U.starProjection := by
   have hBsa : IsSelfAdjoint B :=
@@ -626,7 +632,7 @@ noncomputable section
 variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
   [CompleteSpace H]
 
-variable (B : H →L[ℂ] H) (hB : IsSelfAdjointOperator B)
+variable (B : H →L[ℂ] H) (hB : B.IsSymmetric)
 
 /-! ### The upper bound for an arbitrary reducing subspace
 
@@ -642,7 +648,7 @@ bound by the Rayleigh description of the norm of a symmetric operator; the
 ambient carrier is `(B - c) P_U`, so no restriction appears. -/
 theorem norm_shiftedOperator_le_of_spectrumIn_Icc
     {U : Submodule ℂ H} [U.HasOrthogonalProjection] {l r : ℝ} (hlr : l ≤ r)
-    (hU : Reduces B U) (hspec : SpectrumIn B U (Set.Icc l r))
+    (hU : B.Reduces U) (hspec : SpectrumIn B U (Set.Icc l r))
     {x : H} (hx : x ∈ U) :
     ‖shiftedOperator B l r x‖ ≤ ((r - l) / 2) * ‖x‖ := by
   set S : H →L[ℂ] H := shiftedOperator B l r with hSdef
@@ -670,7 +676,7 @@ theorem norm_shiftedOperator_le_of_spectrumIn_Icc
     intro y
     rw [← hScomm]
     exact U.starProjection_apply_mem _
-  have hsym : IsSelfAdjointOperator (S ∘L Pu) := by
+  have hsym : (S ∘L Pu).IsSymmetric := by
     intro u v
     show ⟪S (Pu u), v⟫_ℂ = ⟪u, S (Pu v)⟫_ℂ
     have h1 : ⟪S (Pu u), v⟫_ℂ = ⟪Pu u, S v⟫_ℂ :=
@@ -740,7 +746,7 @@ is spectrally outside the two gaps contains the band spectral subspace. -/
 theorem centralBandSubspace_le_of_spectrumIn_gapExterior
     {l r d : ℝ} (hd : 0 < d) (hlr : l ≤ r)
     (hgap : realSpectrum B ⊆ Set.Icc l r ∪ gapExterior l r d)
-    {U : Submodule ℂ H} [U.HasOrthogonalProjection] (hU : Reduces B U)
+    {U : Submodule ℂ H} [U.HasOrthogonalProjection] (hU : B.Reduces U)
     (hperp : SpectrumIn B Uᗮ (gapExterior l r d)) :
     centralBandSubspace B hB (l := l) (r := r) (d := d) ≤ U := by
   set R := centralBandSubspace B hB (l := l) (r := r) (d := d) with hR
@@ -788,7 +794,7 @@ interval with the same centre is contained in the band spectral subspace. -/
 theorem le_centralBandSubspace_of_spectrumIn_Icc
     {l r d l' r' : ℝ} (hd : 0 < d) (hlr : l ≤ r) (hlr' : l' ≤ r')
     (hgap : realSpectrum B ⊆ Set.Icc l r ∪ gapExterior l r d)
-    {U : Submodule ℂ H} [U.HasOrthogonalProjection] (hU : Reduces B U)
+    {U : Submodule ℂ H} [U.HasOrthogonalProjection] (hU : B.Reduces U)
     (hspec : SpectrumIn B U (Set.Icc l' r'))
     (hcen : gapCenter l' r' = gapCenter l r)
     (hsmall : (r' - l') / 2 < (r - l) / 2 + d) :

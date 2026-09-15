@@ -7,6 +7,11 @@ import DavisKahan.Sources.DavisKahan1970.DirectedReal
 import DavisKahan.TanTheta.Theorem63UnboundedInfiniteTrial
 import DavisKahan.SpectralTheory.Real.SpectralRestriction
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan Theorem 6.3 for an unbounded real self-adjoint operator
 
@@ -20,7 +25,7 @@ unitarily invariant ideal gauge.
 The unbounded tangent chain consumes its ambient operator only through
 `Theorem63TrialData` -- the bounded triple (action, compression, Ritz residual) tied by the
 block identity -- together with the two printed form bounds.  That bundle, the closed
-operator carrying it (`UnboundedTrialBlock`), the reassembly
+operator carrying it (`BoundedCompressionTrialBlock`), the reassembly
 `Theorem63TrialData.ofUnbounded`, and the decoupling `crossed_lower_of_reducing` are all
 scalar-generic, and are stated over `RCLike` in their own modules.
 
@@ -55,10 +60,11 @@ open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.DavisKahan.ExactSinTheta.ComplexificationApproximation
-open TauCeti.DavisKahan.ExactTanTheta
+open TauCeti.DavisKahan.TanTheta
 open TauCeti.DavisKahan.TanTheta
 open TauCeti.RealComplexification
 open TauCeti.DavisKahan.Foundation.RealComplexification
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -66,12 +72,6 @@ universe v
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
-
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionUnboundedReal
-    {k : Type*} [RCLike k] {G : Type v} [NormedAddCommGroup G]
-    [InnerProductSpace k G] [CompleteSpace G]
-    (Z : Submodule k G) [Z.HasOrthogonalProjection] : CompleteSpace Z :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection Z).completeSpace_coe
 
 /-! ## Complexifying real trial-block data -/
 
@@ -310,7 +310,7 @@ theorem theorem6_3_ideal_infiniteData_exists_real
     rw [htanKy]
     exact hcore
   obtain ⟨hmem, hbound⟩ :=
-    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta hResidual hky
+    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hdelta hResidual hky
   exact ⟨tanTheta0, htan, hmem, hbound⟩
 
 /-- The same endpoint when a real tangent representative with the paper's approximation
@@ -326,7 +326,7 @@ theorem theorem6_3_ideal_infiniteData_real
     (htan : HasTheorem63DirectedTangentApproximationNumbersInfiniteReal Z V tanTheta0)
     (hResidual : N.Mem data.residual) :
     N.Mem tanTheta0 ∧ delta * N.gauge tanTheta0 ≤ N.gauge data.residual := by
-  refine mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta hResidual fun k => ?_
+  refine mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hdelta hResidual fun k => ?_
   have hcore := theorem6_3_all_kyFan_core_infiniteData_real data hdelta hMupper hcross k
   have htanKy : kyFanApproximationGauge k tanTheta0 =
       ∑ n ∈ Finset.range k, Real.tan (Real.arcsin
@@ -368,7 +368,7 @@ level where approximation numbers are preserved exactly. -/
 theorem theorem6_3_unbounded_infiniteTrial_ideal_exists_of_reducing_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     (A : E →ₗ.[ℝ] E)
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hVdom : ∀ x : A.domain, Vᗮ.starProjection ((x : E)) ∈ A.domain)
     (hVcomm : ∀ x : A.domain,
@@ -394,7 +394,7 @@ approximation numbers is supplied by the caller. -/
 theorem theorem6_3_unbounded_infiniteTrial_ideal_of_reducing_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     (A : E →ₗ.[ℝ] E)
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hVdom : ∀ x : A.domain, Vᗮ.starProjection ((x : E)) ∈ A.domain)
     (hVcomm : ∀ x : A.domain,
@@ -510,7 +510,7 @@ theorem le_re_inner_of_mem_orthogonal_realSelfAdjointSpectralSubspace_of_gap
       ofReal_mem_complexifySubmodule_iff]
     exact hyV
   have hC :=
-    _root_.TauCeti.DavisKahan.ExactTanTheta.le_re_inner_of_mem_orthogonal_selfAdjointSpectralSubspace_of_gap
+    _root_.TauCeti.DavisKahan.TanTheta.le_re_inner_of_mem_orthogonal_selfAdjointSpectralSubspace_of_gap
       Ac hAc hgapC (ofReal y) hyVC hydC
   -- Read the complex bound back on the real copy.
   have hact : Ac ⟨ofReal y, hydC⟩ = ofReal (A ⟨y, hy⟩) :=
@@ -533,7 +533,7 @@ space is an arbitrary complete real subspace of the operator domain and the gaug
 real Fan-dominant unitarily invariant ideal gauge. -/
 theorem theorem6_3_unbounded_infiniteTrial_ideal_exists_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     (hdelta : 0 < delta)
     (hgap : realSelfAdjointSpectralProjection A hA (Set.Ioo alpha (alpha + delta))
       measurableSet_Ioo = 0)
@@ -558,7 +558,7 @@ theorem theorem6_3_unbounded_infiniteTrial_ideal_exists_real
 approximation numbers is supplied by the caller. -/
 theorem theorem6_3_unbounded_infiniteTrial_ideal_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     (hdelta : 0 < delta)
     (hgap : realSelfAdjointSpectralProjection A hA (Set.Ioo alpha (alpha + delta))
       measurableSet_Ioo = 0)

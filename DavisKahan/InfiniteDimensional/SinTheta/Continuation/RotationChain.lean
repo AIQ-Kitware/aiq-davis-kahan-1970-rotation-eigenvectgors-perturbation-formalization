@@ -41,7 +41,7 @@ variable {H : Type v} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
 omit [CompleteSpace H] in
 /-- The identity bounded operator is unitary in the continuation predicate. -/
 theorem isUnitaryOperator_id :
-    IsUnitaryOperator (ContinuousLinearMap.id ℂ H) := by
+    TauCeti.LinearPMap.IsUnitaryOperator (ContinuousLinearMap.id ℂ H) := by
   constructor
   · intro x
     rfl
@@ -52,8 +52,8 @@ omit [CompleteSpace H] in
 /-- Composition preserves the continuation-facing unitary predicate. -/
 theorem isUnitaryOperator_comp
     (U V : H →L[ℂ] H)
-    (hU : IsUnitaryOperator U) (hV : IsUnitaryOperator V) :
-    IsUnitaryOperator (U ∘L V) := by
+    (hU : TauCeti.LinearPMap.IsUnitaryOperator U) (hV : TauCeti.LinearPMap.IsUnitaryOperator V) :
+    TauCeti.LinearPMap.IsUnitaryOperator (U ∘L V) := by
   constructor
   · intro x
     calc
@@ -79,7 +79,7 @@ theorem exists_unitary_transport_of_projection_nat_chain
     (hprojection : ∀ k, k ≤ n → IsOrthogonalProjection (P k))
     (hclose : ∀ k, k < n → ‖P k - P k.succ‖ < 1) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧ W ∘L P 0 = P n ∘L W := by
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ W ∘L P 0 = P n ∘L W := by
   induction n generalizing P with
   | zero =>
       refine ⟨ContinuousLinearMap.id ℂ H, isUnitaryOperator_id, ?_⟩
@@ -125,7 +125,7 @@ theorem exists_unitary_transport_of_projection_uniformMesh
     (hclose : ∀ k : ℕ, k < n →
       ‖P ((k : ℝ) / n) - P (((k + 1 : ℕ) : ℝ) / n)‖ < 1) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧ W ∘L P 0 = P 1 ∘L W := by
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ W ∘L P 0 = P 1 ∘L W := by
   let Q : ℕ → H →L[ℂ] H := fun k => P ((k : ℝ) / n)
   have hnreal : (0 : ℝ) < n := Nat.cast_pos.mpr hn
   have hQprojection : ∀ k, k ≤ n → IsOrthogonalProjection (Q k) := by
@@ -153,7 +153,7 @@ theorem exists_unitary_transport_of_lipschitz_projection_path
     (hprojection : ∀ t ∈ Set.Icc (0 : ℝ) 1,
       IsOrthogonalProjection (P t)) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧ W ∘L P 0 = P 1 ∘L W := by
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ W ∘L P 0 = P 1 ∘L W := by
   obtain ⟨n, hn, hclose⟩ :=
     exists_uniform_subdivision_norm_sub_lt_one P K hP
   exact exists_unitary_transport_of_projection_uniformMesh
@@ -173,7 +173,7 @@ theorem exists_unitary_transport_fixedContourRieszOperator
     (Γ : PiecewiseC1ClosedContour) (A V : H →L[ℂ] H)
     (delta : ℝ) (hdelta : 0 < delta)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A V t))
+      (operatorPath A V t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A V t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)
@@ -181,7 +181,7 @@ theorem exists_unitary_transport_fixedContourRieszOperator
       IsOrthogonalProjection
         (fixedContourRieszOperator Γ (operatorPath A V t))) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧
       W ∘L fixedContourRieszOperator Γ (operatorPath A V 0) =
         fixedContourRieszOperator Γ (operatorPath A V 1) ∘L W := by
   obtain ⟨n, hn, hclose⟩ :=
@@ -208,7 +208,7 @@ theorem exists_unitary_transport_of_spectralSeparatingContour_operatorPath
       ∀ lam ∈ realSpectrum (operatorPath A V t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧
       W ∘L fixedContourRieszOperator Γ (operatorPath A V 0) =
         fixedContourRieszOperator Γ (operatorPath A V 1) ∘L W := by
   apply exists_unitary_transport_fixedContourRieszOperator

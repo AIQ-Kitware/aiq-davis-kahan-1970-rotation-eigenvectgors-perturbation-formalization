@@ -7,6 +7,7 @@ import DavisKahan.Sources.DavisKahan1970.Audits.Correspondence
 import DavisKahan.Sources.DavisKahan1970.Audits.DoubleAngleTangent
 import DavisKahan.Sources.DavisKahan1970.Audits.SineThetaSourceInventory
 import DavisKahan.Sources.DavisKahan1970.Audits.GeneralSinThetaExtensions
+import DavisKahan.Sources.DavisKahan1970.Audits.HostileReviewRegressions
 import DavisKahan.Sources.DavisKahan1970.Audits.ResultSemanticSurface
 import DavisKahan.Sources.DavisKahan1970.Audits.Section3
 import DavisKahan.Sources.DavisKahan1970.Audits.Section8

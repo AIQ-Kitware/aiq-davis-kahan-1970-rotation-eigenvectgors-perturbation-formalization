@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.OperatorIdeal.ApproximationNumbers.BlockSum
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.SubspaceSingularTransport
 import DavisKahan.Sources.DavisKahan1970.SineTheta.ProjectionBlocks
+import DavisKahan.Sylvester.ScalarTransport
+import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.ScalarTransport
 
 /-!
 # Davis--Kahan Lemma 6.1
@@ -27,6 +29,7 @@ namespace DavisKahan
 namespace ExactSinTheta
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -36,23 +39,15 @@ variable {𝕜 : Type u} [RCLike 𝕜]
 variable {E : Type v}
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
 
-/-- A subspace admitting an orthogonal projection inside a complete ambient
-space is itself complete.  `local instance` does not propagate through imports,
-so it is reinstalled here. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionLemma61
-    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
-    (U : Submodule 𝕜 G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
-
 /-- A bounded operator occupying one prescribed projection block. -/
-def paperProjectionBlock
+def projectionBlock
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K : E →L[𝕜] E) : E →L[𝕜] E :=
   Ω.starProjection ∘L K ∘L Γ.starProjection
 
 /-- The compression of `K` to the block coordinates `Γ → Ω`. -/
-def paperBlockCompression
+def blockCompression
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K : E →L[𝕜] E) : Γ →L[𝕜] Ω :=
@@ -60,38 +55,38 @@ def paperBlockCompression
 
 /-- The ambient projection block is the compression conjugated by the canonical
 inclusion and its adjoint. -/
-theorem paperProjectionBlock_eq_subtypeL_comp
+theorem projectionBlock_eq_subtypeL_comp
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K : E →L[𝕜] E) :
-    paperProjectionBlock Ω Γ K =
-      Ω.subtypeL ∘L paperBlockCompression Ω Γ K ∘L Γ.subtypeL.adjoint := by
-  rw [paperProjectionBlock, paperBlockCompression, Submodule.adjoint_subtypeL,
+    projectionBlock Ω Γ K =
+      Ω.subtypeL ∘L blockCompression Ω Γ K ∘L Γ.subtypeL.adjoint := by
+  rw [projectionBlock, blockCompression, Submodule.adjoint_subtypeL,
     Submodule.adjoint_subtypeL]
   rfl
 
 /-- The ambient projection block and its compression have the same complete
 approximation singular sequence. -/
-theorem paperProjectionBlock_same_compression
+theorem projectionBlock_same_compression
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K : E →L[𝕜] E) :
     SameApproximationSingularSequence
-      (paperProjectionBlock Ω Γ K) (paperBlockCompression Ω Γ K) := by
-  rw [paperProjectionBlock_eq_subtypeL_comp]
+      (projectionBlock Ω Γ K) (blockCompression Ω Γ K) := by
+  rw [projectionBlock_eq_subtypeL_comp]
   exact sameApproximationSingularValues_ambientSubspaceBlock Γ Ω _
 
 /-- The two complementary blocks are unitarily equivalent to the Hilbert
 orthogonal block sum of their compressions. -/
-theorem paperProjectionBlockPair_same_blockSum
+theorem projectionBlockPair_same_blockSum
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K L : E →L[𝕜] E) :
     SameApproximationSingularSequence
-      (paperProjectionBlock Ω Γ K + paperProjectionBlock Ωᗮ Γᗮ L)
+      (projectionBlock Ω Γ K + projectionBlock Ωᗮ Γᗮ L)
       (continuousOrthogonalBlockSum
-        (paperBlockCompression Ω Γ K)
-        (paperBlockCompression Ωᗮ Γᗮ L)) := by
+        (blockCompression Ω Γ K)
+        (blockCompression Ωᗮ Γᗮ L)) := by
   refine SameApproximationSingularValues.of_isometricEquiv_comp
     Ω.orthogonalDecomposition Γ.orthogonalDecomposition ?_
   refine ContinuousLinearMap.ext fun x => ?_
@@ -103,30 +98,30 @@ theorem paperProjectionBlockPair_same_blockSum
       Submodule.orthogonalProjectionOnto_apply_of_mem_orthogonal
         (Submodule.le_orthogonal_orthogonal Γ x.fst.2),
       Submodule.orthogonalProjectionOnto_mem_subspace_eq_self, zero_add]
-  have hz : (paperProjectionBlock Ω Γ K + paperProjectionBlock Ωᗮ Γᗮ L)
+  have hz : (projectionBlock Ω Γ K + projectionBlock Ωᗮ Γᗮ L)
       (Γ.orthogonalDecomposition.symm x) =
       Ω.starProjection (K (x.fst : E)) + Ωᗮ.starProjection (L (x.snd : E)) := by
     rw [Submodule.orthogonalDecomposition_symm_apply]
-    simp only [add_apply, paperProjectionBlock, ContinuousLinearMap.comp_apply]
+    simp only [add_apply, projectionBlock, ContinuousLinearMap.comp_apply]
     rw [Submodule.starProjection_apply Γ, hΓfst,
       Submodule.starProjection_apply Γᗮ, hΓsnd]
   have hcomp₀ : Ω.orthogonalProjectionOnto
       (Ω.starProjection (K (x.fst : E)) + Ωᗮ.starProjection (L (x.snd : E))) =
-      paperBlockCompression Ω Γ K x.fst := by
+      blockCompression Ω Γ K x.fst := by
     rw [map_add,
       Submodule.orthogonalProjectionOnto_starProjection_of_le (le_refl Ω),
       Submodule.orthogonalProjectionOnto_apply_of_mem_orthogonal
         (Ωᗮ.starProjection_apply_mem _),
-      add_zero, paperBlockCompression, Submodule.adjoint_subtypeL]
+      add_zero, blockCompression, Submodule.adjoint_subtypeL]
     rfl
   have hcomp₁ : Ωᗮ.orthogonalProjectionOnto
       (Ω.starProjection (K (x.fst : E)) + Ωᗮ.starProjection (L (x.snd : E))) =
-      paperBlockCompression Ωᗮ Γᗮ L x.snd := by
+      blockCompression Ωᗮ Γᗮ L x.snd := by
     rw [map_add,
       Submodule.orthogonalProjectionOnto_apply_of_mem_orthogonal
         (Submodule.le_orthogonal_orthogonal Ω (Ω.starProjection_apply_mem _)),
       Submodule.orthogonalProjectionOnto_starProjection_of_le (le_refl Ωᗮ),
-      zero_add, paperBlockCompression, Submodule.adjoint_subtypeL]
+      zero_add, blockCompression, Submodule.adjoint_subtypeL]
     rfl
   simp only [ContinuousLinearMap.comp_apply,
     LinearIsometryEquiv.coe_toContinuousLinearEquiv, ContinuousLinearEquiv.coe_coe,
@@ -134,56 +129,54 @@ theorem paperProjectionBlockPair_same_blockSum
     hcomp₀, hcomp₁]
 
 /-- **Davis--Kahan 1970, Lemma 6.1, forward direction.** -/
-theorem paperLemma61_all_kyFan
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
+theorem lemma61_all_kyFan
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K Ktilde L Ltilde : E →L[𝕜] E)
     (h₀ : ∀ k,
-      kyFanApproximationGauge k (paperProjectionBlock Ω Γ K) ≤
-        kyFanApproximationGauge k (paperProjectionBlock Ω Γ L))
+      kyFanApproximationGauge k (projectionBlock Ω Γ K) ≤
+        kyFanApproximationGauge k (projectionBlock Ω Γ L))
     (h₁ : ∀ k,
-      kyFanApproximationGauge k (paperProjectionBlock Ωᗮ Γᗮ Ktilde) ≤
-        kyFanApproximationGauge k (paperProjectionBlock Ωᗮ Γᗮ Ltilde)) :
+      kyFanApproximationGauge k (projectionBlock Ωᗮ Γᗮ Ktilde) ≤
+        kyFanApproximationGauge k (projectionBlock Ωᗮ Γᗮ Ltilde)) :
     ∀ k,
       kyFanApproximationGauge k
-          (paperProjectionBlock Ω Γ K +
-            paperProjectionBlock Ωᗮ Γᗮ Ktilde) ≤
+          (projectionBlock Ω Γ K +
+            projectionBlock Ωᗮ Γᗮ Ktilde) ≤
         kyFanApproximationGauge k
-          (paperProjectionBlock Ω Γ L +
-            paperProjectionBlock Ωᗮ Γᗮ Ltilde) := by
+          (projectionBlock Ω Γ L +
+            projectionBlock Ωᗮ Γᗮ Ltilde) := by
   intro k
-  rw [(paperProjectionBlockPair_same_blockSum Ω Γ K Ktilde).kyFanApproximationGauge_eq k,
-    (paperProjectionBlockPair_same_blockSum Ω Γ L Ltilde).kyFanApproximationGauge_eq k]
+  rw [(projectionBlockPair_same_blockSum Ω Γ K Ktilde).kyFanApproximationGauge_eq k,
+    (projectionBlockPair_same_blockSum Ω Γ L Ltilde).kyFanApproximationGauge_eq k]
   refine kyFanApproximationGauge_blockSum_le (fun j => ?_) (fun j => ?_) k
-  · rw [← (paperProjectionBlock_same_compression Ω Γ K).kyFanApproximationGauge_eq j,
-      ← (paperProjectionBlock_same_compression Ω Γ L).kyFanApproximationGauge_eq j]
+  · rw [← (projectionBlock_same_compression Ω Γ K).kyFanApproximationGauge_eq j,
+      ← (projectionBlock_same_compression Ω Γ L).kyFanApproximationGauge_eq j]
     exact h₀ j
-  · rw [← (paperProjectionBlock_same_compression Ωᗮ Γᗮ Ktilde).kyFanApproximationGauge_eq j,
-      ← (paperProjectionBlock_same_compression Ωᗮ Γᗮ Ltilde).kyFanApproximationGauge_eq j]
+  · rw [← (projectionBlock_same_compression Ωᗮ Γᗮ Ktilde).kyFanApproximationGauge_eq j,
+      ← (projectionBlock_same_compression Ωᗮ Γᗮ Ltilde).kyFanApproximationGauge_eq j]
     exact h₁ j
 
 /-- Lemma 6.1 for every source-defined unitarily invariant norm. -/
-theorem paperLemma61_every_unitarilyInvariantNorm
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
+theorem lemma61_every_unitarilyInvariantNorm
     (N : SymmetricNormingFunction)
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K Ktilde L Ltilde : E →L[𝕜] E)
     (h₀ : ∀ k,
-      kyFanApproximationGauge k (paperProjectionBlock Ω Γ K) ≤
-        kyFanApproximationGauge k (paperProjectionBlock Ω Γ L))
+      kyFanApproximationGauge k (projectionBlock Ω Γ K) ≤
+        kyFanApproximationGauge k (projectionBlock Ω Γ L))
     (h₁ : ∀ k,
-      kyFanApproximationGauge k (paperProjectionBlock Ωᗮ Γᗮ Ktilde) ≤
-        kyFanApproximationGauge k (paperProjectionBlock Ωᗮ Γᗮ Ltilde)) :
+      kyFanApproximationGauge k (projectionBlock Ωᗮ Γᗮ Ktilde) ≤
+        kyFanApproximationGauge k (projectionBlock Ωᗮ Γᗮ Ltilde)) :
     N.extendedGauge
-        (paperProjectionBlock Ω Γ K +
-          paperProjectionBlock Ωᗮ Γᗮ Ktilde) ≤
+        (projectionBlock Ω Γ K +
+          projectionBlock Ωᗮ Γᗮ Ktilde) ≤
       N.extendedGauge
-        (paperProjectionBlock Ω Γ L +
-          paperProjectionBlock Ωᗮ Γᗮ Ltilde) :=
+        (projectionBlock Ω Γ L +
+          projectionBlock Ωᗮ Γᗮ Ltilde) :=
   N.extendedGauge_le_of_all_kyFan_le
-    (paperLemma61_all_kyFan Ω Γ K Ktilde L Ltilde h₀ h₁)
+    (lemma61_all_kyFan Ω Γ K Ktilde L Ltilde h₀ h₁)
 
 section MergeEven
 
@@ -280,28 +273,27 @@ singular-value sequence, every even Ky Fan prefix of their diagonal pair is
 twice the corresponding prefix of either block.  This is the multiplicity
 bookkeeping used when a self-adjoint off-diagonal operator is compared with
 one rectangular corner. -/
-theorem paperDiagonalPair_even_kyFan_eq_two_mul_of_same
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
+theorem diagonalPair_even_kyFan_eq_two_mul_of_same
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K : E →L[𝕜] E)
     (h : SameApproximationSingularValues
-      (paperProjectionBlock Ω Γ K)
-      (paperProjectionBlock Ωᗮ Γᗮ K))
+      (projectionBlock Ω Γ K)
+      (projectionBlock Ωᗮ Γᗮ K))
     (k : ℕ) :
-    kyFanApproximationGauge (2 * k) (paperDiagonalPair Ω Γ K) =
-      2 * kyFanApproximationGauge k (paperProjectionBlock Ω Γ K) := by
-  have hc₀ := paperProjectionBlock_same_compression Ω Γ K
-  have hc₁ := paperProjectionBlock_same_compression Ωᗮ Γᗮ K
+    kyFanApproximationGauge (2 * k) (diagonalPair Ω Γ K) =
+      2 * kyFanApproximationGauge k (projectionBlock Ω Γ K) := by
+  have hc₀ := projectionBlock_same_compression Ω Γ K
+  have hc₁ := projectionBlock_same_compression Ωᗮ Γᗮ K
   have hcomp : SameApproximationSingularSequence
-      (paperBlockCompression Ω Γ K)
-      (paperBlockCompression Ωᗮ Γᗮ K) :=
+      (blockCompression Ω Γ K)
+      (blockCompression Ωᗮ Γᗮ K) :=
     (hc₀.symm.trans h).trans hc₁
-  have hdiag : paperDiagonalPair Ω Γ K =
-      paperProjectionBlock Ω Γ K + paperProjectionBlock Ωᗮ Γᗮ K := by
-    rw [paperDiagonalPair, paperProjectionBlock, paperProjectionBlock]
+  have hdiag : diagonalPair Ω Γ K =
+      projectionBlock Ω Γ K + projectionBlock Ωᗮ Γᗮ K := by
+    rw [diagonalPair, projectionBlock, projectionBlock]
   rw [hdiag,
-    (paperProjectionBlockPair_same_blockSum Ω Γ K K).kyFanApproximationGauge_eq
+    (projectionBlockPair_same_blockSum Ω Γ K K).kyFanApproximationGauge_eq
       (2 * k),
     kyFanApproximationGauge_continuousOrthogonalBlockSum,
     splitKyFanGauge_two_mul_of_same hcomp k,
@@ -309,54 +301,53 @@ theorem paperDiagonalPair_even_kyFan_eq_two_mul_of_same
 
 /-- The converse in Lemma 6.1 under the source paper's matching-singular-value
 hypotheses. -/
-theorem paperLemma61_converse
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
+theorem lemma61_converse
     (Ω Γ : Submodule 𝕜 E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K Ktilde L Ltilde : E →L[𝕜] E)
     (hK : SameApproximationSingularValues
-      (paperProjectionBlock Ω Γ K)
-      (paperProjectionBlock Ωᗮ Γᗮ Ktilde))
+      (projectionBlock Ω Γ K)
+      (projectionBlock Ωᗮ Γᗮ Ktilde))
     (hL : SameApproximationSingularValues
-      (paperProjectionBlock Ω Γ L)
-      (paperProjectionBlock Ωᗮ Γᗮ Ltilde))
+      (projectionBlock Ω Γ L)
+      (projectionBlock Ωᗮ Γᗮ Ltilde))
     (hsum : ∀ k,
       kyFanApproximationGauge k
-          (paperProjectionBlock Ω Γ K +
-            paperProjectionBlock Ωᗮ Γᗮ Ktilde) ≤
+          (projectionBlock Ω Γ K +
+            projectionBlock Ωᗮ Γᗮ Ktilde) ≤
         kyFanApproximationGauge k
-          (paperProjectionBlock Ω Γ L +
-            paperProjectionBlock Ωᗮ Γᗮ Ltilde)) :
+          (projectionBlock Ω Γ L +
+            projectionBlock Ωᗮ Γᗮ Ltilde)) :
     ∀ k,
-      kyFanApproximationGauge k (paperProjectionBlock Ω Γ K) ≤
-        kyFanApproximationGauge k (paperProjectionBlock Ω Γ L) := by
+      kyFanApproximationGauge k (projectionBlock Ω Γ K) ≤
+        kyFanApproximationGauge k (projectionBlock Ω Γ L) := by
   intro k
-  have hcK := paperProjectionBlock_same_compression Ω Γ K
-  have hcKt := paperProjectionBlock_same_compression Ωᗮ Γᗮ Ktilde
-  have hcL := paperProjectionBlock_same_compression Ω Γ L
-  have hcLt := paperProjectionBlock_same_compression Ωᗮ Γᗮ Ltilde
+  have hcK := projectionBlock_same_compression Ω Γ K
+  have hcKt := projectionBlock_same_compression Ωᗮ Γᗮ Ktilde
+  have hcL := projectionBlock_same_compression Ω Γ L
+  have hcLt := projectionBlock_same_compression Ωᗮ Γᗮ Ltilde
   have hKcomp : SameApproximationSingularSequence
-      (paperBlockCompression Ω Γ K) (paperBlockCompression Ωᗮ Γᗮ Ktilde) :=
+      (blockCompression Ω Γ K) (blockCompression Ωᗮ Γᗮ Ktilde) :=
     (hcK.symm.trans hK).trans hcKt
   have hLcomp : SameApproximationSingularSequence
-      (paperBlockCompression Ω Γ L) (paperBlockCompression Ωᗮ Γᗮ Ltilde) :=
+      (blockCompression Ω Γ L) (blockCompression Ωᗮ Γᗮ Ltilde) :=
     (hcL.symm.trans hL).trans hcLt
   have htwiceK :
       kyFanApproximationGauge (2 * k)
-          (paperProjectionBlock Ω Γ K +
-            paperProjectionBlock Ωᗮ Γᗮ Ktilde) =
-        2 * kyFanApproximationGauge k (paperProjectionBlock Ω Γ K) := by
-    rw [(paperProjectionBlockPair_same_blockSum Ω Γ K Ktilde).kyFanApproximationGauge_eq
+          (projectionBlock Ω Γ K +
+            projectionBlock Ωᗮ Γᗮ Ktilde) =
+        2 * kyFanApproximationGauge k (projectionBlock Ω Γ K) := by
+    rw [(projectionBlockPair_same_blockSum Ω Γ K Ktilde).kyFanApproximationGauge_eq
         (2 * k),
       kyFanApproximationGauge_continuousOrthogonalBlockSum,
       splitKyFanGauge_two_mul_of_same hKcomp k,
       hcK.kyFanApproximationGauge_eq k]
   have htwiceL :
       kyFanApproximationGauge (2 * k)
-          (paperProjectionBlock Ω Γ L +
-            paperProjectionBlock Ωᗮ Γᗮ Ltilde) =
-        2 * kyFanApproximationGauge k (paperProjectionBlock Ω Γ L) := by
-    rw [(paperProjectionBlockPair_same_blockSum Ω Γ L Ltilde).kyFanApproximationGauge_eq
+          (projectionBlock Ω Γ L +
+            projectionBlock Ωᗮ Γᗮ Ltilde) =
+        2 * kyFanApproximationGauge k (projectionBlock Ω Γ L) := by
+    rw [(projectionBlockPair_same_blockSum Ω Γ L Ltilde).kyFanApproximationGauge_eq
         (2 * k),
       kyFanApproximationGauge_continuousOrthogonalBlockSum,
       splitKyFanGauge_two_mul_of_same hLcomp k,

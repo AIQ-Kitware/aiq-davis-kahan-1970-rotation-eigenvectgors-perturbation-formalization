@@ -8,6 +8,8 @@ import DavisKahan.SinTheta.Unbounded.AllGap
 import DavisKahan.Sylvester.Gap
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Source-oriented constructors for the three unbounded gap configurations
 
@@ -23,6 +25,7 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
+
 
 universe u v
 

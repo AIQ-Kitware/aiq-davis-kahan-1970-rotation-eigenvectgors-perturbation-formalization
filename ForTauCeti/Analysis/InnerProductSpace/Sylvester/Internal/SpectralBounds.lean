@@ -48,11 +48,11 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
 
 /-- Every eigenvalue is a point of the restricted spectrum on the whole space, witnessed by its own
 eigenvector. -/
-theorem eigenvalue_mem_restrictedSpectrum_top
+theorem eigenvalue_mem_restrictedPointSpectrum_top
     {T : E →ₗ[𝕜] E} (hT : T.IsSymmetric)
     (i : Fin (Module.finrank 𝕜 E)) :
-    hT.eigenvalues rfl i ∈ restrictedSpectrum T ⊤ :=
-  mem_restrictedSpectrum Submodule.mem_top
+    hT.eigenvalues rfl i ∈ restrictedPointSpectrum T ⊤ :=
+  mem_restrictedPointSpectrum Submodule.mem_top
     ((hT.eigenvectorBasis rfl).orthonormal.ne_zero i)
     (hT.apply_eigenvectorBasis rfl i)
 
@@ -96,9 +96,9 @@ theorem le_re_inner_of_le_eigenvalues
 
 /-- **Spectrum in `[a, b]` bounds the shifted operator norm by the half-width.**  Centring at the
 midpoint is what turns a two-sided spectral bound into a single norm bound. -/
-theorem opNorm_shift_le_of_spectrumIn_Icc
+theorem opNorm_shift_le_of_pointSpectrumIn_Icc
     {T : E →ₗ[𝕜] E} (hT : T.IsSymmetric) {a b : ℝ} (hab : a ≤ b)
-    (hsp : SpectrumIn T ⊤ (Set.Icc a b)) :
+    (hsp : PointSpectrumIn T ⊤ (Set.Icc a b)) :
     ‖(T - (((a + b) / 2 : ℝ) : 𝕜) • LinearMap.id).toContinuousLinearMap‖ ≤
       (b - a) / 2 := by
   let m : ℝ := (a + b) / 2
@@ -109,10 +109,10 @@ theorem opNorm_shift_le_of_spectrumIn_Icc
       inner_smul_right, RCLike.conj_ofReal]
   have ha : ∀ x, a * ‖x‖ ^ 2 ≤ RCLike.re ⟪T x, x⟫_𝕜 :=
     le_re_inner_of_le_eigenvalues hT fun i =>
-      (hsp (eigenvalue_mem_restrictedSpectrum_top hT i)).1
+      (hsp (eigenvalue_mem_restrictedPointSpectrum_top hT i)).1
   have hb : ∀ x, RCLike.re ⟪T x, x⟫_𝕜 ≤ b * ‖x‖ ^ 2 :=
     re_inner_le_of_eigenvalues_le hT fun i =>
-      (hsp (eigenvalue_mem_restrictedSpectrum_top hT i)).2
+      (hsp (eigenvalue_mem_restrictedPointSpectrum_top hT i)).2
   have hr : 0 ≤ r := by simp only [r]; linarith
   have hform : ∀ x, |RCLike.re ⟪S x, x⟫_𝕜| ≤ r * ‖x‖ ^ 2 := by
     intro x
@@ -133,7 +133,7 @@ theorem opNorm_shift_le_of_spectrumIn_Icc
 theorem norm_shift_lower_of_spectrumOutside
     {T : E →ₗ[𝕜] E} (hT : T.IsSymmetric) {a b δ : ℝ}
     (hab : a ≤ b) (hδ : 0 < δ)
-    (hsp : SpectrumIn T ⊤ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}) :
+    (hsp : PointSpectrumIn T ⊤ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}) :
     ∀ x : E, ((b - a) / 2 + δ) * ‖x‖ ≤
       ‖(T - (((a + b) / 2 : ℝ) : 𝕜) •
           (LinearMap.id : E →ₗ[𝕜] E)) x‖ := by
@@ -148,7 +148,7 @@ theorem norm_shift_lower_of_spectrumOutside
   have hsep : ∀ i : Fin (Module.finrank 𝕜 E),
       r + δ ≤ |hT.eigenvalues rfl i - m| := by
     intro i
-    have hi := hsp (eigenvalue_mem_restrictedSpectrum_top hT i)
+    have hi := hsp (eigenvalue_mem_restrictedPointSpectrum_top hT i)
     simp only [Set.mem_ofPred_eq, Set.mem_Ioo, not_and_or, not_lt] at hi
     rcases hi with hi | hi
     · rw [abs_of_nonpos]

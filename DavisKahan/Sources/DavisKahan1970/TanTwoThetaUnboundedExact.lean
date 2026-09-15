@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedGramMiddle
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Exact source-facing unbounded `tan 2Theta` theorem
 
@@ -31,6 +33,7 @@ open scoped InnerProductSpace
 open Filter
 open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.ApproximationNumber
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -38,10 +41,6 @@ universe u
 
 variable {G : Type u} [NormedAddCommGroup G] [InnerProductSpace ℂ G]
   [CompleteSpace G]
-
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionUnboundedExact
-    (W : Submodule ℂ G) [W.HasOrthogonalProjection] : CompleteSpace W :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection W).completeSpace_coe
 
 /-- The canonical one-sided spectral cutoffs, after compression to the source
 spectral subspace, converge strongly to the identity of that subspace. -/
@@ -92,7 +91,7 @@ theorem tanTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNorm
         (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic)ᗮ →
       b * ‖(x : G)‖ ^ 2 ≤ RCLike.re ⟪A x, (x : G)⟫_ℂ)
     (hab : a < b)
-    (hRmem : N.Mem (paperBlockCompression
+    (hRmem : N.Mem (blockCompression
       (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic)ᗮ
       (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) B)) :
     IsUnit
@@ -102,7 +101,7 @@ theorem tanTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNorm
         (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) Z) ∧
       (b - a) * N.gauge (reflectionTangentCorner
         (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) Z) ≤
-        2 * N.gauge (paperBlockCompression
+        2 * N.gauge (blockCompression
           (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic)ᗮ
           (TauCeti.LinearPMap.specRange hA (Set.Iic c) measurableSet_Iic) B) := by
   let U : Submodule ℂ G :=

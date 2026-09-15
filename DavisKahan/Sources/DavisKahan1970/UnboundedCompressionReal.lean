@@ -6,6 +6,11 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.TanTheta.Theorem63UnboundedCompression
 import DavisKahan.Sources.DavisKahan1970.DirectedUnboundedReal
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan Theorem 6.3 with an unbounded **real** Ritz compression
 
@@ -55,10 +60,11 @@ open TauCeti.DavisKahan
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.DavisKahan.ExactSinTheta.ComplexificationApproximation
-open TauCeti.DavisKahan.ExactTanTheta
+open TauCeti.DavisKahan.TanTheta
 open TauCeti.DavisKahan.TanTheta
 open TauCeti.RealComplexification
 open TauCeti.DavisKahan.Foundation.RealComplexification
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -66,12 +72,6 @@ universe v
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
-
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionUnboundedCompressionReal
-    {k : Type*} [RCLike k] {G : Type v} [NormedAddCommGroup G]
-    [InnerProductSpace k G] [CompleteSpace G]
-    (Z : Submodule k G) [Z.HasOrthogonalProjection] : CompleteSpace Z :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection Z).completeSpace_coe
 
 /-! ## An upper form bound survives unitary conjugation -/
 
@@ -337,7 +337,7 @@ theorem theorem6_3_unboundedCompression_ideal_exists_real
     rw [htanKy]
     exact hcore
   obtain ⟨hmem, hbound⟩ :=
-    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta hResidual hky
+    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hdelta hResidual hky
   exact ⟨tanTheta0, htan, hmem, hbound⟩
 
 /-- The same endpoint when a real tangent representative with the paper's approximation
@@ -354,7 +354,7 @@ theorem theorem6_3_unboundedCompression_ideal_real
     (htan : HasTheorem63DirectedTangentApproximationNumbersInfiniteReal Z V tanTheta0)
     (hResidual : N.Mem D.residual) :
     N.Mem tanTheta0 ∧ delta * N.gauge tanTheta0 ≤ N.gauge D.residual := by
-  refine mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta hResidual fun k => ?_
+  refine mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hdelta hResidual fun k => ?_
   have hcore := all_kyFan_core_unboundedCompression_real D V hdelta hupper hcross k
   have htanKy : kyFanApproximationGauge k tanTheta0 =
       ∑ n ∈ Finset.range k, Real.tan (Real.arcsin

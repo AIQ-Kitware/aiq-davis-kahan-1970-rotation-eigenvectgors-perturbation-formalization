@@ -28,7 +28,7 @@ missing:
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 open Module (finrank)
@@ -140,5 +140,5 @@ theorem principalAngles_orthogonal (U V : Submodule 𝕜 E)
   rw [hadj, LinearMap.singularValues_adjoint]
   exact (principalSines_comm U V hrank).symm
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

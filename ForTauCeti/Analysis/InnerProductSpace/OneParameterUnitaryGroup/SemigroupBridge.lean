@@ -31,13 +31,10 @@ so the semigroup generator `i A` is skew-adjoint, which is exactly what
 generates a unitary semigroup.  Stating the bridge with the factor visible is
 the point — it is where the two conventions are reconciled.
 
-## What is deliberately not claimed here
+## Generator domains
 
-Only the inclusion `generatorDomain U ⊆ (toSemigroup U).domain` is proved.  The
-reverse — that a one-sided limit for a *unitary* group forces the two-sided one
-— is true and is the standard first step of Stone's theorem, but it is a
-separate argument (it runs `U (-t) (U t x - x) / t` back through strong
-continuity) and it is not needed by any consumer yet.
+The forward domain inclusion is established here. The reverse inclusion and domain
+equality for unitary groups are proved downstream in `OneParameterUnitaryGroup.Stone`.
 
 ## Provenance
 
@@ -79,6 +76,12 @@ noncomputable def toSemigroup (U : OneParameterUnitaryGroup H) :
 /-- The derived semigroup acts as the group at nonnegative times. -/
 @[simp] theorem toSemigroup_apply (U : OneParameterUnitaryGroup H) (t : ℝ≥0) (x : H) :
     (toSemigroup U) t x = U.U (t : ℝ) x := (rfl)
+/-- The nonnegative-time semigroup is contractive, including on the zero space. -/
+theorem norm_toSemigroup_le (U : OneParameterUnitaryGroup H) (t : ℝ≥0) :
+    ‖(toSemigroup U) t‖ ≤ 1 := by
+  refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => ?_
+  rw [one_mul, toSemigroup_apply, norm_preserving]
+
 /-- Its underlying operator is the group's. -/
 @[simp] theorem toSemigroup_realOperator (U : OneParameterUnitaryGroup H)
     {t : ℝ} (ht : 0 ≤ t) (x : H) :

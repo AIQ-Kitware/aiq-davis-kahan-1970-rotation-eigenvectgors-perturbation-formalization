@@ -131,7 +131,7 @@ theorem tanTwoTheta_branchFree_bounded_symmetricNorming_real
     (hinv : ∀ x ∈ U, ∃ y ∈ U, (A + H) (x + T x) = y + T y)
     (tanTwoTheta : E →L[ℝ] E) (π : ℕ ≃ ℕ)
     (htan : ∀ n, approximationSingularValue (π n) tanTwoTheta =
-      DavisKahanTheory.absDoubleAngleTangent (approximationSingularValue n T))
+      DavisKahan.TanTwoTheta.absDoubleAngleTangent (approximationSingularValue n T))
     (hHmem : N.Mem H) :
     N.Mem tanTwoTheta ∧
       (b - a) * N.gauge tanTwoTheta ≤ 2 * N.gauge H := by

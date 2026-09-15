@@ -16,7 +16,7 @@ verbatim.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
 
@@ -36,6 +36,6 @@ abbrev HasUnboundedBoundedSylvesterEquation
     (B : F →L[𝕜] F) (X C : F →L[𝕜] E) : Prop :=
   TauCeti.LinearPMap.UnboundedBoundedSylvesterEquation A B X C
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

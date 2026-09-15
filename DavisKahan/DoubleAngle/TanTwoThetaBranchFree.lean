@@ -45,7 +45,7 @@ two moves, both of which this module carries out.
    with `|tan 2θ| = 2 tan θ / |1 - tan² θ|`, valid on both sides of `π/4`.
 
 The Ky Fan passage then needs the *magnitude* form of the variational bound,
-`TauCeti.RectangularUnitarilyInvariantSeminorm.sum_abs_le_rectangularKyFanSum_of_orthonormal`,
+`TauCeti.sum_abs_le_kyFanSum_of_orthonormal`,
 which rephases each left singular vector by the sign of `cos 2θⱼ`.  That
 rephasing is the formal content of the paper's "choose the sign according to
 `cos 2θⱼ`".
@@ -66,39 +66,14 @@ than a prefix statement and is what a rearranged representative needs.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
+open TauCeti.DavisKahan.TanTwoTheta
 open Module _root_.TauCeti.LinearMap
 open scoped InnerProductSpace
 
 variable {𝕜 E : Type*} [RCLike 𝕜]
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [FiniteDimensional 𝕜 E]
-
-/-- **The branch-free double-angle tangent magnitude**
-`|tan 2θ| = 2 tan θ / |1 - tan² θ|`.
-
-Unlike `doubleAngleTangent` this is meaningful on both sides of `π/4`: it is
-the modulus of `tan 2θ`, which is what a unitarily invariant norm of `tan 2Θ`
-reads off.  In terms of `s = sin θ` it is `2 s √(1 - s²) / |1 - 2 s²|`. -/
-noncomputable def absDoubleAngleTangent (t : ℝ) : ℝ := 2 * t / |1 - t ^ 2|
-
-/-- The branch-free double-angle tangent vanishes at zero. -/
-@[simp] theorem absDoubleAngleTangent_zero : absDoubleAngleTangent 0 = 0 := by
-  simp [absDoubleAngleTangent]
-
-/-- The branch-free double-angle tangent is nonnegative wherever the single
-angle is. -/
-theorem absDoubleAngleTangent_nonneg {t : ℝ} (h0 : 0 ≤ t) :
-    0 ≤ absDoubleAngleTangent t :=
-  div_nonneg (by linarith) (abs_nonneg _)
-
-/-- On the acute quarter the branch-free magnitude is the selected-branch
-double-angle tangent, so the unrestricted theorem below genuinely extends the
-one in `TanTwoThetaKyFan`. -/
-theorem absDoubleAngleTangent_eq_doubleAngleTangent {t : ℝ} (h1 : t < 1)
-    (h0 : 0 ≤ t) : absDoubleAngleTangent t = doubleAngleTangent t := by
-  have : (0 : ℝ) < 1 - t ^ 2 := by nlinarith
-  rw [absDoubleAngleTangent, doubleAngleTangent, abs_of_pos this]
 
 section Scalar
 
@@ -171,7 +146,7 @@ end Scalar
 
 section KyFan
 
-open RectangularUnitarilyInvariantSeminorm
+open UnitarilyInvariantSeminorm
 
 variable {A H T : E →ₗ[𝕜] E} {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
   {a b : ℝ}
@@ -191,7 +166,7 @@ private theorem sum_absDoubleAngleTangent_le_of_ne_zero
     (S : Finset (Fin (finrank 𝕜 E)))
     (hSne : ∀ x ∈ S, T.singularValues (x : ℕ) ≠ 0) :
     (b - a) * ∑ x ∈ S, absDoubleAngleTangent (T.singularValues (x : ℕ)) ≤
-      2 * rectangularKyFanSum S.card H := by
+      2 * kyFanSum S.card H := by
   classical
   have hmn : S.card ≤ finrank 𝕜 E := by
     calc S.card ≤ Finset.univ.card := Finset.card_le_univ S
@@ -223,7 +198,7 @@ private theorem sum_absDoubleAngleTangent_le_of_ne_zero
     have h := absDoubleAngleTangent_scalar hA hH hAU hHU hHUperp hTmem hTzero
       hUb hUa hinv hab (hSprop j)
     linarith
-  have hwitness := sum_abs_le_rectangularKyFanSum_of_orthonormal
+  have hwitness := sum_abs_le_kyFanSum_of_orthonormal
     (A := H) hmn hww huu hscalar
   have hsum : ∑ x ∈ S, absDoubleAngleTangent (T.singularValues (x : ℕ)) =
       ∑ j : Fin S.card, absDoubleAngleTangent
@@ -239,7 +214,7 @@ private theorem sum_absDoubleAngleTangent_le_of_ne_zero
           (T.singularValues ((e j : Fin (finrank 𝕜 E)) : ℕ)) := by
         rw [hsum, Finset.mul_sum, Finset.mul_sum]
         exact Finset.sum_congr rfl fun j _ => by ring
-    _ ≤ 2 * rectangularKyFanSum S.card H := by linarith
+    _ ≤ 2 * kyFanSum S.card H := by linarith
 
 /-- **The branch-free Ky Fan root of the `tan 2Θ` theorem**
 (Davis--Kahan 1970, Section 7, equation (7.6) and the following
@@ -262,7 +237,7 @@ theorem sum_absDoubleAngleTangent_le
     (hab : a < b)
     (S : Finset (Fin (finrank 𝕜 E))) :
     (b - a) * ∑ x ∈ S, absDoubleAngleTangent (T.singularValues (x : ℕ)) ≤
-      2 * rectangularKyFanSum S.card H := by
+      2 * kyFanSum S.card H := by
   classical
   set S' : Finset (Fin (finrank 𝕜 E)) :=
     S.filter (fun j => T.singularValues (j : ℕ) ≠ 0) with hS'
@@ -278,8 +253,8 @@ theorem sum_absDoubleAngleTangent_le
     intro x _ hx hzero
     rw [hzero, absDoubleAngleTangent_zero] at hx
     exact hx rfl
-  have hmono : rectangularKyFanSum S'.card H ≤ rectangularKyFanSum S.card H := by
-    unfold rectangularKyFanSum
+  have hmono : kyFanSum S'.card H ≤ kyFanSum S.card H := by
+    unfold kyFanSum
     rw [Fin.sum_univ_eq_sum_range (fun i => H.singularValues i) S'.card,
       Fin.sum_univ_eq_sum_range (fun i => H.singularValues i) S.card]
     exact Finset.sum_le_sum_of_subset_of_nonneg
@@ -303,7 +278,7 @@ invariant graph subspace, in any order.
 `T.singularValues 0 < 1`; the perturbed subspace may make angles arbitrarily
 close to `π/2` with `U`, exactly as the paper permits. -/
 theorem absTanTwoTheta0_offDiagonal_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 E E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (hA : A.IsSymmetric) (hH : H.IsSymmetric)
     (hAU : ∀ x ∈ U, A x ∈ U)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
@@ -320,8 +295,8 @@ theorem absTanTwoTheta0_offDiagonal_le
   classical
   have hba : (0 : ℝ) ≤ b - a := by linarith
   have hkey : ∀ k, k ≤ finrank 𝕜 E →
-      (b - a) * rectangularKyFanSum k tanTwoTheta ≤
-        2 * rectangularKyFanSum k H := by
+      (b - a) * kyFanSum k tanTwoTheta ≤
+        2 * kyFanSum k H := by
     intro k hk
     set P : Finset (Fin (finrank 𝕜 E)) :=
       Finset.univ.filter (fun j : Fin (finrank 𝕜 E) => (j : ℕ) < k) with hP
@@ -336,19 +311,19 @@ theorem absTanTwoTheta0_offDiagonal_le
           Finset.card_le_card_of_injOn (fun x => (x : ℕ)) hmaps
             fun x _ y _ h => Fin.val_injective h
         _ = k := Finset.card_range k
-    have hmono : rectangularKyFanSum S.card H ≤ rectangularKyFanSum k H := by
-      unfold rectangularKyFanSum
+    have hmono : kyFanSum S.card H ≤ kyFanSum k H := by
+      unfold kyFanSum
       rw [Fin.sum_univ_eq_sum_range (fun i => H.singularValues i) S.card,
         Fin.sum_univ_eq_sum_range (fun i => H.singularValues i) k]
       exact Finset.sum_le_sum_of_subset_of_nonneg
         (fun x hx => Finset.mem_range.mpr
           (lt_of_lt_of_le (Finset.mem_range.mp hx) hScard))
         fun i _ _ => H.singularValues_nonneg i
-    have hLHS : rectangularKyFanSum k tanTwoTheta =
+    have hLHS : kyFanSum k tanTwoTheta =
         ∑ x ∈ S, absDoubleAngleTangent (T.singularValues (x : ℕ)) := by
-      have h1 : rectangularKyFanSum k tanTwoTheta =
+      have h1 : kyFanSum k tanTwoTheta =
           ∑ x ∈ P, tanTwoTheta.singularValues (x : ℕ) := by
-        unfold rectangularKyFanSum
+        unfold kyFanSum
         rw [hP]
         exact (sum_filter_lt_eq_sum_fin (n := finrank 𝕜 E) hk
           (fun j => tanTwoTheta.singularValues j)).symm
@@ -360,16 +335,16 @@ theorem absTanTwoTheta0_offDiagonal_le
     rw [hLHS]
     linarith
   have hprefix : ∀ k,
-      rectangularKyFanSum k (((b - a : ℝ) : 𝕜) • tanTwoTheta) ≤
-        rectangularKyFanSum k (((2 : ℝ) : 𝕜) • H) := by
+      kyFanSum k (((b - a : ℝ) : 𝕜) • tanTwoTheta) ≤
+        kyFanSum k (((2 : ℝ) : 𝕜) • H) := by
     intro k
-    rw [rectangularKyFanSum_real_smul k tanTwoTheta hba,
-      rectangularKyFanSum_real_smul k H (by norm_num : (0 : ℝ) ≤ 2)]
+    rw [kyFanSum_real_smul k tanTwoTheta hba,
+      kyFanSum_real_smul k H (by norm_num : (0 : ℝ) ≤ 2)]
     by_cases hk : k ≤ finrank 𝕜 E
     · exact hkey k hk
     · have hk' : finrank 𝕜 E ≤ k := Nat.le_of_not_ge hk
-      rw [rectangularKyFanSum_eq_finrank_of_finrank_le tanTwoTheta hk',
-        rectangularKyFanSum_eq_finrank_of_finrank_le H hk']
+      rw [TauCeti.kyFanSum_eq_of_finrank_le hk' tanTwoTheta,
+        TauCeti.kyFanSum_eq_of_finrank_le hk' H]
       exact hkey (finrank 𝕜 E) le_rfl
   have hN := N.apply_le_of_kyFanSum_le hprefix
   rw [N.smul_eq, N.smul_eq] at hN
@@ -384,5 +359,5 @@ theorem absTanTwoTheta0_offDiagonal_le
 
 end KyFan
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

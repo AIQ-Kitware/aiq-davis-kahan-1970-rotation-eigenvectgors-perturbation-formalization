@@ -18,8 +18,9 @@ two-unbounded Sylvester argument over `SpectralCutoffInterface` and
 namespace TauCeti
 
 open TauCeti
+open TauCeti.DavisKahan.ExactSinTheta
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
 open scoped Topology
@@ -388,6 +389,6 @@ theorem norm_add_opNorm_id_le_of_nonpos_direct
     · linarith
 
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

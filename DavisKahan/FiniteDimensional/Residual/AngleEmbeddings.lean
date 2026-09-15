@@ -7,9 +7,8 @@ import ForTauCeti.Analysis.InnerProductSpace.Spectral.Gap
 import ForTauCeti.Analysis.InnerProductSpace.Residual.AngleEmbedding
 import DavisKahan.FiniteDimensional.TanTheta.RitzResidual
 import ForTauCeti.Analysis.InnerProductSpace.Sylvester.Internal.SpectralBounds
-import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
-import ForTauCeti.Analysis.InnerProductSpace.MoorePenroseInverse
 import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm
+import ForTauCeti.Analysis.InnerProductSpace.MoorePenroseInverse
 
 /-!
 # Coordinate tangent and double-angle embeddings
@@ -31,7 +30,7 @@ asserted here merely from these definitions.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 open Module (finrank)
@@ -79,7 +78,7 @@ noncomputable def sinTwoThetaEmbedding (U : Submodule 𝕜 E)
 /-- Every rectangular unitarily invariant norm of the coordinate double-angle
 sine is at most twice the corresponding single-angle sine norm. -/
 theorem sinTwoThetaEmbedding_uiNorm_le_two_mul
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (X : F →ₗᵢ[𝕜] E) :
     N (sinTwoThetaEmbedding U X) ≤ 2 * N (sinThetaEmbedding U X) := by
@@ -316,8 +315,8 @@ private theorem exists_intervalGap_of_orderedGap
     [U.HasOrthogonalProjection] [Nontrivial F]
     {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
     {δ : ℝ} (hgap : OrderedGap M ⊤ A Uᗮ δ) :
-    ∃ β α, β ≤ α ∧ SpectrumIn M ⊤ (Set.Icc β α) ∧
-      SpectrumIn A Uᗮ (Set.Ici (α + δ)) := by
+    ∃ β α, β ≤ α ∧ PointSpectrumIn M ⊤ (Set.Icc β α) ∧
+      PointSpectrumIn A Uᗮ (Set.Ici (α + δ)) := by
   let : NeZero (finrank 𝕜 F) := ⟨Nat.ne_of_gt Module.finrank_pos⟩
   let iTop : Fin (finrank 𝕜 F) := ⟨0, Module.finrank_pos⟩
   let α : ℝ := hM.eigenvalues rfl iTop
@@ -325,9 +324,9 @@ private theorem exists_intervalGap_of_orderedGap
   have hupper : ∀ x : F, RCLike.re ⟪M x, x⟫_𝕜 ≤ α * ‖x‖ ^ 2 :=
     re_inner_le_of_eigenvalues_le hM fun i =>
       hM.eigenvalues_antitone rfl (Fin.zero_le i)
-  have hlowerSpec : ∀ lam, lam ∈ restrictedSpectrum M ⊤ → β ≤ lam := by
+  have hlowerSpec : ∀ lam, lam ∈ restrictedPointSpectrum M ⊤ → β ≤ lam := by
     intro lam hlam
-    rcases mem_restrictedSpectrum_iff.mp hlam with ⟨x, -, hx0, hxEig⟩
+    rcases mem_restrictedPointSpectrum_iff.mp hlam with ⟨x, -, hx0, hxEig⟩
     have hxnorm : 0 < ‖x‖ := norm_pos_iff.mpr hx0
     have hbound := M.toContinuousLinearMap.le_opNorm x
     change ‖M x‖ ≤ ‖M.toContinuousLinearMap‖ * ‖x‖ at hbound
@@ -338,21 +337,21 @@ private theorem exists_intervalGap_of_orderedGap
     dsimp [β]
     linarith [neg_abs_le lam]
   have hβα : β ≤ α :=
-    hlowerSpec α (eigenvalue_mem_restrictedSpectrum_top hM iTop)
-  have hMspec : SpectrumIn M ⊤ (Set.Icc β α) := by
+    hlowerSpec α (eigenvalue_mem_restrictedPointSpectrum_top hM iTop)
+  have hMspec : PointSpectrumIn M ⊤ (Set.Icc β α) := by
     intro lam hlam
-    rcases mem_restrictedSpectrum_iff.mp hlam with ⟨x, hxTop, hx0, hxEig⟩
+    rcases mem_restrictedPointSpectrum_iff.mp hlam with ⟨x, hxTop, hx0, hxEig⟩
     have hxnorm : 0 < ‖x‖ ^ 2 := sq_pos_of_pos (norm_pos_iff.mpr hx0)
     have hray : RCLike.re ⟪M x, x⟫_𝕜 = lam * ‖x‖ ^ 2 := by
       rw [hxEig, inner_smul_left, RCLike.conj_ofReal,
         RCLike.re_ofReal_mul, inner_self_eq_norm_sq]
     have hu := hupper x
     rw [hray] at hu
-    exact ⟨hlowerSpec lam (mem_restrictedSpectrum hxTop hx0 hxEig), by nlinarith⟩
-  have hAspec : SpectrumIn A Uᗮ (Set.Ici (α + δ)) := by
+    exact ⟨hlowerSpec lam (mem_restrictedPointSpectrum hxTop hx0 hxEig), by nlinarith⟩
+  have hAspec : PointSpectrumIn A Uᗮ (Set.Ici (α + δ)) := by
     intro μ hμ
     exact hgap α μ
-      (eigenvalue_mem_restrictedSpectrum_top hM iTop) hμ
+      (eigenvalue_mem_restrictedPointSpectrum_top hM iTop) hμ
   exact ⟨β, α, hβα, hMspec, hAspec⟩
 
 /-- An ordered Ritz-to-unwanted-spectrum gap forces transversality. -/
@@ -377,7 +376,7 @@ theorem isTransverse_of_orderedRitzGap
 /-- Ordered-gap residual `tan Θ` theorem for the canonical coordinate tangent,
 in every rectangular unitarily invariant norm. -/
 theorem tanThetaEmbedding_residual_le_of_orderedGap
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric) {U : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
@@ -426,7 +425,7 @@ theorem singularValues_graphOperator (U : Submodule 𝕜 E)
 
 /-- **Davis--Kahan `tan Θ`, ordered residual form, every UI norm.** -/
 theorem tanTheta_residual_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric) {U : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
@@ -490,11 +489,11 @@ theorem tanTheta_vector_le
         ‖(residual A X M).toContinuousLinearMap‖ ≤ ρ :=
       (residual A X M).toContinuousLinearMap.opNorm_le_bound hρ hres
     have hTop := tanTheta_residual_le
-      (RectangularUnitarilyInvariantSeminorm.opNorm (𝕜 := 𝕜) (E := F) (F := E))
+      (UnitarilyInvariantSeminorm.opNorm (𝕜 := 𝕜) (E := F) (F := E))
       hA hU X hM hGalerkin hδ hgap
     have hTbound :
         δ * ‖(tanThetaEmbedding U X).toContinuousLinearMap‖ ≤ ρ := by
-      simpa [RectangularUnitarilyInvariantSeminorm.opNorm_apply] using
+      simpa [UnitarilyInvariantSeminorm.opNorm_apply] using
         hTop.trans hRop
     intro y
     have hSy := LinearMap.congr_fun hfactor y
@@ -515,5 +514,5 @@ theorem tanTheta_vector_le
       _ = ρ * ‖cosThetaEmbedding U X y‖ := by
         rw [cosThetaMagnitude, norm_trialGramSqrt_apply]
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

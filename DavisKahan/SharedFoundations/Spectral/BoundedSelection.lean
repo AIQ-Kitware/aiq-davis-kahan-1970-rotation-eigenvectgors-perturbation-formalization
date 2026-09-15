@@ -34,18 +34,18 @@ operator. -/
 structure BoundedSpectralSelection (A : H →L[ℂ] H) where
   carrier : Set ℝ
   measurable_carrier : MeasurableSet carrier
-  selfAdjoint : IsSelfAdjointOperator A
+  selfAdjoint : A.IsSymmetric
   subspace : Submodule ℂ H
   projection : H →L[ℂ] H
   subspace_eq : subspace = boundedSelfAdjointSpectralSubspace A selfAdjoint
     carrier measurable_carrier
   projection_eq : projection = boundedSelfAdjointSpectralProjection A selfAdjoint
     carrier measurable_carrier
-  reduces : Reduces A subspace
+  reduces : A.Reduces subspace
 
 /-- Canonical PVM selection. -/
 noncomputable def BoundedSpectralSelection.canonical
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) : BoundedSpectralSelection A where
   carrier := s
   measurable_carrier := hs
@@ -108,7 +108,7 @@ theorem projection_comp_comm
 /-- The selected complement also reduces the operator. -/
 theorem orthogonal_reduces
     {A : H →L[ℂ] H} (S : BoundedSpectralSelection A) :
-    Reduces A S.subspaceᗮ := by
+    A.Reduces S.subspaceᗮ := by
   constructor
   · exact S.reduces.2
   · intro x hx

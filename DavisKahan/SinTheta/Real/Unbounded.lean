@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.SinTheta.Unbounded.Core
 import DavisKahan.Sylvester.RealUnbounded
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Real unbounded sine-theta theorem
 
@@ -104,7 +106,7 @@ theorem sinTheta_unbounded_exact_real
   have hAngle := isometricComplementaryBlock_mem_and_gauge_eq_directed
     N.toSymmetricOperatorIdealFamily D.X F₀ D.F₁ hX hdecomp hBlock.1
   refine ⟨hAngle.1, ?_⟩
-  rw [KyFanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
+  rw [FanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
   rw [hAngle.2]
   exact hBlock.2
 

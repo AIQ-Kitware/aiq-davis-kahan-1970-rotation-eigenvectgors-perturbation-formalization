@@ -258,7 +258,7 @@ universe pairs at once.
 
 So the results below are stated for a shared universe, which is their natural
 generality, while `SameApproximationSingularSequence` and
-`PaperSinThetaRepresentativeAcross` above remain genuinely cross-universe:
+`SinThetaRepresentativeAcross` above remain genuinely cross-universe:
 those are exactly the statements that do not mention a gauge. -/
 
 variable {G H : Type vS}
@@ -310,7 +310,7 @@ end SameApproximationSingularValues
 /-- Literal source packaging of the freedom in `sin Theta_0`.  The chosen
 representative may act between different Hilbert coordinate spaces, exactly as
 in the paper; only its complete singular-value sequence is prescribed. -/
-structure PaperSinThetaRepresentativeAcross
+structure SinThetaRepresentativeAcross
     {E₀ : Type vE0} {F₀ : Type vF0}
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace 𝕜 F₀] [CompleteSpace F₀]
@@ -319,28 +319,28 @@ structure PaperSinThetaRepresentativeAcross
   same_singular_sequence :
     SameApproximationSingularSequence operator canonical
 
-namespace PaperSinThetaRepresentativeAcross
+namespace SinThetaRepresentativeAcross
 
 /-- The canonical operator is an admissible representative. -/
 noncomputable def canonical (A : E →L[𝕜] F) :
-    PaperSinThetaRepresentativeAcross (E₀ := E) (F₀ := F) A where
+    SinThetaRepresentativeAcross (E₀ := E) (F₀ := F) A where
   operator := A
   same_singular_sequence := .refl A
 
-end PaperSinThetaRepresentativeAcross
+end SinThetaRepresentativeAcross
 
 /-- Paper-facing packaging of the freedom in the definition of `sin Θ₀`:
 the chosen operator has exactly the complete singular-value sequence of the
 canonical directed sine block. -/
-structure PaperSinThetaRepresentative (canonical : E →L[𝕜] F) where
+structure SinThetaRepresentative (canonical : E →L[𝕜] F) where
   operator : E →L[𝕜] F
   same_singular_values : SameApproximationSingularValues operator canonical
 
-namespace PaperSinThetaRepresentative
+namespace SinThetaRepresentative
 
 /-- The canonical block is itself an admissible paper representative. -/
 noncomputable def canonical (A : E →L[𝕜] F) :
-    PaperSinThetaRepresentative A where
+    SinThetaRepresentative A where
   operator := A
   same_singular_values := .refl A
 
@@ -356,14 +356,14 @@ theorem mem_and_gauge_eq
     [NormedAddCommGroup H] [InnerProductSpace 𝕜 H] [CompleteSpace H]
     (N : KyFanDominantIdealFamily (𝕜 := 𝕜))
     {canonical : G →L[𝕜] H}
-    (S : PaperSinThetaRepresentative canonical)
+    (S : SinThetaRepresentative canonical)
     (hcanonical : N.Mem canonical) :
     N.Mem S.operator ∧
       N.gauge S.operator =
         N.gauge canonical :=
   S.same_singular_values.mem_and_gauge_eq N hcanonical
 
-end PaperSinThetaRepresentative
+end SinThetaRepresentative
 
 end ExactSinTheta
 end DavisKahan

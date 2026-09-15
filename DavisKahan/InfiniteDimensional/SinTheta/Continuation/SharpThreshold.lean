@@ -5,6 +5,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.Theorem
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # The sharp scalar threshold for off-diagonal continuation
 

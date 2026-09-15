@@ -7,6 +7,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.Geometry.Angle.OperatorAngleComplex
 import DavisKahan.InfiniteDimensional.DoubleAngle
 
+open TauCeti.DavisKahanExt
+
 /-!
 # The double-angle sine dominates the directed gap on the close branch
 
@@ -31,7 +33,7 @@ of the two subspaces exchanged.
 open scoped InnerProductSpace
 
 namespace TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Angle
 
 open DavisKahan
 
@@ -72,15 +74,15 @@ variable {E : Type u} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 
 /-- The directed sine lands in the source subspace, for *every* vector: it
 kills the orthogonal complement and preserves the source. -/
-theorem sinAngleOperatorDirectedC_apply_mem_source (U V : Submodule ℂ E)
+theorem directedSinAngleOperatorC_apply_mem_source (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (x : E) :
-    sinAngleOperatorDirectedC U V x ∈ U := by
+    directedSinAngleOperatorC U V x ∈ U := by
   have hsplit : x = U.starProjection x + Uᗮ.starProjection x := by
     rw [Submodule.starProjection_orthogonal_apply]; abel
   rw [hsplit, map_add,
-    sinAngleOperatorDirectedC_apply_eq_zero_of_mem_orthogonal U V
+    directedSinAngleOperatorC_apply_eq_zero_of_mem_orthogonal U V
       (Uᗮ.starProjection_apply_mem x), add_zero]
-  exact sinAngleOperatorDirectedC_apply_mem U V (U.starProjection_apply_mem x)
+  exact directedSinAngleOperatorC_apply_mem U V (U.starProjection_apply_mem x)
 
 /-- **The double-angle sine dominates `2 cos Θ sin Θ`.**
 
@@ -88,29 +90,29 @@ theorem sinAngleOperatorDirectedC_apply_mem_source (U V : Submodule ℂ E)
 directed sine maps into `U`, where the directed cosine is coercive with
 constant `√(1 - directedGap²)`, so `‖cos Θ (sin Θ x)‖ ≥ √(1-g²) ‖sin Θ x‖`;
 taking the supremum over `x` turns `‖sin Θ‖ = g` into the claim. -/
-theorem two_mul_sqrt_mul_directedGap_le_norm_sinTwoAngleOperatorC
+theorem two_mul_sqrt_mul_directedGap_le_norm_directedSinTwoAngleOperatorC
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    2 * Real.sqrt (1 - directedGap U V ^ 2) * directedGap U V ≤
-      ‖sinTwoAngleOperatorC U V‖ := by
-  set g : ℝ := directedGap U V with hgdef
+    2 * Real.sqrt (1 - U.directedProjectionGap V ^ 2) * U.directedProjectionGap V ≤
+      ‖directedSinTwoAngleOperatorC U V‖ := by
+  set g : ℝ := U.directedProjectionGap V with hgdef
   set c0 : ℝ := Real.sqrt (1 - g ^ 2) with hc0
-  set S : E →L[ℂ] E := sinAngleOperatorDirectedC U V with hS
-  set C : E →L[ℂ] E := cosAngleOperatorC U V with hC
-  have hSnorm : ‖S‖ = g := norm_sinAngleOperatorDirectedC U V
+  set S : E →L[ℂ] E := directedSinAngleOperatorC U V with hS
+  set C : E →L[ℂ] E := directedCosAngleOperatorC U V with hC
+  have hSnorm : ‖S‖ = g := norm_directedSinAngleOperatorC U V
   have hc0nonneg : 0 ≤ c0 := Real.sqrt_nonneg _
-  have hM : ‖sinTwoAngleOperatorC U V‖ = 2 * ‖C * S‖ := by
+  have hM : ‖directedSinTwoAngleOperatorC U V‖ = 2 * ‖C * S‖ := by
     have hcomm : Commute S C :=
-      commute_sinAngleOperatorDirectedC_cosAngleOperatorC U V
-    rw [sinTwoAngleOperatorC, norm_smul, hcomm.eq]
+      commute_directedSinAngleOperatorC_directedCosAngleOperatorC U V
+    rw [directedSinTwoAngleOperatorC, norm_smul, hcomm.eq]
     norm_num
   rcases eq_or_lt_of_le hc0nonneg with h0 | hpos
   · rw [← h0]
     simp only [mul_zero, zero_mul]
     positivity
   · have hpt : ∀ x : E, c0 * ‖S x‖ ≤ ‖(C * S) x‖ := fun x =>
-      norm_cosAngleOperatorC_apply_ge U V
-        (sinAngleOperatorDirectedC_apply_mem_source U V x)
+      norm_directedCosAngleOperatorC_apply_ge U V
+        (directedSinAngleOperatorC_apply_mem_source U V x)
     have hSle : ‖S‖ ≤ ‖C * S‖ / c0 := by
       refine ContinuousLinearMap.opNorm_le_bound _ (by positivity) fun x => ?_
       have h1 := hpt x
@@ -125,11 +127,11 @@ theorem two_mul_sqrt_mul_directedGap_le_norm_sinTwoAngleOperatorC
 of the two subspaces exchanged: the `DoubleAngle` operator
 `sin 2Θ(U,V) = 2 P_{Uᗮ} P_V P_U` has the norm of the `Geometry` operator
 `sin 2Θ_C(V,U)`. -/
-theorem norm_sinTwoAngleOperator_eq_norm_sinTwoAngleOperatorC_swap
+theorem norm_sinTwoAngleOperator_eq_norm_directedSinTwoAngleOperatorC_swap
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinTwoAngleOperator U V‖ = ‖sinTwoAngleOperatorC V U‖ := by
-  rw [norm_sinTwoAngleOperatorC V U, sinTwoAngleOperator, norm_smul]
+    ‖sinTwoAngleOperator U V‖ = ‖directedSinTwoAngleOperatorC V U‖ := by
+  rw [norm_directedSinTwoAngleOperatorC V U, sinTwoAngleOperator, norm_smul]
   norm_num
 
 /-- **The bootstrap comparison.**  On the closed quarter branch the
@@ -137,21 +139,21 @@ double-angle sine dominates `√2` times the directed gap. -/
 theorem sqrt_two_mul_directedGap_le_norm_sinTwoAngleOperator
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hclose : directedGap V U ≤ Real.sqrt 2 / 2) :
-    Real.sqrt 2 * directedGap V U ≤ ‖sinTwoAngleOperator U V‖ := by
-  have hg0 : 0 ≤ directedGap V U := norm_nonneg _
+    (hclose : V.directedProjectionGap U ≤ Real.sqrt 2 / 2) :
+    Real.sqrt 2 * V.directedProjectionGap U ≤ ‖sinTwoAngleOperator U V‖ := by
+  have hg0 : 0 ≤ V.directedProjectionGap U := norm_nonneg _
   have hcos := sqrt_two_div_two_le_sqrt_one_sub_sq hclose hg0
-  calc Real.sqrt 2 * directedGap V U
-      = 2 * (Real.sqrt 2 / 2) * directedGap V U := by ring
-    _ ≤ 2 * Real.sqrt (1 - directedGap V U ^ 2) * directedGap V U := by
+  calc Real.sqrt 2 * V.directedProjectionGap U
+      = 2 * (Real.sqrt 2 / 2) * V.directedProjectionGap U := by ring
+    _ ≤ 2 * Real.sqrt (1 - V.directedProjectionGap U ^ 2) * V.directedProjectionGap U := by
         have h2 : (0 : ℝ) ≤ 2 := by norm_num
         nlinarith [hcos, hg0]
-    _ ≤ ‖sinTwoAngleOperatorC V U‖ :=
-        two_mul_sqrt_mul_directedGap_le_norm_sinTwoAngleOperatorC V U
+    _ ≤ ‖directedSinTwoAngleOperatorC V U‖ :=
+        two_mul_sqrt_mul_directedGap_le_norm_directedSinTwoAngleOperatorC V U
     _ = ‖sinTwoAngleOperator U V‖ :=
-        (norm_sinTwoAngleOperator_eq_norm_sinTwoAngleOperatorC_swap U V).symm
+        (norm_sinTwoAngleOperator_eq_norm_directedSinTwoAngleOperatorC_swap U V).symm
 
 end Bridge
 
-end DavisKahanExt
+end DavisKahan.Angle
 end TauCeti

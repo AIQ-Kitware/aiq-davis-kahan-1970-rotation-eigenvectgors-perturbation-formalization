@@ -43,6 +43,24 @@ variable {𝕜 : Type u} [RCLike 𝕜]
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
 variable {F : Type w} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
 
+/-- `LinearPMap.IsClosed` is stated on the graph, while the canonical
+reducing-restriction API states closedness as a range.  The two are the same set,
+so this is a reindexing lemma used in both directions. -/
+theorem isClosed_iff_range_isClosed
+    (f : E →ₗ.[𝕜] F) :
+    f.IsClosed ↔ IsClosed (Set.range fun x : f.domain => ((x : E), f x)) := by
+  have hgraph : (f.graph : Set (E × F)) =
+      Set.range (fun x : f.domain => ((x : E), f x)) := by
+    ext q
+    simp only [SetLike.mem_coe, LinearPMap.mem_graph_iff, Set.mem_range]
+    constructor
+    · rintro ⟨y, hy1, hy2⟩
+      exact ⟨y, Prod.ext hy1 hy2⟩
+    · rintro ⟨y, hy⟩
+      exact ⟨y, congrArg Prod.fst hy, congrArg Prod.snd hy⟩
+  change IsClosed (f.graph : Set (E × F)) ↔ _
+  rw [hgraph]
+
 /-- Two partial linear maps have the same operator domain. -/
 def SameDomain (A B : E →ₗ.[𝕜] E) : Prop :=
   A.domain = B.domain
@@ -891,6 +909,18 @@ inclusion. -/
 @[simp] theorem addBounded_apply (A : E →ₗ.[𝕜] E) (V : E →L[𝕜] E)
     (x : (TauCeti.LinearPMap.addBounded A V).domain) :
     TauCeti.LinearPMap.addBounded A V x = A x + V (x : E) := (rfl)
+/-- **A bounded perturbation is undone by its negation, on the nose.**
+
+`addBounded` leaves the domain alone, so `(A + V) + (-V)` is `A` as a partial map
+rather than merely an extension of it.  This is what lets a theorem stated with
+the roles of the unperturbed and perturbed operators exchanged be applied without
+any domain bookkeeping. -/
+@[simp] theorem addBounded_neg_cancel (A : E →ₗ.[𝕜] E) (V : E →L[𝕜] E) :
+    TauCeti.LinearPMap.addBounded (TauCeti.LinearPMap.addBounded A V) (-V) = A := by
+  refine LinearPMap.ext rfl fun x hf hg => ?_
+  change A ⟨x, hf⟩ + V x + (-V) x = A ⟨x, hg⟩
+  simp
+
 /-- A bounded left inverse for the real shift of a partial map. -/
 def LeftShiftedInverseBound (A : E →ₗ.[𝕜] E) (c s : ℝ) : Prop :=
   ∃ J : E →L[𝕜] E,

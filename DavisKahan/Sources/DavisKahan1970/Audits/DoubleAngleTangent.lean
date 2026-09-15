@@ -37,7 +37,7 @@ namespace DavisKahan1970
 
 /-! ## Theorem 6.3: generalized tangent -/
 
-#check @Theorem6_3
+#check @theorem6_3
 #check @Theorem6_3_equalRank
 #check @Theorem6_3_kyFan
 #check @Theorem6_3_transversality
@@ -46,7 +46,7 @@ namespace DavisKahan1970
 #check @Theorem6_3_bounded_vector
 #check @Theorem6_3_bounded_vector_oneSided
 
-#print axioms Theorem6_3
+#print axioms theorem6_3
 #print axioms Theorem6_3_unbounded_graphAngle_opNorm
 #print axioms Theorem6_3_bounded_vector
 #print axioms Theorem6_3_bounded_vector_oneSided

@@ -12,6 +12,9 @@ import DavisKahan.Geometry.Polar.DirectRotationBlocks
 -- It is a `Geometry` module.
 import DavisKahan.Geometry.Polar.DirectRotationReal
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Davis--Kahan 1970, Proposition 3.3, at the printed nonacute scope
 
@@ -53,7 +56,7 @@ signs to operator positivity. -/
 private theorem principalSquareRoot_positiveDiagonalBlocks
     (T : H →L[ℂ] H)
     (hroot : IsPrincipalUnitarySquareRoot (spectraReflectionProduct U V) T)
-    (hT : DavisKahan.IsPaperDirectRotation U V T) :
+    (hT : DavisKahan.IsDirectRotation U V T) :
     (U.starProjection * T * U.starProjection).IsPositive ∧
       (Uᗮ.starProjection * T * Uᗮ.starProjection).IsPositive := by
   have hintR : T * U.reflectionOperator = V.reflectionOperator * T := by
@@ -114,7 +117,7 @@ private theorem principalSquareRoot_positiveDiagonalBlocks
 /-- **Davis--Kahan 1970, Proposition 3.3, forward direction over `ℂ`, at the
 printed nonacute scope.** Every direct rotation is the principal unitary square
 root of the ordered reflection product. -/
-theorem proposition3_3_complex_forward_source
+theorem proposition3_3_complex_forward
     (T : H →L[ℂ] H)
     (hunitary : T ∈ unitary (H →L[ℂ] H))
     (hintertwines : T * U.starProjection = V.starProjection * T)
@@ -137,7 +140,7 @@ theorem proposition3_3_complex_forward_source
 printed nonacute scope.** A principal square root carrying the source crossed
 intersection onto the target crossed intersection satisfies Definition 3.1,
 including genuine positivity of its two diagonal blocks. -/
-theorem proposition3_3_complex_converse_source
+theorem proposition3_3_complex_converse
     (T : H →L[ℂ] H)
     (hroot : IsPrincipalUnitarySquareRoot (spectraReflectionProduct U V) T)
     (hcross : T '' (halmosSourceDefect U V : Set H) =
@@ -148,7 +151,7 @@ theorem proposition3_3_complex_converse_source
       (Uᗮ.starProjection * T * Uᗮ.starProjection).IsPositive ∧
       Uᗮ.starProjection * T * U.starProjection =
         -star (U.starProjection * T * Uᗮ.starProjection) := by
-  have hT : DavisKahan.IsPaperDirectRotation U V T :=
+  have hT : DavisKahan.IsDirectRotation U V T :=
     proposition3_3_principalSquareRoot_converse U V T hroot hcross
   have hpos := principalSquareRoot_positiveDiagonalBlocks U V T hroot hT
   exact ⟨hT.unitary_mem, hT.intertwines, hpos.1, hpos.2, hT.crossed_blocks⟩
@@ -259,7 +262,7 @@ private theorem complexify_crossedDefect_image_eq (T : E →L[ℝ] E)
 /-- **Davis--Kahan 1970, Proposition 3.3, forward direction over `ℝ`, at the
 printed nonacute scope.** Every real direct rotation is principal after
 canonical complexification. -/
-theorem proposition3_3_real_forward_source
+theorem proposition3_3_real_forward
     (T : E →L[ℝ] E)
     (hunitary : T ∈ unitary (E →L[ℝ] E))
     (hintertwines : T * U.starProjection = V.starProjection * T)
@@ -294,14 +297,14 @@ theorem proposition3_3_real_forward_source
     rw [← complexify_complementCompression U T]
     exact isPositive_complexify hcomplement_pos
   simpa [IsRealPrincipalUnitarySquareRoot, CU, CV, TC] using
-    proposition3_3_complex_forward_source CU CV TC hunitaryC hintertwinesC
+    proposition3_3_complex_forward CU CV TC hunitaryC hintertwinesC
       hsource_posC hcomplement_posC hcrossedC
 
 /-- **Davis--Kahan 1970, Proposition 3.3, converse direction over `ℝ`, at the
 printed nonacute scope.** A real principal square root carrying the source
 crossed intersection onto the target one has all of Definition 3.1, including
 positive diagonal blocks. -/
-theorem proposition3_3_real_converse_source
+theorem proposition3_3_real_converse
     (T : E →L[ℝ] E)
     (hroot : IsRealPrincipalUnitarySquareRoot U V T)
     (hcross : T '' (halmosSourceDefect U V : Set E) =
@@ -320,7 +323,7 @@ theorem proposition3_3_real_converse_source
   have hcrossC : TC '' (halmosSourceDefect CU CV : Set (RealComplexification E)) =
       (halmosTargetDefect CU CV : Set (RealComplexification E)) := by
     simpa [CU, CV, TC] using complexify_crossedDefect_image_eq U V T hcross
-  have hTcomplex : DavisKahan.IsPaperDirectRotation CU CV TC :=
+  have hTcomplex : DavisKahan.IsDirectRotation CU CV TC :=
     proposition3_3_principalSquareRoot_converse CU CV TC hrootC hcrossC
   have hposC := principalSquareRoot_positiveDiagonalBlocks CU CV TC hrootC hTcomplex
   have hunitary : T ∈ unitary (E →L[ℝ] E) :=

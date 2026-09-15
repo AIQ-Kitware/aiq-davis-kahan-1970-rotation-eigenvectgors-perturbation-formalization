@@ -41,14 +41,19 @@ open Module (finrank)
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
   [FiniteDimensional 𝕜 E]
-/-- The modulus `|A| = (A⋆A)^{1/2}` has the same singular values as `A`: both
-Gram operators coincide, `|A|⋆|A| = |A|² = A⋆A`.  This is the finite-dimensional
-`σ(|A|) = σ(A)` used to identify difference-of-projector singular values with the
-`sin Θ` operator's. -/
-theorem singularValues_operatorAbs (A : E →ₗ[𝕜] E) :
+section OperatorAbsSingularValues
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
+  [FiniteDimensional 𝕜 F]
+
+/-- The modulus `|A| = (A⋆A)^{1/2}` has the same zero-padded singular-value sequence as
+`A`: both Gram operators coincide, `|A|⋆|A| = |A|² = A⋆A`. -/
+theorem singularValues_operatorAbs (A : E →ₗ[𝕜] F) :
     (TauCeti.operatorAbs A).singularValues = A.singularValues := by
   refine TauCeti.singularValues_eq_of_gram_eq ?_
   rw [(TauCeti.isPositive_operatorAbs A).adjoint_eq, TauCeti.operatorAbs_mul_self]
+
+end OperatorAbsSingularValues
 
 /-- The cosine cross-projection `P_V P_U`. -/
 @[expose]
@@ -99,7 +104,7 @@ are symmetric in `U, V` because `(P_V P_U)⋆ = P_U P_V` (`principalCosines_comm
 @[expose]
 noncomputable def principalCosines (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : ℕ →₀ ℝ :=
-  (cosThetaMap U V).singularValues
+  (cosThetaMap U V : E →ₗ[𝕜] E).singularValues
 
 /-- Principal-angle sines: the singular values of the directed cross projection
 `P_{Vᗮ} P_U`.  In equal-dimension configurations these are the sines of the
@@ -108,7 +113,7 @@ principal angles; when `dim U ≠ dim V` the directed map also records the
 @[expose]
 noncomputable def principalSines (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : ℕ →₀ ℝ :=
-  (sinThetaMap U V).singularValues
+  (sinThetaMap U V : E →ₗ[𝕜] E).singularValues
 
 /-- Principal angles as a sorted finitely supported sequence: `arcsin` applied to
 the principal sines.  `arcsin 0 = 0` keeps the support finite. -/
@@ -496,14 +501,14 @@ theorem principalAngles_comm (U V : Submodule 𝕜 E)
 `principalCosines` is defined as those singular values). -/
 theorem singularValues_cosThetaMap (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    (cosThetaMap U V).singularValues = principalCosines U V :=
+    (cosThetaMap U V : E →ₗ[𝕜] E).singularValues = principalCosines U V :=
   rfl
 
 /-- Principal-angle sines are the singular values of `P_{Vᗮ} P_U` (definitional:
 `principalSines` is defined as those singular values). -/
 theorem singularValues_sinThetaMap (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    (sinThetaMap U V).singularValues = principalSines U V :=
+    (sinThetaMap U V : E →ₗ[𝕜] E).singularValues = principalSines U V :=
   rfl
 
 /-- Principal-angle cosines are symmetric in the two subspaces, since
@@ -517,7 +522,7 @@ theorem principalCosines_comm (U V : Submodule 𝕜 E)
     intro x y
     simp only [cosThetaMap, projection, LinearMap.comp_apply, ContinuousLinearMap.coe_coe]
     rw [V.inner_starProjection_left_eq_right, U.inner_starProjection_left_eq_right]
-  rw [principalCosines, principalCosines, ← hadj, TauCeti.singularValues_adjoint]
+  rw [principalCosines, principalCosines, ← hadj, LinearMap.singularValues_adjoint]
 
 /-- The singular values of `P_U-P_V` are the full-space `sin Θ` values: with
 `sinAngleOperator = |P_U - P_V|` and `σ(|T|) = σ(T)` (`singularValues_operatorAbs`). -/
@@ -531,7 +536,7 @@ theorem singularValues_projection_sub_projection (U V : Submodule 𝕜 E)
 norm of `P_U - P_V` equals that of the full `sin Θ` operator `|P_U - P_V|`, since
 they share the singular-value sequence.  This is the only projection-geometry
 rewrite the final UI-norm projector theorem needs. -/
-theorem uiNorm_projection_sub_eq_sinAngleOperator (N : UnitarilyInvariantSeminorm 𝕜 E)
+theorem uiNorm_projection_sub_eq_sinAngleOperator (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (U V : Submodule 𝕜 E) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     N (projection U - projection V) = N (sinAngleOperator U V) :=
   N.eq_of_same_singularValues (singularValues_projection_sub_projection U V)

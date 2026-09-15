@@ -21,7 +21,7 @@ III without a fictional principal-plane API.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 
@@ -667,5 +667,5 @@ theorem directRotation_map_eq (U V : Submodule 𝕜 E)
     rw [LinearMap.comp_apply, LinearMap.comp_apply, hWsy, hyproj] at h
     exact h
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

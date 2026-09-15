@@ -17,6 +17,7 @@ module
 
 public import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Complexification
 public import ForTauCeti.Analysis.InnerProductSpace.Complexification.FunctionalCalculus
+public import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
 public import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.SpectralMeasure.Construction
 
 /-!

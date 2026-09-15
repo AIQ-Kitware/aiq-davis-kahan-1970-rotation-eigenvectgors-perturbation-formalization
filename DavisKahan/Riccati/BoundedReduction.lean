@@ -48,7 +48,7 @@ omit [CompleteSpace E0] [CompleteSpace E1] in
 and mutually adjoint off-diagonal blocks is symmetric. -/
 theorem blockOperator_isSelfAdjoint
     (H : BlockOperatorData (𝕜 := 𝕜) (E0 := E0) (E1 := E1)) :
-    IsSelfAdjointOperator (blockOperator H) := by
+    (blockOperator H).IsSymmetric := by
   intro x y
   let x0 : E0 := WithLp.fst x
   let x1 : E1 := WithLp.snd x
@@ -98,12 +98,12 @@ when the angular operator solves the bounded Riccati equation. -/
 theorem blockGraph_reduces_iff_solvesRiccati
     (H : BlockOperatorData (𝕜 := 𝕜) (E0 := E0) (E1 := E1))
     (X : E0 →L[𝕜] E1) :
-    Reduces (blockOperator H) (blockGraph X) ↔ SolvesRiccati H X := by
+    ContinuousLinearMap.Reduces (blockOperator H) (blockGraph X) ↔ SolvesRiccati H X := by
   constructor
   · intro hred
     exact (blockGraph_invariant_iff_solvesRiccati H X).1 hred.1
   · intro hX
-    apply reduces_orthogonalComplement (blockOperator_isSelfAdjoint H)
+    apply ContinuousLinearMap.IsSymmetric.reduces_of_invariant (blockOperator_isSelfAdjoint H)
     exact (blockGraph_invariant_iff_solvesRiccati H X).2 hX
 
 end DavisKahanExt

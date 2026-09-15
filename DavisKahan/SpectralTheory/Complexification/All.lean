@@ -8,6 +8,7 @@ import DavisKahan.SpectralTheory.Complexification.BoundedGapProjection
 import DavisKahan.SpectralTheory.Complexification.FormTransport
 import ForTauCeti.Analysis.InnerProductSpace.Complexification.FunctionalCalculus
 import DavisKahan.SpectralTheory.Complexification.LinearPMapSpectralDescent
+import DavisKahan.SpectralTheory.Complexification.ReducingRestrictionDescent
 import DavisKahan.SpectralTheory.Complexification.Spectrum
 import DavisKahan.SpectralTheory.Complexification.SubmoduleEquiv
 import DavisKahan.SpectralTheory.Complexification.Subspace

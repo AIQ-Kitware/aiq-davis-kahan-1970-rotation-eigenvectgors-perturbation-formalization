@@ -7,6 +7,8 @@ import DavisKahan.DoubleAngle.TanTwoThetaBranchFree
 import DavisKahan.DoubleAngle.KyFanOrthonormal
 import DavisKahan.OperatorIdeal.ApproximationNumbers.ScalarGeneric
 
+open TauCeti.DavisKahan.ExactSinTheta
+
 /-!
 # The `tan 2Θ` theorem at every unitary-invariant ideal, finite carrier
 
@@ -47,7 +49,9 @@ projection, exactly for `T` and one-sidedly for `H`.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.TanTwoTheta
+
+open TauCeti.DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace
 open DavisKahan.ExactSinTheta
@@ -393,10 +397,10 @@ theorem sum_absDoubleAngleTangent_le_of_finiteDimensional_invariantSubspace
   have hH'id : H'.toLinearMap.toContinuousLinearMap = H' := by
     ext x; rfl
   have hHbridge : ∀ j : ℕ,
-      RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum j
+      TauCeti.kyFanSum j
         H'.toLinearMap = kyFanApproximationGauge j H' := by
     intro j
-    rw [rectangularKyFanSum_eq_kyFanApproximationGauge j H'.toLinearMap,
+    rw [kyFanSum_eq_kyFanApproximationGauge j H'.toLinearMap,
       hH'id]
   have hHgauge : ∀ j : ℕ, kyFanApproximationGauge j H' ≤
       kyFanApproximationGauge j H := by
@@ -421,7 +425,7 @@ theorem sum_absDoubleAngleTangent_le_of_finiteDimensional_invariantSubspace
   rw [hLHS]
   calc (b - a) * ∑ x ∈ S',
         absDoubleAngleTangent (T'.toLinearMap.singularValues (x : ℕ))
-      ≤ 2 * RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum S'.card
+      ≤ 2 * TauCeti.kyFanSum S'.card
           H'.toLinearMap := hfin
     _ = 2 * kyFanApproximationGauge S'.card H' := by rw [hHbridge S'.card]
     _ ≤ 2 * kyFanApproximationGauge S'.card H := by linarith [hHgauge S'.card]
@@ -540,7 +544,7 @@ theorem tanTwoTheta0_offDiagonal_mem_and_gauge_le_of_finiteDimensional_invariant
       hHUperp hTmem hTzero hUb hUa hinv hT1 tanTwoTheta0 htan k
     linarith
   obtain ⟨hmem, hgauge⟩ :=
-    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hδ hHmem hscaled
+    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hδ hHmem hscaled
   exact ⟨hmem, by linarith⟩
 
 /-- Representative packaging of the branch-free Ky Fan root: any operator
@@ -625,10 +629,10 @@ theorem absTanTwoTheta_offDiagonal_mem_and_gauge_le_of_finiteDimensional_invaria
       hA hH hAU hHU hHUperp hTmem hTzero hUb hUa hinv hab tanTwoTheta π htan k
     linarith
   obtain ⟨hmem, hgauge⟩ :=
-    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hδ hHmem hscaled
+    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hδ hHmem hscaled
   exact ⟨hmem, by linarith⟩
 
 end Main
 
-end DavisKahanTheory
+end DavisKahan.TanTwoTheta
 end TauCeti

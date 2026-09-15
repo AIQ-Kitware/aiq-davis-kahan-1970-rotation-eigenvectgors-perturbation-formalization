@@ -4,17 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Fable 5
 -/
 import ForTauCeti.Analysis.InnerProductSpace.OperatorModulus
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 
 /-!
 # The complex operator angle calculus: honest first rungs
 
-The scalar-generic ladder in `Core/OperatorAngle.lean` is blocked on an
-`RCLike`-generic positive operator square root.  Per the route decision
-recorded in `docs/planning/davis-kahan-full-paper-goal.md`, this module
-specializes to `ℂ`, where the continuous-functional-calculus square root is
-available (`ForMathlib/Analysis/InnerProductSpace/OperatorAbsoluteValue.lean`),
-with a real-scalar bridge by complexification expected later.
+This module is the complex specialization of the operator-angle API.  The underlying
+positive operator square root is now the scalar-generic `ContinuousLinearMap.modulus` from
+`ForTauCeti`; the complex specialization remains because the surrounding angle API in this module
+is itself source-specific.
 
 * `sinAngleOperatorC U V = |P_U - P_V|`: the sine of the operator angle as
   the absolute value of the projector difference — the definition the
@@ -26,7 +26,7 @@ with a real-scalar bridge by complexification expected later.
 -/
 
 namespace TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Angle
 
 open DavisKahan
 
@@ -56,7 +56,7 @@ theorem isSelfAdjoint_sinAngleOperatorC (U V : Submodule ℂ E)
 /-- **The norm of the sine operator is the subspace gap.** -/
 theorem norm_sinAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinAngleOperatorC U V‖ = subspaceGap U V :=
+    ‖sinAngleOperatorC U V‖ = U.projectionGap V :=
   ContinuousLinearMap.norm_modulus _
 
 /-- Pointwise identity: the sine operator is a pointwise isometry of the
@@ -70,34 +70,34 @@ theorem norm_sinAngleOperatorC_apply (U V : Submodule ℂ E)
 /-- Cosine of the directed operator angle at complex scalars: the absolute
 value of the projection composition `P_V P_U`.  Its singular values are the
 cosines of the principal angles of `U` against `V`. -/
-noncomputable def cosAngleOperatorC (U V : Submodule ℂ E)
+noncomputable def directedCosAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[ℂ] E :=
   ContinuousLinearMap.modulus (V.starProjection ∘L U.starProjection)
 
 /-- The cosine operator is nonnegative. -/
-theorem cosAngleOperatorC_nonneg (U V : Submodule ℂ E)
+theorem directedCosAngleOperatorC_nonneg (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    0 ≤ cosAngleOperatorC U V :=
+    0 ≤ directedCosAngleOperatorC U V :=
   ContinuousLinearMap.modulus_nonneg _
 
 /-- The cosine operator is self-adjoint. -/
-theorem isSelfAdjoint_cosAngleOperatorC (U V : Submodule ℂ E)
+theorem isSelfAdjoint_directedCosAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    IsSelfAdjoint (cosAngleOperatorC U V) :=
+    IsSelfAdjoint (directedCosAngleOperatorC U V) :=
   ContinuousLinearMap.modulus_isSelfAdjoint _
 
 /-- The norm of the cosine operator is the norm of the directed projection
 composition — the largest principal cosine. -/
-theorem norm_cosAngleOperatorC (U V : Submodule ℂ E)
+theorem norm_directedCosAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖cosAngleOperatorC U V‖ = ‖V.starProjection ∘L U.starProjection‖ :=
+    ‖directedCosAngleOperatorC U V‖ = ‖V.starProjection ∘L U.starProjection‖ :=
   ContinuousLinearMap.norm_modulus _
 
 /-- The cosine operator is a contraction. -/
-theorem norm_cosAngleOperatorC_le_one (U V : Submodule ℂ E)
+theorem norm_directedCosAngleOperatorC_le_one (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖cosAngleOperatorC U V‖ ≤ 1 := by
-  rw [norm_cosAngleOperatorC]
+    ‖directedCosAngleOperatorC U V‖ ≤ 1 := by
+  rw [norm_directedCosAngleOperatorC]
   calc ‖V.starProjection ∘L U.starProjection‖
       ≤ ‖V.starProjection‖ * ‖U.starProjection‖ :=
         ContinuousLinearMap.opNorm_comp_le _ _
@@ -109,26 +109,26 @@ theorem norm_cosAngleOperatorC_le_one (U V : Submodule ℂ E)
 /-- Directed sine of the operator angle at complex scalars: the absolute
 value of the cross projection composition `P_{Vᗮ} P_U`.  Its norm is the
 directed gap. -/
-noncomputable def sinAngleOperatorDirectedC (U V : Submodule ℂ E)
+noncomputable def directedSinAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[ℂ] E :=
   ContinuousLinearMap.modulus (Vᗮ.starProjection ∘L U.starProjection)
 
 /-- The directed sine operator is nonnegative. -/
-theorem sinAngleOperatorDirectedC_nonneg (U V : Submodule ℂ E)
+theorem directedSinAngleOperatorC_nonneg (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    0 ≤ sinAngleOperatorDirectedC U V :=
+    0 ≤ directedSinAngleOperatorC U V :=
   ContinuousLinearMap.modulus_nonneg _
 
 /-- The directed sine operator is self-adjoint. -/
-theorem isSelfAdjoint_sinAngleOperatorDirectedC (U V : Submodule ℂ E)
+theorem isSelfAdjoint_directedSinAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    IsSelfAdjoint (sinAngleOperatorDirectedC U V) :=
+    IsSelfAdjoint (directedSinAngleOperatorC U V) :=
   ContinuousLinearMap.modulus_isSelfAdjoint _
 
 /-- **The norm of the directed sine operator is the directed gap.** -/
-theorem norm_sinAngleOperatorDirectedC (U V : Submodule ℂ E)
+theorem norm_directedSinAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinAngleOperatorDirectedC U V‖ = directedGap U V :=
+    ‖directedSinAngleOperatorC U V‖ = U.directedProjectionGap V :=
   ContinuousLinearMap.norm_modulus _
 
 /-- Square of the compressed cross block: `(P_W P_U)⋆ (P_W P_U) = P_U P_W P_U`
@@ -156,12 +156,12 @@ theorem adjoint_cross_mul_cross (U W : Submodule ℂ E)
 /-- **Operator-level Pythagoras.**  The squares of the directed sine and
 cosine operators sum to the source projection:
 `sin Θ(U,V)² + cos Θ(U,V)² = P_U`. -/
-theorem sinAngleOperatorDirectedC_sq_add_cosAngleOperatorC_sq
+theorem directedSinAngleOperatorC_sq_add_directedCosAngleOperatorC_sq
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    sinAngleOperatorDirectedC U V * sinAngleOperatorDirectedC U V +
-      cosAngleOperatorC U V * cosAngleOperatorC U V = U.starProjection := by
-  rw [sinAngleOperatorDirectedC, cosAngleOperatorC,
+    directedSinAngleOperatorC U V * directedSinAngleOperatorC U V +
+      directedCosAngleOperatorC U V * directedCosAngleOperatorC U V = U.starProjection := by
+  rw [directedSinAngleOperatorC, directedCosAngleOperatorC,
     ContinuousLinearMap.modulus_mul_self_eq_star_mul_self, ContinuousLinearMap.modulus_mul_self_eq_star_mul_self,
     adjoint_cross_mul_cross, adjoint_cross_mul_cross]
   calc U.starProjection ∘L Vᗮ.starProjection ∘L U.starProjection +
@@ -246,61 +246,61 @@ theorem commute_cross_sq (U V : Submodule ℂ E)
 /-- **The directed sine and cosine operators commute** — the compressed
 cross squares commute by the Pythagoras identity, and commutation passes
 to the continuous-functional-calculus square roots. -/
-theorem commute_sinAngleOperatorDirectedC_cosAngleOperatorC
+theorem commute_directedSinAngleOperatorC_directedCosAngleOperatorC
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    Commute (sinAngleOperatorDirectedC U V) (cosAngleOperatorC U V) :=
+    Commute (directedSinAngleOperatorC U V) (directedCosAngleOperatorC U V) :=
   ContinuousLinearMap.modulus_commute_modulus (commute_cross_sq U V)
 
 /-- Sine of twice the directed operator angle at complex scalars:
 `2 sin Θ cos Θ` through the commuting directed sine and cosine. -/
-noncomputable def sinTwoAngleOperatorC (U V : Submodule ℂ E)
+noncomputable def directedSinTwoAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[ℂ] E :=
-  (2 : ℝ) • (sinAngleOperatorDirectedC U V * cosAngleOperatorC U V)
+  (2 : ℝ) • (directedSinAngleOperatorC U V * directedCosAngleOperatorC U V)
 
 /-- The double-angle sine operator is self-adjoint: the commuting product
 of the self-adjoint sine and cosine is self-adjoint, and the real scalar
 preserves it. -/
-theorem isSelfAdjoint_sinTwoAngleOperatorC (U V : Submodule ℂ E)
+theorem isSelfAdjoint_directedSinTwoAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    IsSelfAdjoint (sinTwoAngleOperatorC U V) := by
+    IsSelfAdjoint (directedSinTwoAngleOperatorC U V) := by
   have hmul : IsSelfAdjoint
-      (sinAngleOperatorDirectedC U V * cosAngleOperatorC U V) := by
+      (directedSinAngleOperatorC U V * directedCosAngleOperatorC U V) := by
     rw [IsSelfAdjoint, star_mul,
-      (isSelfAdjoint_cosAngleOperatorC U V).star_eq,
-      (isSelfAdjoint_sinAngleOperatorDirectedC U V).star_eq]
-    exact (commute_sinAngleOperatorDirectedC_cosAngleOperatorC U V).symm
+      (isSelfAdjoint_directedCosAngleOperatorC U V).star_eq,
+      (isSelfAdjoint_directedSinAngleOperatorC U V).star_eq]
+    exact (commute_directedSinAngleOperatorC_directedCosAngleOperatorC U V).symm
   exact (IsSelfAdjoint.all (2 : ℝ)).smul hmul
 
 /-- Norm bound for the double-angle sine: at most twice the directed gap. -/
-theorem norm_sinTwoAngleOperatorC_le (U V : Submodule ℂ E)
+theorem norm_directedSinTwoAngleOperatorC_le (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinTwoAngleOperatorC U V‖ ≤ 2 * directedGap U V := by
-  calc ‖sinTwoAngleOperatorC U V‖
-      = 2 * ‖sinAngleOperatorDirectedC U V * cosAngleOperatorC U V‖ := by
-        rw [sinTwoAngleOperatorC, norm_smul]
+    ‖directedSinTwoAngleOperatorC U V‖ ≤ 2 * U.directedProjectionGap V := by
+  calc ‖directedSinTwoAngleOperatorC U V‖
+      = 2 * ‖directedSinAngleOperatorC U V * directedCosAngleOperatorC U V‖ := by
+        rw [directedSinTwoAngleOperatorC, norm_smul]
         norm_num
-    _ ≤ 2 * (‖sinAngleOperatorDirectedC U V‖ * ‖cosAngleOperatorC U V‖) := by
-        have := norm_mul_le (sinAngleOperatorDirectedC U V)
-          (cosAngleOperatorC U V)
+    _ ≤ 2 * (‖directedSinAngleOperatorC U V‖ * ‖directedCosAngleOperatorC U V‖) := by
+        have := norm_mul_le (directedSinAngleOperatorC U V)
+          (directedCosAngleOperatorC U V)
         linarith
-    _ ≤ 2 * (directedGap U V * 1) := by
-        have h1 : ‖sinAngleOperatorDirectedC U V‖ = directedGap U V :=
-          norm_sinAngleOperatorDirectedC U V
-        have h2 := norm_cosAngleOperatorC_le_one U V
-        have h3 : (0 : ℝ) ≤ directedGap U V := by
+    _ ≤ 2 * (U.directedProjectionGap V * 1) := by
+        have h1 : ‖directedSinAngleOperatorC U V‖ = U.directedProjectionGap V :=
+          norm_directedSinAngleOperatorC U V
+        have h2 := norm_directedCosAngleOperatorC_le_one U V
+        have h3 : (0 : ℝ) ≤ U.directedProjectionGap V := by
           rw [← h1]; exact norm_nonneg _
-        nlinarith [norm_nonneg (cosAngleOperatorC U V)]
-    _ = 2 * directedGap U V := by ring
+        nlinarith [norm_nonneg (directedCosAngleOperatorC U V)]
+    _ = 2 * U.directedProjectionGap V := by ring
 
 /-- **Exact norm of the double-angle sine.**
 `‖sin 2Θ(U, V)‖ = 2 ‖P_{Vᗮ} P_U P_V‖`: the absolute values drop out of
 the norm of the product by the C⋆-composition identities
 `‖|S| D‖ = ‖S D‖` and `‖D |T|‖ = ‖D T⋆‖`, leaving the compressed cross
 block. -/
-theorem norm_sinTwoAngleOperatorC (U V : Submodule ℂ E)
+theorem norm_directedSinTwoAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinTwoAngleOperatorC U V‖ =
+    ‖directedSinTwoAngleOperatorC U V‖ =
       2 * ‖Vᗮ.starProjection ∘L U.starProjection ∘L V.starProjection‖ := by
   -- The canonical modulus laws are stated with `adjoint` and `∘L`, which on an
   -- endomorphism algebra are `star` and `*` only up to unfolding; both local
@@ -322,16 +322,16 @@ theorem norm_sinTwoAngleOperatorC (U V : Submodule ℂ E)
       Vᗮ.starProjection * (U.starProjection * V.starProjection)
     rw [mul_assoc, ← mul_assoc U.starProjection,
       (U.isIdempotentElem_starProjection).eq]
-  have hprod : ‖sinAngleOperatorDirectedC U V * cosAngleOperatorC U V‖ =
+  have hprod : ‖directedSinAngleOperatorC U V * directedCosAngleOperatorC U V‖ =
       ‖Vᗮ.starProjection ∘L U.starProjection ∘L V.starProjection‖ := by
     -- `‖|S| ∘L D‖ = ‖S ∘L D‖` and `‖D ∘L |T|‖ = ‖D ∘L T⋆‖` are stated with
     -- `∘L`; on an endomorphism algebra that is `*`, but only up to unfolding,
     -- so say so once and rewrite in the composite form.
-    show ‖sinAngleOperatorDirectedC U V ∘L cosAngleOperatorC U V‖ = _
-    rw [sinAngleOperatorDirectedC, cosAngleOperatorC,
+    show ‖directedSinAngleOperatorC U V ∘L directedCosAngleOperatorC U V‖ = _
+    rw [directedSinAngleOperatorC, directedCosAngleOperatorC,
       ContinuousLinearMap.norm_modulus_comp, ContinuousLinearMap.norm_comp_modulus,
       hstar, hcomp]
-  rw [sinTwoAngleOperatorC, norm_smul, hprod]
+  rw [directedSinTwoAngleOperatorC, norm_smul, hprod]
   norm_num
 
 omit [CompleteSpace E] in
@@ -367,11 +367,11 @@ theorem sq_norm_sin_add_sq_norm_cos (U V : Submodule ℂ E)
 
 /-- The directed cosine vanishes on the orthogonal complement of the
 source. -/
-theorem cosAngleOperatorC_apply_eq_zero_of_mem_orthogonal
+theorem directedCosAngleOperatorC_apply_eq_zero_of_mem_orthogonal
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    {y : E} (hy : y ∈ Uᗮ) : cosAngleOperatorC U V y = 0 := by
-  rw [cosAngleOperatorC, ContinuousLinearMap.modulus_apply_eq_zero_iff]
+    {y : E} (hy : y ∈ Uᗮ) : directedCosAngleOperatorC U V y = 0 := by
+  rw [directedCosAngleOperatorC, ContinuousLinearMap.modulus_apply_eq_zero_iff]
   have hPU : U.starProjection y = 0 := by
     rw [Submodule.starProjection_apply, Submodule.coe_eq_zero,
       Submodule.orthogonalProjectionOnto_eq_zero_iff]
@@ -381,14 +381,14 @@ theorem cosAngleOperatorC_apply_eq_zero_of_mem_orthogonal
 /-- **Acute coercivity of the directed cosine.**  On the source subspace,
 `‖cos Θ(U,V) x‖ ≥ √(1 - directedGap²) ‖x‖` — the quantitative content of
 acuteness, by the pointwise Pythagoras identity. -/
-theorem norm_cosAngleOperatorC_apply_ge (U V : Submodule ℂ E)
+theorem norm_directedCosAngleOperatorC_apply_ge (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {x : E} (hx : x ∈ U) :
-    Real.sqrt (1 - directedGap U V ^ 2) * ‖x‖ ≤
-      ‖cosAngleOperatorC U V x‖ := by
-  have hg : directedGap U V = ‖Vᗮ.starProjection ∘L U.starProjection‖ :=
+    Real.sqrt (1 - U.directedProjectionGap V ^ 2) * ‖x‖ ≤
+      ‖directedCosAngleOperatorC U V x‖ := by
+  have hg : U.directedProjectionGap V = ‖Vᗮ.starProjection ∘L U.starProjection‖ :=
     rfl
-  have hg1 : directedGap U V ≤ 1 := by
+  have hg1 : U.directedProjectionGap V ≤ 1 := by
     rw [hg]
     calc ‖Vᗮ.starProjection ∘L U.starProjection‖
         ≤ ‖Vᗮ.starProjection‖ * ‖U.starProjection‖ :=
@@ -397,40 +397,40 @@ theorem norm_cosAngleOperatorC_apply_ge (U V : Submodule ℂ E)
           mul_le_mul Vᗮ.starProjection_norm_le U.starProjection_norm_le
             (norm_nonneg _) zero_le_one
       _ = 1 := by ring
-  have hg0 : 0 ≤ directedGap U V := by
+  have hg0 : 0 ≤ U.directedProjectionGap V := by
     rw [hg]; exact norm_nonneg _
-  have hcos : ‖cosAngleOperatorC U V x‖ =
+  have hcos : ‖directedCosAngleOperatorC U V x‖ =
       ‖(V.starProjection ∘L U.starProjection) x‖ :=
     ContinuousLinearMap.norm_modulus_apply _ x
   have hsin_le : ‖(Vᗮ.starProjection ∘L U.starProjection) x‖ ≤
-      directedGap U V * ‖x‖ := by
+      U.directedProjectionGap V * ‖x‖ := by
     rw [hg]
     exact (Vᗮ.starProjection ∘L U.starProjection).le_opNorm x
   have hpyth := sq_norm_sin_add_sq_norm_cos U V hx
-  have hsq : (1 - directedGap U V ^ 2) * ‖x‖ ^ 2 ≤
-      ‖cosAngleOperatorC U V x‖ ^ 2 := by
+  have hsq : (1 - U.directedProjectionGap V ^ 2) * ‖x‖ ^ 2 ≤
+      ‖directedCosAngleOperatorC U V x‖ ^ 2 := by
     rw [hcos]
     nlinarith [hsin_le, norm_nonneg ((Vᗮ.starProjection ∘L
       U.starProjection) x), norm_nonneg x]
   have hs := Real.sqrt_le_sqrt hsq
-  rwa [Real.sqrt_mul (by nlinarith : (0:ℝ) ≤ 1 - directedGap U V ^ 2),
+  rwa [Real.sqrt_mul (by nlinarith : (0:ℝ) ≤ 1 - U.directedProjectionGap V ^ 2),
     Real.sqrt_sq (norm_nonneg x), Real.sqrt_sq (norm_nonneg _)] at hs
 
 /-- In the acute regime the directed cosine is injective on the source
 subspace. -/
-theorem cosAngleOperatorC_eq_zero_imp_of_acute (U V : Submodule ℂ E)
+theorem directedCosAngleOperatorC_eq_zero_imp_of_acute (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) {x : E} (hx : x ∈ U)
-    (h0 : cosAngleOperatorC U V x = 0) : x = 0 := by
-  have hglt : directedGap U V < 1 :=
-    lt_of_le_of_lt (directedProjectionGap_le_projectionGap U V) hacute
-  have hg0 : 0 ≤ directedGap U V := by
-    rw [show directedGap U V =
+    (h0 : directedCosAngleOperatorC U V x = 0) : x = 0 := by
+  have hglt : U.directedProjectionGap V < 1 :=
+    lt_of_le_of_lt (Submodule.directedProjectionGap_le_projectionGap U V) hacute
+  have hg0 : 0 ≤ U.directedProjectionGap V := by
+    rw [show U.directedProjectionGap V =
       ‖Vᗮ.starProjection ∘L U.starProjection‖ from rfl]
     exact norm_nonneg _
-  have hcoer := norm_cosAngleOperatorC_apply_ge U V hx
+  have hcoer := norm_directedCosAngleOperatorC_apply_ge U V hx
   rw [h0, norm_zero] at hcoer
-  have hpos : 0 < Real.sqrt (1 - directedGap U V ^ 2) := by
+  have hpos : 0 < Real.sqrt (1 - U.directedProjectionGap V ^ 2) := by
     apply Real.sqrt_pos.mpr
     nlinarith
   have hxle : ‖x‖ ≤ 0 := by
@@ -443,9 +443,9 @@ theorem cosAngleOperatorC_eq_zero_imp_of_acute (U V : Submodule ℂ E)
 section Tangent
 
 /-- The directed cosine commutes with the source projection. -/
-theorem commute_cosAngleOperatorC_starProjection (U V : Submodule ℂ E)
+theorem commute_directedCosAngleOperatorC_starProjection (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    Commute (cosAngleOperatorC U V) U.starProjection := by
+    Commute (directedCosAngleOperatorC U V) U.starProjection := by
   have hb : Commute (star (V.starProjection ∘L U.starProjection) *
       (V.starProjection ∘L U.starProjection)) U.starProjection := by
     rw [adjoint_cross_mul_cross]
@@ -453,31 +453,31 @@ theorem commute_cosAngleOperatorC_starProjection (U V : Submodule ℂ E)
   exact hb.cfcₙ_nnreal _
 
 /-- The directed cosine maps the source subspace into itself. -/
-theorem cosAngleOperatorC_apply_mem (U V : Submodule ℂ E)
+theorem directedCosAngleOperatorC_apply_mem (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    {x : E} (hx : x ∈ U) : cosAngleOperatorC U V x ∈ U := by
-  have h := commute_cosAngleOperatorC_starProjection U V
+    {x : E} (hx : x ∈ U) : directedCosAngleOperatorC U V x ∈ U := by
+  have h := commute_directedCosAngleOperatorC_starProjection U V
   have hx' : U.starProjection x = x :=
     Submodule.starProjection_eq_self_iff.mpr hx
   rw [← Submodule.starProjection_eq_self_iff]
-  calc U.starProjection (cosAngleOperatorC U V x)
-      = (U.starProjection * cosAngleOperatorC U V) x := rfl
-    _ = (cosAngleOperatorC U V * U.starProjection) x := by rw [← h.eq]
-    _ = cosAngleOperatorC U V x := by
-        show cosAngleOperatorC U V (U.starProjection x) = _
+  calc U.starProjection (directedCosAngleOperatorC U V x)
+      = (U.starProjection * directedCosAngleOperatorC U V) x := rfl
+    _ = (directedCosAngleOperatorC U V * U.starProjection) x := by rw [← h.eq]
+    _ = directedCosAngleOperatorC U V x := by
+        show directedCosAngleOperatorC U V (U.starProjection x) = _
         rw [hx']
 
 /-- The extended cosine: the directed cosine on the source, the identity on
 its orthogonal complement. -/
 noncomputable def cosAngleExtendedC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[ℂ] E :=
-  cosAngleOperatorC U V + Uᗮ.starProjection
+  directedCosAngleOperatorC U V + Uᗮ.starProjection
 
 /-- The extended cosine is self-adjoint. -/
 theorem isSelfAdjoint_cosAngleExtendedC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     IsSelfAdjoint (cosAngleExtendedC U V) :=
-  (isSelfAdjoint_cosAngleOperatorC U V).add (isSelfAdjoint_starProjection _)
+  (isSelfAdjoint_directedCosAngleOperatorC U V).add (isSelfAdjoint_starProjection _)
 
 omit [CompleteSpace E] in
 /-- **Pythagoras across a subspace and its orthogonal complement.** -/
@@ -496,28 +496,28 @@ private theorem norm_sq_eq_starProjection_add_orthogonal (U : Submodule ℂ E)
 /-- **Global coercivity of the extended cosine in the acute regime.** -/
 theorem norm_cosAngleExtendedC_apply_ge (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (x : E) :
-    min (Real.sqrt (1 - directedGap U V ^ 2)) 1 * ‖x‖ ≤
+    min (Real.sqrt (1 - U.directedProjectionGap V ^ 2)) 1 * ‖x‖ ≤
       ‖cosAngleExtendedC U V x‖ := by
-  set c : ℝ := min (Real.sqrt (1 - directedGap U V ^ 2)) 1 with hc
+  set c : ℝ := min (Real.sqrt (1 - U.directedProjectionGap V ^ 2)) 1 with hc
   have hc0 : 0 ≤ c := le_min (Real.sqrt_nonneg _) zero_le_one
   -- decompose and compute the image
   have hdecomp : x = U.starProjection x + Uᗮ.starProjection x :=
     (U.starProjection_add_starProjection_orthogonal x).symm
-  have hcos0 : cosAngleOperatorC U V (Uᗮ.starProjection x) = 0 :=
-    cosAngleOperatorC_apply_eq_zero_of_mem_orthogonal U V
+  have hcos0 : directedCosAngleOperatorC U V (Uᗮ.starProjection x) = 0 :=
+    directedCosAngleOperatorC_apply_eq_zero_of_mem_orthogonal U V
       (Uᗮ.starProjection_apply_mem x)
   have himg : cosAngleExtendedC U V x =
-      cosAngleOperatorC U V (U.starProjection x) + Uᗮ.starProjection x := by
+      directedCosAngleOperatorC U V (U.starProjection x) + Uᗮ.starProjection x := by
     calc cosAngleExtendedC U V x
-        = cosAngleOperatorC U V x + Uᗮ.starProjection x := rfl
-      _ = cosAngleOperatorC U V (U.starProjection x + Uᗮ.starProjection x) +
+        = directedCosAngleOperatorC U V x + Uᗮ.starProjection x := rfl
+      _ = directedCosAngleOperatorC U V (U.starProjection x + Uᗮ.starProjection x) +
             Uᗮ.starProjection x := by rw [← hdecomp]
-      _ = cosAngleOperatorC U V (U.starProjection x) + Uᗮ.starProjection x := by
+      _ = directedCosAngleOperatorC U V (U.starProjection x) + Uᗮ.starProjection x := by
           rw [map_add, hcos0, add_zero]
   -- orthogonality of the two summands
-  have hmemU : cosAngleOperatorC U V (U.starProjection x) ∈ U :=
-    cosAngleOperatorC_apply_mem U V (U.starProjection_apply_mem x)
-  have horth : ⟪cosAngleOperatorC U V (U.starProjection x),
+  have hmemU : directedCosAngleOperatorC U V (U.starProjection x) ∈ U :=
+    directedCosAngleOperatorC_apply_mem U V (U.starProjection_apply_mem x)
+  have horth : ⟪directedCosAngleOperatorC U V (U.starProjection x),
       Uᗮ.starProjection x⟫_ℂ = 0 :=
     (Submodule.mem_orthogonal U _).mp
       (Uᗮ.starProjection_apply_mem x) _ hmemU
@@ -526,26 +526,26 @@ theorem norm_cosAngleExtendedC_apply_ge (U V : Submodule ℂ E)
       (Uᗮ.starProjection_apply_mem x) _ (U.starProjection_apply_mem x)
   -- squared-norm computations
   have hsq1 : ‖cosAngleExtendedC U V x‖ ^ 2 =
-      ‖cosAngleOperatorC U V (U.starProjection x)‖ ^ 2 +
+      ‖directedCosAngleOperatorC U V (U.starProjection x)‖ ^ 2 +
         ‖Uᗮ.starProjection x‖ ^ 2 := by
     have h := norm_add_sq_eq_norm_sq_add_norm_sq_of_inner_eq_zero
-      (cosAngleOperatorC U V (U.starProjection x)) (Uᗮ.starProjection x)
+      (directedCosAngleOperatorC U V (U.starProjection x)) (Uᗮ.starProjection x)
       horth
     rw [himg, sq, sq, sq]
     linarith
   have hsq2 := norm_sq_eq_starProjection_add_orthogonal U x
   -- coercivity on the source component
-  have hcoer := norm_cosAngleOperatorC_apply_ge U V
+  have hcoer := norm_directedCosAngleOperatorC_apply_ge U V
     (U.starProjection_apply_mem x)
-  have hcle : c ≤ Real.sqrt (1 - directedGap U V ^ 2) := min_le_left _ _
+  have hcle : c ≤ Real.sqrt (1 - U.directedProjectionGap V ^ 2) := min_le_left _ _
   have hc1 : c ≤ 1 := min_le_right _ _
   have hlow1 : c * ‖U.starProjection x‖ ≤
-      ‖cosAngleOperatorC U V (U.starProjection x)‖ :=
+      ‖directedCosAngleOperatorC U V (U.starProjection x)‖ :=
     le_trans (mul_le_mul_of_nonneg_right hcle (norm_nonneg _)) hcoer
   have hfinal : (c * ‖x‖) ^ 2 ≤ ‖cosAngleExtendedC U V x‖ ^ 2 := by
     rw [hsq1]
     have h1 : (c * ‖U.starProjection x‖) ^ 2 ≤
-        ‖cosAngleOperatorC U V (U.starProjection x)‖ ^ 2 := by
+        ‖directedCosAngleOperatorC U V (U.starProjection x)‖ ^ 2 := by
       have h := mul_self_le_mul_self
         (mul_nonneg hc0 (norm_nonneg _)) hlow1
       rw [sq, sq]
@@ -564,13 +564,13 @@ theorem cosAngleExtendedC_ker_bot_range_top (U V : Submodule ℂ E)
     (hacute : IsUniformlyAcute U V) :
     (cosAngleExtendedC U V).ker = ⊥ ∧
       (cosAngleExtendedC U V).range = ⊤ := by
-  have hglt : directedGap U V < 1 :=
-    lt_of_le_of_lt (directedProjectionGap_le_projectionGap U V) hacute
-  have hg0 : 0 ≤ directedGap U V := by
-    rw [show directedGap U V =
+  have hglt : U.directedProjectionGap V < 1 :=
+    lt_of_le_of_lt (Submodule.directedProjectionGap_le_projectionGap U V) hacute
+  have hg0 : 0 ≤ U.directedProjectionGap V := by
+    rw [show U.directedProjectionGap V =
       ‖Vᗮ.starProjection ∘L U.starProjection‖ from rfl]
     exact norm_nonneg _
-  set c : ℝ := min (Real.sqrt (1 - directedGap U V ^ 2)) 1 with hc
+  set c : ℝ := min (Real.sqrt (1 - U.directedProjectionGap V ^ 2)) 1 with hc
   have hcpos : 0 < c := by
     apply lt_min
     · exact Real.sqrt_pos.mpr (by nlinarith)
@@ -642,23 +642,23 @@ noncomputable def cosAngleExtendedCEquiv (U V : Submodule ℂ E)
 
 /-- **Tangent of the directed operator angle** in the acute regime:
 `tan Θ = sin Θ · (cos Θ + P_{Uᗮ})⁻¹`. -/
-noncomputable def tanAngleOperatorC (U V : Submodule ℂ E)
+noncomputable def directedTanAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) : E →L[ℂ] E :=
-  sinAngleOperatorDirectedC U V ∘L
+  directedSinAngleOperatorC U V ∘L
     (cosAngleExtendedCEquiv U V hacute).symm.toContinuousLinearMap
 
 /-- The defining identity: the tangent composed with the extended cosine is
 the directed sine. -/
-theorem tanAngleOperatorC_comp_cosAngleExtendedC (U V : Submodule ℂ E)
+theorem directedTanAngleOperatorC_comp_cosAngleExtendedC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    tanAngleOperatorC U V hacute ∘L cosAngleExtendedC U V =
-      sinAngleOperatorDirectedC U V := by
+    directedTanAngleOperatorC U V hacute ∘L cosAngleExtendedC U V =
+      directedSinAngleOperatorC U V := by
   ext x
-  show sinAngleOperatorDirectedC U V
+  show directedSinAngleOperatorC U V
     ((cosAngleExtendedCEquiv U V hacute).symm
-      (cosAngleExtendedC U V x)) = sinAngleOperatorDirectedC U V x
+      (cosAngleExtendedC U V x)) = directedSinAngleOperatorC U V x
   congr 1
   exact (cosAngleExtendedCEquiv U V hacute).symm_apply_apply x
 
@@ -773,24 +773,24 @@ theorem norm_add_starProjection_orthogonal_apply_ge
 /-- Cosine of twice the directed operator angle: `cos 2Θ = cos² - sin²`. -/
 noncomputable def cosTwoAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[ℂ] E :=
-  cosAngleOperatorC U V * cosAngleOperatorC U V -
-    sinAngleOperatorDirectedC U V * sinAngleOperatorDirectedC U V
+  directedCosAngleOperatorC U V * directedCosAngleOperatorC U V -
+    directedSinAngleOperatorC U V * directedSinAngleOperatorC U V
 
 /-- The double-angle cosine is self-adjoint. -/
 theorem isSelfAdjoint_cosTwoAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     IsSelfAdjoint (cosTwoAngleOperatorC U V) := by
-  simp only [cosTwoAngleOperatorC, IsSelfAdjoint, star_sub, star_mul, star_mul,
-    (isSelfAdjoint_cosAngleOperatorC U V).star_eq,
-    (isSelfAdjoint_sinAngleOperatorDirectedC U V).star_eq]
+  simp only [cosTwoAngleOperatorC, IsSelfAdjoint, star_sub, star_mul,
+    (isSelfAdjoint_directedCosAngleOperatorC U V).star_eq,
+    (isSelfAdjoint_directedSinAngleOperatorC U V).star_eq]
 
 /-- The directed sine vanishes on the orthogonal complement of the
 source. -/
-theorem sinAngleOperatorDirectedC_apply_eq_zero_of_mem_orthogonal
+theorem directedSinAngleOperatorC_apply_eq_zero_of_mem_orthogonal
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    {y : E} (hy : y ∈ Uᗮ) : sinAngleOperatorDirectedC U V y = 0 := by
-  rw [sinAngleOperatorDirectedC, ContinuousLinearMap.modulus_apply_eq_zero_iff]
+    {y : E} (hy : y ∈ Uᗮ) : directedSinAngleOperatorC U V y = 0 := by
+  rw [directedSinAngleOperatorC, ContinuousLinearMap.modulus_apply_eq_zero_iff]
   have hPU : U.starProjection y = 0 := by
     rw [Submodule.starProjection_apply, Submodule.coe_eq_zero,
       Submodule.orthogonalProjectionOnto_eq_zero_iff]
@@ -798,10 +798,10 @@ theorem sinAngleOperatorDirectedC_apply_eq_zero_of_mem_orthogonal
   simp [hPU]
 
 /-- The directed sine commutes with the source projection. -/
-theorem commute_sinAngleOperatorDirectedC_starProjection
+theorem commute_directedSinAngleOperatorC_starProjection
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    Commute (sinAngleOperatorDirectedC U V) U.starProjection := by
+    Commute (directedSinAngleOperatorC U V) U.starProjection := by
   have hb : Commute (star (Vᗮ.starProjection ∘L U.starProjection) *
       (Vᗮ.starProjection ∘L U.starProjection)) U.starProjection := by
     rw [adjoint_cross_mul_cross]
@@ -809,19 +809,19 @@ theorem commute_sinAngleOperatorDirectedC_starProjection
   exact hb.cfcₙ_nnreal _
 
 /-- The directed sine maps the source subspace into itself. -/
-theorem sinAngleOperatorDirectedC_apply_mem (U V : Submodule ℂ E)
+theorem directedSinAngleOperatorC_apply_mem (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    {x : E} (hx : x ∈ U) : sinAngleOperatorDirectedC U V x ∈ U := by
-  have h := commute_sinAngleOperatorDirectedC_starProjection U V
+    {x : E} (hx : x ∈ U) : directedSinAngleOperatorC U V x ∈ U := by
+  have h := commute_directedSinAngleOperatorC_starProjection U V
   have hx' : U.starProjection x = x :=
     Submodule.starProjection_eq_self_iff.mpr hx
   rw [← Submodule.starProjection_eq_self_iff]
-  calc U.starProjection (sinAngleOperatorDirectedC U V x)
-      = (U.starProjection * sinAngleOperatorDirectedC U V) x := rfl
-    _ = (sinAngleOperatorDirectedC U V * U.starProjection) x := by
+  calc U.starProjection (directedSinAngleOperatorC U V x)
+      = (U.starProjection * directedSinAngleOperatorC U V) x := rfl
+    _ = (directedSinAngleOperatorC U V * U.starProjection) x := by
         rw [← h.eq]
-    _ = sinAngleOperatorDirectedC U V x := by
-        show sinAngleOperatorDirectedC U V (U.starProjection x) = _
+    _ = directedSinAngleOperatorC U V x := by
+        show directedSinAngleOperatorC U V (U.starProjection x) = _
         rw [hx']
 
 /-- **Quarter-acute coercivity of the double-angle cosine on the source.**
@@ -830,70 +830,70 @@ constant is nonpositive, and by the form bound otherwise. -/
 theorem norm_cosTwoAngleOperatorC_apply_ge (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {x : E} (hx : x ∈ U) :
-    (1 - 2 * directedGap U V ^ 2) * ‖x‖ ≤
+    (1 - 2 * U.directedProjectionGap V ^ 2) * ‖x‖ ≤
       ‖cosTwoAngleOperatorC U V x‖ := by
-  rcases le_or_gt (1 - 2 * directedGap U V ^ 2) 0 with hneg | hpos
-  · calc (1 - 2 * directedGap U V ^ 2) * ‖x‖ ≤ 0 :=
+  rcases le_or_gt (1 - 2 * U.directedProjectionGap V ^ 2) 0 with hneg | hpos
+  · calc (1 - 2 * U.directedProjectionGap V ^ 2) * ‖x‖ ≤ 0 :=
         mul_nonpos_of_nonpos_of_nonneg hneg (norm_nonneg x)
       _ ≤ ‖cosTwoAngleOperatorC U V x‖ := norm_nonneg _
   rcases eq_or_ne x 0 with rfl | hx0
   · simp
   -- the quadratic form of `cos 2Θ` on `U`
   have hsymc := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
-    (isSelfAdjoint_cosAngleOperatorC U V)
+    (isSelfAdjoint_directedCosAngleOperatorC U V)
   have hsyms := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
-    (isSelfAdjoint_sinAngleOperatorDirectedC U V)
+    (isSelfAdjoint_directedSinAngleOperatorC U V)
   have hform : (⟪cosTwoAngleOperatorC U V x, x⟫_ℂ : ℂ) =
-      (((‖cosAngleOperatorC U V x‖ ^ 2 -
-        ‖sinAngleOperatorDirectedC U V x‖ ^ 2 : ℝ)) : ℂ) := by
+      (((‖directedCosAngleOperatorC U V x‖ ^ 2 -
+        ‖directedSinAngleOperatorC U V x‖ ^ 2 : ℝ)) : ℂ) := by
     calc (⟪cosTwoAngleOperatorC U V x, x⟫_ℂ : ℂ)
-        = ⟪cosAngleOperatorC U V (cosAngleOperatorC U V x), x⟫_ℂ -
-            ⟪sinAngleOperatorDirectedC U V
-              (sinAngleOperatorDirectedC U V x), x⟫_ℂ := by
+        = ⟪directedCosAngleOperatorC U V (directedCosAngleOperatorC U V x), x⟫_ℂ -
+            ⟪directedSinAngleOperatorC U V
+              (directedSinAngleOperatorC U V x), x⟫_ℂ := by
           rw [cosTwoAngleOperatorC]
           simp [sub_apply, inner_sub_left]
-      _ = ⟪cosAngleOperatorC U V x, cosAngleOperatorC U V x⟫_ℂ -
-            ⟪sinAngleOperatorDirectedC U V x,
-              sinAngleOperatorDirectedC U V x⟫_ℂ := by
-          have h1 : ⟪cosAngleOperatorC U V (cosAngleOperatorC U V x),
-              x⟫_ℂ = ⟪cosAngleOperatorC U V x,
-                cosAngleOperatorC U V x⟫_ℂ :=
-            hsymc (cosAngleOperatorC U V x) x
-          have h2 : ⟪sinAngleOperatorDirectedC U V
-              (sinAngleOperatorDirectedC U V x), x⟫_ℂ =
-              ⟪sinAngleOperatorDirectedC U V x,
-                sinAngleOperatorDirectedC U V x⟫_ℂ :=
-            hsyms (sinAngleOperatorDirectedC U V x) x
+      _ = ⟪directedCosAngleOperatorC U V x, directedCosAngleOperatorC U V x⟫_ℂ -
+            ⟪directedSinAngleOperatorC U V x,
+              directedSinAngleOperatorC U V x⟫_ℂ := by
+          have h1 : ⟪directedCosAngleOperatorC U V (directedCosAngleOperatorC U V x),
+              x⟫_ℂ = ⟪directedCosAngleOperatorC U V x,
+                directedCosAngleOperatorC U V x⟫_ℂ :=
+            hsymc (directedCosAngleOperatorC U V x) x
+          have h2 : ⟪directedSinAngleOperatorC U V
+              (directedSinAngleOperatorC U V x), x⟫_ℂ =
+              ⟪directedSinAngleOperatorC U V x,
+                directedSinAngleOperatorC U V x⟫_ℂ :=
+            hsyms (directedSinAngleOperatorC U V x) x
           rw [h1, h2]
       _ = _ := by
           rw [inner_self_eq_norm_sq_to_K, inner_self_eq_norm_sq_to_K]
           norm_cast
   -- pointwise Pythagoras data
-  have hcosn : ‖cosAngleOperatorC U V x‖ =
+  have hcosn : ‖directedCosAngleOperatorC U V x‖ =
       ‖(V.starProjection ∘L U.starProjection) x‖ :=
     ContinuousLinearMap.norm_modulus_apply _ x
-  have hsinn : ‖sinAngleOperatorDirectedC U V x‖ =
+  have hsinn : ‖directedSinAngleOperatorC U V x‖ =
       ‖(Vᗮ.starProjection ∘L U.starProjection) x‖ :=
     ContinuousLinearMap.norm_modulus_apply _ x
   have hpyth := sq_norm_sin_add_sq_norm_cos U V hx
   have hsin_le : ‖(Vᗮ.starProjection ∘L U.starProjection) x‖ ≤
-      directedGap U V * ‖x‖ := by
-    rw [show directedGap U V =
+      U.directedProjectionGap V * ‖x‖ := by
+    rw [show U.directedProjectionGap V =
       ‖Vᗮ.starProjection ∘L U.starProjection‖ from rfl]
     exact (Vᗮ.starProjection ∘L U.starProjection).le_opNorm x
   -- the form is bounded below
-  have hform_ge : (1 - 2 * directedGap U V ^ 2) * ‖x‖ ^ 2 ≤
-      ‖cosAngleOperatorC U V x‖ ^ 2 -
-        ‖sinAngleOperatorDirectedC U V x‖ ^ 2 := by
+  have hform_ge : (1 - 2 * U.directedProjectionGap V ^ 2) * ‖x‖ ^ 2 ≤
+      ‖directedCosAngleOperatorC U V x‖ ^ 2 -
+        ‖directedSinAngleOperatorC U V x‖ ^ 2 := by
     rw [hcosn, hsinn]
     nlinarith [hsin_le, norm_nonneg
       ((Vᗮ.starProjection ∘L U.starProjection) x), norm_nonneg x]
   -- Cauchy--Schwarz upgrade to a norm bound
-  have hCS : ‖cosAngleOperatorC U V x‖ ^ 2 -
-      ‖sinAngleOperatorDirectedC U V x‖ ^ 2 ≤
+  have hCS : ‖directedCosAngleOperatorC U V x‖ ^ 2 -
+      ‖directedSinAngleOperatorC U V x‖ ^ 2 ≤
         ‖cosTwoAngleOperatorC U V x‖ * ‖x‖ := by
-    have h1 : ((‖cosAngleOperatorC U V x‖ ^ 2 -
-        ‖sinAngleOperatorDirectedC U V x‖ ^ 2 : ℝ)) =
+    have h1 : ((‖directedCosAngleOperatorC U V x‖ ^ 2 -
+        ‖directedSinAngleOperatorC U V x‖ ^ 2 : ℝ)) =
         RCLike.re (⟪cosTwoAngleOperatorC U V x, x⟫_ℂ : ℂ) := by
       rw [hform]
       exact (RCLike.ofReal_re _).symm
@@ -902,9 +902,9 @@ theorem norm_cosTwoAngleOperatorC_apply_ge (U V : Submodule ℂ E)
         ≤ ‖(⟪cosTwoAngleOperatorC U V x, x⟫_ℂ : ℂ)‖ := RCLike.re_le_norm _
       _ ≤ ‖cosTwoAngleOperatorC U V x‖ * ‖x‖ := norm_inner_le_norm _ _
   have hx0' : 0 < ‖x‖ := norm_pos_iff.mpr hx0
-  have hkey : (1 - 2 * directedGap U V ^ 2) * ‖x‖ ^ 2 ≤
+  have hkey : (1 - 2 * U.directedProjectionGap V ^ 2) * ‖x‖ ^ 2 ≤
       ‖cosTwoAngleOperatorC U V x‖ * ‖x‖ := le_trans hform_ge hCS
-  have hkey' : ((1 - 2 * directedGap U V ^ 2) * ‖x‖) * ‖x‖ ≤
+  have hkey' : ((1 - 2 * U.directedProjectionGap V ^ 2) * ‖x‖) * ‖x‖ ≤
       ‖cosTwoAngleOperatorC U V x‖ * ‖x‖ := by nlinarith [hkey]
   exact le_of_mul_le_mul_right hkey' hx0'
 
@@ -913,22 +913,22 @@ theorem cosTwoAngleOperatorC_apply_eq_zero_of_mem_orthogonal
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {y : E} (hy : y ∈ Uᗮ) : cosTwoAngleOperatorC U V y = 0 := by
-  show cosAngleOperatorC U V (cosAngleOperatorC U V y) -
-    sinAngleOperatorDirectedC U V (sinAngleOperatorDirectedC U V y) = 0
-  rw [cosAngleOperatorC_apply_eq_zero_of_mem_orthogonal U V hy,
-    sinAngleOperatorDirectedC_apply_eq_zero_of_mem_orthogonal U V hy,
+  show directedCosAngleOperatorC U V (directedCosAngleOperatorC U V y) -
+    directedSinAngleOperatorC U V (directedSinAngleOperatorC U V y) = 0
+  rw [directedCosAngleOperatorC_apply_eq_zero_of_mem_orthogonal U V hy,
+    directedSinAngleOperatorC_apply_eq_zero_of_mem_orthogonal U V hy,
     map_zero, map_zero, sub_zero]
 
 /-- The double-angle cosine maps the source subspace into itself. -/
 theorem cosTwoAngleOperatorC_apply_mem (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {x : E} (hx : x ∈ U) : cosTwoAngleOperatorC U V x ∈ U := by
-  show cosAngleOperatorC U V (cosAngleOperatorC U V x) -
-    sinAngleOperatorDirectedC U V (sinAngleOperatorDirectedC U V x) ∈ U
+  show directedCosAngleOperatorC U V (directedCosAngleOperatorC U V x) -
+    directedSinAngleOperatorC U V (directedSinAngleOperatorC U V x) ∈ U
   exact U.sub_mem
-    (cosAngleOperatorC_apply_mem U V (cosAngleOperatorC_apply_mem U V hx))
-    (sinAngleOperatorDirectedC_apply_mem U V
-      (sinAngleOperatorDirectedC_apply_mem U V hx))
+    (directedCosAngleOperatorC_apply_mem U V (directedCosAngleOperatorC_apply_mem U V hx))
+    (directedSinAngleOperatorC_apply_mem U V
+      (directedSinAngleOperatorC_apply_mem U V hx))
 
 /-- The extended double-angle cosine: `cos 2Θ` on the source, the identity
 on its orthogonal complement. -/
@@ -950,15 +950,15 @@ theorem cosTwoAngleExtendedC_ker_bot_range_top (U V : Submodule ℂ E)
     (hquarter : IsQuarterAcute U V) :
     (cosTwoAngleExtendedC U V).ker = ⊥ ∧
       (cosTwoAngleExtendedC U V).range = ⊤ := by
-  have hg0 : 0 ≤ directedGap U V := by
-    rw [show directedGap U V =
+  have hg0 : 0 ≤ U.directedProjectionGap V := by
+    rw [show U.directedProjectionGap V =
       ‖Vᗮ.starProjection ∘L U.starProjection‖ from rfl]
     exact norm_nonneg _
-  have hglt : directedGap U V < Real.sqrt 2 / 2 :=
-    lt_of_le_of_lt (directedProjectionGap_le_projectionGap U V) hquarter
+  have hglt : U.directedProjectionGap V < Real.sqrt 2 / 2 :=
+    lt_of_le_of_lt (Submodule.directedProjectionGap_le_projectionGap U V) hquarter
   have h2 : (Real.sqrt 2) ^ 2 = 2 := Real.sq_sqrt (by norm_num)
-  have hgsq : 2 * directedGap U V ^ 2 < 1 := by nlinarith
-  set c : ℝ := min (1 - 2 * directedGap U V ^ 2) 1 with hc
+  have hgsq : 2 * U.directedProjectionGap V ^ 2 < 1 := by nlinarith
+  set c : ℝ := min (1 - 2 * U.directedProjectionGap V ^ 2) 1 with hc
   have hcpos : 0 < c := lt_min (by nlinarith) one_pos
   have hcoerU : ∀ x ∈ U, c * ‖x‖ ≤ ‖cosTwoAngleOperatorC U V x‖ :=
     fun x hx =>
@@ -981,24 +981,24 @@ noncomputable def cosTwoAngleExtendedCEquiv (U V : Submodule ℂ E)
 
 /-- **Tangent of twice the directed operator angle** in the quarter-acute
 regime: `tan 2Θ = sin 2Θ · (cos 2Θ + P_{Uᗮ})⁻¹`. -/
-noncomputable def tanTwoAngleOperatorC (U V : Submodule ℂ E)
+noncomputable def directedTanTwoAngleOperatorC (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : IsQuarterAcute U V) : E →L[ℂ] E :=
-  sinTwoAngleOperatorC U V ∘L
+  directedSinTwoAngleOperatorC U V ∘L
     (cosTwoAngleExtendedCEquiv U V hquarter).symm.toContinuousLinearMap
 
 /-- The defining identity: the double-angle tangent composed with the
 extended double-angle cosine is the double-angle sine. -/
-theorem tanTwoAngleOperatorC_comp_cosTwoAngleExtendedC
+theorem directedTanTwoAngleOperatorC_comp_cosTwoAngleExtendedC
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : IsQuarterAcute U V) :
-    tanTwoAngleOperatorC U V hquarter ∘L cosTwoAngleExtendedC U V =
-      sinTwoAngleOperatorC U V := by
+    directedTanTwoAngleOperatorC U V hquarter ∘L cosTwoAngleExtendedC U V =
+      directedSinTwoAngleOperatorC U V := by
   ext x
-  show sinTwoAngleOperatorC U V
+  show directedSinTwoAngleOperatorC U V
     ((cosTwoAngleExtendedCEquiv U V hquarter).symm
-      (cosTwoAngleExtendedC U V x)) = sinTwoAngleOperatorC U V x
+      (cosTwoAngleExtendedC U V x)) = directedSinTwoAngleOperatorC U V x
   congr 1
   exact (cosTwoAngleExtendedCEquiv U V hquarter).symm_apply_apply x
 
@@ -1010,12 +1010,12 @@ theorem norm_cosAngleExtendedCEquiv_symm_apply_le (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) (y : E) :
     ‖(cosAngleExtendedCEquiv U V hacute).symm y‖ ≤
-      (min (Real.sqrt (1 - directedGap U V ^ 2)) 1)⁻¹ * ‖y‖ := by
-  set c : ℝ := min (Real.sqrt (1 - directedGap U V ^ 2)) 1 with hc
-  have hglt : directedGap U V < 1 :=
-    lt_of_le_of_lt (directedProjectionGap_le_projectionGap U V) hacute
-  have hg0 : 0 ≤ directedGap U V := by
-    rw [show directedGap U V =
+      (min (Real.sqrt (1 - U.directedProjectionGap V ^ 2)) 1)⁻¹ * ‖y‖ := by
+  set c : ℝ := min (Real.sqrt (1 - U.directedProjectionGap V ^ 2)) 1 with hc
+  have hglt : U.directedProjectionGap V < 1 :=
+    lt_of_le_of_lt (Submodule.directedProjectionGap_le_projectionGap U V) hacute
+  have hg0 : 0 ≤ U.directedProjectionGap V := by
+    rw [show U.directedProjectionGap V =
       ‖Vᗮ.starProjection ∘L U.starProjection‖ from rfl]
     exact norm_nonneg _
   have hcpos : 0 < c := lt_min (Real.sqrt_pos.mpr (by nlinarith)) one_pos
@@ -1034,33 +1034,33 @@ theorem norm_cosAngleExtendedCEquiv_symm_apply_le (U V : Submodule ℂ E)
 /-- **Norm bound for the tangent operator**: `‖tan Θ‖` is at most the
 directed gap over the acute coercivity constant —
 `tan θ_max = sin θ_max / cos θ_max` as an inequality. -/
-theorem norm_tanAngleOperatorC_le (U V : Submodule ℂ E)
+theorem norm_directedTanAngleOperatorC_le (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    ‖tanAngleOperatorC U V hacute‖ ≤
-      directedGap U V *
-        (min (Real.sqrt (1 - directedGap U V ^ 2)) 1)⁻¹ := by
-  set c : ℝ := min (Real.sqrt (1 - directedGap U V ^ 2)) 1 with hc
-  have hglt : directedGap U V < 1 :=
-    lt_of_le_of_lt (directedProjectionGap_le_projectionGap U V) hacute
-  have hg0 : 0 ≤ directedGap U V := by
-    rw [show directedGap U V =
+    ‖directedTanAngleOperatorC U V hacute‖ ≤
+      U.directedProjectionGap V *
+        (min (Real.sqrt (1 - U.directedProjectionGap V ^ 2)) 1)⁻¹ := by
+  set c : ℝ := min (Real.sqrt (1 - U.directedProjectionGap V ^ 2)) 1 with hc
+  have hglt : U.directedProjectionGap V < 1 :=
+    lt_of_le_of_lt (Submodule.directedProjectionGap_le_projectionGap U V) hacute
+  have hg0 : 0 ≤ U.directedProjectionGap V := by
+    rw [show U.directedProjectionGap V =
       ‖Vᗮ.starProjection ∘L U.starProjection‖ from rfl]
     exact norm_nonneg _
   have hcpos : 0 < c := lt_min (Real.sqrt_pos.mpr (by nlinarith)) one_pos
   refine ContinuousLinearMap.opNorm_le_bound _
     (mul_nonneg hg0 (inv_nonneg.mpr hcpos.le)) fun y => ?_
-  calc ‖tanAngleOperatorC U V hacute y‖
-      = ‖sinAngleOperatorDirectedC U V
+  calc ‖directedTanAngleOperatorC U V hacute y‖
+      = ‖directedSinAngleOperatorC U V
           ((cosAngleExtendedCEquiv U V hacute).symm y)‖ := rfl
-    _ ≤ ‖sinAngleOperatorDirectedC U V‖ *
+    _ ≤ ‖directedSinAngleOperatorC U V‖ *
           ‖(cosAngleExtendedCEquiv U V hacute).symm y‖ :=
         ContinuousLinearMap.le_opNorm _ _
-    _ ≤ directedGap U V * (c⁻¹ * ‖y‖) := by
+    _ ≤ U.directedProjectionGap V * (c⁻¹ * ‖y‖) := by
         refine mul_le_mul ?_ ?_ (norm_nonneg _) hg0
-        · rw [norm_sinAngleOperatorDirectedC]
+        · rw [norm_directedSinAngleOperatorC]
         · exact norm_cosAngleExtendedCEquiv_symm_apply_le U V hacute y
-    _ = directedGap U V * c⁻¹ * ‖y‖ := by ring
+    _ = U.directedProjectionGap V * c⁻¹ * ‖y‖ := by ring
 
 end TangentNormBounds
 
@@ -1070,18 +1070,18 @@ end DoubleAngleTangent
 
 **A recorded audit claim, refuted here.**  The source census carried a reasoned
 -- not compiled -- counterexample asserting that in the two-dimensional
-one-angle model `sinTwoAngleOperatorC U V` carries `sin 2θ` with multiplicity
+one-angle model `directedSinTwoAngleOperatorC U V` carries `sin 2θ` with multiplicity
 two, "one from the `U` side and one from `Uᗮ`", while the directed ideal block
 `sinTwoThetaIdealBlock U V` carries it once; and concluded from that that the
 two objects are the paper's `Θ` and `Θ₀` and that any bridge between them pairs
 the wrong two objects.
 
 The multiplicity claim is false, and the reason is definitional.
-`sinTwoAngleOperatorC` is built from `sinAngleOperatorDirectedC`, the modulus of
+`directedSinTwoAngleOperatorC` is built from `directedSinAngleOperatorC`, the modulus of
 the *cross* product `P_{Vᗮ} P_U` -- not from the symmetric
 `sinAngleOperatorC = |P_U - P_V|`.  The symmetric sine does have full rank in
 that model, where it is `sin θ · 1`; the directed one annihilates `Uᗮ`
-(`sinAngleOperatorDirectedC_apply_eq_zero_of_mem_orthogonal`, already in this
+(`directedSinAngleOperatorC_apply_eq_zero_of_mem_orthogonal`, already in this
 file), and so does every product with it on the left.
 
 The two theorems below record the consequence in general, with no dimension
@@ -1091,33 +1091,33 @@ count separates them.  Whether the `Θ₀`/`Θ` bridge holds is therefore still
 open; what is settled is that this argument does not refute it. -/
 
 /-- **The directed sine operator is supported on `U`.** -/
-theorem range_sinAngleOperatorDirectedC_le (U V : Submodule ℂ E)
+theorem range_directedSinAngleOperatorC_le (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    LinearMap.range (sinAngleOperatorDirectedC U V : E →ₗ[ℂ] E) ≤ U := by
+    LinearMap.range (directedSinAngleOperatorC U V : E →ₗ[ℂ] E) ≤ U := by
   rintro y ⟨x, rfl⟩
-  have hmem : (sinAngleOperatorDirectedC U V : E →ₗ[ℂ] E) x ∈ Uᗮᗮ := by
+  have hmem : (directedSinAngleOperatorC U V : E →ₗ[ℂ] E) x ∈ Uᗮᗮ := by
     intro z hz
     simp only [ContinuousLinearMap.coe_coe]
-    have hadj : ⟪z, sinAngleOperatorDirectedC U V x⟫_ℂ
-        = ⟪sinAngleOperatorDirectedC U V z, x⟫_ℂ :=
+    have hadj : ⟪z, directedSinAngleOperatorC U V x⟫_ℂ
+        = ⟪directedSinAngleOperatorC U V z, x⟫_ℂ :=
       ((ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
-        (isSelfAdjoint_sinAngleOperatorDirectedC U V)) z x).symm
-    rw [hadj, sinAngleOperatorDirectedC_apply_eq_zero_of_mem_orthogonal U V hz,
+        (isSelfAdjoint_directedSinAngleOperatorC U V)) z x).symm
+    rw [hadj, directedSinAngleOperatorC_apply_eq_zero_of_mem_orthogonal U V hz,
       inner_zero_left]
   rwa [Submodule.orthogonal_orthogonal] at hmem
 
 /-- **The ambient double-angle sine operator is supported on `U` too.**  In
 particular its rank never exceeds `dim U`, so it cannot carry a singular value
 with a multiplicity the directed block misses. -/
-theorem range_sinTwoAngleOperatorC_le (U V : Submodule ℂ E)
+theorem range_directedSinTwoAngleOperatorC_le (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    LinearMap.range (sinTwoAngleOperatorC U V : E →ₗ[ℂ] E) ≤ U := by
+    LinearMap.range (directedSinTwoAngleOperatorC U V : E →ₗ[ℂ] E) ≤ U := by
   rintro y ⟨x, rfl⟩
-  have hval : (sinTwoAngleOperatorC U V : E →ₗ[ℂ] E) x
-      = (2 : ℝ) • sinAngleOperatorDirectedC U V (cosAngleOperatorC U V x) := rfl
+  have hval : (directedSinTwoAngleOperatorC U V : E →ₗ[ℂ] E) x
+      = (2 : ℝ) • directedSinAngleOperatorC U V (directedCosAngleOperatorC U V x) := rfl
   rw [hval]
   exact U.smul_mem _
-    (range_sinAngleOperatorDirectedC_le U V ⟨cosAngleOperatorC U V x, rfl⟩)
+    (range_directedSinAngleOperatorC_le U V ⟨directedCosAngleOperatorC U V x, rfl⟩)
 
-end DavisKahanExt
+end DavisKahan.Angle
 end TauCeti

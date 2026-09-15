@@ -25,6 +25,7 @@ import DavisKahan.SpectralTheory.GapResolvent
 import DavisKahan.SpectralTheory.GraphSubspace
 import DavisKahan.SpectralTheory.OperatorAngle
 import DavisKahan.SpectralTheory.OrderedHalfLine
+import DavisKahan.SpectralTheory.ReducingSpectrumUnion
 import DavisKahan.SpectralTheory.ReflectionRestriction
 import DavisKahan.SpectralTheory.ResolventOperator
 import DavisKahan.SpectralTheory.SelfAdjointBorelCalculus
@@ -34,5 +35,8 @@ import DavisKahan.SpectralTheory.SpectralRestriction
 import DavisKahan.SpectralTheory.SpectralRestrictionLocalization
 import DavisKahan.SpectralTheory.SpectralRestrictionOperator
 import ForTauCeti.Analysis.InnerProductSpace.ProjValMeasure.Subspace
+import DavisKahan.SpectralTheory.UnboundedBandLipschitz
+import DavisKahan.SpectralTheory.UnboundedCentralBand
+import DavisKahan.SpectralTheory.UnboundedDirectedGapBound
 
 /-! # `DavisKahan/SpectralTheory` -/

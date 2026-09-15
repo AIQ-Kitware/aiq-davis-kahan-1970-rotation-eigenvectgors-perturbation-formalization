@@ -8,6 +8,8 @@ import DavisKahan.Geometry.Halmos.Realization
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.DiagonalSequence
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.PrescribedSequence
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan 1970, Corollary 3.1: realizing a prescribed angle sequence
 

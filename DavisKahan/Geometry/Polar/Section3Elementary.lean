@@ -7,6 +7,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.Geometry.Halmos.GenericRotationPredicates
 import DavisKahan.Geometry.Polar.DirectRotationSquare
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Elementary Section 3 bridge
 
@@ -20,6 +22,7 @@ open scoped InnerProductSpace
 
 namespace TauCeti
 namespace DavisKahan
+
 
 
 universe u
@@ -51,8 +54,7 @@ theorem complementaryProjection_mem_halmosGenericPart_left
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H}
     (hx : x ∈ halmosGenericPart U V) :
-    complementaryProjection U x ∈ halmosGenericPart U V := by
-  change Uᗮ.starProjection x ∈ halmosGenericPart U V
+    (Uᗮ).starProjection x ∈ halmosGenericPart U V := by
   rw [U.starProjection_orthogonal_apply]
   exact (halmosGenericPart U V).sub_mem hx
     (projection_mem_halmosGenericPart_left U V hx)
@@ -63,8 +65,7 @@ theorem complementaryProjection_mem_halmosGenericPart_right
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H}
     (hx : x ∈ halmosGenericPart U V) :
-    complementaryProjection V x ∈ halmosGenericPart U V := by
-  change Vᗮ.starProjection x ∈ halmosGenericPart U V
+    (Vᗮ).starProjection x ∈ halmosGenericPart U V := by
   rw [V.starProjection_orthogonal_apply]
   exact (halmosGenericPart U V).sub_mem hx
     (projection_mem_halmosGenericPart_right U V hx)
@@ -165,21 +166,21 @@ theorem re_inner_projection_compression
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (A : E →L[𝕜] E) (x : E) :
     RCLike.re
-        ⟪x, (projection U * A * projection U) x⟫_𝕜 =
-      RCLike.re ⟪A (projection U x), projection U x⟫_𝕜 := by
+        ⟪x, (U.starProjection * A * U.starProjection) x⟫_𝕜 =
+      RCLike.re ⟪A (U.starProjection x), U.starProjection x⟫_𝕜 := by
   have hsymm := U.starProjection_isSymmetric
   have h1 :
-      ⟪projection U (A (projection U x)), x⟫_𝕜 =
-        ⟪A (projection U x), projection U x⟫_𝕜 :=
-    hsymm (A (projection U x)) x
+      ⟪U.starProjection (A (U.starProjection x)), x⟫_𝕜 =
+        ⟪A (U.starProjection x), U.starProjection x⟫_𝕜 :=
+    hsymm (A (U.starProjection x)) x
   calc
     RCLike.re
-        ⟪x, (projection U * A * projection U) x⟫_𝕜 =
+        ⟪x, (U.starProjection * A * U.starProjection) x⟫_𝕜 =
       RCLike.re
-        ⟪projection U (A (projection U x)), x⟫_𝕜 := by
+        ⟪U.starProjection (A (U.starProjection x)), x⟫_𝕜 := by
           simp only [mul_apply_eq_comp]
           exact inner_re_symm x _
-    _ = RCLike.re ⟪A (projection U x), projection U x⟫_𝕜 :=
+    _ = RCLike.re ⟪A (U.starProjection x), U.starProjection x⟫_𝕜 :=
       congrArg RCLike.re h1
 
 end GenericCompression
@@ -189,47 +190,47 @@ theorem spectraDirectRotation_sourceCompression_nonnegative
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) (x : H) :
     0 ≤ RCLike.re
-      ⟪x, (projection U * spectraDirectRotation U V hacute *
-        projection U) x⟫_ℂ := by
-  let C := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+      ⟪x, (U.starProjection * spectraDirectRotation U V hacute *
+        U.starProjection) x⟫_ℂ := by
+  let C := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   have hdiag :=
     projection_mul_spectraDirectRotation_mul_projection U V hacute
   have hform :
       RCLike.re
-          ⟪x, (projection U * spectraDirectRotation U V hacute *
-            projection U) x⟫_ℂ =
-        RCLike.re ⟪C (projection U x), projection U x⟫_ℂ := by
+          ⟪x, (U.starProjection * spectraDirectRotation U V hacute *
+            U.starProjection) x⟫_ℂ =
+        RCLike.re ⟪C (U.starProjection x), U.starProjection x⟫_ℂ := by
     rw [hdiag]
-    have hcomm : Commute C (projection U) :=
+    have hcomm : Commute C (U.starProjection) :=
       spectraCanonicalAbsoluteValue_commute_projection U V
     calc
-      RCLike.re ⟪x, (C * projection U) x⟫_ℂ =
+      RCLike.re ⟪x, (C * U.starProjection) x⟫_ℂ =
           RCLike.re
-            ⟪x, (projection U * C * projection U) x⟫_ℂ := by
+            ⟪x, (U.starProjection * C * U.starProjection) x⟫_ℂ := by
               simp only [mul_apply_eq_comp]
               have hfix :
-                  projection U (C (projection U x)) =
-                    C (projection U x) := by
+                  U.starProjection (C (U.starProjection x)) =
+                    C (U.starProjection x) := by
                 calc
-                  projection U (C (projection U x)) =
-                      C (projection U (projection U x)) := by
+                  U.starProjection (C (U.starProjection x)) =
+                      C (U.starProjection (U.starProjection x)) := by
                         simpa only [mul_apply_eq_comp, Function.comp_apply]
                           using congrArg
-                            (fun T : H →L[ℂ] H => T (projection U x))
+                            (fun T : H →L[ℂ] H => T (U.starProjection x))
                             hcomm.eq.symm
-                  _ = C (projection U x) := by
-                    have hidem : projection U (projection U x) = projection U x :=
+                  _ = C (U.starProjection x) := by
+                    have hidem : U.starProjection (U.starProjection x) = U.starProjection x :=
                       U.starProjection_eq_self_iff.mpr (U.starProjection_apply_mem x)
                     rw [hidem]
               rw [hfix]
-      _ = RCLike.re ⟪C (projection U x), projection U x⟫_ℂ :=
+      _ = RCLike.re ⟪C (U.starProjection x), U.starProjection x⟫_ℂ :=
         re_inner_projection_compression U C x
   rw [hform]
   have hnonneg : (0 : H →L[ℂ] H) ≤ C :=
-    spectraOperatorAbsoluteValue_nonneg _
+    ContinuousLinearMap.modulus_nonneg _
   have hpositive :=
     (ContinuousLinearMap.nonneg_iff_isPositive C).mp hnonneg
-  exact hpositive.re_inner_nonneg_left (projection U x)
+  exact hpositive.re_inner_nonneg_left (U.starProjection x)
 
 /-- The acute canonical direct rotation has nonnegative complementary
 compression. -/
@@ -237,24 +238,24 @@ theorem spectraDirectRotation_complementCompression_nonnegative
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) (x : H) :
     0 ≤ RCLike.re
-      ⟪x, (complementaryProjection U *
+      ⟪x, ((Uᗮ).starProjection *
         spectraDirectRotation U V hacute *
-        complementaryProjection U) x⟫_ℂ := by
-  let C := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+        (Uᗮ).starProjection) x⟫_ℂ := by
+  let C := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   have hdiag :=
     complementaryProjection_mul_spectraDirectRotation_mul_complementaryProjection
       U V hacute
   have hform :
       RCLike.re
-          ⟪x, (complementaryProjection U *
+          ⟪x, ((Uᗮ).starProjection *
             spectraDirectRotation U V hacute *
-            complementaryProjection U) x⟫_ℂ =
+            (Uᗮ).starProjection) x⟫_ℂ =
         RCLike.re
-          ⟪C (complementaryProjection U x),
-            complementaryProjection U x⟫_ℂ := by
+          ⟪C ((Uᗮ).starProjection x),
+            (Uᗮ).starProjection x⟫_ℂ := by
     rw [hdiag]
-    have hcomm : Commute C (complementaryProjection U) := by
-      have hcomp : complementaryProjection U = 1 - projection U :=
+    have hcomm : Commute C ((Uᗮ).starProjection) := by
+      have hcomp : (Uᗮ).starProjection = 1 - U.starProjection :=
         Submodule.starProjection_orthogonal' U
       -- Left as a `rw` chain on purpose: `simp only` with this same list leaves the goal unsolved:
       -- at least one lemma here has to fire at one occurrence, in order, and simp's normal form
@@ -262,58 +263,58 @@ theorem spectraDirectRotation_complementCompression_nonnegative
       rw [commute_iff_eq, hcomp, mul_sub, mul_one, sub_mul, one_mul,
         (spectraCanonicalAbsoluteValue_commute_projection U V).eq]
     calc
-      RCLike.re ⟪x, (C * complementaryProjection U) x⟫_ℂ =
+      RCLike.re ⟪x, (C * (Uᗮ).starProjection) x⟫_ℂ =
           RCLike.re
-            ⟪x, (complementaryProjection U * C *
-              complementaryProjection U) x⟫_ℂ := by
+            ⟪x, ((Uᗮ).starProjection * C *
+              (Uᗮ).starProjection) x⟫_ℂ := by
               simp only [mul_apply_eq_comp]
               have hfix :
-                  complementaryProjection U
-                      (C (complementaryProjection U x)) =
-                    C (complementaryProjection U x) := by
+                  (Uᗮ).starProjection
+                      (C ((Uᗮ).starProjection x)) =
+                    C ((Uᗮ).starProjection x) := by
                 calc
-                  complementaryProjection U
-                      (C (complementaryProjection U x)) =
-                    C (complementaryProjection U
-                      (complementaryProjection U x)) := by
+                  (Uᗮ).starProjection
+                      (C ((Uᗮ).starProjection x)) =
+                    C ((Uᗮ).starProjection
+                      ((Uᗮ).starProjection x)) := by
                         simpa only [mul_apply_eq_comp, Function.comp_apply]
                           using congrArg
                             (fun T : H →L[ℂ] H =>
-                              T (complementaryProjection U x))
+                              T ((Uᗮ).starProjection x))
                             hcomm.eq.symm
-                  _ = C (complementaryProjection U x) := by
+                  _ = C ((Uᗮ).starProjection x) := by
                     have hidem :
-                        complementaryProjection U
-                            (complementaryProjection U x) =
-                          complementaryProjection U x :=
+                        (Uᗮ).starProjection
+                            ((Uᗮ).starProjection x) =
+                          (Uᗮ).starProjection x :=
                       Uᗮ.starProjection_eq_self_iff.mpr
                         (Uᗮ.starProjection_apply_mem x)
                     rw [hidem]
               rw [hfix]
       _ = RCLike.re
-          ⟪C (complementaryProjection U x),
-            complementaryProjection U x⟫_ℂ :=
+          ⟪C ((Uᗮ).starProjection x),
+            (Uᗮ).starProjection x⟫_ℂ :=
         re_inner_projection_compression Uᗮ C x
   rw [hform]
   have hnonneg : (0 : H →L[ℂ] H) ≤ C :=
-    spectraOperatorAbsoluteValue_nonneg _
+    ContinuousLinearMap.modulus_nonneg _
   have hpositive :=
     (ContinuousLinearMap.nonneg_iff_isPositive C).mp hnonneg
-  exact hpositive.re_inner_nonneg_left (complementaryProjection U x)
+  exact hpositive.re_inner_nonneg_left ((Uᗮ).starProjection x)
 
 /-- The crossed source blocks of the acute canonical direct rotation are
 skew-adjoint. -/
 theorem spectraDirectRotation_crossed_blocks
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) :
-    complementaryProjection U * spectraDirectRotation U V hacute *
-        projection U =
-      -star (projection U * spectraDirectRotation U V hacute *
-        complementaryProjection U) := by
+    (Uᗮ).starProjection * spectraDirectRotation U V hacute *
+        U.starProjection =
+      -star (U.starProjection * spectraDirectRotation U V hacute *
+        (Uᗮ).starProjection) := by
   let D := spectraDirectRotation U V hacute
-  let C := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
-  let P := projection U
-  let Pc := complementaryProjection U
+  let C := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
+  let P := U.starProjection
+  let Pc := (Uᗮ).starProjection
   have hsum : D + star D = C + C := by
     simpa only [D, C, two_smul] using
       spectraDirectRotation_add_star_eq_two_smul_absoluteValue U V hacute
@@ -337,10 +338,10 @@ theorem spectraDirectRotation_crossed_blocks
     _ = -star (P * D * Pc) := by rw [hstar]
 
 /-- The acute Spectra direct rotation satisfies the paper's block definition. -/
-theorem spectraDirectRotation_isPaperDirectRotation
+theorem spectraDirectRotation_isDirectRotation
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) :
-    IsPaperDirectRotation U V (spectraDirectRotation U V hacute) where
+    IsDirectRotation U V (spectraDirectRotation U V hacute) where
   unitary_mem := spectraDirectRotation_mem_unitary U V hacute
   intertwines := spectraDirectRotation_intertwines U V hacute
   source_compression_nonnegative :=

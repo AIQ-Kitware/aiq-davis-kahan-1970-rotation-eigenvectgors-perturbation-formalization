@@ -6,6 +6,11 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedGramBridge
 import DavisKahan.Sources.DavisKahan1970.SharpKyFan
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The middle inequality of the unbounded `tan 2Θ` chain
 
@@ -63,7 +68,7 @@ Three parameters occur and the order in which they are released is load bearing.
   Fan-dominant unitarily invariant ideal gauge.
 
 Both Ky Fan pairings are charged to the **typed** directed residual corner
-`reflectionResidualCorner U B = paperBlockCompression Uᗮ U B`, through
+`reflectionResidualCorner U B = blockCompression Uᗮ U B`, through
 `sum_le_kyFanApproximationGauge_reflectionResidualCorner_of_contraction`.  That
 keeps tangent and residual in one space pair, which is what the Fan-dominance
 bridge needs, and it is also what pins the sharp constant: the two pairings are
@@ -83,6 +88,7 @@ open scoped InnerProductSpace BigOperators
 
 open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.ApproximationNumber
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -90,14 +96,6 @@ universe u
 
 variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
   [CompleteSpace H]
-
-/-- An orthogonally complemented subspace of a complete space is complete.  The
-instance is `local` in every module that declares it, so it does not propagate
-through imports and has to be reinstalled here; without it the adjoints inside
-`paperBlockCompression` do not elaborate. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionGramMiddle
-    (W : Submodule ℂ H) [W.HasOrthogonalProjection] : CompleteSpace W :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection W).completeSpace_coe
 
 variable {U : Submodule ℂ H} [U.HasOrthogonalProjection]
 variable {A : H →ₗ.[ℂ] H} {B Z : H →L[ℂ] H} {a b τ : ℝ}
@@ -405,16 +403,10 @@ section ScalarGenericResidualCorner
 variable {𝕜 : Type*} [RCLike 𝕜] {G : Type u} [NormedAddCommGroup G]
   [InnerProductSpace 𝕜 G] [CompleteSpace G]
 
-/-- The scalar-generic form of the module's completeness instance for an
-orthogonally complemented subspace. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionGramMiddleGeneric
-    (W : Submodule 𝕜 G) [W.HasOrthogonalProjection] : CompleteSpace W :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection W).completeSpace_coe
-
 /-- The directed residual corner `R₀ : U → Uᗮ`, the companion of
 `reflectionSineCorner` and `reflectionTangentCorner`. -/
 abbrev reflectionResidualCorner (U : Submodule 𝕜 G) [U.HasOrthogonalProjection]
-    (B : G →L[𝕜] G) : U →L[𝕜] Uᗮ := paperBlockCompression Uᗮ U B
+    (B : G →L[𝕜] G) : U →L[𝕜] Uᗮ := blockCompression Uᗮ U B
 
 end ScalarGenericResidualCorner
 
@@ -424,7 +416,7 @@ theorem inner_reflectionResidualCorner (K : H →L[ℂ] H) (u : Uᗮ) (v : U) :
     ⟪u, reflectionResidualCorner U K v⟫_ℂ = ⟪(u : H), K ((v : U) : H)⟫_ℂ := by
   have h : ((reflectionResidualCorner U K v : Uᗮ) : H) =
       Uᗮ.starProjection (K ((v : U) : H)) :=
-    coe_paperBlockCompression_apply Uᗮ U K v
+    coe_blockCompression_apply Uᗮ U K v
   have h2 : ⟪u, reflectionResidualCorner U K v⟫_ℂ =
       ⟪(u : H), ((reflectionResidualCorner U K v : Uᗮ) : H)⟫_ℂ := rfl
   rw [h2, h, ← Submodule.inner_starProjection_left_eq_right,
@@ -445,7 +437,7 @@ theorem norm_sum_smul_coe {W : Submodule ℂ H} [W.HasOrthogonalProjection]
 
 `sum_le_kyFanApproximationGauge_of_contraction` for an ambient operator `K`, two
 ambient contraction systems lying in `Uᗮ` and `U` respectively, and the *typed*
-gauge of `paperBlockCompression Uᗮ U K`.  Charging to the corner rather than to
+gauge of `blockCompression Uᗮ U K`.  Charging to the corner rather than to
 the ambient operator is what keeps the endpoint inside a single space pair, so
 that the Fan-dominance bridge applies. -/
 theorem sum_le_kyFanApproximationGauge_reflectionResidualCorner_of_contraction
@@ -1126,12 +1118,6 @@ section ScalarGenericAmbientBound
 variable {𝕜 : Type*} [RCLike 𝕜] {G : Type u} [NormedAddCommGroup G]
   [InnerProductSpace 𝕜 G] [CompleteSpace G]
 
-/-- The scalar-generic form of the module's completeness instance for an
-orthogonally complemented subspace. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionGramMiddleAmbient
-    (W : Submodule 𝕜 G) [W.HasOrthogonalProjection] : CompleteSpace W :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection W).completeSpace_coe
-
 /-- The directed corner never has larger approximation numbers than the ambient
 operator: it is the ambient operator pre- and post-composed with contractions. -/
 theorem kyFanApproximationGauge_reflectionResidualCorner_le
@@ -1219,7 +1205,7 @@ theorem mem_and_gauge_le_reflectionTangentCorner
     N.Mem ((((b - a) / 2 : ℝ) : ℂ) • reflectionTangentCorner U Z) ∧
       N.gauge ((((b - a) / 2 : ℝ) : ℂ) • reflectionTangentCorner U Z) ≤
         N.gauge (reflectionResidualCorner U B) := by
-  refine mem_and_gauge_le_of_all_kyFanApproximationGauge_le N hBmem fun k => ?_
+  refine mem_and_gauge_le_of_all_kyFanApproximationGauge_le N.toFanDominantIdealFamily hBmem fun k => ?_
   rw [kyFanApproximationGauge_smul, Complex.norm_real, Real.norm_eq_abs,
     abs_of_nonneg (by linarith : (0 : ℝ) ≤ (b - a) / 2)]
   have h := gap_mul_kyFan_reflectionTangentCorner_le_two_mul_kyFan hred hB hZsa

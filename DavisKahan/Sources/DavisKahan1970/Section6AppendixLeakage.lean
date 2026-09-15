@@ -8,6 +8,8 @@ import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.FiniteDimensional
 import DavisKahan.Sources.DavisKahan1970.Ideals.HilbertSchmidtBasis
 import DavisKahan.Sources.DavisKahan1970.Ideals.HilbertSchmidtFiniteRank
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan 1970, Lemma 6.3
 
@@ -47,7 +49,7 @@ The final argument is then a scalar subtraction.
 
 Everything except the Pythagorean splitting is scalar generic and is stated
 here over `RCLike 𝕜`.  The splitting itself is proved over `ℂ` because the
-column-energy bridge `paperHilbertSchmidtEnergy_eq_basisEnergy` is; the real
+column-energy bridge `approximationNumberEnergy_eq_basisEnergy` is; the real
 splitting, and with it the real Hilbert-space form of the lemma, is obtained by
 complexification in
 `DavisKahan/Sources/DavisKahan1970/Section6AppendixLeakageReal.lean`.  The
@@ -132,12 +134,12 @@ theorem approximationEnergy_starProjection_comp_le
 
 /-- A finite-rank operator's prefix square energy is the real form of its
 paper Hilbert--Schmidt energy. -/
-theorem approximationEnergy_eq_paperEnergy_toReal_of_rank_le
+theorem approximationEnergy_eq_approximationNumberEnergy_toReal_of_rank_le
     (T : E →L[𝕜] F) {n : ℕ}
     (hrank : T.rank ≤ (n : Cardinal)) :
     approximationEnergy T n =
-      (paperHilbertSchmidtEnergy T).toReal := by
-  rw [paperHilbertSchmidtEnergy_eq_sum_range_of_rank_le hrank]
+      (approximationNumberEnergy T).toReal := by
+  rw [approximationNumberEnergy_eq_sum_range_of_rank_le hrank]
   unfold approximationEnergy
   rw [ENNReal.toReal_sum]
   · exact Finset.sum_congr rfl fun i hi => by
@@ -165,29 +167,29 @@ variable {E' : Type u} {F' : Type v}
 domain.  This is the basis-free Pythagorean identity used in Lemma 6.3.
 
 Stated over `ℂ` because the column-energy bridge it uses is; the real form is
-`paperHilbertSchmidtEnergy_domain_projection_add_real`, obtained by
+`hilbertSchmidtEnergy_domain_projection_add_real`, obtained by
 complexification. -/
-theorem paperHilbertSchmidtEnergy_domain_projection_add_complex
+theorem hilbertSchmidtEnergy_domain_projection_add_complex
     (L : E' →L[ℂ] F')
     (P : Submodule ℂ E') [P.HasOrthogonalProjection]
     -- carried for source fidelity: Davis--Kahan Lemma 6.3 states this for
     -- Hilbert--Schmidt `L`, and the proof happens not to need it
-    (_hfinite : IsPaperHilbertSchmidt L) :
-    paperHilbertSchmidtEnergy L =
-      paperHilbertSchmidtEnergy (L ∘L P.starProjection) +
-      paperHilbertSchmidtEnergy
+    (_hfinite : approximationNumberEnergy L ≠ ⊤) :
+    approximationNumberEnergy L =
+      approximationNumberEnergy (L ∘L P.starProjection) +
+      approximationNumberEnergy
         (L ∘L (1 - P.starProjection)) := by
   classical
   obtain ⟨ι, b, -⟩ := exists_hilbertBasis ℂ F'
   -- Rectangular Hilbert--Schmidt energy of any `M : E' → F'` equals the summed
   -- squared columns of its adjoint over the fixed basis `b` of `F'`.
   have hswap : ∀ M : E' →L[ℂ] F',
-      paperHilbertSchmidtEnergy M =
-        paperHilbertSchmidtBasisEnergy b M.adjoint := by
+      approximationNumberEnergy M =
+        hilbertSchmidtBasisEnergy b M.adjoint := by
     intro M
     obtain ⟨κ, bE, -⟩ := exists_hilbertBasis ℂ E'
-    rw [paperHilbertSchmidtEnergy_eq_basisEnergy bE M,
-      paperHilbertSchmidtBasisEnergy_adjoint_swap bE b M]
+    rw [approximationNumberEnergy_eq_basisEnergy bE M,
+      hilbertSchmidtBasisEnergy_adjoint_swap bE b M]
   -- The adjoints of the two compressed operators are the projected columns.
   have hPadj :
       (L ∘L P.starProjection).adjoint = P.starProjection ∘L L.adjoint := by
@@ -202,7 +204,7 @@ theorem paperHilbertSchmidtEnergy_domain_projection_add_complex
     rw [ContinuousLinearMap.adjoint_comp, hsa]
   rw [hswap L, hswap (L ∘L P.starProjection),
     hswap (L ∘L (1 - P.starProjection)), hPadj, hPcadj]
-  unfold paperHilbertSchmidtBasisEnergy
+  unfold hilbertSchmidtBasisEnergy
   rw [← ENNReal.tsum_add]
   apply tsum_congr
   intro i
@@ -237,8 +239,8 @@ Everything in the proof of the lemma except the Pythagorean splitting of the
 square energy over `P + (1 - P)` is independent of the scalar field, so the
 splitting is taken here as a hypothesis on the one operator that needs it.
 Over `ℂ` the hypothesis is discharged by
-`paperHilbertSchmidtEnergy_domain_projection_add_complex`, over `ℝ` by
-`paperHilbertSchmidtEnergy_domain_projection_add_real`. -/
+`hilbertSchmidtEnergy_domain_projection_add_complex`, over `ℝ` by
+`hilbertSchmidtEnergy_domain_projection_add_real`. -/
 theorem lemma6_3_approximationNumber_leakage_of_energySplit
     (K : E →L[𝕜] F)
     (P : Submodule 𝕜 E) [P.HasOrthogonalProjection]
@@ -247,9 +249,9 @@ theorem lemma6_3_approximationNumber_leakage_of_energySplit
     (hKP : K ∘L P.starProjection = Q.starProjection ∘L K ∘L P.starProjection)
     (hrankQ : Q.starProjection.rank ≤ (n : Cardinal))
     (hsplit :
-      paperHilbertSchmidtEnergy (Q.starProjection ∘L K) =
-        paperHilbertSchmidtEnergy ((Q.starProjection ∘L K) ∘L P.starProjection) +
-          paperHilbertSchmidtEnergy
+      approximationNumberEnergy (Q.starProjection ∘L K) =
+        approximationNumberEnergy ((Q.starProjection ∘L K) ∘L P.starProjection) +
+          approximationNumberEnergy
             ((Q.starProjection ∘L K) ∘L (1 - P.starProjection)))
     (hnear : approximationEnergy (K ∘L P.starProjection) n >
       approximationEnergy K n - η ^ 2) :
@@ -287,15 +289,15 @@ theorem lemma6_3_approximationNumber_leakage_of_energySplit
       exact leftCompressed_comp_source_eq K P Q hKP
     have hLB :
         L ∘L (1 - P.starProjection) = B := rfl
-    have hAfinite : IsPaperHilbertSchmidt A :=
-      isPaperHilbertSchmidt_of_rank_le hrankA
-    have hBfinite : IsPaperHilbertSchmidt B :=
-      isPaperHilbertSchmidt_of_rank_le hrankB
+    have hAfinite : approximationNumberEnergy A ≠ ⊤ :=
+      approximationNumberEnergy_ne_top_of_rank_le hrankA
+    have hBfinite : approximationNumberEnergy B ≠ ⊤ :=
+      approximationNumberEnergy_ne_top_of_rank_le hrankB
     have hreal := congrArg ENNReal.toReal hsplit
     rw [hLP, hLB, ENNReal.toReal_add hAfinite hBfinite,
-      ← approximationEnergy_eq_paperEnergy_toReal_of_rank_le L hrankL,
-      ← approximationEnergy_eq_paperEnergy_toReal_of_rank_le A hrankA,
-      ← approximationEnergy_eq_paperEnergy_toReal_of_rank_le B hrankB] at hreal
+      ← approximationEnergy_eq_approximationNumberEnergy_toReal_of_rank_le L hrankL,
+      ← approximationEnergy_eq_approximationNumberEnergy_toReal_of_rank_le A hrankA,
+      ← approximationEnergy_eq_approximationNumberEnergy_toReal_of_rank_le B hrankB] at hreal
     exact hreal
   have hLle :
       approximationEnergy L n ≤
@@ -362,9 +364,9 @@ theorem lemma6_3_approximationNumber_leakage_complex
     ‖Q.starProjection ∘L K ∘L (1 - P.starProjection)‖ < η := by
   refine lemma6_3_approximationNumber_leakage_of_energySplit
     K P Q n hn η hη hKP hrankQ ?_ hnear
-  refine paperHilbertSchmidtEnergy_domain_projection_add_complex
+  refine hilbertSchmidtEnergy_domain_projection_add_complex
     (Q.starProjection ∘L K) P ?_
-  exact isPaperHilbertSchmidt_of_rank_le
+  exact approximationNumberEnergy_ne_top_of_rank_le
     ((rank_starProjection_comp_le K Q).trans hrankQ)
 
 /-- Finite-dimensional singular-value specialization of Lemma 6.3, with the

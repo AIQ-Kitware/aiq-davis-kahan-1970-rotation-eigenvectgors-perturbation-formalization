@@ -8,6 +8,11 @@ import DavisKahan.OperatorIdeal.CanonicalRealView
 import DavisKahan.Geometry.Angle.OperatorAngleComplex
 import DavisKahan.InfiniteDimensional.DoubleAngle
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The `sin 2Θ` theorem through the compression spectrum
 
@@ -23,7 +28,7 @@ the reflected image is exactly the operator norm of `sin 2Θ(U, V)`.
 
 Supporting API, upstream candidates:
 
-* `ContinuousLinearEquiv.conjAlgEquiv`: conjugation by a continuous linear
+* `ContinuousLinearEquiv.conjContinuousAlgEquiv`: conjugation by a continuous linear
   equivalence as an algebra equivalence of endomorphism algebras;
 * `conjByIsometryEquiv` and its transport laws for self-adjointness,
   reducing subspaces, orthogonal projections, compressions, and spectra.
@@ -32,6 +37,9 @@ Supporting API, upstream candidates:
 namespace TauCeti
 namespace DavisKahanExt
 
+open TauCeti.DavisKahan.ExactSinTheta
+
+
 -- `reflectionDefect` and its lemmas live in `TauCeti.DavisKahan`
 -- (`DavisKahan/BoundedOperator/Reflection.lean`); `DoubleAngle.lean` used to carry a verbatim
 -- copy inside this namespace, so consumers resolved them without an `open`.
@@ -39,28 +47,6 @@ open DavisKahan
 
 open scoped InnerProductSpace
 
-/-- Conjugation by a continuous linear equivalence, as an algebra
-equivalence of the endomorphism algebras. -/
-noncomputable def _root_.ContinuousLinearEquiv.conjAlgEquiv
-    {X Y : Type*} [NormedAddCommGroup X] [NormedSpace ℂ X]
-    [NormedAddCommGroup Y] [NormedSpace ℂ Y] (e : X ≃L[ℂ] Y) :
-    (X →L[ℂ] X) ≃ₐ[ℂ] (Y →L[ℂ] Y) where
-  toFun T := (e : X →L[ℂ] Y) ∘L T ∘L (e.symm : Y →L[ℂ] X)
-  invFun S := (e.symm : Y →L[ℂ] X) ∘L S ∘L (e : X →L[ℂ] Y)
-  left_inv T := by ext x; simp
-  right_inv S := by ext x; simp
-  map_mul' T₁ T₂ := by ext x; simp
-  map_add' T₁ T₂ := by ext x; simp
-  commutes' c := by
-    ext x
-    simp [Algebra.algebraMap_eq_smul_one]
-
-/-- Conjugation by a continuous linear equivalence acts pointwise as `e ∘ T ∘ e.symm`. -/
-@[simp] theorem _root_.ContinuousLinearEquiv.conjAlgEquiv_apply
-    {X Y : Type*} [NormedAddCommGroup X] [NormedSpace ℂ X]
-    [NormedAddCommGroup Y] [NormedSpace ℂ Y] (e : X ≃L[ℂ] Y)
-    (T : X →L[ℂ] X) (y : Y) :
-    e.conjAlgEquiv T y = e (T (e.symm y)) := rfl
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
   [CompleteSpace E]
@@ -98,8 +84,8 @@ theorem isSelfAdjoint_conjByIsometryEquiv (W : E ≃ₗᵢ[ℂ] E)
 omit [CompleteSpace E] in
 /-- Conjugation transports reducing subspaces to the image subspace. -/
 theorem _root_.ContinuousLinearMap.Reduces.map_isometryEquiv {A : E →L[ℂ] E} {U : Submodule ℂ E}
-    (hU : Reduces A U) (W : E ≃ₗᵢ[ℂ] E) :
-    Reduces (conjByIsometryEquiv W A)
+    (hU : A.Reduces U) (W : E ≃ₗᵢ[ℂ] E) :
+    ContinuousLinearMap.Reduces (conjByIsometryEquiv W A)
       (U.map (W.toLinearEquiv : E →ₗ[ℂ] E)) := by
   constructor
   · rintro x ⟨y, hy, rfl⟩
@@ -150,7 +136,7 @@ theorem compressOperator_map (U : Submodule ℂ E) [U.HasOrthogonalProjection]
     (A : E →L[ℂ] E) (W : E ≃ₗᵢ[ℂ] E) :
     compressOperator (U.map (W.toLinearEquiv : E →ₗ[ℂ] E))
         (conjByIsometryEquiv W A) =
-      (submoduleMapIsometry W U).toContinuousLinearEquiv.conjAlgEquiv
+      (submoduleMapIsometry W U).toContinuousLinearEquiv.conjContinuousAlgEquiv.toAlgEquiv
         (compressOperator U A) := by
   ext x
   have hL : ((compressOperator (U.map (W.toLinearEquiv : E →ₗ[ℂ] E))
@@ -158,7 +144,7 @@ theorem compressOperator_map (U : Submodule ℂ E) [U.HasOrthogonalProjection]
         U.map (W.toLinearEquiv : E →ₗ[ℂ] E)) : E) =
       (U.map (W.toLinearEquiv : E →ₗ[ℂ] E)).starProjection
         ((conjByIsometryEquiv W A) (x : E)) := rfl
-  have hR : (((submoduleMapIsometry W U).toContinuousLinearEquiv.conjAlgEquiv
+  have hR : (((submoduleMapIsometry W U).toContinuousLinearEquiv.conjContinuousAlgEquiv.toAlgEquiv
       (compressOperator U A) x :
         U.map (W.toLinearEquiv : E →ₗ[ℂ] E)) : E) =
       W (U.starProjection (A (W.symm (x : E)))) := rfl
@@ -192,9 +178,8 @@ theorem spectrum_compressOperator_map (U : Submodule ℂ E)
         (conjByIsometryEquiv W A)) =
       spectrum ℝ (compressOperator U A) := by
   rw [compressOperator_map]
-  exact AlgEquiv.spectrum_eq
-    (((submoduleMapIsometry W U).toContinuousLinearEquiv.conjAlgEquiv).restrictScalars
-      ℝ) _
+  let e := (submoduleMapIsometry W U).toContinuousLinearEquiv.conjContinuousAlgEquiv
+  exact AlgEquiv.spectrum_eq (e.toAlgEquiv.restrictScalars ℝ) _
 
 end SpectrumTransport
 
@@ -206,9 +191,8 @@ omit [CompleteSpace E] in
 /-- The repo reflection operator agrees with Mathlib's reflection isometry. -/
 theorem reflectionOperator_eq_reflection (V : Submodule ℂ E)
     [V.HasOrthogonalProjection] (x : E) :
-    (reflectionOperator V : E →L[ℂ] E) x = V.reflection x := by
-  rw [reflectionOperator_apply, Submodule.reflection_apply, two_smul,
-    two_smul]
+    (V.reflectionOperator : E →L[ℂ] E) x = V.reflection x := by
+  simp [Submodule.reflectionOperator_apply, Submodule.reflection_apply, two_smul]
 
 omit [CompleteSpace E] in
 /-- Conjugation by the reflection through `V` differs from the identity by
@@ -219,7 +203,7 @@ theorem conjByReflection_sub_eq_reflectionDefect (V : Submodule ℂ E)
   unfold reflectionDefect
   ext x
   show V.reflection (A (V.reflection.symm x)) - A x =
-    reflectionOperator V (A (reflectionOperator V x)) - A x
+    V.reflectionOperator (A (V.reflectionOperator x)) - A x
   rw [reflectionOperator_eq_reflection, reflectionOperator_eq_reflection,
     Submodule.reflection_symm]
 
@@ -233,17 +217,17 @@ theorem sinTwoTheta_spectrum_defect
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U)
+    (hU : A.Reduces U)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
       x ≤ a - d ∨ b + d ≤ x) :
-    d * subspaceGap U
+    d * U.projectionGap
         (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) ≤
       ‖reflectionDefect V A‖ := by
   have hÃsa : IsSelfAdjoint (conjByIsometryEquiv V.reflection A) :=
     isSelfAdjoint_conjByIsometryEquiv V.reflection hA
-  have hŨred : Reduces (conjByIsometryEquiv V.reflection A)
+  have hŨred : ContinuousLinearMap.Reduces (conjByIsometryEquiv V.reflection A)
       (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) :=
     hU.map_isometryEquiv V.reflection
   have htrans1 : spectrum ℝ (compressOperator
@@ -268,7 +252,7 @@ theorem sinTwoTheta_spectrum_defect
   have hdefect : conjByIsometryEquiv V.reflection A - A =
       reflectionDefect V A :=
     conjByReflection_sub_eq_reflectionDefect V A
-  calc d * subspaceGap U
+  calc d * U.projectionGap
         (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E))
       ≤ ‖conjByIsometryEquiv V.reflection A - A‖ := h
     _ = ‖reflectionDefect V A‖ := by rw [hdefect]
@@ -284,15 +268,15 @@ theorem sinTwoTheta_spectrum
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
       x ≤ a - d ∨ b + d ≤ x) :
-    d * subspaceGap U
+    d * U.projectionGap
         (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) ≤
       2 * ‖B - A‖ := by
-  calc d * subspaceGap U
+  calc d * U.projectionGap
         (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E))
       ≤ ‖reflectionDefect V A‖ :=
         sinTwoTheta_spectrum_defect hA hU hd hab hUspec hUspec'
@@ -306,7 +290,7 @@ theorem sinTwoTheta_spectrum_sinAngle
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
@@ -319,7 +303,6 @@ theorem sinTwoTheta_spectrum_sinAngle
 
 section IdealScope
 
-open TauCeti.DavisKahan.ExactSinTheta
 
 /-- **The genuine-spectrum `sin 2Θ` theorem at unitary-invariant ideal
 scope** (directed form).  Under the genuine internal configuration of `A`
@@ -332,7 +315,7 @@ theorem sinTwoTheta_spectrum_gauge
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
@@ -346,7 +329,7 @@ theorem sinTwoTheta_spectrum_gauge
       2 * N.gaugeReal (B - A) := by
   have hÃsa : IsSelfAdjoint (conjByIsometryEquiv V.reflection A) :=
     isSelfAdjoint_conjByIsometryEquiv V.reflection hA
-  have hŨred : Reduces (conjByIsometryEquiv V.reflection A)
+  have hŨred : ContinuousLinearMap.Reduces (conjByIsometryEquiv V.reflection A)
       (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) :=
     hU.map_isometryEquiv V.reflection
   have hperp : Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E) =
@@ -363,11 +346,11 @@ theorem sinTwoTheta_spectrum_gauge
     rw [show A - B = -(B - A) from by abel]
     exact N.neg_mem hMem
   have hdefect2 : conjByIsometryEquiv V.reflection A - A =
-      reflectionOperator V ∘L (A - B) ∘L reflectionOperator V - (A - B) := by
+      V.reflectionOperator ∘L (A - B) ∘L V.reflectionOperator - (A - B) := by
     rw [conjByReflection_sub_eq_reflectionDefect,
       reflectionDefect_eq_perturbationDefect A B V hV]
   have hMemConj : N.Mem
-      (reflectionOperator V ∘L (A - B) ∘L reflectionOperator V) :=
+      (V.reflectionOperator ∘L (A - B) ∘L V.reflectionOperator) :=
     N.comp_mem _ _ hMemAB
   have hMemD : N.Mem (conjByIsometryEquiv V.reflection A - A) := by
     rw [hdefect2]
@@ -379,16 +362,16 @@ theorem sinTwoTheta_spectrum_gauge
       2 * N.gaugeReal (B - A) := by
     rw [hdefect2]
     have h1 : N.gaugeReal
-        (reflectionOperator V ∘L (A - B) ∘L reflectionOperator V - (A - B))
+        (V.reflectionOperator ∘L (A - B) ∘L V.reflectionOperator - (A - B))
         ≤ N.gaugeReal
-            (reflectionOperator V ∘L (A - B) ∘L reflectionOperator V) +
+            (V.reflectionOperator ∘L (A - B) ∘L V.reflectionOperator) +
           N.gaugeReal (A - B) := N.gaugeReal_sub_le hMemConj hMemAB
     have h2 : N.gaugeReal
-        (reflectionOperator V ∘L (A - B) ∘L reflectionOperator V) ≤
+        (V.reflectionOperator ∘L (A - B) ∘L V.reflectionOperator) ≤
         N.gaugeReal (A - B) :=
       N.gaugeReal_comp_le_of_contractions _ _ hMemAB
-        (norm_reflectionOperator_le_one V)
-        (norm_reflectionOperator_le_one V)
+        (Submodule.norm_reflectionOperator_le_one V)
+        (Submodule.norm_reflectionOperator_le_one V)
     rw [hgaugeAB] at h1 h2
     linarith
   have hmain := sinTheta_spectrum_gauge N hA hÃsa hU hŨred hd hab
@@ -414,7 +397,7 @@ theorem sinTwoTheta_spectrum_residual
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U)
+    (hU : A.Reduces U)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
@@ -422,11 +405,11 @@ theorem sinTwoTheta_spectrum_residual
     {X : F →L[ℂ] E} (hX : DavisKahan.IsometricEmbedding X)
     (hmem : ∀ u, X u ∈ V) (hsurj : ∀ v ∈ V, ∃ u, X u = v)
     (M : F →L[ℂ] F) :
-    d * subspaceGap U
+    d * U.projectionGap
         (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) ≤
       2 * ‖A ∘L X - X ∘L M‖ := by
   have hcross := norm_cross_le_norm_residual hX A M hmem hsurj
-  calc d * subspaceGap U
+  calc d * U.projectionGap
         (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E))
       ≤ ‖reflectionDefect V A‖ :=
         sinTwoTheta_spectrum_defect hA hU hd hab hUspec hUspec'
@@ -499,7 +482,7 @@ omit [CompleteSpace E] in
 of the projection: `subspaceGap U (J_V U) = ‖J_V P_U J_V - P_U‖`. -/
 theorem subspaceGap_map_reflection (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    subspaceGap U (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) =
+    U.projectionGap (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) =
       ‖reflectionDefect V U.starProjection‖ := by
   have h : U.starProjection -
       (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)).starProjection =
@@ -520,12 +503,12 @@ norm identities. -/
 theorem subspaceGap_map_reflection_eq_norm_sinTwoAngle
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    subspaceGap U (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) =
-      ‖sinTwoAngleOperatorC U V‖ := by
+    U.projectionGap (U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)) =
+      ‖directedSinTwoAngleOperatorC U V‖ := by
   rw [subspaceGap_map_reflection,
     reflectionDefect_eq_neg_two_smul_offdiag, norm_smul,
     norm_offdiag_add_eq V (isSelfAdjoint_starProjection U),
-    norm_sinTwoAngleOperatorC]
+    norm_directedSinTwoAngleOperatorC]
   norm_num
 
 /-- **The genuine-spectrum `sin 2Θ` theorem, exact operator form.**
@@ -537,12 +520,12 @@ theorem sinTwoTheta_spectrum_operator
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
       x ≤ a - d ∨ b + d ≤ x) :
-    d * ‖sinTwoAngleOperatorC U V‖ ≤ 2 * ‖B - A‖ := by
+    d * ‖directedSinTwoAngleOperatorC U V‖ ≤ 2 * ‖B - A‖ := by
   rw [← subspaceGap_map_reflection_eq_norm_sinTwoAngle]
   exact sinTwoTheta_spectrum hA hU hV hd hab hUspec hUspec'
 
@@ -555,7 +538,7 @@ theorem sinTwoTheta_spectrum_residual_operator
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U)
+    (hU : A.Reduces U)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
@@ -563,7 +546,7 @@ theorem sinTwoTheta_spectrum_residual_operator
     {X : F →L[ℂ] E} (hX : DavisKahan.IsometricEmbedding X)
     (hmem : ∀ u, X u ∈ V) (hsurj : ∀ v ∈ V, ∃ u, X u = v)
     (M : F →L[ℂ] F) :
-    d * ‖sinTwoAngleOperatorC U V‖ ≤ 2 * ‖A ∘L X - X ∘L M‖ := by
+    d * ‖directedSinTwoAngleOperatorC U V‖ ≤ 2 * ‖A ∘L X - X ∘L M‖ := by
   rw [← subspaceGap_map_reflection_eq_norm_sinTwoAngle]
   exact sinTwoTheta_spectrum_residual hA hU hd hab hUspec hUspec'
     hX hmem hsurj M

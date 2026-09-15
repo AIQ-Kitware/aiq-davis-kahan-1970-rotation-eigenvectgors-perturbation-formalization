@@ -7,6 +7,7 @@ module
 
 public import ForTauCeti.Analysis.InnerProductSpace.BorelCalculus.CyclicDecomposition
 public import Mathlib.Topology.Bases
+public import ForTauCeti.Analysis.InnerProductSpace.SeparableOrthonormal
 
 /-!
 # The cyclic decomposition is countable on a separable space
@@ -30,7 +31,9 @@ the index type must be linearly ordered.
 
 ## Main results
 
-* `TauCeti.countable_of_pairwise_dist_le`: a uniformly separated set in a separable metric space
+* `TauCeti.countable_of_pairwise_dist_le` (now in
+  `ForTauCeti/Analysis/InnerProductSpace/SeparableOrthonormal.lean`, with its orthonormal
+  corollary): a uniformly separated set in a separable metric space
   is countable.
 * `TauCeti.BorelCalculus.cyclicSubspace_zero`: the zero vector generates `⊥`.
 * `TauCeti.BorelCalculus.exists_countable_isHilbertSum_lp_diagMeasure_complex`:
@@ -50,28 +53,6 @@ open scoped InnerProductSpace
 open MeasureTheory
 
 namespace TauCeti
-
-/-- **A uniformly separated set in a separable metric space is countable.**
-
-Each member is tagged by a point of a fixed countable dense set within `δ / 2` of it, and the
-tag determines the member because two members sharing a tag would be within `δ`. -/
-theorem countable_of_pairwise_dist_le {M : Type*} [MetricSpace M]
-    [TopologicalSpace.SeparableSpace M] {s : Set M} {δ : ℝ} (hδ : 0 < δ)
-    (h : ∀ x ∈ s, ∀ y ∈ s, x ≠ y → δ ≤ dist x y) : s.Countable := by
-  classical
-  obtain ⟨t, htc, htd⟩ := TopologicalSpace.exists_countable_dense M
-  have hchoice : ∀ x : M, ∃ y, y ∈ t ∧ dist x y < δ / 2 := fun x =>
-    Metric.mem_closure_iff.mp (htd x) (δ / 2) (by positivity)
-  choose g hgt hgd using hchoice
-  refine Set.MapsTo.countable_of_injOn (f := g) (fun x _ => hgt x) ?_ htc
-  intro x hx y hy hxy
-  by_contra hne
-  have hlt : dist x y < δ := by
-    calc dist x y ≤ dist x (g x) + dist (g x) y := dist_triangle _ _ _
-      _ = dist x (g x) + dist y (g y) := by rw [hxy, dist_comm (g y) y]
-      _ < δ / 2 + δ / 2 := add_lt_add (hgd x) (hgd y)
-      _ = δ := by ring
-  exact absurd (h x hx y hy hne) (not_le.mpr hlt)
 
 namespace BorelCalculus
 

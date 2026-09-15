@@ -8,7 +8,10 @@ import DavisKahan.Sources.DavisKahan1970.Ideals.StandardFanDominance
 -- branch selection: the canonical contractive Riccati solution, and the
 -- spectrum-to-form-bound bridge that feeds it the paper's hypotheses
 import DavisKahan.Riccati.BoundedCanonicalSolution
-import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder.Complex
+import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder
+
+open TauCeti.DavisKahan.Angle
+
 
 /-!
 # Sharp standard-ideal `tan 2Theta`
@@ -181,7 +184,7 @@ The hypotheses are the printed ones: the wanted block's spectrum sits in
 `[left, 0]`, the unwanted block's in `[d, ∞)`, and the coupling is small
 relative to the gap.  The form bounds `sharp_symmetricNormingFunction` wants
 are read off from those spectral containments by
-`SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic` and its lower
+`SpectralOrder.re_inner_le_of_spectrum_subset_Iic` and its lower
 companion; the interval/exterior shape the Riccati selection wants is the same
 data reassociated.
 
@@ -219,11 +222,11 @@ theorem sharp_symmetricNormingFunction_selectedBranch
   -- the form bounds the sharp endpoint runs on
   have hA0 : ∀ z : E0, RCLike.re ⟪B.A0 z, z⟫_ℂ ≤ 0 := by
     intro z
-    have h := SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic B.A0
+    have h := SpectralOrder.re_inner_le_of_spectrum_subset_Iic B.A0
       hA0sa (c := 0) (fun r hr => (hA0spec hr).2) z
     simpa using h
   have hA1 : ∀ z : E1, d * ‖z‖ ^ 2 ≤ RCLike.re ⟪B.A1 z, z⟫_ℂ :=
-    SpectralOrder.Complex.le_re_inner_of_spectrum_subset_Ici B.A1 hA1sa hA1spec
+    SpectralOrder.le_re_inner_of_spectrum_subset_Ici B.A1 hA1sa hA1spec
   -- the interval/exterior shape the Riccati selection runs on
   have hA1spec' : ∀ x ∈ spectrum ℝ B.A1, x ≤ left - d ∨ 0 + d ≤ x := by
     intro x hx

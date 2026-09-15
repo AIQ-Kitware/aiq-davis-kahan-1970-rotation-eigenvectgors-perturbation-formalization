@@ -8,6 +8,8 @@ import DavisKahan.SinTheta.Unbounded.IntervalExterior
 import DavisKahan.Sylvester.Unbounded.AllGap
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Spectral all-gap unbounded sine-theta theorem
 
@@ -26,6 +28,7 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
+
 
 universe v
 
@@ -93,7 +96,7 @@ theorem generalizedSinTheta_unbounded_exact_of_spectrumGap
   have hAngle := sinThetaBlock_mem_and_gauge_eq_directedSinThetaOperator
     N.toSymmetricOperatorIdealFamily D.X F₀ D.F₁ hframe hε hdecomp hBlock.1
   refine ⟨hAngle.1, ?_⟩
-  rw [KyFanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
+  rw [FanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
   rw [hAngle.2]
   exact hBlock.2
 
@@ -122,7 +125,7 @@ theorem sinTheta_unbounded_exact_of_spectrumGap
   have hAngle := isometricComplementaryBlock_mem_and_gauge_eq_directed
     N.toSymmetricOperatorIdealFamily D.X F₀ D.F₁ hX hdecomp hRaw.1
   refine ⟨hAngle.1, ?_⟩
-  rw [KyFanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
+  rw [FanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
   rw [hAngle.2]
   exact hRaw.2.trans hC.2
 

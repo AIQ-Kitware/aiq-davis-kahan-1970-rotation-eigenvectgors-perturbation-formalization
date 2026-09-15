@@ -8,6 +8,11 @@ import DavisKahan.TanTheta.Theorem63Unbounded
 import DavisKahan.Sources.DavisKahan1970.Section9.NumericalBounds
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.RealLowerBound
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Section 9, equations (9.5)--(9.7): the tangent refinement, on the genuine operator
 
@@ -15,7 +20,7 @@ import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.RealLowerBound
 the compression form bound `beamRitz_form_le`, the residual norm
 `norm_beamRitzResidual_le`, and the perturbed spectral gap
 `beamPerturbed_specProjection_Ioo_eq_zero`.  This module bundles them into the
-`UnboundedTrialBlock` the unbounded Theorem 6.3 consumes and reads off the
+`BoundedCompressionTrialBlock` the unbounded Theorem 6.3 consumes and reads off the
 paper's tangent envelope.
 
 The endpoint is `beamTanTheta_le`:
@@ -44,7 +49,7 @@ namespace Model
 
 open DavisKahan1970.Section9
 open TauCeti.DavisKahan.TanTheta
-open TauCeti.DavisKahan.ExactTanTheta
+open TauCeti.DavisKahan.TanTheta
 open TauCeti.DavisKahan.ExactSinTheta
 
 noncomputable section
@@ -88,7 +93,7 @@ theorem beamRitzCompression_isSelfAdjoint (ε : ℝ) :
 /-- **The Rayleigh--Ritz trial block of the Section 9 example.**  The trial subspace
 is the affine plane, the compression is `beamRitzCompression`, and the residual is
 the part of `(A + ε t)|_Z` orthogonal to `Z`. -/
-def beamTrialBlock (ε : ℝ) : UnboundedTrialBlock (beamPerturbed ε) beamTrial where
+def beamTrialBlock (ε : ℝ) : BoundedCompressionTrialBlock (beamPerturbed ε) beamTrial where
   domain_le := fun _ hy => beamTrial_le_domain hy
   operator := beamRitzCompression ε
   operator_selfAdjoint := beamRitzCompression_isSelfAdjoint ε
@@ -388,8 +393,8 @@ theorem beamPerturbed_form_nonneg (ε : ℝ) (hε : 0 ≤ ε)
 theorem beamPerturbed_mem_resolventSet_of_neg (ε : ℝ) (hε : 0 ≤ ε)
     {lam : ℝ} (hlam : lam < 0) :
     (lam : ℂ) ∈ TauCeti.LinearPMap.resolventSet (beamPerturbed ε) := by
-  refine TauCeti.LinearPMap.mem_resolventSet_of_lower_bound
-    (beamPerturbed_isSelfAdjoint ε) (by simp) (c := -lam) (by linarith) ?_
+  refine (TauCeti.LinearPMap.mem_resolventSet_and_norm_le_of_lower_bound
+    (beamPerturbed_isSelfAdjoint ε) (c := -lam) (by linarith) ?_).1
   intro x
   rcases eq_or_lt_of_le (norm_nonneg ((x : BeamL2))) with hx0 | hxpos
   · rw [← hx0, mul_zero]
@@ -415,7 +420,7 @@ theorem beamPerturbed_mem_resolventSet_of_neg (ε : ℝ) (hε : 0 ≤ ε)
         ≤ ‖(beamPerturbed ε) x - (lam : ℂ) • (x : BeamL2)‖ * ‖(x : BeamL2)‖ := by
       nlinarith [hform, hCS]
     refine le_of_mul_le_mul_right ?_ hxpos
-    nlinarith [hsq]
+    exact le_trans (le_of_eq (by ring)) hsq
 
 /-- The perturbed beam has no spectral mass below zero. -/
 theorem beamPerturbed_specProjection_Iio_zero (ε : ℝ) (hε : 0 ≤ ε) :
@@ -587,7 +592,7 @@ theorem beamPerturbed_apply_of_mem_beamTrial (ε : ℝ) {x : BeamL2} (hx : x ∈
 compression is the scalar `a = ⟪v, ε t v⟫` and the residual is the single Ritz column. -/
 def beamColumnBlock (ε : ℝ) (v : BeamL2) (hv : v ∈ beamTrial) (hvnorm : ‖v‖ = 1)
     (a : ℝ) (hform : ⟪v, beamPerturbation ε v⟫_ℂ = ((a : ℝ) : ℂ)) :
-    UnboundedTrialBlock (beamPerturbed ε) (ℂ ∙ v) where
+    BoundedCompressionTrialBlock (beamPerturbed ε) (ℂ ∙ v) where
   domain_le := fun _ hx => beamTrial_le_domain (span_singleton_le_beamTrial hv hx)
   operator := ((a : ℝ) : ℂ) • ContinuousLinearMap.id ℂ (ℂ ∙ v)
   operator_selfAdjoint := by

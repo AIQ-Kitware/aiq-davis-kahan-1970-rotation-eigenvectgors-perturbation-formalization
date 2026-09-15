@@ -34,9 +34,10 @@ each name says which way.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
+open TauCeti.DavisKahan.ExactSinTheta
 
 universe v
 
@@ -178,6 +179,6 @@ theorem formBoundedSylvesterGap_of_spectral
         (semiboundedAbove_of_spectrum_subset_Iic A hA hAspec)
         (semiboundedBelow_of_spectrum_subset_Ici B hB hBspec)
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

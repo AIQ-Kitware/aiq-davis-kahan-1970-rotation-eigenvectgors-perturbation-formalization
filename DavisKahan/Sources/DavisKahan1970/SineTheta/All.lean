@@ -20,6 +20,7 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.OperatorAngleBridge
 import DavisKahan.Sources.DavisKahan1970.SineTheta.ProjectionBlocks
 import DavisKahan.Sources.DavisKahan1970.SineTheta.ReflectedDefectDoubling
 import DavisKahan.Sources.DavisKahan1970.SineTheta.ScalarGeneric
+import DavisKahan.Sources.DavisKahan1970.SineTheta.Section6SourceNorms
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Sharpness
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Symmetric
 import DavisKahan.Sources.DavisKahan1970.SineTheta.SymmetricReal

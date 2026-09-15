@@ -31,40 +31,40 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
 
 /-- Literal directed real angle, represented faithfully on the canonical
 complexification of the trial subspace. -/
-noncomputable def paperSourceDirectedAngleR
+noncomputable def sourceDirectedAngleR
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :=
-  paperSourceDirectedAngleC (complexifySubmodule U) (complexifySubmodule V)
+  directedAngleBlockC (complexifySubmodule U) (complexifySubmodule V)
 
 /-- Literal cosine of the directed real angle. -/
-noncomputable def paperSourceDirectedCosR
+noncomputable def sourceDirectedCosR
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :=
-  paperSourceDirectedCosC (complexifySubmodule U) (complexifySubmodule V)
+  directedCosAngleBlockC (complexifySubmodule U) (complexifySubmodule V)
 
 /-- Literal sine of the directed real angle. -/
-noncomputable def paperSourceDirectedSinR
+noncomputable def sourceDirectedSinR
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :=
-  paperSourceDirectedSinC (complexifySubmodule U) (complexifySubmodule V)
+  directedSinAngleBlockC (complexifySubmodule U) (complexifySubmodule V)
 
 /-- The paper's real directed cosine agrees with the canonical one. -/
 @[simp]
-theorem paperSourceDirectedCosR_eq
+theorem sourceDirectedCosR_eq
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    paperSourceDirectedCosR U V =
-      paperCosineModulusC (complexifySubmodule U) (complexifySubmodule V) :=
-  paperSourceDirectedCosC_eq _ _
+    sourceDirectedCosR U V =
+      cosineBlockModulusC (complexifySubmodule U) (complexifySubmodule V) :=
+  sourceDirectedCosC_eq _ _
 
 /-- The paper's real directed sine agrees with the canonical one. -/
 @[simp]
-theorem paperSourceDirectedSinR_eq
+theorem sourceDirectedSinR_eq
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    paperSourceDirectedSinR U V =
-      paperSineModulusC (complexifySubmodule U) (complexifySubmodule V) :=
-  paperSourceDirectedSinC_eq_paperSineModulusC _ _
+    sourceDirectedSinR U V =
+      sineBlockModulusC (complexifySubmodule U) (complexifySubmodule V) :=
+  directedSinAngleBlockC_eq_sineBlockModulusC _ _
 
 end
 

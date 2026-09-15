@@ -275,8 +275,8 @@ theorem hasVectorSpectralGap_sylvesterGroup (hA : IsSelfAdjoint A) (hB : IsSelfA
         (TauCeti.LinearPMap.genToGroup hB) b)) := by
     intro s hs
     have hsabs : |s| < δ := abs_lt.mpr ⟨hs.1, hs.2⟩
-    refine TauCeti.LinearPMap.mem_resolventSet_of_lower_bound (c := δ - |s|) hS (by simp)
-      (by linarith) ?_
+    refine (TauCeti.LinearPMap.mem_resolventSet_and_norm_le_of_lower_bound (c := δ - |s|) hS
+      (by linarith) ?_).1
     intro x
     -- let the grid width go to zero
     refine le_of_forall_pos_le_add fun η hη => ?_
@@ -292,7 +292,9 @@ theorem hasVectorSpectralGap_sylvesterGroup (hA : IsSelfAdjoint A) (hB : IsSelfA
         rw [hεdef]; field_simp
       rw [hrw, div_le_iff₀ hden]
       nlinarith [hη.le, hxn, mul_nonneg hη.le (show (0:ℝ) ≤ 4 by norm_num)]
-    linarith [hb, hkey]
+    -- `linarith` cannot finish here: the two `≤` sides carry different (defeq) `ℝ` order
+    -- instances, so its atoms do not match.  Combine the two bounds directly instead.
+    exact le_trans (le_of_eq (by ring)) (add_le_add hb hkey)
   have := TauCeti.LinearPMap.diag_eq_zero_of_subset_resolventSet hS
     (Set.Ioo (-δ) δ) measurableSet_Ioo hres f
   exact this

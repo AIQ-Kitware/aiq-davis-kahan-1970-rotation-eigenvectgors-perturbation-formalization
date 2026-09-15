@@ -37,7 +37,7 @@ proved theorems.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace
 
@@ -133,7 +133,7 @@ This is a thin wrapper around the canonical finite UI-norm sine theorem; its
 conclusion visibly has the paper shape `N (sin Θ) ≤ N (S - T) / gap`.
 -/
 theorem partIII_sinTheta_uiNorm_classical_prose_like
-    (N : UnitarilyInvariantSeminorm 𝕜 E) {T S : E →ₗ[𝕜] E}
+    (N : UnitarilyInvariantSeminorm 𝕜 E E) {T S : E →ₗ[𝕜] E}
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {c g : ℝ} (hgap : SinThetaGapClassicalProseLike T S U V c g) :
     N ((directedSinThetaOperatorClassicalProseLike U V : E →L[𝕜] E) : E →ₗ[𝕜] E)
@@ -167,7 +167,7 @@ Equivalently, after multiplying the left side by two, this is the classical
 source shape `‖sin 2Θ‖ ≤ 2 ‖S - T‖ / gap`.
 -/
 theorem partIII_half_sinTwoTheta_uiNorm_classical_prose_like
-    (N : UnitarilyInvariantSeminorm 𝕜 E) {T S : E →ₗ[𝕜] E}
+    (N : UnitarilyInvariantSeminorm 𝕜 E E) {T S : E →ₗ[𝕜] E}
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {a b : ℝ} (hgap : SinTwoThetaGapClassicalProseLike T S U V a b) :
     N ((directedHalfSinTwoThetaOperatorClassicalProseLike U V : E →L[𝕜] E) :
@@ -274,10 +274,10 @@ structure ProjectorDifferenceGapClassicalProseLike (A B : E →ₗ[𝕜] E)
   U_reduces : IsInvariant A U
   W_reduces : IsInvariant B W
   gap_pos : 0 < g
-  U_high : SpectrumIn A U (Set.Ici (c + g))
-  Uperp_low : SpectrumIn A Uᗮ (Set.Iic c)
-  W_high : SpectrumIn B W (Set.Ici (c + g))
-  Wperp_low : SpectrumIn B Wᗮ (Set.Iic c)
+  U_high : PointSpectrumIn A U (Set.Ici (c + g))
+  Uperp_low : PointSpectrumIn A Uᗮ (Set.Iic c)
+  W_high : PointSpectrumIn B W (Set.Ici (c + g))
+  Wperp_low : PointSpectrumIn B Wᗮ (Set.Iic c)
   perturbation_nonneg : 0 ≤ ε
   perturbation_bound : ∀ x, ‖(B - A) x‖ ≤ ε * ‖x‖
 
@@ -309,10 +309,10 @@ structure CanonicalProjectorDifferenceGapClassicalProseLike (A B : E →ₗ[𝕜
   A_symm : A.IsSymmetric
   B_symm : B.IsSymmetric
   gap_pos : 0 < g
-  A_high : SpectrumIn A (spectralSubspace A s) (Set.Ici (c + g))
-  Aperp_low : SpectrumIn A (spectralSubspace A s)ᗮ (Set.Iic c)
-  B_high : SpectrumIn B (spectralSubspace B t) (Set.Ici (c + g))
-  Bperp_low : SpectrumIn B (spectralSubspace B t)ᗮ (Set.Iic c)
+  A_high : PointSpectrumIn A (pointSpectralSubspace A s) (Set.Ici (c + g))
+  Aperp_low : PointSpectrumIn A (pointSpectralSubspace A s)ᗮ (Set.Iic c)
+  B_high : PointSpectrumIn B (pointSpectralSubspace B t) (Set.Ici (c + g))
+  Bperp_low : PointSpectrumIn B (pointSpectralSubspace B t)ᗮ (Set.Iic c)
   perturbation_nonneg : 0 ≤ ε
   perturbation_bound : ∀ x, ‖(B - A) x‖ ≤ ε * ‖x‖
 
@@ -323,10 +323,10 @@ theorem spectralProjector_difference_opNorm_classical_prose_like
     {A B : E →ₗ[𝕜] E} {s t : Set ℝ} {c g ε : ℝ}
     (hgap : CanonicalProjectorDifferenceGapClassicalProseLike A B s t c g ε) :
     ‖projectorDifferenceOperatorClassicalProseLike
-        (spectralSubspace A s) (spectralSubspace B t)‖ ≤ ε / g := by
-  exact opNorm_spectralSubspace_sub_le hgap.A_symm hgap.B_symm hgap.gap_pos
+        (pointSpectralSubspace A s) (pointSpectralSubspace B t)‖ ≤ ε / g := by
+  exact opNorm_pointSpectralSubspace_sub_le hgap.A_symm hgap.B_symm hgap.gap_pos
     hgap.A_high hgap.Aperp_low hgap.B_high hgap.Bperp_low
     hgap.perturbation_nonneg hgap.perturbation_bound
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

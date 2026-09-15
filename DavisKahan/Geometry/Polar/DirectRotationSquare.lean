@@ -292,10 +292,8 @@ omit [CompleteSpace H] in
 theorem _root_.TauCeti.DavisKahan.IsUniformlyAcute.symm
     {U V : Submodule ℂ H}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (h : IsUniformlyAcute U V) : IsUniformlyAcute V U := by
-  show subspaceGap V U < 1
-  rw [subspaceGap, Submodule.projectionGap_comm]
-  exact h
+    (h : IsUniformlyAcute U V) : IsUniformlyAcute V U :=
+  (Submodule.projectionGap_comm V U).trans_lt h
 
 /-- The scalar cosine gauge `‖1 + z‖ / 2` of the reflection product. -/
 noncomputable def cosineGauge (z : ℂ) : ℂ := ((‖1 + z‖ / 2 : ℝ) : ℂ)
@@ -357,10 +355,10 @@ theorem spectraCanonicalIntertwiner_eq_cfc
   exact h3.symm
 
 /-- The Spectra modulus of the acute midpoint is `cfc` of the cosine gauge. -/
-theorem spectraOperatorAbsoluteValue_intertwiner_eq_cfc
+theorem modulus_intertwiner_eq_cfc
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) =
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) =
       cfc cosineGauge (spectraReflectionProduct U V) := by
   have hnormal : IsStarNormal (spectraReflectionProduct U V) :=
     isStarNormal_of_mem_unitary (spectraReflectionProduct_mem_unitary U V)
@@ -384,11 +382,11 @@ theorem spectraOperatorAbsoluteValue_intertwiner_eq_cfc
         continuous_cosineGauge.continuousOn]
     exact cfc_congr fun z _ => cosineGauge_mul_self z
   have habs0 : (0 : H →L[ℂ] H) ≤
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) :=
-    spectraOperatorAbsoluteValue_nonneg _
-  have habssq := spectraOperatorAbsoluteValue_mul_self
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) :=
+    ContinuousLinearMap.modulus_nonneg _
+  have habssq := ContinuousLinearMap.modulus_mul_self_eq_star_mul_self
     (spectraCanonicalIntertwiner U V)
-  calc spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+  calc ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
       = CFC.sqrt (star (spectraCanonicalIntertwiner U V) *
           spectraCanonicalIntertwiner U V) :=
         (CFC.sqrt_unique habssq habs0).symm
@@ -416,16 +414,16 @@ theorem spectraDirectRotation_eq_reflectionProductHalfPhase
     continuousOn_principalHalfPhase hneg
   -- Both operators satisfy `X * |S| = S`.
   have hW : spectraReflectionProductHalfPhase U V hacute *
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) =
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) =
       spectraCanonicalIntertwiner U V := by
-    rw [spectraOperatorAbsoluteValue_intertwiner_eq_cfc U V,
+    rw [modulus_intertwiner_eq_cfc U V,
       spectraReflectionProductHalfPhase,
       ← cfc_mul _ _ _ hphpcont continuous_cosineGauge.continuousOn,
       spectraCanonicalIntertwiner_eq_cfc U V]
     exact cfc_congr fun z hz =>
       principalHalfPhase_mul_cosineGauge fun h => hneg (h ▸ hz)
   have hP : spectraDirectRotation U V hacute *
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) =
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) =
       spectraCanonicalIntertwiner U V :=
     spectraDirectRotation_decomposition U V hacute
   obtain ⟨v, hv⟩ := isUnit_spectraCanonicalAbsoluteValue U V hacute
@@ -438,7 +436,7 @@ theorem spectraDirectRotation_sq
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
     spectraDirectRotation U V hacute * spectraDirectRotation U V hacute =
-      reflectionOperator V * reflectionOperator U := by
+      V.reflectionOperator * U.reflectionOperator := by
   rw [spectraDirectRotation_eq_reflectionProductHalfPhase U V hacute]
   exact spectraReflectionProductHalfPhase_sq U V hacute
 
@@ -563,29 +561,29 @@ theorem spectraDirectRotation_add_star_eq_two_smul_absoluteValue
     (hacute : IsUniformlyAcute U V) :
     spectraDirectRotation U V hacute +
         star (spectraDirectRotation U V hacute) =
-      (2 : ℂ) • spectraOperatorAbsoluteValue
+      (2 : ℂ) • ContinuousLinearMap.modulus
         (spectraCanonicalIntertwiner U V) := by
   have hdecomp :
       spectraDirectRotation U V hacute *
-          spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) =
+          ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) =
         spectraCanonicalIntertwiner U V :=
     spectraDirectRotation_decomposition U V hacute
   have hleft :
       star (spectraDirectRotation U V hacute) *
           spectraCanonicalIntertwiner U V =
-        spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := by
+        ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := by
     calc
       star (spectraDirectRotation U V hacute) *
           spectraCanonicalIntertwiner U V =
         star (spectraDirectRotation U V hacute) *
           (spectraDirectRotation U V hacute *
-            spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)) := by
+            ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)) := by
               rw [hdecomp]
       _ = (star (spectraDirectRotation U V hacute) *
             spectraDirectRotation U V hacute) *
-          spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := by
+          ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := by
               rw [mul_assoc]
-      _ = spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := by
+      _ = ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := by
               rw [star_spectraDirectRotation_mul_self U V hacute, one_mul]
   have hstarR :
       star (spectraDirectRotation U V hacute) *
@@ -608,8 +606,8 @@ theorem spectraDirectRotation_add_star_eq_two_smul_absoluteValue
   have hmul := congrArg
     (fun T : H →L[ℂ] H => star (spectraDirectRotation U V hacute) * T) hmid
   have htwice :
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) +
-          spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) =
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) +
+          ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) =
         star (spectraDirectRotation U V hacute) +
           spectraDirectRotation U V hacute := by
     simpa only [mul_add, hleft, mul_one, hstarR] using hmul
@@ -618,9 +616,9 @@ theorem spectraDirectRotation_add_star_eq_two_smul_absoluteValue
         star (spectraDirectRotation U V hacute) =
       star (spectraDirectRotation U V hacute) +
         spectraDirectRotation U V hacute := add_comm _ _
-    _ = spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) +
-        spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := htwice.symm
-    _ = (2 : ℂ) • spectraOperatorAbsoluteValue
+    _ = ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) +
+        ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := htwice.symm
+    _ = (2 : ℂ) • ContinuousLinearMap.modulus
         (spectraCanonicalIntertwiner U V) := by rw [two_smul]
 
 /-- The positive midpoint modulus has strictly positive quadratic form on
@@ -629,17 +627,17 @@ theorem spectraCanonicalAbsoluteValue_inner_pos
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) {x : H} (hx : x ≠ 0) :
-    0 < Complex.re ⟪spectraOperatorAbsoluteValue
+    0 < Complex.re ⟪ContinuousLinearMap.modulus
       (spectraCanonicalIntertwiner U V) x, x⟫_ℂ := by
-  let B := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+  let B := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   change 0 < RCLike.re ⟪B x, x⟫_ℂ
   have hBnonneg : (0 : H →L[ℂ] H) ≤ B :=
-    spectraOperatorAbsoluteValue_nonneg _
+    ContinuousLinearMap.modulus_nonneg _
   have hBpositive := (ContinuousLinearMap.nonneg_iff_isPositive B).mp hBnonneg
   have hBform : ∀ z : H, 0 ≤ RCLike.re ⟪B z, z⟫_ℂ := fun z =>
     hBpositive.re_inner_nonneg_left z
   have hBsym : (B : H →ₗ[ℂ] H).IsSymmetric :=
-    (spectraOperatorAbsoluteValue_isSelfAdjoint _).isSymmetric
+    (ContinuousLinearMap.modulus_isSelfAdjoint _).isSymmetric
   have hBinj : Function.Injective B :=
     (ContinuousLinearMap.isUnit_iff_bijective.mp
       (isUnit_spectraCanonicalAbsoluteValue U V hacute)).1
@@ -667,7 +665,7 @@ theorem spectraDirectRotation_real_inner_pos
     (hacute : IsUniformlyAcute U V) {x : H} (hx : x ≠ 0) :
     0 < Complex.re ⟪spectraDirectRotation U V hacute x, x⟫_ℂ := by
   let D := spectraDirectRotation U V hacute
-  let B := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+  let B := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   change 0 < RCLike.re ⟪D x, x⟫_ℂ
   have hsum : D + star D = (2 : ℂ) • B := by
     simpa [D, B] using
@@ -897,11 +895,11 @@ theorem re_inner_spectraDirectRotation_eq_absoluteValue
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) (x : H) :
     RCLike.re ⟪spectraDirectRotation U V hacute x, x⟫_ℂ =
-      RCLike.re ⟪spectraOperatorAbsoluteValue
+      RCLike.re ⟪ContinuousLinearMap.modulus
         (spectraCanonicalIntertwiner U V) x, x⟫_ℂ := by
   let D : H →L[ℂ] H := spectraDirectRotation U V hacute
   let C : H →L[ℂ] H :=
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   have hsum : D + star D = C + C := by
     have h := spectraDirectRotation_add_star_eq_two_smul_absoluteValue
       U V hacute
@@ -921,15 +919,15 @@ Halmos cosine. -/
 theorem projection_mul_spectraDirectRotation_mul_projection
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) :
-    projection U * spectraDirectRotation U V hacute * projection U =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) *
-        projection U := by
+    U.starProjection * spectraDirectRotation U V hacute * U.starProjection =
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) *
+        U.starProjection := by
   let B := spectraCanonicalAbsoluteValueUnit U V hacute
   let C : H →L[ℂ] H :=
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   let D : H →L[ℂ] H := spectraDirectRotation U V hacute
-  let P : H →L[ℂ] H := projection U
-  let Q : H →L[ℂ] H := projection V
+  let P : H →L[ℂ] H := U.starProjection
+  let Q : H →L[ℂ] H := V.starProjection
   let S : H →L[ℂ] H := spectraCanonicalIntertwiner U V
   have hDB : D * C = S := by
     simpa only [ContinuousLinearMap.mul_def] using
@@ -977,16 +975,16 @@ positive Halmos cosine. -/
 theorem complementaryProjection_mul_spectraDirectRotation_mul_complementaryProjection
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) :
-    complementaryProjection U * spectraDirectRotation U V hacute *
-        complementaryProjection U =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) *
-        complementaryProjection U := by
+    (Uᗮ).starProjection * spectraDirectRotation U V hacute *
+        (Uᗮ).starProjection =
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) *
+        (Uᗮ).starProjection := by
   let B := spectraCanonicalAbsoluteValueUnit U V hacute
   let C : H →L[ℂ] H :=
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   let D : H →L[ℂ] H := spectraDirectRotation U V hacute
-  let P : H →L[ℂ] H := complementaryProjection U
-  let Q : H →L[ℂ] H := complementaryProjection V
+  let P : H →L[ℂ] H := (Uᗮ).starProjection
+  let Q : H →L[ℂ] H := (Vᗮ).starProjection
   let S : H →L[ℂ] H := spectraCanonicalIntertwiner U V
   have hDB : D * C = S := by
     simpa only [ContinuousLinearMap.mul_def] using
@@ -1072,42 +1070,42 @@ theorem reflection_conjugate_eq_star_of_sq_of_intertwines
     (W : H →L[ℂ] H)
     (hWunit : W ∈ unitary (H →L[ℂ] H))
     (hsq : W * W = spectraReflectionProduct U V)
-    (hint : W * reflectionOperator U = reflectionOperator V * W) :
-    reflectionOperator U * W * reflectionOperator U = star W := by
-  have hJJ : reflectionOperator U * reflectionOperator U = (1 : H →L[ℂ] H) :=
+    (hint : W * U.reflectionOperator = V.reflectionOperator * W) :
+    U.reflectionOperator * W * U.reflectionOperator = star W := by
+  have hJJ : U.reflectionOperator * U.reflectionOperator = (1 : H →L[ℂ] H) :=
     reflectionOperator_mul_self_complex U
   have hWstarW : star W * W = 1 := Unitary.star_mul_self_of_mem hWunit
   have hWWstar : W * star W = 1 := Unitary.mul_star_self_of_mem hWunit
   -- Two expressions for `J_V`.
-  have h1 : W * W * reflectionOperator U = reflectionOperator V := by
+  have h1 : W * W * U.reflectionOperator = V.reflectionOperator := by
     calc
-      W * W * reflectionOperator U =
-          reflectionOperator V * reflectionOperator U *
-            reflectionOperator U := by rw [hsq]
-      _ = reflectionOperator V *
-          (reflectionOperator U * reflectionOperator U) := by rw [mul_assoc]
-      _ = reflectionOperator V := by rw [hJJ, mul_one]
-  have h2 : W * reflectionOperator U * star W = reflectionOperator V := by
+      W * W * U.reflectionOperator =
+          V.reflectionOperator * U.reflectionOperator *
+            U.reflectionOperator := by rw [hsq]
+      _ = V.reflectionOperator *
+          (U.reflectionOperator * U.reflectionOperator) := by rw [mul_assoc]
+      _ = V.reflectionOperator := by rw [hJJ, mul_one]
+  have h2 : W * U.reflectionOperator * star W = V.reflectionOperator := by
     rw [hint, mul_assoc, hWWstar, mul_one]
   -- Cancel `W` on the left of `h1 = h2`.
-  have h3 : W * reflectionOperator U = reflectionOperator U * star W := by
+  have h3 : W * U.reflectionOperator = U.reflectionOperator * star W := by
     have h := h1.trans h2.symm
     have h' := congrArg (fun T : H →L[ℂ] H => star W * T) h
     calc
-      W * reflectionOperator U =
-          star W * W * (W * reflectionOperator U) := by rw [hWstarW, one_mul]
-      _ = star W * (W * W * reflectionOperator U) := by
+      W * U.reflectionOperator =
+          star W * W * (W * U.reflectionOperator) := by rw [hWstarW, one_mul]
+      _ = star W * (W * W * U.reflectionOperator) := by
             simp only [mul_assoc]
-      _ = star W * (W * reflectionOperator U * star W) := by rw [h']
-      _ = star W * W * reflectionOperator U * star W := by
+      _ = star W * (W * U.reflectionOperator * star W) := by rw [h']
+      _ = star W * W * U.reflectionOperator * star W := by
             simp only [mul_assoc]
-      _ = reflectionOperator U * star W := by rw [hWstarW, one_mul]
+      _ = U.reflectionOperator * star W := by rw [hWstarW, one_mul]
   -- Multiply on the left by `J_U`.
   calc
-    reflectionOperator U * W * reflectionOperator U =
-        reflectionOperator U * (W * reflectionOperator U) := by rw [mul_assoc]
-    _ = reflectionOperator U * (reflectionOperator U * star W) := by rw [h3]
-    _ = reflectionOperator U * reflectionOperator U * star W := by
+    U.reflectionOperator * W * U.reflectionOperator =
+        U.reflectionOperator * (W * U.reflectionOperator) := by rw [mul_assoc]
+    _ = U.reflectionOperator * (U.reflectionOperator * star W) := by rw [h3]
+    _ = U.reflectionOperator * U.reflectionOperator * star W := by
           rw [mul_assoc]
     _ = star W := by rw [hJJ, one_mul]
 
@@ -1126,29 +1124,29 @@ theorem spectraDirectRotation_unique_of_diagonalBlocks
     (W : H →L[ℂ] H)
     (hWunit : W ∈ unitary (H →L[ℂ] H))
     (hsq : W * W = spectraReflectionProduct U V)
-    (hint : W * reflectionOperator U = reflectionOperator V * W)
+    (hint : W * U.reflectionOperator = V.reflectionOperator * W)
     (hblockU : ∀ x ∈ U, 0 ≤ Complex.re ⟪W x, x⟫_ℂ)
     (hblockUperp : ∀ x ∈ Uᗮ, 0 ≤ Complex.re ⟪W x, x⟫_ℂ) :
     W = spectraDirectRotation U V hacute := by
-  have hJJ : reflectionOperator U * reflectionOperator U = (1 : H →L[ℂ] H) :=
+  have hJJ : U.reflectionOperator * U.reflectionOperator = (1 : H →L[ℂ] H) :=
     reflectionOperator_mul_self_complex U
-  have hconj : reflectionOperator U * W * reflectionOperator U = star W :=
+  have hconj : U.reflectionOperator * W * U.reflectionOperator = star W :=
     reflection_conjugate_eq_star_of_sq_of_intertwines U V W hWunit hsq hint
   -- The Hermitian part commutes with the reflection.
   have hstarconj :
-      reflectionOperator U * star W * reflectionOperator U = W := by
+      U.reflectionOperator * star W * U.reflectionOperator = W := by
     calc
-      reflectionOperator U * star W * reflectionOperator U =
-          reflectionOperator U *
-            (reflectionOperator U * W * reflectionOperator U) *
-              reflectionOperator U := by rw [hconj]
-      _ = (reflectionOperator U * reflectionOperator U) * W *
-            (reflectionOperator U * reflectionOperator U) := by
+      U.reflectionOperator * star W * U.reflectionOperator =
+          U.reflectionOperator *
+            (U.reflectionOperator * W * U.reflectionOperator) *
+              U.reflectionOperator := by rw [hconj]
+      _ = (U.reflectionOperator * U.reflectionOperator) * W *
+            (U.reflectionOperator * U.reflectionOperator) := by
             simp only [mul_assoc]
       _ = W := by rw [hJJ, one_mul, mul_one]
   have hT : U.reflectionOperator ∘L (W + star W) ∘L U.reflectionOperator =
       W + star W := by
-    show reflectionOperator U * ((W + star W) * reflectionOperator U) =
+    show U.reflectionOperator * ((W + star W) * U.reflectionOperator) =
       W + star W
     rw [← mul_assoc, mul_add, add_mul, mul_assoc, mul_assoc, ← mul_assoc _ W,
       ← mul_assoc _ (star W), hconj, hstarconj]
@@ -1193,7 +1191,7 @@ theorem eq_spectraDirectRotation_iff_diagonalBlocks_nonneg
     W = spectraDirectRotation U V hacute ↔
       W ∈ unitary (H →L[ℂ] H) ∧
         W * W = spectraReflectionProduct U V ∧
-        W * reflectionOperator U = reflectionOperator V * W ∧
+        W * U.reflectionOperator = V.reflectionOperator * W ∧
         (∀ x ∈ U, 0 ≤ Complex.re ⟪W x, x⟫_ℂ) ∧
         (∀ x ∈ Uᗮ, 0 ≤ Complex.re ⟪W x, x⟫_ℂ) := by
   constructor
@@ -1504,34 +1502,34 @@ theorem spectraDirectRotation_unique_of_diagonalBlocks_pos
     (hblockU : ∀ x ∈ U, 0 ≤ ⟪W x, x⟫_ℂ)
     (hblockUperp : ∀ x ∈ Uᗮ, 0 ≤ ⟪W x, x⟫_ℂ) :
     W = spectraDirectRotation U V hacute := by
-  have hJJ : reflectionOperator U * reflectionOperator U = (1 : H →L[ℂ] H) :=
+  have hJJ : U.reflectionOperator * U.reflectionOperator = (1 : H →L[ℂ] H) :=
     reflectionOperator_mul_self_complex U
-  have hconj : reflectionOperator U * W * reflectionOperator U = star W :=
+  have hconj : U.reflectionOperator * W * U.reflectionOperator = star W :=
     reflection_conjugate_eq_star_of_intertwines_of_diagonalBlocks_pos U V hacute W
       hWunit hint hblockU hblockUperp
-  have hintJ : W * reflectionOperator U = reflectionOperator V * W := by
+  have hintJ : W * U.reflectionOperator = V.reflectionOperator * W := by
     rw [reflectionOperator_eq_projection_add_projection_sub_one U,
       reflectionOperator_eq_projection_add_projection_sub_one V, mul_sub, mul_add,
       mul_one, sub_mul, add_mul, one_mul, hint]
   -- `W J_U = J_U W⋆`, the left-multiplied form of the reflection conjugate identity.
-  have hWJ : W * reflectionOperator U = reflectionOperator U * star W := by
-    calc W * reflectionOperator U
-        = reflectionOperator U * reflectionOperator U * W * reflectionOperator U := by
+  have hWJ : W * U.reflectionOperator = U.reflectionOperator * star W := by
+    calc W * U.reflectionOperator
+        = U.reflectionOperator * U.reflectionOperator * W * U.reflectionOperator := by
           rw [hJJ, one_mul]
-      _ = reflectionOperator U * (reflectionOperator U * W * reflectionOperator U) := by
+      _ = U.reflectionOperator * (U.reflectionOperator * W * U.reflectionOperator) := by
           simp only [mul_assoc]
-      _ = reflectionOperator U * star W := by rw [hconj]
+      _ = U.reflectionOperator * star W := by rw [hconj]
   -- Equation (3.8) is now a consequence, not a hypothesis.
   have hsq : W * W = spectraReflectionProduct U V := by
-    have hstep : W * W * reflectionOperator U = reflectionOperator V := by
-      calc W * W * reflectionOperator U = W * (W * reflectionOperator U) := by
+    have hstep : W * W * U.reflectionOperator = V.reflectionOperator := by
+      calc W * W * U.reflectionOperator = W * (W * U.reflectionOperator) := by
             rw [mul_assoc]
-        _ = W * (reflectionOperator U * star W) := by rw [hWJ]
-        _ = W * reflectionOperator U * star W := by rw [mul_assoc]
-        _ = reflectionOperator V * W * star W := by rw [hintJ]
-        _ = reflectionOperator V := by
+        _ = W * (U.reflectionOperator * star W) := by rw [hWJ]
+        _ = W * U.reflectionOperator * star W := by rw [mul_assoc]
+        _ = V.reflectionOperator * W * star W := by rw [hintJ]
+        _ = V.reflectionOperator := by
               rw [mul_assoc, Unitary.mul_star_self_of_mem hWunit, mul_one]
-    have h := congrArg (fun T : H →L[ℂ] H => T * reflectionOperator U) hstep
+    have h := congrArg (fun T : H →L[ℂ] H => T * U.reflectionOperator) hstep
     simpa only [mul_assoc, hJJ, mul_one, spectraReflectionProduct] using h
   refine spectraDirectRotation_unique_of_diagonalBlocks U V hacute W hWunit hsq hintJ
     ?_ ?_
@@ -1556,9 +1554,9 @@ theorem eq_spectraDirectRotation_iff_diagonalBlocks_pos
         W * U.starProjection = V.starProjection * W ∧
         (∀ x ∈ U, 0 ≤ ⟪W x, x⟫_ℂ) ∧
         (∀ x ∈ Uᗮ, 0 ≤ ⟪W x, x⟫_ℂ) := by
-  have hCP : (spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)).IsPositive :=
+  have hCP : (ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)).IsPositive :=
     (ContinuousLinearMap.nonneg_iff_isPositive _).mp
-      (spectraOperatorAbsoluteValue_nonneg _)
+      (ContinuousLinearMap.modulus_nonneg _)
   constructor
   · rintro rfl
     refine ⟨spectraDirectRotation_mem_unitary U V hacute,
@@ -1566,27 +1564,27 @@ theorem eq_spectraDirectRotation_iff_diagonalBlocks_pos
     · intro x hx
       have hPx : U.starProjection x = x := Submodule.starProjection_eq_self_iff.mpr hx
       have hblk : U.starProjection * spectraDirectRotation U V hacute *
-          U.starProjection = spectraOperatorAbsoluteValue
+          U.starProjection = ContinuousLinearMap.modulus
             (spectraCanonicalIntertwiner U V) * U.starProjection :=
         projection_mul_spectraDirectRotation_mul_projection U V hacute
       have h := congrArg (fun S : H →L[ℂ] H => S x) hblk
       simp only [mul_apply_eq_comp, hPx] at h
       have hval : ⟪spectraDirectRotation U V hacute x, x⟫_ℂ =
-          ⟪spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) x, x⟫_ℂ := by
+          ⟪ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) x, x⟫_ℂ := by
         rw [← h, Submodule.inner_starProjection_left_eq_right, hPx]
       rw [hval]
       exact hCP.inner_nonneg_left x
     · intro x hx
       have hPx : Uᗮ.starProjection x = x := Submodule.starProjection_eq_self_iff.mpr hx
       have hblk : Uᗮ.starProjection * spectraDirectRotation U V hacute *
-          Uᗮ.starProjection = spectraOperatorAbsoluteValue
+          Uᗮ.starProjection = ContinuousLinearMap.modulus
             (spectraCanonicalIntertwiner U V) * Uᗮ.starProjection :=
         complementaryProjection_mul_spectraDirectRotation_mul_complementaryProjection
           U V hacute
       have h := congrArg (fun S : H →L[ℂ] H => S x) hblk
       simp only [mul_apply_eq_comp, hPx] at h
       have hval : ⟪spectraDirectRotation U V hacute x, x⟫_ℂ =
-          ⟪spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) x, x⟫_ℂ := by
+          ⟪ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) x, x⟫_ℂ := by
         rw [← h, Submodule.inner_starProjection_left_eq_right, hPx]
       rw [hval]
       exact hCP.inner_nonneg_left x
@@ -1730,13 +1728,13 @@ theorem spectraDirectRotation_minimal
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V)
     (W : H →L[ℂ] H) (hWunit : W ∈ unitary (H →L[ℂ] H))
-    (hintertwine : W * projection U = projection V * W) :
+    (hintertwine : W * U.starProjection = V.starProjection * W) :
     ‖spectraDirectRotation U V hacute - 1‖ ≤ ‖W - 1‖ := by
   let D : H →L[ℂ] H := spectraDirectRotation U V hacute
   let C : H →L[ℂ] H :=
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
-  let P : H →L[ℂ] H := projection U
-  let Pc : H →L[ℂ] H := complementaryProjection U
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
+  let P : H →L[ℂ] H := U.starProjection
+  let Pc : H →L[ℂ] H := (Uᗮ).starProjection
   let A : H →L[ℂ] H := star D * W
   let r : ℝ := ‖W - 1‖
   by_cases hrlarge : Real.sqrt 2 ≤ r
@@ -1783,12 +1781,12 @@ theorem spectraDirectRotation_minimal
     show A * P = P * A
     calc
       A * P = star D * (W * P) := by simp only [A]; rw [mul_assoc]
-      _ = star D * (projection V * W) := by
-        change star D * (W * projection U) = _
+      _ = star D * (V.starProjection * W) := by
+        change star D * (W * U.starProjection) = _
         rw [hintertwine]
       _ = (P * star D) * W := by
-        change star D * (projection V * W) =
-          (projection U * star D) * W
+        change star D * (V.starProjection * W) =
+          (U.starProjection * star D) * W
         rw [← mul_assoc, star_spectraDirectRotation_intertwines U V hacute]
       _ = P * A := by simp only [A]; rw [mul_assoc]
   -- Commuting with `P` is the same as commuting with its complement, and both `A` and `C`
@@ -1895,7 +1893,7 @@ theorem spectraDirectRotation_minimal
     have hstarRC : star R * C = 1 := by
       have h := congrArg star hCR
       have hCsa : star C = C :=
-        (spectraOperatorAbsoluteValue_isSelfAdjoint
+        (ContinuousLinearMap.modulus_isSelfAdjoint
           (spectraCanonicalIntertwiner U V)).star_eq
       simpa only [star_mul, star_one, hCsa] using h
     show star R = R
@@ -1908,7 +1906,7 @@ theorem spectraDirectRotation_minimal
     intro z
     have hCpos :=
       (ContinuousLinearMap.nonneg_iff_isPositive C).mp
-        (spectraOperatorAbsoluteValue_nonneg
+        (ContinuousLinearMap.modulus_nonneg
           (spectraCanonicalIntertwiner U V))
     have hz : C (R z) = z := by
       have h := congrArg (fun T : H →L[ℂ] H => T z) hCR
@@ -1931,7 +1929,7 @@ theorem spectraDirectRotation_minimal
   have hCcoer : ∀ z : H, c * ‖z‖ ^ 2 ≤ RCLike.re ⟪C z, z⟫_ℂ := fun z =>
     re_inner_ge_of_inverse_norm_le hc hRC hRsa hRpos hRnorm
       (fun w => ((ContinuousLinearMap.nonneg_iff_isPositive C).mp
-        (spectraOperatorAbsoluteValue_nonneg
+        (ContinuousLinearMap.modulus_nonneg
           (spectraCanonicalIntertwiner U V))).re_inner_nonneg_left w) z
   refine (D - 1).opNorm_le_bound (norm_nonneg (W - 1)) ?_
   intro x

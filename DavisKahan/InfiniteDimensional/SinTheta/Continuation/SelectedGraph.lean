@@ -7,6 +7,9 @@ import DavisKahan.InfiniteDimensional.SinTheta.Continuation.QuarterAcute
 import DavisKahan.SpectralTheory.GraphSubspace
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Contractive graph representation of a selected continuation endpoint
 
@@ -43,8 +46,8 @@ theorem isUniformlyAcute_of_isQuarterAcute
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hquarter : IsQuarterAcute U V) :
     IsUniformlyAcute U V := by
-  change subspaceGap U V < Real.sqrt 2 / 2 at hquarter
-  change subspaceGap U V < 1
+  change U.projectionGap V < Real.sqrt 2 / 2 at hquarter
+  change U.projectionGap V < 1
   have hsqrt_sq : Real.sqrt 2 ^ 2 = (2 : ℝ) :=
     Real.sq_sqrt (by norm_num)
   have hsqrt_nonneg : 0 ≤ Real.sqrt 2 := Real.sqrt_nonneg 2
@@ -61,7 +64,7 @@ theorem norm_angularOperator_lt_one_of_isQuarterAcute
     (X : H →L[ℂ] H) (hX : IsAngularOperator U X)
     (hquarter : IsQuarterAcute U (graphSubspace U X)) :
     ‖X‖ < 1 := by
-  change subspaceGap U (graphSubspace U X) < Real.sqrt 2 / 2 at hquarter
+  change U.projectionGap (graphSubspace U X) < Real.sqrt 2 / 2 at hquarter
   rw [subspaceGap_graphSubspace U X hX] at hquarter
   have hpos : (0 : ℝ) < 1 + ‖X‖ ^ 2 := by positivity
   have hs0 : (0 : ℝ) < Real.sqrt (1 + ‖X‖ ^ 2) :=
@@ -115,10 +118,10 @@ theorem existsUnique_selectedEndpointAngularOperator_of_contour_bound
     (Γ : PiecewiseC1ClosedContour) (A K : H →L[ℂ] H)
     (delta : ℝ) (hdelta : 0 < delta)
     (s : Set ℝ) (hs : MeasurableSet s)
-    (hA : IsSelfAdjointOperator A)
-    (hAK : IsSelfAdjointOperator (A + K))
+    (hA : A.IsSymmetric)
+    (hAK : (A + K).IsSymmetric)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A K t))
+      (operatorPath A K t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A K t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)
@@ -147,10 +150,10 @@ noncomputable def selectedEndpointAngularOperator
     (Γ : PiecewiseC1ClosedContour) (A K : H →L[ℂ] H)
     (delta : ℝ) (hdelta : 0 < delta)
     (s : Set ℝ) (hs : MeasurableSet s)
-    (hA : IsSelfAdjointOperator A)
-    (hAK : IsSelfAdjointOperator (A + K))
+    (hA : A.IsSymmetric)
+    (hAK : (A + K).IsSymmetric)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A K t))
+      (operatorPath A K t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A K t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)
@@ -170,10 +173,10 @@ theorem selectedEndpointAngularOperator_isAngularOperator
     (Γ : PiecewiseC1ClosedContour) (A K : H →L[ℂ] H)
     (delta : ℝ) (hdelta : 0 < delta)
     (s : Set ℝ) (hs : MeasurableSet s)
-    (hA : IsSelfAdjointOperator A)
-    (hAK : IsSelfAdjointOperator (A + K))
+    (hA : A.IsSymmetric)
+    (hAK : (A + K).IsSymmetric)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A K t))
+      (operatorPath A K t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A K t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)
@@ -196,10 +199,10 @@ theorem graphSubspace_selectedEndpointAngularOperator
     (Γ : PiecewiseC1ClosedContour) (A K : H →L[ℂ] H)
     (delta : ℝ) (hdelta : 0 < delta)
     (s : Set ℝ) (hs : MeasurableSet s)
-    (hA : IsSelfAdjointOperator A)
-    (hAK : IsSelfAdjointOperator (A + K))
+    (hA : A.IsSymmetric)
+    (hAK : (A + K).IsSymmetric)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A K t))
+      (operatorPath A K t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A K t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)
@@ -222,10 +225,10 @@ theorem norm_selectedEndpointAngularOperator_lt_one
     (Γ : PiecewiseC1ClosedContour) (A K : H →L[ℂ] H)
     (delta : ℝ) (hdelta : 0 < delta)
     (s : Set ℝ) (hs : MeasurableSet s)
-    (hA : IsSelfAdjointOperator A)
-    (hAK : IsSelfAdjointOperator (A + K))
+    (hA : A.IsSymmetric)
+    (hAK : (A + K).IsSymmetric)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A K t))
+      (operatorPath A K t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A K t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)

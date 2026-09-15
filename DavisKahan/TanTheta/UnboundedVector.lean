@@ -14,10 +14,10 @@ import ForTauCeti.Analysis.InnerProductSpace.Projection.Geometry
 The bounded infinite-dimensional tangent theorem uses the ambient operator only
 on the test subspace, the complementary exact subspace, and differences of
 vectors from those two subspaces.  This module records that domain information
-explicitly and repeats the geometric argument for a closed self-adjoint
-operator.
+explicitly and repeats the geometric argument for an unbounded operator, as a
+partial map.
 
-The first theorem accepts a closed symmetric operator together with:
+The first theorem accepts a symmetric partial map together with:
 
 * inclusion of the test subspace in the operator domain;
 * inclusion and invariance of the complementary exact subspace;
@@ -55,9 +55,10 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
 
 omit [CompleteSpace H] in
 /-- A residual bound on a domain-contained test subspace transfers to the
-opposite block of a symmetric closed operator.  Only the particular vector in
-the orthogonal complement is required to lie in the operator domain. -/
-theorem norm_starProjection_closedOperator_le_of_mem_orthogonal
+opposite block of a symmetric partial map.  Closedness is not needed and is not
+assumed; only the particular vector in the orthogonal complement is required to
+lie in the operator domain. -/
+theorem norm_starProjection_symmetricPMap_le_of_mem_orthogonal
     (A : H →ₗ.[ℂ] H) (hA : TauCeti.LinearPMap.IsSymmetric A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection]
     (hZdom : Z ≤ A.domain)
@@ -225,7 +226,7 @@ theorem tanTheta_unbounded_vector_of_centered_bounds
         ‖Z.starProjection
             (A ⟨u₀ - Z.starProjection u₀, hwDom⟩)‖ ≤
           ρ * ‖u₀ - Z.starProjection u₀‖ :=
-      norm_starProjection_closedOperator_le_of_mem_orthogonal
+      norm_starProjection_symmetricPMap_le_of_mem_orthogonal
         A hA hZdom hρ0 hρ hwDom
         (Z.sub_starProjection_mem_orthogonal u₀)
     calc

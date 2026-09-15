@@ -6,9 +6,11 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.OperatorIdeal.ApproximationNumbers.ScalarGeneric
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.SameSequence
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.FiniteRestriction
-import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm
 import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
 import Mathlib.Analysis.InnerProductSpace.ProdL2
+import DavisKahan.Sylvester.ScalarTransport
+import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.ScalarTransport
 
 /-!
 # Approximation numbers of orthogonal block sums
@@ -336,7 +338,6 @@ variable {E₀ E₁ F₀ F₁ : Type v}
 `i + 1` and `j + 1` combine into an `(i + j + 2)`-dimensional witness for the
 block sum. -/
 theorem min_le_approximationNumber_continuousOrthogonalBlockSum
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     (A : E₀ →L[𝕜] F₀) (B : E₁ →L[𝕜] F₁) (i j : ℕ) :
     min (A.approximationNumber i) (B.approximationNumber j) ≤
       (continuousOrthogonalBlockSum A B).approximationNumber (i + j + 1) := by
@@ -575,7 +576,6 @@ singular-value lists.  In arbitrary Hilbert spaces, finite Ky Fan prefixes are
 localized to finite-dimensional compressions by the exact approximation-number
 min--max theorem, and the finite result is passed to the limit. -/
 theorem kyFanApproximationGauge_continuousOrthogonalBlockSum
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     {E₀ E₁ F₀ F₁ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀] [CompleteSpace E₀]
     [NormedAddCommGroup E₁] [InnerProductSpace 𝕜 E₁] [CompleteSpace E₁]
@@ -621,7 +621,6 @@ theorem kyFanApproximationGauge_continuousOrthogonalBlockSum
 /-- Weak majorization is stable under orthogonal block sum.  This is the
 infinite-dimensional singular-value content of Davis--Kahan Lemma 6.1. -/
 theorem kyFanApproximationGauge_blockSum_le
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     {E₀ E₁ F₀ F₁ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀] [CompleteSpace E₀]
     [NormedAddCommGroup E₁] [InnerProductSpace 𝕜 E₁] [CompleteSpace E₁]
@@ -653,7 +652,6 @@ theorem approximationSingularValue_eq_kyFan_succ_sub
 /-- Orthogonal block sums preserve complete singular-value equality component
 by component. -/
 theorem hasSameApproximationNumbers_continuousOrthogonalBlockSum
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     {E₀ E₁ F₀ F₁ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀] [CompleteSpace E₀]
     [NormedAddCommGroup E₁] [InnerProductSpace 𝕜 E₁] [CompleteSpace E₁]
@@ -689,7 +687,6 @@ theorem hasSameApproximationNumbers_continuousOrthogonalBlockSum
 /-- Heterogeneous version: orthogonal block sums preserve complete singular
 sequences even when the source and target coordinate spaces differ. -/
 theorem sameApproximationSingularSequence_continuousOrthogonalBlockSum
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     {E₀ E₁ F₀ F₁ E₀' E₁' F₀' F₁' : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀] [CompleteSpace E₀]
     [NormedAddCommGroup E₁] [InnerProductSpace 𝕜 E₁] [CompleteSpace E₁]

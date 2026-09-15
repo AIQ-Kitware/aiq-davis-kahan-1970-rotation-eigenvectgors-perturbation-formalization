@@ -77,7 +77,7 @@ noncomputable instance boundedBorelProjection_complex :
 one, by definition.  Stated so that results proved in `General.lean` can be
 transported onto `boundedSelfAdjointSpectralSubspace` without unfolding. -/
 theorem spectralSubspace_eq_boundedSelfAdjointSpectralSubspace
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) :
     spectralSubspace A hA s hs = boundedSelfAdjointSpectralSubspace A hA s hs :=
   rfl

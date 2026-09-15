@@ -9,11 +9,17 @@ import DavisKahan.DoubleAngle.UnboundedIdeal
 import DavisKahan.OperatorIdeal.ApproximationNumbers.ScalarGeneric
 import DavisKahan.SinTheta.BoundedPerturbation
 import DavisKahan.Sources.DavisKahan1970.Section9.ExactData
+import DavisKahan.Sources.DavisKahan1970.Section9.NumericalBounds
 import DavisKahan.Sources.DavisKahan1970.Section9.TrialSubspace
 import ForTauCeti.Analysis.InnerProductSpace.CompactSelfAdjointClassification
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.SpectralSupport
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.RayleighRitz
 import ForTauCeti.MeasureTheory.MulLpAlgebra
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # The Davis--Kahan Section 9 free-beam example, on the genuine operator
@@ -56,6 +62,7 @@ namespace TauCeti
 namespace DavisKahan
 namespace FreeBeam
 namespace Model
+
 
 noncomputable section
 
@@ -616,7 +623,7 @@ theorem norm_beamPerturbation_comp_trialIncl_le (ε : ℝ) :
 
 /-- The perturbation is self-adjoint: its symbol is real. -/
 theorem beamPerturbation_isSelfAdjoint (ε : ℝ) :
-    DavisKahan.IsSelfAdjointOperator (beamPerturbation ε) := by
+    (beamPerturbation ε).IsSymmetric := by
   intro x y
   rw [MeasureTheory.L2.inner_def, MeasureTheory.L2.inner_def]
   refine integral_congr_ae ?_
@@ -649,7 +656,8 @@ def beamTrialZero : beamTrial →ₗ.[ℂ] beamTrial :=
 /-- The trial-block compression of the unperturbed beam operator is
 self-adjoint. -/
 theorem beamTrialZero_isSelfAdjoint : _root_.IsSelfAdjoint beamTrialZero :=
-  TauCeti.DavisKahanExt.ofBounded_isSelfAdjoint 0 (fun _ _ => by simp)
+  TauCeti.LinearPMap.isSelfAdjoint_toPMap_top (T := 0)
+    (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr (fun _ _ => by simp))
 
 /-- **The largest sine of the angle** between the affine trial subspace and the exact
 low spectral subspace of the perturbed beam: the operator norm of the cross projection
@@ -859,7 +867,7 @@ theorem beamLow_semiboundedAbove :
 /-- **The largest sine of twice the angle** between the free beam's zero-mode spectral
 subspace and the low spectral subspace of the perturbed operator. -/
 def beamSinTwoTheta (ε : ℝ) : ℝ :=
-  ‖DavisKahanExt.sinTwoAngleOperatorC
+  ‖DavisKahan.Angle.directedSinTwoAngleOperatorC
       (selfAdjointSpectralSubspace beamOperator beamOperator_isSelfAdjoint beamLowSet
         measurableSet_beamLowSet)
       (selfAdjointSpectralSubspace (beamPerturbed ε) (beamPerturbed_isSelfAdjoint ε)
@@ -867,7 +875,7 @@ def beamSinTwoTheta (ε : ℝ) : ℝ :=
 
 /-- The beam model's `sin 2Θ` is nonnegative. -/
 theorem beamSinTwoTheta_nonneg (ε : ℝ) : 0 ≤ beamSinTwoTheta ε :=
-  norm_nonneg (DavisKahanExt.sinTwoAngleOperatorC
+  norm_nonneg (DavisKahan.Angle.directedSinTwoAngleOperatorC
       (selfAdjointSpectralSubspace beamOperator beamOperator_isSelfAdjoint beamLowSet
         measurableSet_beamLowSet)
       (selfAdjointSpectralSubspace (beamPerturbed ε) (beamPerturbed_isSelfAdjoint ε)
@@ -2116,6 +2124,24 @@ theorem beamPerturbed_specProjection_Ioo_eq_zero (ε : ℝ) (hε : 0 ≤ ε) :
     (fun y hy => beamPerturbed_form_ge_of_mem_orthogonal ε hε y hy)
 
 end
+
+open DavisKahan1970.Section9 in
+/-- **Equation (9.1) for the beam, in the printed numerals.**
+
+`beamSinTheta_le` bounds the angle by the residual's exact top singular value over
+the gap; `equation_9_1` turns that exact value into the source's decimal.  Composing
+them is what makes the row's evidence *unconditional*: the numeric wrapper alone is
+conditional on an analytic bound the reader has to supply, and this supplies it. -/
+theorem beamSinTheta_lt_printed (ε : ℝ) (hε : 0 < ε) :
+    beamSinTheta ε < (811 : ℝ) / 500000 * ε :=
+  equation_9_1 ε (beamSinTheta ε) hε (beamSinTheta_le ε)
+
+open DavisKahan1970.Section9 in
+/-- **Equation (9.3) for the beam, in the printed numerals.**  The two-term Ky Fan
+norm version of the previous theorem. -/
+theorem beamSinThetaSum_lt_printed (ε : ℝ) (hε : 0 < ε) :
+    beamSinThetaSum ε < (109 : ℝ) / 50000 * ε :=
+  equation_9_3 ε (beamSinThetaSum ε) hε (beamSinThetaSum_le ε)
 
 end Model
 end FreeBeam

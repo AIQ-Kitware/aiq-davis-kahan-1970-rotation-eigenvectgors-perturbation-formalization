@@ -9,6 +9,11 @@ import DavisKahan.DoubleAngle.Unbounded
 import DavisKahan.SinTheta.BoundedPerturbationIdeal
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Ideal-gauge unbounded sine two theta
 
@@ -23,7 +28,6 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 
-open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 
@@ -36,8 +40,16 @@ variable {H G : Type v}
   [NormedAddCommGroup H] [InnerProductSpace 𝕜 H] [CompleteSpace H]
   [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
 
-/-- The ambient sine-two-theta ideal block obtained by overlapping the exact
-spectral subspace with the reflected exact complementary subspace. -/
+/-- The directed sine-two-theta ideal block `P_U P_{J_V Uᗮ}`: the overlap of `U`
+with the `V`-reflection of `Uᗮ`.
+
+This is the object the unbounded directed `sin 2Θ` estimates are proved about.  It
+is a one-sided block, not an angle;
+`Angle.sinTwoThetaIdealBlock_hasSameApproximationNumbers_rclike` identifies its
+singular-value sequence with that of `Angle.directedSinTwoAngleOperator U V`, and
+`Angle.sinTwoThetaIdealBlock_hasSameApproximationNumbers_trialSide` with that of the
+other ordering `Angle.directedSinTwoAngleOperator V U`, which is the one Davis and
+Kahan's `Θ₀` names when `U` carries the gap and `V` is the trial subspace. -/
 noncomputable def sinTwoThetaIdealBlock
     (U V : Submodule 𝕜 H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : H →L[𝕜] H :=
@@ -202,7 +214,7 @@ of twice the complex operator angle. -/
 theorem norm_sinTwoThetaIdealBlock_complex
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinTwoThetaIdealBlock U V‖ = ‖sinTwoAngleOperatorC U V‖ := by
+    ‖sinTwoThetaIdealBlock U V‖ = ‖directedSinTwoAngleOperatorC U V‖ := by
   exact norm_starProjection_reflectedComplementary_eq_sinTwoAngle U V
 
 /-- **Block form of the residual reflection sine-two-theta estimate.**
@@ -217,7 +229,7 @@ theorem sinTwoTheta_reflectionResidual_block_gauge_of_spectrum_gap
     (N : TauCeti.SymmetricOperatorIdealFamily.{0, v} ℂ)
     [N.toOperatorIdealFamily.IsComplete]
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (R : H →L[ℂ] H) (hR : IsSelfAdjointOperator R)
+    (R : H →L[ℂ] H) (hR : R.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
@@ -426,7 +438,7 @@ theorem sinTwoTheta_reflectionResidual_gauge_of_spectrum_gap
     (N : TauCeti.SymmetricOperatorIdealFamily.{0, v} ℂ)
     [N.toOperatorIdealFamily.IsComplete]
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (R : H →L[ℂ] H) (hR : IsSelfAdjointOperator R)
+    (R : H →L[ℂ] H) (hR : R.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
@@ -463,7 +475,7 @@ theorem sinTwoTheta_addBounded_gauge_of_spectrum_gap
     (N : TauCeti.SymmetricOperatorIdealFamily.{0, v} ℂ)
     [N.toOperatorIdealFamily.IsComplete]
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -487,7 +499,7 @@ theorem sinTwoTheta_addBounded_gauge_of_spectrum_gap
   let hC : IsSelfAdjoint C := addBounded_isSelfAdjoint A hA E hE
   let V := selfAdjointSpectralSubspace C hC S hS
   let D := reflectionPerturbation V E
-  have hD : IsSelfAdjointOperator D :=
+  have hD : D.IsSymmetric :=
     reflectionPerturbation_isSelfAdjoint V E hE
   have hDideal := reflectionPerturbation_mem_and_gauge_le N V E hEmem
   have hmain := sinTwoTheta_reflectionResidual_gauge_of_spectrum_gap
@@ -503,7 +515,7 @@ theorem sinTwoTheta_addBounded_gauge_of_intervalExterior
     (N : TauCeti.SymmetricOperatorIdealFamily.{0, v} ℂ)
     [N.toOperatorIdealFamily.IsComplete]
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)
@@ -533,7 +545,7 @@ form. -/
 theorem sinTwoTheta_addBounded_unitaryInvariant_of_spectrum_gap
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -562,7 +574,7 @@ form. -/
 theorem sinTwoTheta_addBounded_unitaryInvariant_of_intervalExterior
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)
@@ -589,7 +601,7 @@ family, where membership is vacuous and the gauge is the norm; the geometric spi
 once, above. -/
 theorem sinTwoTheta_reflectionResidual_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (R : H →L[ℂ] H) (hR : IsSelfAdjointOperator R)
+    (R : H →L[ℂ] H) (hR : R.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
@@ -605,7 +617,7 @@ theorem sinTwoTheta_reflectionResidual_of_spectrum_gap
       (TauCeti.LinearPMap.addBounded A R)
           ⟨V.reflectionOperator (x : H), hJdom x⟩ =
         V.reflectionOperator (A x)) :
-    δ * ‖sinTwoAngleOperatorC
+    δ * ‖directedSinTwoAngleOperatorC
         (selfAdjointSpectralSubspace A hA B hB) V‖ ≤ ‖R‖ := by
   have h := (sinTwoTheta_reflectionResidual_gauge_of_spectrum_gap
     (TauCeti.operatorNormFamily ℂ) A hA R hR B hB V hβα hδ
@@ -619,7 +631,7 @@ theorem sinTwoTheta_reflectionResidual_of_spectrum_gap
 bounded self-adjoint perturbation. -/
 theorem sinTwoTheta_addBounded_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -629,7 +641,7 @@ theorem sinTwoTheta_addBounded_of_spectrum_gap
     (hBcomplSpec : ∀ lam ∈ Set.Ioo (β - δ) (α + δ),
       (lam : ℂ) ∉ TauCeti.LinearPMap.spectrum
         (selfAdjointSpectralRestriction A hA Bᶜ hB.compl)) :
-    δ * ‖sinTwoAngleOperatorC
+    δ * ‖directedSinTwoAngleOperatorC
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
           (addBounded_isSelfAdjoint A hA E hE) S hS)‖ ≤
@@ -638,10 +650,10 @@ theorem sinTwoTheta_addBounded_of_spectrum_gap
   let hC : IsSelfAdjoint C := addBounded_isSelfAdjoint A hA E hE
   let V := selfAdjointSpectralSubspace C hC S hS
   let D := reflectionPerturbation V E
-  have hD : IsSelfAdjointOperator D :=
+  have hD : D.IsSymmetric :=
     reflectionPerturbation_isSelfAdjoint V E hE
   have hmain :
-      δ * ‖sinTwoAngleOperatorC
+      δ * ‖directedSinTwoAngleOperatorC
         (selfAdjointSpectralSubspace A hA B hB) V‖ ≤ ‖D‖ :=
     sinTwoTheta_reflectionResidual_of_spectrum_gap
       A hA D hD B hB V hβα hδ hBlow hBhigh hBcomplSpec
@@ -653,12 +665,12 @@ theorem sinTwoTheta_addBounded_of_spectrum_gap
 theorem. -/
 theorem sinTwoTheta_addBounded_of_intervalExterior
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)
     (hBcomplDisj : Bᶜ ∩ Set.Ioo (β - δ) (α + δ) = ∅) :
-    δ * ‖sinTwoAngleOperatorC
+    δ * ‖directedSinTwoAngleOperatorC
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
           (addBounded_isSelfAdjoint A hA E hE) S hS)‖ ≤

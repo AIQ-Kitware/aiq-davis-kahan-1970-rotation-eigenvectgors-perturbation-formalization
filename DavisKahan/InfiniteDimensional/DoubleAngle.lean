@@ -8,6 +8,11 @@ import DavisKahan.DoubleAngle.CompatibilitySinTwoTheta
 import DavisKahan.InfiniteDimensional.SinTheta.General
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Infinite-dimensional `sin 2Θ` and generic double-angle bounds
 
@@ -49,28 +54,28 @@ obligations.
 matching the finite-dimensional normalization. -/
 noncomputable def sinTwoAngleOperator (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[𝕜] E :=
-  (2 : 𝕜) • (complementaryProjection U ∘L projection V ∘L projection U)
+  (2 : 𝕜) • ((Uᗮ).starProjection ∘L V.starProjection ∘L U.starProjection)
 
 /-- The mirror image of a subspace under the reflection through another. -/
 noncomputable def reflectedSubspace (V U : Submodule 𝕜 E)
     [V.HasOrthogonalProjection] : Submodule 𝕜 E :=
-  U.map (reflectionOperator V : E →L[𝕜] E).toLinearMap
+  U.map (V.reflectionOperator : E →L[𝕜] E).toLinearMap
 
 omit [CompleteSpace E] in
 /-- The reflection is an involution, applied pointwise. -/
 theorem reflectionOperator_apply_apply
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection] (x : E) :
-    reflectionOperator V (reflectionOperator V x) = x := by
-  have h := congrArg (fun T : E →L[𝕜] E => T x) (reflectionOperator_involutive V)
+    V.reflectionOperator (V.reflectionOperator x) = x := by
+  have h := congrArg (fun T : E →L[𝕜] E => T x) (Submodule.reflectionOperator_involutive V)
   simpa using h
 
 /-- The reflection through a subspace is self-adjoint: it is `2 P - 1`. -/
 theorem isSelfAdjoint_reflectionOperator
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection] :
-    IsSelfAdjoint (reflectionOperator V : E →L[𝕜] E) := by
+    IsSelfAdjoint (V.reflectionOperator : E →L[𝕜] E) := by
   have hP : IsSelfAdjoint (V.starProjection : E →L[𝕜] E) :=
     isSelfAdjoint_starProjection V
-  have hform : (reflectionOperator V : E →L[𝕜] E) =
+  have hform : (V.reflectionOperator : E →L[𝕜] E) =
       (2 : 𝕜) • V.starProjection - 1 := by
     ext x
     simp [Submodule.reflectionOperator_apply]
@@ -88,22 +93,22 @@ theorem reflectedSubspace_orthogonal
   constructor
   · intro hy
     refine Submodule.mem_map.mpr
-      ⟨reflectionOperator V y, ?_, reflectionOperator_apply_apply V y⟩
+      ⟨V.reflectionOperator y, ?_, reflectionOperator_apply_apply V y⟩
     rw [Submodule.mem_orthogonal]
     intro u hu
-    have h := (Submodule.mem_orthogonal _ y).mp hy (reflectionOperator V u)
+    have h := (Submodule.mem_orthogonal _ y).mp hy (V.reflectionOperator u)
       (Submodule.mem_map.mpr ⟨u, hu, rfl⟩)
-    have h2 : ⟪reflectionOperator V u, y⟫_𝕜 =
-        ⟪u, reflectionOperator V y⟫_𝕜 := hJsym u y
+    have h2 : ⟪V.reflectionOperator u, y⟫_𝕜 =
+        ⟪u, V.reflectionOperator y⟫_𝕜 := hJsym u y
     rw [← h2]
     exact h
   · intro hy
     obtain ⟨w, hw, rfl⟩ := Submodule.mem_map.mp hy
     rw [Submodule.mem_orthogonal]
     rintro _ ⟨u, hu, rfl⟩
-    calc ⟪reflectionOperator V u, reflectionOperator V w⟫_𝕜
-        = ⟪u, reflectionOperator V (reflectionOperator V w)⟫_𝕜 :=
-          hJsym u (reflectionOperator V w)
+    calc ⟪V.reflectionOperator u, V.reflectionOperator w⟫_𝕜
+        = ⟪u, V.reflectionOperator (V.reflectionOperator w)⟫_𝕜 :=
+          hJsym u (V.reflectionOperator w)
       _ = ⟪u, w⟫_𝕜 := by rw [reflectionOperator_apply_apply V w]
       _ = 0 := Submodule.inner_right_of_mem_orthogonal hu hw
 
@@ -114,46 +119,45 @@ noncomputable instance reflectedSubspace_hasOrthogonalProjection
     [U.HasOrthogonalProjection] :
     (reflectedSubspace V U).HasOrthogonalProjection := by
   set P : E →L[𝕜] E :=
-    reflectionOperator V ∘L projection U ∘L reflectionOperator V with hP
-  have hPapp : ∀ x, P x = reflectionOperator V
-      (U.starProjection (reflectionOperator V x)) := fun x => rfl
+    V.reflectionOperator ∘L U.starProjection ∘L V.reflectionOperator with hP
+  have hPapp : ∀ x, P x = V.reflectionOperator
+      (U.starProjection (V.reflectionOperator x)) := fun x => rfl
   have hidem : IsIdempotentElem P := by
     show P * P = P
     ext x
     show P (P x) = P x
     rw [hPapp, hPapp, reflectionOperator_apply_apply,
       Submodule.starProjection_eq_self_iff.mpr
-        (U.starProjection_apply_mem (reflectionOperator V x))]
+        (U.starProjection_apply_mem (V.reflectionOperator x))]
   have hrange : LinearMap.range (P : E →ₗ[𝕜] E) = reflectedSubspace V U := by
     apply le_antisymm
     · rintro _ ⟨x, rfl⟩
       exact Submodule.mem_map.mpr
-        ⟨U.starProjection (reflectionOperator V x),
+        ⟨U.starProjection (V.reflectionOperator x),
           U.starProjection_apply_mem _, rfl⟩
     · intro y hy
       obtain ⟨u, hu, rfl⟩ := Submodule.mem_map.mp hy
-      refine ⟨reflectionOperator V u, ?_⟩
-      show P (reflectionOperator V u) =
-        (reflectionOperator V : E →L[𝕜] E) u
+      refine ⟨V.reflectionOperator u, ?_⟩
+      show P (V.reflectionOperator u) =
+        (V.reflectionOperator : E →L[𝕜] E) u
       rw [hPapp, reflectionOperator_apply_apply,
         Submodule.starProjection_eq_self_iff.mpr hu]
   exact hrange ▸
     ContinuousLinearMap.IsIdempotentElem.hasOrthogonalProjection_range hidem
 
 /-- Conjugation by the reflection preserves self-adjointness. -/
-theorem _root_.TauCeti.DavisKahan.IsSelfAdjointOperator.reflection_conjugate
-    {A : E →L[𝕜] E} (hA : IsSelfAdjointOperator A)
+theorem isSymmetric_reflectionConjugate
+    {A : E →L[𝕜] E} (hA : A.IsSymmetric)
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection] :
-    IsSelfAdjointOperator
-      (reflectionOperator V ∘L A ∘L reflectionOperator V) := by
+    (V.reflectionOperator ∘L A ∘L V.reflectionOperator).IsSymmetric := by
   have hAsa : IsSelfAdjoint A :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hA
-  have hJsa : IsSelfAdjoint (reflectionOperator V : E →L[𝕜] E) :=
+  have hJsa : IsSelfAdjoint (V.reflectionOperator : E →L[𝕜] E) :=
     isSelfAdjoint_reflectionOperator V
   have hstar : IsSelfAdjoint
-      (reflectionOperator V ∘L A ∘L reflectionOperator V) := by
-    show star (reflectionOperator V * A * reflectionOperator V) =
-      reflectionOperator V * A * reflectionOperator V
+      (V.reflectionOperator ∘L A ∘L V.reflectionOperator) := by
+    show star (V.reflectionOperator * A * V.reflectionOperator) =
+      V.reflectionOperator * A * V.reflectionOperator
     rw [star_mul, star_mul, hJsa.star_eq, hAsa.star_eq, mul_assoc]
   exact ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hstar
 
@@ -162,21 +166,21 @@ operator. -/
 theorem reduces_reflectedSubspace
     {A : E →L[𝕜] E} {U : Submodule 𝕜 E} {V : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) :
-    Reduces (reflectionOperator V ∘L A ∘L reflectionOperator V)
+    (hU : A.Reduces U) :
+    ContinuousLinearMap.Reduces (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
       (reflectedSubspace V U) := by
   constructor
   · intro y hy
     obtain ⟨u, hu, rfl⟩ := Submodule.mem_map.mp hy
-    show reflectionOperator V (A (reflectionOperator V
-      (reflectionOperator V u))) ∈ reflectedSubspace V U
+    show V.reflectionOperator (A (V.reflectionOperator
+      (V.reflectionOperator u))) ∈ reflectedSubspace V U
     rw [reflectionOperator_apply_apply]
     exact Submodule.mem_map.mpr ⟨A u, hU.1 u hu, rfl⟩
   · intro y hy
     rw [reflectedSubspace_orthogonal] at hy ⊢
     obtain ⟨w, hw, rfl⟩ := Submodule.mem_map.mp hy
-    show reflectionOperator V (A (reflectionOperator V
-      (reflectionOperator V w))) ∈ reflectedSubspace V Uᗮ
+    show V.reflectionOperator (A (V.reflectionOperator
+      (V.reflectionOperator w))) ∈ reflectedSubspace V Uᗮ
     rw [reflectionOperator_apply_apply]
     exact Submodule.mem_map.mpr ⟨A w, hU.2 w hw, rfl⟩
 
@@ -184,11 +188,11 @@ omit [CompleteSpace E] in
 /-- Double reflection conjugation is the identity on operators. -/
 theorem reflection_conjugate_conjugate (A : E →L[𝕜] E) (V : Submodule 𝕜 E)
     [V.HasOrthogonalProjection] :
-    reflectionOperator V ∘L (reflectionOperator V ∘L A ∘L reflectionOperator V)
-      ∘L reflectionOperator V = A := by
+    V.reflectionOperator ∘L (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
+      ∘L V.reflectionOperator = A := by
   ext x
-  show reflectionOperator V (reflectionOperator V (A (reflectionOperator V
-    (reflectionOperator V x)))) = A x
+  show V.reflectionOperator (V.reflectionOperator (A (V.reflectionOperator
+    (V.reflectionOperator x)))) = A x
   rw [reflectionOperator_apply_apply, reflectionOperator_apply_apply]
 
 omit [CompleteSpace E] in
@@ -196,8 +200,8 @@ omit [CompleteSpace E] in
 theorem reflectedSubspace_reflectedSubspace (V U : Submodule 𝕜 E)
     [V.HasOrthogonalProjection] :
     reflectedSubspace V (reflectedSubspace V U) = U := by
-  have hcomp : ((reflectionOperator V : E →L[𝕜] E) :
-      E →ₗ[𝕜] E).comp ((reflectionOperator V : E →L[𝕜] E) : E →ₗ[𝕜] E) =
+  have hcomp : ((V.reflectionOperator : E →L[𝕜] E) :
+      E →ₗ[𝕜] E).comp ((V.reflectionOperator : E →L[𝕜] E) : E →ₗ[𝕜] E) =
       LinearMap.id := by
     ext x
     exact reflectionOperator_apply_apply V x
@@ -209,12 +213,12 @@ omit [CompleteSpace E] in
 theorem invariantFor_reflection_conjugate
     {A : E →L[𝕜] E} {U : Submodule 𝕜 E} (V : Submodule 𝕜 E)
     [V.HasOrthogonalProjection] (hU : InvariantFor A U) :
-    InvariantFor (reflectionOperator V ∘L A ∘L reflectionOperator V)
+    InvariantFor (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
       (reflectedSubspace V U) := by
   intro x hx
   obtain ⟨u, hu, rfl⟩ := Submodule.mem_map.mp hx
-  show reflectionOperator V (A (reflectionOperator V
-    (reflectionOperator V u))) ∈ reflectedSubspace V U
+  show V.reflectionOperator (A (V.reflectionOperator
+    (V.reflectionOperator u))) ∈ reflectedSubspace V U
   rw [reflectionOperator_apply_apply]
   exact Submodule.mem_map.mpr ⟨A u, hU u hu, rfl⟩
 
@@ -223,7 +227,7 @@ omit [CompleteSpace E] in
 theorem invariantFor_of_reflection_conjugate
     {A : E →L[𝕜] E} {U : Submodule 𝕜 E} (V : Submodule 𝕜 E)
     [V.HasOrthogonalProjection]
-    (hU' : InvariantFor (reflectionOperator V ∘L A ∘L reflectionOperator V)
+    (hU' : InvariantFor (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
       (reflectedSubspace V U)) :
     InvariantFor A U := by
   have h := invariantFor_reflection_conjugate V hU'
@@ -274,35 +278,35 @@ spectrum as restricting the original operator to the original subspace. -/
 private theorem spectrum_restrict_reflection_conjugate
     (A : E →L[𝕜] E) (U V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
     (hU : InvariantFor A U)
-    (hU' : InvariantFor (reflectionOperator V ∘L A ∘L reflectionOperator V)
+    (hU' : InvariantFor (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
       (reflectedSubspace V U)) :
-    spectrum 𝕜 ((reflectionOperator V ∘L A ∘L reflectionOperator V).restrict hU')
+    spectrum 𝕜 ((V.reflectionOperator ∘L A ∘L V.reflectionOperator).restrict hU')
       = spectrum 𝕜 (A.restrict hU) := by
   have hΦmem : ∀ x : ↥U,
-      ((reflectionOperator V : E →L[𝕜] E) ∘L U.subtypeL) x ∈
+      ((V.reflectionOperator : E →L[𝕜] E) ∘L U.subtypeL) x ∈
         reflectedSubspace V U := fun x =>
     Submodule.mem_map.mpr ⟨(x : E), x.2, rfl⟩
   have hΨmem : ∀ y : ↥(reflectedSubspace V U),
-      ((reflectionOperator V : E →L[𝕜] E) ∘L
+      ((V.reflectionOperator : E →L[𝕜] E) ∘L
         (reflectedSubspace V U).subtypeL) y ∈ U := by
     intro y
     obtain ⟨u, hu, huy⟩ := Submodule.mem_map.mp y.2
-    have hval : ((reflectionOperator V : E →L[𝕜] E) ∘L
+    have hval : ((V.reflectionOperator : E →L[𝕜] E) ∘L
         (reflectedSubspace V U).subtypeL) y = u := by
-      show reflectionOperator V (y : E) = u
+      show V.reflectionOperator (y : E) = u
       rw [← huy]
       exact reflectionOperator_apply_apply V u
     rw [hval]
     exact hu
   set Φ : ↥U →L[𝕜] ↥(reflectedSubspace V U) :=
-    ((reflectionOperator V : E →L[𝕜] E) ∘L U.subtypeL).codRestrict
+    ((V.reflectionOperator : E →L[𝕜] E) ∘L U.subtypeL).codRestrict
       (reflectedSubspace V U) hΦmem with hΦdef
   set Ψ : ↥(reflectedSubspace V U) →L[𝕜] ↥U :=
-    ((reflectionOperator V : E →L[𝕜] E) ∘L
+    ((V.reflectionOperator : E →L[𝕜] E) ∘L
       (reflectedSubspace V U).subtypeL).codRestrict U hΨmem with hΨdef
-  have hcoeΦ : ∀ x : ↥U, (Φ x : E) = reflectionOperator V (x : E) := fun _ => rfl
+  have hcoeΦ : ∀ x : ↥U, (Φ x : E) = V.reflectionOperator (x : E) := fun _ => rfl
   have hcoeΨ : ∀ y : ↥(reflectedSubspace V U),
-      (Ψ y : E) = reflectionOperator V (y : E) := fun _ => rfl
+      (Ψ y : E) = V.reflectionOperator (y : E) := fun _ => rfl
   have hΨΦ : ∀ x : ↥U, Ψ (Φ x) = x := by
     intro x
     apply Subtype.ext
@@ -317,7 +321,7 @@ private theorem spectrum_restrict_reflection_conjugate
   rw [spectrum.mem_iff, spectrum.mem_iff, not_iff_not]
   have hz : algebraMap 𝕜
         (↥(reflectedSubspace V U) →L[𝕜] ↥(reflectedSubspace V U)) z -
-        (reflectionOperator V ∘L A ∘L reflectionOperator V).restrict hU' =
+        (V.reflectionOperator ∘L A ∘L V.reflectionOperator).restrict hU' =
       Φ ∘L (algebraMap 𝕜 (↥U →L[𝕜] ↥U) z - A.restrict hU) ∘L Ψ := by
     ext y
     simp only [sub_apply, ContinuousLinearMap.comp_apply,
@@ -335,7 +339,7 @@ for the conjugated operator. -/
 theorem restrictedSpectrum_reflection_conjugate
     (A : E →L[𝕜] E) (U V : Submodule 𝕜 E) [V.HasOrthogonalProjection] :
     DavisKahan.Foundation.restrictedSpectrum
-        (reflectionOperator V ∘L A ∘L reflectionOperator V)
+        (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
         (reflectedSubspace V U) =
       DavisKahan.Foundation.restrictedSpectrum A U := by
   ext r
@@ -359,10 +363,10 @@ theorem finiteGap_mixedIntervalExterior
     (hfinite : FiniteGapConfiguration A U d) :
     ∃ l r l' r', l ≤ r ∧ l' ≤ r' ∧
       IntervalExteriorSeparated A U
-        (reflectionOperator V ∘L A ∘L reflectionOperator V)
+        (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
         (reflectedSubspace V U)ᗮ l r d ∧
       IntervalExteriorSeparated
-        (reflectionOperator V ∘L A ∘L reflectionOperator V)
+        (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
         (reflectedSubspace V U) A Uᗮ l' r' d := by
   obtain ⟨l, r, hlr, hUin, hUcout⟩ := hfinite
   refine ⟨l, r, l, r, hlr, hlr, ⟨hUin, ?_, ?_⟩, ⟨?_, ?_⟩, hUcout⟩
@@ -381,7 +385,7 @@ theorem internalGap_reflection_transport
     {A : E →L[𝕜] E} {U : Submodule 𝕜 E} {V : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] {d : ℝ}
     (hgap : InternalGap A U d) :
-    HybridGap A (reflectionOperator V ∘L A ∘L reflectionOperator V)
+    HybridGap A (V.reflectionOperator ∘L A ∘L V.reflectionOperator)
       U (reflectedSubspace V U) d := by
   obtain ⟨hInvU, hInvUc, hsep⟩ := hgap
   refine ⟨hInvU, ?_, ?_⟩
@@ -397,21 +401,21 @@ theorem starProjection_reflectedSubspace
     (V U : Submodule 𝕜 E)
     [V.HasOrthogonalProjection] [U.HasOrthogonalProjection] :
     (reflectedSubspace V U).starProjection =
-      reflectionOperator V ∘L U.starProjection ∘L reflectionOperator V := by
+      V.reflectionOperator ∘L U.starProjection ∘L V.reflectionOperator := by
   ext x
   show (reflectedSubspace V U).starProjection x =
-    reflectionOperator V (U.starProjection (reflectionOperator V x))
+    V.reflectionOperator (U.starProjection (V.reflectionOperator x))
   apply Submodule.eq_starProjection_of_mem_orthogonal
   · exact Submodule.mem_map.mpr
-      ⟨U.starProjection (reflectionOperator V x),
+      ⟨U.starProjection (V.reflectionOperator x),
         U.starProjection_apply_mem _, rfl⟩
   · rw [reflectedSubspace_orthogonal]
     refine Submodule.mem_map.mpr
-      ⟨reflectionOperator V x - U.starProjection (reflectionOperator V x),
+      ⟨V.reflectionOperator x - U.starProjection (V.reflectionOperator x),
         Submodule.sub_starProjection_mem_orthogonal _, ?_⟩
-    show reflectionOperator V (reflectionOperator V x -
-      U.starProjection (reflectionOperator V x)) =
-      x - reflectionOperator V (U.starProjection (reflectionOperator V x))
+    show V.reflectionOperator (V.reflectionOperator x -
+      U.starProjection (V.reflectionOperator x)) =
+      x - V.reflectionOperator (U.starProjection (V.reflectionOperator x))
     rw [map_sub, reflectionOperator_apply_apply]
 
 /-- The projection onto the mirror image's complement is the conjugated
@@ -420,13 +424,13 @@ theorem starProjection_orthogonal_reflectedSubspace
     (V U : Submodule 𝕜 E)
     [V.HasOrthogonalProjection] [U.HasOrthogonalProjection] :
     ((reflectedSubspace V U)ᗮ).starProjection =
-      reflectionOperator V ∘L Uᗮ.starProjection ∘L reflectionOperator V := by
+      V.reflectionOperator ∘L Uᗮ.starProjection ∘L V.reflectionOperator := by
   rw [Submodule.starProjection_orthogonal' (reflectedSubspace V U),
     starProjection_reflectedSubspace, Submodule.starProjection_orthogonal' U]
   ext x
-  show x - reflectionOperator V (U.starProjection (reflectionOperator V x)) =
-    reflectionOperator V (reflectionOperator V x -
-      U.starProjection (reflectionOperator V x))
+  show x - V.reflectionOperator (U.starProjection (V.reflectionOperator x)) =
+    V.reflectionOperator (V.reflectionOperator x -
+      U.starProjection (V.reflectionOperator x))
   rw [map_sub, reflectionOperator_apply_apply]
 
 omit [CompleteSpace E] in
@@ -436,10 +440,10 @@ operator. -/
 theorem complementary_comp_reflection_comp_projection
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    Uᗮ.starProjection ∘L reflectionOperator V ∘L U.starProjection =
+    Uᗮ.starProjection ∘L V.reflectionOperator ∘L U.starProjection =
       sinTwoAngleOperator U V := by
   ext x
-  show Uᗮ.starProjection (reflectionOperator V (U.starProjection x)) =
+  show Uᗮ.starProjection (V.reflectionOperator (U.starProjection x)) =
     (2 : 𝕜) • Uᗮ.starProjection (V.starProjection (U.starProjection x))
   rw [Submodule.reflectionOperator_apply, map_sub, map_smul]
   have h0 : Uᗮ.starProjection (U.starProjection x) = 0 := by
@@ -452,37 +456,37 @@ theorem complementary_comp_reflection_comp_projection
 omit [CompleteSpace E] in
 /-- Left composition with the reflection preserves the operator norm. -/
 theorem norm_reflection_comp (V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
-    (T : E →L[𝕜] E) : ‖reflectionOperator V ∘L T‖ = ‖T‖ := by
+    (T : E →L[𝕜] E) : ‖V.reflectionOperator ∘L T‖ = ‖T‖ := by
   refine le_antisymm ?_ ?_
   · refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg T) fun x => ?_
-    show ‖reflectionOperator V (T x)‖ ≤ ‖T‖ * ‖x‖
+    show ‖V.reflectionOperator (T x)‖ ≤ ‖T‖ * ‖x‖
     rw [V.reflectionOperator_norm_map]
     exact T.le_opNorm x
   · refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg _) fun x => ?_
-    calc ‖T x‖ = ‖reflectionOperator V (T x)‖ :=
+    calc ‖T x‖ = ‖V.reflectionOperator (T x)‖ :=
         (V.reflectionOperator_norm_map (T x)).symm
-      _ = ‖(reflectionOperator V ∘L T) x‖ := rfl
-      _ ≤ ‖reflectionOperator V ∘L T‖ * ‖x‖ :=
+      _ = ‖(V.reflectionOperator ∘L T) x‖ := rfl
+      _ ≤ ‖V.reflectionOperator ∘L T‖ * ‖x‖ :=
         ContinuousLinearMap.le_opNorm _ x
 
 omit [CompleteSpace E] in
 /-- Right composition with the reflection preserves the operator norm. -/
 theorem norm_comp_reflection (V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
-    (T : E →L[𝕜] E) : ‖T ∘L reflectionOperator V‖ = ‖T‖ := by
+    (T : E →L[𝕜] E) : ‖T ∘L V.reflectionOperator‖ = ‖T‖ := by
   refine le_antisymm ?_ ?_
   · refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg T) fun x => ?_
-    show ‖T (reflectionOperator V x)‖ ≤ ‖T‖ * ‖x‖
-    calc ‖T (reflectionOperator V x)‖ ≤ ‖T‖ * ‖reflectionOperator V x‖ :=
+    show ‖T (V.reflectionOperator x)‖ ≤ ‖T‖ * ‖x‖
+    calc ‖T (V.reflectionOperator x)‖ ≤ ‖T‖ * ‖V.reflectionOperator x‖ :=
         T.le_opNorm _
       _ = ‖T‖ * ‖x‖ := by rw [V.reflectionOperator_norm_map]
   · refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg _) fun x => ?_
     calc ‖T x‖
-        = ‖T (reflectionOperator V (reflectionOperator V x))‖ := by
+        = ‖T (V.reflectionOperator (V.reflectionOperator x))‖ := by
           rw [reflectionOperator_apply_apply]
-      _ = ‖(T ∘L reflectionOperator V) (reflectionOperator V x)‖ := rfl
-      _ ≤ ‖T ∘L reflectionOperator V‖ * ‖reflectionOperator V x‖ :=
+      _ = ‖(T ∘L V.reflectionOperator) (V.reflectionOperator x)‖ := rfl
+      _ ≤ ‖T ∘L V.reflectionOperator‖ * ‖V.reflectionOperator x‖ :=
         ContinuousLinearMap.le_opNorm _ _
-      _ = ‖T ∘L reflectionOperator V‖ * ‖x‖ := by
+      _ = ‖T ∘L V.reflectionOperator‖ * ‖x‖ := by
           rw [V.reflectionOperator_norm_map]
 
 /-- The two-projection double-angle identity: the gap to the mirror image is
@@ -492,23 +496,23 @@ reflection, which is unitary. -/
 theorem sinAngle_reflected_eq_sinTwoAngle
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    subspaceGap U (reflectedSubspace V U) = ‖sinTwoAngleOperator U V‖ := by
-  have hgap : subspaceGap U (reflectedSubspace V U) =
+    U.projectionGap (reflectedSubspace V U) = ‖sinTwoAngleOperator U V‖ := by
+  have hgap : U.projectionGap (reflectedSubspace V U) =
       ‖(U.starProjection -
         (reflectedSubspace V U).starProjection : E →L[𝕜] E)‖ := rfl
   rw [hgap, Submodule.norm_starProjection_sub_eq_max]
   have h1 : (1 - (reflectedSubspace V U).starProjection : E →L[𝕜] E) ∘L
       U.starProjection =
-      reflectionOperator V ∘L
-        (Uᗮ.starProjection ∘L reflectionOperator V ∘L U.starProjection) := by
+      V.reflectionOperator ∘L
+        (Uᗮ.starProjection ∘L V.reflectionOperator ∘L U.starProjection) := by
     rw [← Submodule.starProjection_orthogonal' (reflectedSubspace V U),
       starProjection_orthogonal_reflectedSubspace]
     ext x
     rfl
   have h2 : (1 - U.starProjection : E →L[𝕜] E) ∘L
       (reflectedSubspace V U).starProjection =
-      (Uᗮ.starProjection ∘L reflectionOperator V ∘L U.starProjection) ∘L
-        reflectionOperator V := by
+      (Uᗮ.starProjection ∘L V.reflectionOperator ∘L U.starProjection) ∘L
+        V.reflectionOperator := by
     rw [← Submodule.starProjection_orthogonal' U,
       starProjection_reflectedSubspace]
     ext x
@@ -520,14 +524,14 @@ theorem sinAngle_reflected_eq_sinTwoAngle
 theorem doubleAngle_directedGap_identity
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinTwoAngleOperator U V‖ = directedGap U (reflectedSubspace V U) := by
-  have hgap : directedGap U (reflectedSubspace V U) =
+    ‖sinTwoAngleOperator U V‖ = U.directedProjectionGap (reflectedSubspace V U) := by
+  have hgap : U.directedProjectionGap (reflectedSubspace V U) =
       ‖((reflectedSubspace V U)ᗮ).starProjection ∘L U.starProjection‖ := rfl
   rw [hgap, starProjection_orthogonal_reflectedSubspace]
-  have hassoc : (reflectionOperator V ∘L Uᗮ.starProjection ∘L
-      reflectionOperator V) ∘L U.starProjection =
-      reflectionOperator V ∘L
-        (Uᗮ.starProjection ∘L reflectionOperator V ∘L U.starProjection) := by
+  have hassoc : (V.reflectionOperator ∘L Uᗮ.starProjection ∘L
+      V.reflectionOperator) ∘L U.starProjection =
+      V.reflectionOperator ∘L
+        (Uᗮ.starProjection ∘L V.reflectionOperator ∘L U.starProjection) := by
     ext x
     rfl
   rw [hassoc, complementary_comp_reflection_comp_projection,
@@ -544,7 +548,7 @@ about operator norms. -/
 theorem reflection_comp_projectionDifference_comp_projection
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    reflectionOperator V ∘L
+    V.reflectionOperator ∘L
         ((U.starProjection - (reflectedSubspace V U).starProjection : E →L[𝕜] E) ∘L
           U.starProjection) =
       sinTwoAngleOperator U V := by
@@ -552,25 +556,25 @@ theorem reflection_comp_projectionDifference_comp_projection
     Submodule.starProjection_eq_self_iff.mpr (U.starProjection_apply_mem x)
   have h1 : (1 - (reflectedSubspace V U).starProjection : E →L[𝕜] E) ∘L
       U.starProjection =
-      reflectionOperator V ∘L
-        (Uᗮ.starProjection ∘L reflectionOperator V ∘L U.starProjection) := by
+      V.reflectionOperator ∘L
+        (Uᗮ.starProjection ∘L V.reflectionOperator ∘L U.starProjection) := by
     rw [← Submodule.starProjection_orthogonal' (reflectedSubspace V U),
       starProjection_orthogonal_reflectedSubspace]
     ext x
     rfl
-  calc reflectionOperator V ∘L
+  calc V.reflectionOperator ∘L
         ((U.starProjection - (reflectedSubspace V U).starProjection : E →L[𝕜] E) ∘L
           U.starProjection)
-      = reflectionOperator V ∘L
+      = V.reflectionOperator ∘L
           ((1 - (reflectedSubspace V U).starProjection : E →L[𝕜] E) ∘L
             U.starProjection) := by
         congr 1
         ext x
         simp [hidem x]
-    _ = reflectionOperator V ∘L (reflectionOperator V ∘L
-          (Uᗮ.starProjection ∘L reflectionOperator V ∘L U.starProjection)) := by
+    _ = V.reflectionOperator ∘L (V.reflectionOperator ∘L
+          (Uᗮ.starProjection ∘L V.reflectionOperator ∘L U.starProjection)) := by
         rw [h1]
-    _ = Uᗮ.starProjection ∘L reflectionOperator V ∘L U.starProjection := by
+    _ = Uᗮ.starProjection ∘L V.reflectionOperator ∘L U.starProjection := by
         ext x
         simp only [ContinuousLinearMap.coe_comp, Function.comp_apply,
           reflectionOperator_apply_apply]
@@ -598,14 +602,14 @@ theorem SymmetricNormIdeal.sinTwoAngle_mem_and_gauge_le
         I.gauge
           (U.starProjection - (reflectedSubspace V U).starProjection : E →L[𝕜] E) := by
   have hid := reflection_comp_projectionDifference_comp_projection U V
-  refine ⟨hid ▸ I.ideal_mem (reflectionOperator V) U.starProjection hmem, ?_⟩
-  have hb := I.ideal_bound (reflectionOperator V) U.starProjection hmem
+  refine ⟨hid ▸ I.ideal_mem (V.reflectionOperator) U.starProjection hmem, ?_⟩
+  have hb := I.ideal_bound (V.reflectionOperator) U.starProjection hmem
   rw [hid] at hb
   refine hb.trans ?_
   have h0 : 0 ≤ I.gauge
       (U.starProjection - (reflectedSubspace V U).starProjection : E →L[𝕜] E) :=
     I.nonneg hmem
-  calc ‖reflectionOperator V‖ * I.gauge
+  calc ‖V.reflectionOperator‖ * I.gauge
         (U.starProjection - (reflectedSubspace V U).starProjection : E →L[𝕜] E) *
         ‖U.starProjection‖
       ≤ 1 * I.gauge
@@ -619,8 +623,7 @@ theorem SymmetricNormIdeal.sinTwoAngle_mem_and_gauge_le
 one-sided double-angle operator.**
 
 This is `sinAngle_reflected_eq_sinTwoAngle` stated for the sine operator itself
-rather than for the gap, which it becomes once `‖|T|‖ = ‖T‖`
-(`norm_operatorAbsoluteValue`).
+rather than for the gap, using `ContinuousLinearMap.norm_modulus`.
 
 ## What this replaced, and why it is a norm statement and not a gauge statement
 
@@ -641,18 +644,15 @@ The operator norm is exactly the gauge that cannot see this, since `max` of a
 doubled multiset is unchanged — which is why the two norm identities directly
 above go through and the ideal statement could not.  A true ideal-level
 statement would be the two-sided bound
-`gauge (sin 2Θ) ≤ gauge |P_U - P_W| ≤ 2 * gauge (sin 2Θ)`; it is not stated here
-because it needs `operatorAbsoluteValue_mem_and_gauge_eq`, still a leaf. -/
+`gauge (sin 2Θ) ≤ gauge |P_U - P_W| ≤ 2 * gauge (sin 2Θ)`.  This theorem records
+only the operator-norm identity. -/
 theorem norm_sinAngle_reflected_eq_norm_sinTwoAngle
-    [Algebra ℝ (E →L[𝕜] E)] [IsScalarTower ℝ 𝕜 (E →L[𝕜] E)]
-    [ContinuousFunctionalCalculus ℝ (E →L[𝕜] E) IsSelfAdjoint]
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     ‖sinAngleOperator U (reflectedSubspace V U)‖ = ‖sinTwoAngleOperator U V‖ := by
   rw [show sinAngleOperator U (reflectedSubspace V U) =
-      operatorAbsoluteValue
-        (U.starProjection - (reflectedSubspace V U).starProjection) from rfl,
-    norm_operatorAbsoluteValue]
+      (U.starProjection - (reflectedSubspace V U).starProjection).modulus from rfl,
+    ContinuousLinearMap.norm_modulus]
   exact sinAngle_reflected_eq_sinTwoAngle U V
 
 omit [CompleteSpace E] in
@@ -664,10 +664,10 @@ theorem reflectionDefect_eq_neg_two_smul_offdiag (V : Submodule 𝕜 E)
       (-2 : 𝕜) • (Vᗮ.starProjection ∘L A ∘L V.starProjection +
         V.starProjection ∘L A ∘L Vᗮ.starProjection) := by
   ext x
-  show reflectionOperator V (A (reflectionOperator V x)) - A x =
+  show V.reflectionOperator (A (V.reflectionOperator x)) - A x =
     (-2 : 𝕜) • (Vᗮ.starProjection (A (V.starProjection x)) +
       V.starProjection (A (Vᗮ.starProjection x)))
-  rw [reflectionOperator_apply, reflectionOperator_apply,
+  rw [Submodule.reflectionOperator_apply, Submodule.reflectionOperator_apply,
     Submodule.starProjection_orthogonal' V]
   simp only [map_sub, map_smul, sub_apply, one_apply_eq_self]
   module
@@ -821,10 +821,10 @@ omit [CompleteSpace F] in
 is at most twice the residual: the defect is twice the off-diagonal block of
 `A`, which the residual dominates. -/
 theorem reflectionDefect_range_le_residual
-    {A : E →L[𝕜] E} (hA : IsSelfAdjointOperator A)
+    {A : E →L[𝕜] E} (hA : A.IsSymmetric)
     (X : F →L[𝕜] E) (hX : IsometricEmbedding X)
     [(LinearMap.range X.toLinearMap).HasOrthogonalProjection]
-    {M : F →L[𝕜] F} (_hM : IsSelfAdjointOperator M) :
+    {M : F →L[𝕜] F} (_hM : M.IsSymmetric) :
     ‖reflectionDefect (LinearMap.range X.toLinearMap) A‖ ≤
       2 * ‖residual A X M‖ := by
   have hAsa : IsSelfAdjoint A :=
@@ -869,24 +869,24 @@ Preferred dependency route: Use reflection conjugation to reduce to `sin Θ`; ke
 finite-gap constant-one geometry separate from generic separated-spectrum estimates.
 -/
 theorem sinTwoTheta_reflectionDefect
-    {A : E →L[𝕜] E} (hA : IsSelfAdjointOperator A)
+    {A : E →L[𝕜] E} (hA : A.IsSymmetric)
     {U V : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) {d : ℝ} (hd : 0 < d)
+    (hU : A.Reduces U) {d : ℝ} (hd : 0 < d)
     (hfinite : FiniteGapConfiguration A U d) :
     d * ‖sinTwoAngleOperator U V‖ ≤
       ‖reflectionDefect V A‖ := by
-  let A' := reflectionOperator V ∘L A ∘L reflectionOperator V
+  let A' := V.reflectionOperator ∘L A ∘L V.reflectionOperator
   let U' := reflectedSubspace V U
-  have hA' : IsSelfAdjointOperator A' := hA.reflection_conjugate V
-  have hU' : Reduces A' U' := reduces_reflectedSubspace hU
+  have hA' : A'.IsSymmetric := isSymmetric_reflectionConjugate hA V
+  have hU' : A'.Reduces U' := reduces_reflectedSubspace hU
   obtain ⟨l, r, l', r', hlr, hlr', hUU', hU'U⟩ :=
     finiteGap_mixedIntervalExterior V hfinite
   have hsin := sinTheta_symmetric hA hA' hU hU' hlr hlr' hd hUU' hU'U
-  have hgapid : subspaceGap U U' = ‖sinTwoAngleOperator U V‖ :=
+  have hgapid : U.projectionGap U' = ‖sinTwoAngleOperator U V‖ :=
     sinAngle_reflected_eq_sinTwoAngle U V
   calc d * ‖sinTwoAngleOperator U V‖
-      = d * subspaceGap U U' := by rw [hgapid]
+      = d * U.projectionGap U' := by rw [hgapid]
     _ ≤ ‖A' - A‖ := hsin
     _ = ‖reflectionDefect V A‖ := rfl
 
@@ -910,11 +910,11 @@ Lean proof route for a weaker agent:
    reflection-defect theorem.
 -/
 theorem sinTwoTheta_residual
-    {A : E →L[𝕜] E} (hA : IsSelfAdjointOperator A)
+    {A : E →L[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
-    (hU : Reduces A U) (X : F →L[𝕜] E) (hX : IsometricEmbedding X)
+    (hU : A.Reduces U) (X : F →L[𝕜] E) (hX : IsometricEmbedding X)
     [(LinearMap.range X.toLinearMap).HasOrthogonalProjection]
-    {M : F →L[𝕜] F} (hM : IsSelfAdjointOperator M)
+    {M : F →L[𝕜] F} (hM : M.IsSymmetric)
     {d : ℝ} (hd : 0 < d) (hfinite : FiniteGapConfiguration A U d) :
     d * ‖sinTwoThetaEmbedding U X‖ ≤ 2 * ‖residual A X M‖ := by
   let V := LinearMap.range X.toLinearMap
@@ -936,10 +936,10 @@ of `B` is not needed for this reflection argument and was removed from the signa
 -/
 theorem sinTwoTheta_perturbation
     {A B : E →L[𝕜] E}
-    (hA : IsSelfAdjointOperator A)
+    (hA : A.IsSymmetric)
     {U V : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {d : ℝ} (hd : 0 < d)
     (hfinite : FiniteGapConfiguration A U d) :
     d * ‖sinTwoAngleOperator U V‖ ≤ 2 * ‖B - A‖ := by
@@ -969,16 +969,16 @@ finite-gap constant-one geometry separate from generic separated-spectrum estima
 -/
 theorem sinTwoTheta_generalSeparation
     {A B : E →L[𝕜] E}
-    (hA : IsSelfAdjointOperator A) (_hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (_hB : B.IsSymmetric)
     {U V : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {d : ℝ} (hd : 0 < d) (hgap : InternalGap A U d) :
     d * ‖sinTwoAngleOperator U V‖ ≤ Real.pi * ‖B - A‖ := by
-  let A' := reflectionOperator V ∘L A ∘L reflectionOperator V
+  let A' := V.reflectionOperator ∘L A ∘L V.reflectionOperator
   let U' := reflectedSubspace V U
-  have hA' : IsSelfAdjointOperator A' := hA.reflection_conjugate V
-  have hU' : Reduces A' U' := reduces_reflectedSubspace hU
+  have hA' : A'.IsSymmetric := isSymmetric_reflectionConjugate hA V
+  have hU' : A'.Reduces U' := reduces_reflectedSubspace hU
   have hhybrid : HybridGap A A' U U' d :=
     internalGap_reflection_transport hgap
   have hsin := sinTheta_generalSeparation hA hA' hU hU' hd hhybrid
@@ -987,7 +987,7 @@ theorem sinTwoTheta_generalSeparation
     exact norm_reflectionDefect_le_two_mul A B V hV
   calc
     d * ‖sinTwoAngleOperator U V‖
-        = d * directedGap U U' := by
+        = d * U.directedProjectionGap U' := by
           rw [doubleAngle_directedGap_identity U V]
     _ ≤ (Real.pi/2) * ‖A'-A‖ := hsin
     _ = (Real.pi/2) * ‖reflectionDefect V A‖ := rfl

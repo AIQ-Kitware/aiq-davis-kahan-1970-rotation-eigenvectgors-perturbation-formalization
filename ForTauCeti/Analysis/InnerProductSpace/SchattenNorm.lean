@@ -5,7 +5,7 @@ Authors: Jon Crall, GPT-5.6 Thinking
 -/
 module
 
-public import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+public import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm
 public import ForTauCeti.Analysis.InnerProductSpace.HilbertSchmidt.Energy
 public import ForTauCeti.Analysis.Normed.FiniteLpGauge
 
@@ -28,7 +28,7 @@ The triangle inequality is factored into the two canonical ingredients:
 2. finite `ℓᵖ` gauges are monotone under weak majorization and satisfy
    Minkowski's inequality.
 
-The resulting object is a `RectangularUnitarilyInvariantSeminorm`, so it inherits
+The resulting object is a `UnitarilyInvariantSeminorm`, so it inherits
 the existing two-sided unitary invariance, orbit-certificate bounds, Fan
 dominance bridges, and operator-ideal inequalities.
 
@@ -60,7 +60,7 @@ variable {E : Type uE} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
   [FiniteDimensional 𝕜 E]
 variable {F : Type uF} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
   [FiniteDimensional 𝕜 F]
-namespace RectangularUnitarilyInvariantSeminorm
+namespace UnitarilyInvariantSeminorm
 
 /-- The canonical finite singular-value vector for a rectangular map. -/
 noncomputable def singularValueVector (A : E →ₗ[𝕜] F) :
@@ -79,23 +79,14 @@ theorem singularValueVector_antitone (A : E →ₗ[𝕜] F) :
   intro i j hij
   exact A.singularValues_antitone (Fin.le_def.mp hij)
 
-/-- The range rank is bounded by the minimum of the domain and codomain
-finranks. -/
-theorem finrank_range_le_min (A : E →ₗ[𝕜] F) :
-    finrank 𝕜 A.range ≤ min (finrank 𝕜 E) (finrank 𝕜 F) := by
-  apply le_min
-  · have hranknull := A.finrank_range_add_finrank_ker
-    omega
-  · exact Submodule.finrank_le _
-
 /-- Rectangular Ky Fan sums stabilize once the prefix reaches the minimum of
 the domain and codomain dimensions. -/
-theorem rectangularKyFanSum_eq_minFinrank_of_minFinrank_le
+theorem kyFanSum_eq_minFinrank_of_minFinrank_le
     (A : E →ₗ[𝕜] F) {k : ℕ}
     (hk : min (finrank 𝕜 E) (finrank 𝕜 F) ≤ k) :
-    rectangularKyFanSum k A =
-      rectangularKyFanSum (min (finrank 𝕜 E) (finrank 𝕜 F)) A := by
-  unfold rectangularKyFanSum
+    kyFanSum k A =
+      kyFanSum (min (finrank 𝕜 E) (finrank 𝕜 F)) A := by
+  unfold kyFanSum
   rw [Fin.sum_univ_eq_sum_range, Fin.sum_univ_eq_sum_range]
   symm
   apply Finset.sum_subset (Finset.range_mono hk)
@@ -109,29 +100,29 @@ Ky Fan sums. -/
 theorem prefixSum_singularValueVector
     (k : ℕ) (A : E →ₗ[𝕜] F) :
     FiniteVector.prefixSum k (singularValueVector A) =
-      rectangularKyFanSum k A := by
+      kyFanSum k A := by
   let d := min (finrank 𝕜 E) (finrank 𝕜 F)
   -- states the goal with the definition unfolded, in the shape the next step needs;
   -- there is no `_apply` lemma to rewrite with here.
   change FiniteVector.prefixSum k
       (fun i : Fin d => A.singularValues (i : ℕ)) =
-    rectangularKyFanSum k A
+    kyFanSum k A
   rcases le_or_gt k d with hk | hk
-  · unfold FiniteVector.prefixSum rectangularKyFanSum
+  · unfold FiniteVector.prefixSum kyFanSum
     rw [sum_filter_lt_eq_sum_fin hk (fun j => A.singularValues j)]
   · have hdk : d ≤ k := Nat.le_of_lt hk
     rw [FiniteVector.prefixSum_eq_full_sum_of_le _ hdk]
     -- states the goal with the definition unfolded, in the shape the next step needs;
     -- there is no `_apply` lemma to rewrite with here.
-    change rectangularKyFanSum d A = rectangularKyFanSum k A
-    exact (rectangularKyFanSum_eq_minFinrank_of_minFinrank_le A hdk).symm
+    change kyFanSum d A = kyFanSum k A
+    exact (kyFanSum_eq_minFinrank_of_minFinrank_le A hdk).symm
 
 /-- Ky Fan prefix inequalities characterize weak majorization of two canonical
 singular-value vectors. -/
 theorem singularValueVector_weaklyMajorized_iff (A B : E →ₗ[𝕜] F) :
     FiniteVector.WeaklyMajorized (singularValueVector A)
       (singularValueVector B) ↔
-      ∀ k, rectangularKyFanSum k A ≤ rectangularKyFanSum k B := by
+      ∀ k, kyFanSum k A ≤ kyFanSum k B := by
   constructor
   · intro h k
     simpa only [prefixSum_singularValueVector] using h.prefix_le k
@@ -161,13 +152,13 @@ theorem singularValueVector_add_weaklyMajorized (A B : E →ₗ[𝕜] F) :
       prefixSum_singularValueVector,
       prefixSum_singularValueVector,
       prefixSum_singularValueVector]
-    exact rectangularKyFanSum_add_le k A B
+    exact kyFanSum_add_le k A B
 
 /-- Singular-value vectors scale by the norm of the scalar. -/
 theorem singularValueVector_smul (a : 𝕜) (A : E →ₗ[𝕜] F) :
     singularValueVector (a • A) = ‖a‖ • singularValueVector A := by
   funext i
-  exact singularValues_smul_rect a A (i : ℕ)
+  exact singularValues_smul_apply a A (i : ℕ)
 
 /-- Singular-value vectors are invariant under compatible unitary factors. -/
 theorem singularValueVector_unitary_comp
@@ -188,27 +179,27 @@ theorem singularValueVector_comp_unitary
 
 /-- Rectangular Schatten `p` norm for a real exponent `p ≥ 1`. -/
 noncomputable def schattenNorm (p : ℝ) (hp : 1 ≤ p) :
-    RectangularUnitarilyInvariantSeminorm 𝕜 E F where
-  toFun A := FiniteVector.lpGauge p (singularValueVector A)
-  add_le' A B :=
-    calc
-      FiniteVector.lpGauge p (singularValueVector (A + B))
-          ≤ FiniteVector.lpGauge p
-              (singularValueVector A + singularValueVector B) :=
-        FiniteVector.lpGauge_mono_weaklyMajorized hp
-          (singularValueVector_add_weaklyMajorized A B)
-      _ ≤ FiniteVector.lpGauge p (singularValueVector A) +
-          FiniteVector.lpGauge p (singularValueVector B) :=
-        FiniteVector.lpGauge_add_le hp _ _
-  smul' a A := by
-    rw [singularValueVector_smul,
-      FiniteVector.lpGauge_smul (zero_lt_one.trans_le hp),
-      abs_of_nonneg (norm_nonneg a)]
-  invariant' U V A := by
-    rw [show singularValueVector
-          (U.toLinearMap ∘ₗ A ∘ₗ V.toLinearMap) = singularValueVector A by
-      rw [singularValueVector_unitary_comp,
-        singularValueVector_comp_unitary]]
+    UnitarilyInvariantSeminorm 𝕜 E F where
+  toSeminorm := Seminorm.of
+    (fun A => FiniteVector.lpGauge p (singularValueVector A))
+    (fun A B =>    calc
+        FiniteVector.lpGauge p (singularValueVector (A + B))
+            ≤ FiniteVector.lpGauge p
+                (singularValueVector A + singularValueVector B) :=
+          FiniteVector.lpGauge_mono_weaklyMajorized hp
+            (singularValueVector_add_weaklyMajorized A B)
+        _ ≤ FiniteVector.lpGauge p (singularValueVector A) +
+            FiniteVector.lpGauge p (singularValueVector B) :=
+          FiniteVector.lpGauge_add_le hp _ _)
+    (fun a A => by
+      rw [singularValueVector_smul,
+        FiniteVector.lpGauge_smul (zero_lt_one.trans_le hp),
+        abs_of_nonneg (norm_nonneg a)])
+  unitary_invariant' :=
+    TauCeti.UnitarilyInvariantSeminorm.unitary_invariant_of_isometry
+      (f := fun A : E →ₗ[𝕜] F => FiniteVector.lpGauge p (singularValueVector A))
+      (fun U V A => by
+        rw [singularValueVector_unitary_comp, singularValueVector_comp_unitary])
 
 /-- The Schatten `p` norm *is* the `ℓᵖ` gauge of the singular-value vector,
 definitionally.  This is the lemma that turns Schatten statements into
@@ -351,9 +342,9 @@ theorem schattenNorm_one_apply (A : E →ₗ[𝕜] F) :
   simp_rw [abs_of_nonneg (singularValueVector_nonneg A _)]
   -- states the goal with the definition unfolded, in the shape the next step needs;
   -- there is no `_apply` lemma to rewrite with here.
-  change rectangularKyFanSum (min (finrank 𝕜 E) (finrank 𝕜 F)) A =
-    rectangularKyFanSum (finrank 𝕜 E) A
-  exact (rectangularKyFanSum_eq_minFinrank_of_minFinrank_le A
+  change kyFanSum (min (finrank 𝕜 E) (finrank 𝕜 F)) A =
+    kyFanSum (finrank 𝕜 E) A
+  exact (kyFanSum_eq_minFinrank_of_minFinrank_le A
     (min_le_left _ _)).symm
 
 /-- The `S₂` norm is the existing rectangular Frobenius norm. -/
@@ -366,28 +357,19 @@ theorem schattenNorm_two_apply (A : E →ₗ[𝕜] F) :
   simp_rw [abs_of_nonneg (singularValueVector_nonneg A _), Real.rpow_two]
   rw [sum_sq_singularValueVector_eq_sum_domain, ← Real.sqrt_eq_rpow]
 
-/-- **The Hilbert--Schmidt energy is the squared rectangular Frobenius norm.**
+/-- The finite Hilbert--Schmidt energy is the square of the Frobenius seminorm.
 
-`ContinuousLinearMap.hilbertSchmidtEnergy` is the dimension-free `ℝ≥0∞`-valued object
-`∑' i, ‖T bᵢ‖ₑ²`; `frobenius` is the finite real-valued rectangular seminorm.  In finite
-dimensions they are the same number, and without this the two vocabularies for the
-Hilbert--Schmidt norm are only related through the paper-facing
-`paperHilbertSchmidtNorm_eq_rectangularFrobenius` in the Davis--Kahan package, which is the
-wrong direction of dependency for a reusable statement.
+The energy is valued in the extended nonnegative reals and indexed by a Hilbert basis;
+Frobenius is the finite real-valued seminorm. The equality uses the standard orthonormal
+basis, and `hilbertSchmidtEnergy_indep` transports the energy to any Hilbert basis.
 
-This is the last link of the finite-dimensional identification chain: the square Frobenius
-norm is `frobenius` restricted (`UnitarilyInvariantSeminorm.frobenius_toSquare_eq`), the
-Schatten `S₂` norm is `frobenius` (`schattenNorm_two_apply`), and the Hilbert--Schmidt energy
-is its square.  `hilbertSchmidtEnergy_indep` then carries it to any Hilbert basis.
-
-`[CompleteSpace E]` is written out because `FiniteDimensional.complete` is deliberately not
-an instance in Mathlib; it costs the caller nothing, `CompleteSpace` being a `Prop` class. -/
+Completeness is explicit because `FiniteDimensional.complete` is not a global instance. -/
 theorem hilbertSchmidtEnergy_eq_ofReal_frobenius_sq [CompleteSpace E] (A : E →L[𝕜] F) :
     A.hilbertSchmidtEnergy (stdOrthonormalBasis 𝕜 E).toHilbertBasis
       = ENNReal.ofReal (frobenius A.toLinearMap ^ 2) := by
   have hsq : frobenius A.toLinearMap ^ 2
       = ∑ i, ‖A.toLinearMap (stdOrthonormalBasis 𝕜 E i)‖ ^ 2 := by
-    rw [frobenius_apply A.toLinearMap (stdOrthonormalBasis 𝕜 E)]
+    rw [frobenius_apply_basis A.toLinearMap rfl (stdOrthonormalBasis 𝕜 E)]
     exact Real.sq_sqrt (Finset.sum_nonneg fun i _ => sq_nonneg _)
   rw [ContinuousLinearMap.hilbertSchmidtEnergy_def, tsum_fintype, hsq,
     ENNReal.ofReal_sum_of_nonneg fun i _ => sq_nonneg _]
@@ -397,7 +379,7 @@ theorem hilbertSchmidtEnergy_eq_ofReal_frobenius_sq [CompleteSpace E] (A : E →
   rfl
 
 /-- Schatten infinity norm is the existing rectangular operator norm. -/
-noncomputable def schattenNormInf : RectangularUnitarilyInvariantSeminorm 𝕜 E F :=
+noncomputable def schattenNormInf : UnitarilyInvariantSeminorm 𝕜 E F :=
   opNorm
 
 /-- The `S∞` norm evaluates to the ordinary operator norm, definitionally —
@@ -407,5 +389,5 @@ Schatten scale. -/
     schattenNormInf A = ‖A.toContinuousLinearMap‖ :=
   (rfl)
 
-end RectangularUnitarilyInvariantSeminorm
+end UnitarilyInvariantSeminorm
 end TauCeti

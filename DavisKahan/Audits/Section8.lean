@@ -3,7 +3,7 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 5
 -/
-import DavisKahan.Sources.DavisKahan1970.Section8.PaperSurface
+import DavisKahan.Sources.DavisKahan1970.Section8.Presentation
 import DavisKahan.Sources.DavisKahan1970.Section8.Theorem81MajorizationReal
 
 /-!
@@ -31,63 +31,63 @@ namespace Section8
 
 /-! ## Theorem 8.1: the branch, its characterization, its uniqueness -/
 
-#check theorem8_1_source
-#check theorem8_1_source_characterization
-#check theorem8_1_source_uniqueness
+#check theorem8_1
+#check theorem8_1_characterization
+#check theorem8_1_uniqueness
 
-#print axioms theorem8_1_source
-#print axioms theorem8_1_source_characterization
-#print axioms theorem8_1_source_uniqueness
+#print axioms theorem8_1
+#print axioms theorem8_1_characterization
+#print axioms theorem8_1_uniqueness
 
 /-! ## Theorem 8.1(i), both blocks -/
 
-#check theorem8_1_upperCompressionRepulsion_source
-#check theorem8_1_lowerCompressionRepulsion_source
+#check theorem8_1_upperCompressionRepulsion
+#check theorem8_1_lowerCompressionRepulsion
 
-#print axioms theorem8_1_upperCompressionRepulsion_source
-#print axioms theorem8_1_lowerCompressionRepulsion_source
+#print axioms theorem8_1_upperCompressionRepulsion
+#print axioms theorem8_1_lowerCompressionRepulsion
 
 /-! ## Theorem 8.1(ii), both blocks
 
 The shared Weyl step, the dimension-free approximation-number statements, and
 the printed angle form. -/
 
-#check theorem8_1_upperSandwichApproximation_source
-#check theorem8_1_lowerSandwichApproximation_source
-#check theorem8_1_upperApproximationRepulsion_source
-#check theorem8_1_lowerApproximationRepulsion_source
-#check theorem8_1_upperApproximationRepulsion_angle_source
-#check theorem8_1_lowerApproximationRepulsion_angle_source
+#check theorem8_1_upperSandwichApproximation
+#check theorem8_1_lowerSandwichApproximation
+#check theorem8_1_upperApproximationRepulsion
+#check theorem8_1_lowerApproximationRepulsion
+#check theorem8_1_upperApproximationRepulsion_angle
+#check theorem8_1_lowerApproximationRepulsion_angle
 
-#print axioms theorem8_1_upperSandwichApproximation_source
-#print axioms theorem8_1_lowerSandwichApproximation_source
-#print axioms theorem8_1_upperApproximationRepulsion_source
-#print axioms theorem8_1_lowerApproximationRepulsion_source
-#print axioms theorem8_1_upperApproximationRepulsion_angle_source
-#print axioms theorem8_1_lowerApproximationRepulsion_angle_source
+#print axioms theorem8_1_upperSandwichApproximation
+#print axioms theorem8_1_lowerSandwichApproximation
+#print axioms theorem8_1_upperApproximationRepulsion
+#print axioms theorem8_1_lowerApproximationRepulsion
+#print axioms theorem8_1_upperApproximationRepulsion_angle
+#print axioms theorem8_1_lowerApproximationRepulsion_angle
 
 /-! ## Theorem 8.1(iii), both blocks
 
 The weak-majorization cores, the every-symmetric-gauge forms, the printed angle
 forms, and the paper's increasing index order. -/
 
-#check theorem8_1_upperWeightedWeakMajorization_source
-#check theorem8_1_lowerWeightedWeakMajorization_source
-#check theorem8_1_upperSymmetricGaugeRepulsion_source
-#check theorem8_1_lowerSymmetricGaugeRepulsion_source
-#check theorem8_1_upperSymmetricGaugeRepulsion_angle_source
-#check theorem8_1_lowerSymmetricGaugeRepulsion_angle_source
-#check theorem8_1_upperSymmetricGaugeRepulsion_angle_rev_source
-#check theorem8_1_lowerSymmetricGaugeRepulsion_angle_rev_source
+#check theorem8_1_upperWeightedWeakMajorization
+#check theorem8_1_lowerWeightedWeakMajorization
+#check theorem8_1_upperSymmetricGaugeRepulsion
+#check theorem8_1_lowerSymmetricGaugeRepulsion
+#check theorem8_1_upperSymmetricGaugeRepulsion_angle
+#check theorem8_1_lowerSymmetricGaugeRepulsion_angle
+#check theorem8_1_upperSymmetricGaugeRepulsion_angle_rev
+#check theorem8_1_lowerSymmetricGaugeRepulsion_angle_rev
 
-#print axioms theorem8_1_upperWeightedWeakMajorization_source
-#print axioms theorem8_1_lowerWeightedWeakMajorization_source
-#print axioms theorem8_1_upperSymmetricGaugeRepulsion_source
-#print axioms theorem8_1_lowerSymmetricGaugeRepulsion_source
-#print axioms theorem8_1_upperSymmetricGaugeRepulsion_angle_source
-#print axioms theorem8_1_lowerSymmetricGaugeRepulsion_angle_source
-#print axioms theorem8_1_upperSymmetricGaugeRepulsion_angle_rev_source
-#print axioms theorem8_1_lowerSymmetricGaugeRepulsion_angle_rev_source
+#print axioms theorem8_1_upperWeightedWeakMajorization
+#print axioms theorem8_1_lowerWeightedWeakMajorization
+#print axioms theorem8_1_upperSymmetricGaugeRepulsion
+#print axioms theorem8_1_lowerSymmetricGaugeRepulsion
+#print axioms theorem8_1_upperSymmetricGaugeRepulsion_angle
+#print axioms theorem8_1_lowerSymmetricGaugeRepulsion_angle
+#print axioms theorem8_1_upperSymmetricGaugeRepulsion_angle_rev
+#print axioms theorem8_1_lowerSymmetricGaugeRepulsion_angle_rev
 
 /-! ## Theorem 8.1(ii) and 8.1(iii) over a REAL Hilbert space, both blocks
 
@@ -157,59 +157,59 @@ and the finite-dimensional part (iii) endpoints. -/
 Both alternatives from the printed hypotheses, the inherited `sin 2Θ`
 estimates, the Krein completion, equation (1.5), and the printed `Θ < π/4`. -/
 
-#check theorem8_2_perturbationHalfGap_source_complex
-#check theorem8_2_residualHalfGap_source_complex
-#check theorem8_2_branch_source_directed_complex
-#check theorem8_2_krein_completion_source
-#check theorem8_2_sinTwoTheta_perturbation_source_complex
-#check theorem8_2_sinTwoTheta_residual_source_complex
+#check theorem8_2_perturbationHalfGap_complex
+#check theorem8_2_residualHalfGap_complex
+#check theorem8_2_branch_directed_complex
+#check theorem8_2_krein_completion
+#check theorem8_2_sinTwoTheta_perturbation_complex
+#check theorem8_2_sinTwoTheta_residual_complex
 #check subspaceGap_eq_directedGap_of_finrank_eq
-#check theorem8_2_perturbationHalfGap_source_maximalAngle_lt
-#check theorem8_2_residualHalfGap_source_maximalAngle_lt
-#check theorem8_2_branch_source_maximalAngle_lt
-#check theorem8_2_source_complex
-#check theorem8_2_sinTwoTheta_perturbation_source_symmetricNorming
-#check theorem8_2_sinTwoTheta_residual_source_symmetricNorming
-#check theorem8_2_sinTwoTheta_residual_source_all_kyFan
-#check theorem8_2_branch_source_maximalAngle_lt_of_crossedDefects
-#check theorem8_2_perturbationHalfGap_source_real
-#check theorem8_2_residualHalfGap_source_real
-#check theorem8_2_branch_source_directed_real
-#check theorem8_2_perturbationHalfGap_source_real_maximalAngle_lt
-#check theorem8_2_branch_source_real_maximalAngle_lt_of_crossedDefects
-#check theorem8_2_branch_source_real_maximalAngle_lt
-#check theorem8_2_sinTwoTheta_perturbation_source_real
-#check theorem8_2_sinTwoTheta_residual_source_real
-#check theorem8_2_sinTwoTheta_perturbation_source_real_symmetricNorming
-#check theorem8_2_sinTwoTheta_residual_source_real_symmetricNorming
-#check theorem8_2_source_real
+#check theorem8_2_perturbationHalfGap_maximalAngle_lt
+#check theorem8_2_residualHalfGap_maximalAngle_lt
+#check theorem8_2_branch_maximalAngle_lt
+#check theorem8_2_complex
+#check theorem8_2_sinTwoTheta_perturbation_symmetricNorming
+#check theorem8_2_sinTwoTheta_residual_symmetricNorming
+#check theorem8_2_sinTwoTheta_residual_all_kyFan
+#check theorem8_2_branch_maximalAngle_lt_of_crossedDefects
+#check theorem8_2_perturbationHalfGap_real
+#check theorem8_2_residualHalfGap_real
+#check theorem8_2_branch_directed_real
+#check theorem8_2_perturbationHalfGap_real_maximalAngle_lt
+#check theorem8_2_branch_real_maximalAngle_lt_of_crossedDefects
+#check theorem8_2_branch_real_maximalAngle_lt
+#check theorem8_2_sinTwoTheta_perturbation_real
+#check theorem8_2_sinTwoTheta_residual_real
+#check theorem8_2_sinTwoTheta_perturbation_real_symmetricNorming
+#check theorem8_2_sinTwoTheta_residual_real_symmetricNorming
+#check theorem8_2_real
 
-#print axioms theorem8_2_perturbationHalfGap_source_complex
-#print axioms theorem8_2_residualHalfGap_source_complex
-#print axioms theorem8_2_branch_source_directed_complex
-#print axioms theorem8_2_krein_completion_source
-#print axioms theorem8_2_sinTwoTheta_perturbation_source_complex
-#print axioms theorem8_2_sinTwoTheta_residual_source_complex
+#print axioms theorem8_2_perturbationHalfGap_complex
+#print axioms theorem8_2_residualHalfGap_complex
+#print axioms theorem8_2_branch_directed_complex
+#print axioms theorem8_2_krein_completion
+#print axioms theorem8_2_sinTwoTheta_perturbation_complex
+#print axioms theorem8_2_sinTwoTheta_residual_complex
 #print axioms subspaceGap_eq_directedGap_of_finrank_eq
-#print axioms theorem8_2_perturbationHalfGap_source_maximalAngle_lt
-#print axioms theorem8_2_residualHalfGap_source_maximalAngle_lt
-#print axioms theorem8_2_branch_source_maximalAngle_lt
-#print axioms theorem8_2_source_complex
-#print axioms theorem8_2_sinTwoTheta_perturbation_source_symmetricNorming
-#print axioms theorem8_2_sinTwoTheta_residual_source_symmetricNorming
-#print axioms theorem8_2_sinTwoTheta_residual_source_all_kyFan
-#print axioms theorem8_2_branch_source_maximalAngle_lt_of_crossedDefects
-#print axioms theorem8_2_perturbationHalfGap_source_real
-#print axioms theorem8_2_residualHalfGap_source_real
-#print axioms theorem8_2_branch_source_directed_real
-#print axioms theorem8_2_perturbationHalfGap_source_real_maximalAngle_lt
-#print axioms theorem8_2_branch_source_real_maximalAngle_lt_of_crossedDefects
-#print axioms theorem8_2_branch_source_real_maximalAngle_lt
-#print axioms theorem8_2_sinTwoTheta_perturbation_source_real
-#print axioms theorem8_2_sinTwoTheta_residual_source_real
-#print axioms theorem8_2_sinTwoTheta_perturbation_source_real_symmetricNorming
-#print axioms theorem8_2_sinTwoTheta_residual_source_real_symmetricNorming
-#print axioms theorem8_2_source_real
+#print axioms theorem8_2_perturbationHalfGap_maximalAngle_lt
+#print axioms theorem8_2_residualHalfGap_maximalAngle_lt
+#print axioms theorem8_2_branch_maximalAngle_lt
+#print axioms theorem8_2_complex
+#print axioms theorem8_2_sinTwoTheta_perturbation_symmetricNorming
+#print axioms theorem8_2_sinTwoTheta_residual_symmetricNorming
+#print axioms theorem8_2_sinTwoTheta_residual_all_kyFan
+#print axioms theorem8_2_branch_maximalAngle_lt_of_crossedDefects
+#print axioms theorem8_2_perturbationHalfGap_real
+#print axioms theorem8_2_residualHalfGap_real
+#print axioms theorem8_2_branch_directed_real
+#print axioms theorem8_2_perturbationHalfGap_real_maximalAngle_lt
+#print axioms theorem8_2_branch_real_maximalAngle_lt_of_crossedDefects
+#print axioms theorem8_2_branch_real_maximalAngle_lt
+#print axioms theorem8_2_sinTwoTheta_perturbation_real
+#print axioms theorem8_2_sinTwoTheta_residual_real
+#print axioms theorem8_2_sinTwoTheta_perturbation_real_symmetricNorming
+#print axioms theorem8_2_sinTwoTheta_residual_real_symmetricNorming
+#print axioms theorem8_2_real
 
 end Section8
 end DavisKahan1970

@@ -15,10 +15,11 @@ of a closed Sylvester equation in both interval/exterior orientations.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 
 open scoped InnerProductSpace
+open TauCeti.DavisKahan.ExactSinTheta
 
 universe u v
 
@@ -376,6 +377,6 @@ theorem norm_sylvester_le_of_exteriorInterval
 
 /-! ## The unbounded `sin Θ` theorem, operator norm -/
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

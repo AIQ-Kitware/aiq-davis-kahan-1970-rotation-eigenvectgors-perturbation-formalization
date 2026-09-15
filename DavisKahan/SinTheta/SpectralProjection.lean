@@ -9,6 +9,8 @@ import DavisKahan.Sylvester.Unbounded.IntervalExterior
 import ForTauCeti.Analysis.InnerProductSpace.Projection.Gap
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Canonical unbounded spectral-projection sine-theta theorems
 
@@ -83,7 +85,7 @@ theorem norm_spectralComplementaryOverlap_eq_directedGap
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S) :
     ‖(selfAdjointSpectralSubspaceInclusion A hA B hB).adjoint ∘L
         selfAdjointSpectralSubspaceInclusion C hC Sᶜ hS.compl‖ =
-      directedGap
+      Submodule.directedProjectionGap
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace C hC S hS) := by
   let U := selfAdjointSpectralSubspace A hA B hB
@@ -120,7 +122,7 @@ theorem norm_spectralComplementaryOverlap_eq_directedGap
 stated with the spectral bounds of the two canonical restricted operators. -/
 theorem sinTheta_addBounded_directedGap_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -131,7 +133,7 @@ theorem sinTheta_addBounded_directedGap_of_spectrum_gap
       (lam : ℂ) ∉ TauCeti.LinearPMap.spectrum
         (selfAdjointSpectralRestriction (TauCeti.LinearPMap.addBounded A V)
           (addBounded_isSelfAdjoint A hA V hV) Sᶜ hS.compl)) :
-    δ * directedGap
+    δ * Submodule.directedProjectionGap
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A V)
           (addBounded_isSelfAdjoint A hA V hV) S hS) ≤ ‖V‖ := by
@@ -147,12 +149,12 @@ theorem sinTheta_addBounded_directedGap_of_spectrum_gap
 selected perturbed set contains a full neighborhood of the exact cluster. -/
 theorem sinTheta_addBounded_directedGap_of_intervalExterior
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)
     (hScomplDisj : Sᶜ ∩ Set.Ioo (β - δ) (α + δ) = ∅) :
-    δ * directedGap
+    δ * Submodule.directedProjectionGap
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A V)
           (addBounded_isSelfAdjoint A hA V hV) S hS) ≤ ‖V‖ := by
@@ -172,7 +174,7 @@ restriction is supplied directly as the unwanted complementary block, and
 its intertwining equation follows by cancellation of `V` and `-V`. -/
 theorem sinTheta_addBounded_reverseDirectedGap_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hSlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -184,13 +186,13 @@ theorem sinTheta_addBounded_reverseDirectedGap_of_spectrum_gap
     (hBcomplSpec : ∀ lam ∈ Set.Ioo (β - δ) (α + δ),
       (lam : ℂ) ∉ TauCeti.LinearPMap.spectrum
         (selfAdjointSpectralRestriction A hA Bᶜ hB.compl)) :
-    δ * directedGap
+    δ * Submodule.directedProjectionGap
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A V)
           (addBounded_isSelfAdjoint A hA V hV) S hS)
         (selfAdjointSpectralSubspace A hA B hB) ≤ ‖V‖ := by
   let C := TauCeti.LinearPMap.addBounded A V
   let hC : IsSelfAdjoint C := addBounded_isSelfAdjoint A hA V hV
-  have hnegV : IsSelfAdjointOperator (-V) := by
+  have hnegV : (-V).IsSymmetric := by
     intro x y
     change ⟪-V x, y⟫_ℂ = ⟪x, -V y⟫_ℂ
     simpa using congrArg Neg.neg (hV x y)
@@ -237,7 +239,7 @@ with semibounds and resolvent gaps for the four canonical spectral
 restrictions. -/
 theorem sinTheta_addBounded_spectralProjection_sub_opNorm_of_formBounds
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α β' α' δ : ℝ}
     (hβα : β ≤ α) (hβ'α' : β' ≤ α') (hδ : 0 < δ)
@@ -264,14 +266,14 @@ theorem sinTheta_addBounded_spectralProjection_sub_opNorm_of_formBounds
   let U := selfAdjointSpectralSubspace A hA B hB
   let W := selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A V)
     (addBounded_isSelfAdjoint A hA V hV) S hS
-  have hforward : δ * directedGap U W ≤ ‖V‖ :=
+  have hforward : δ * U.directedProjectionGap W ≤ ‖V‖ :=
     sinTheta_addBounded_directedGap_of_spectrum_gap
       A hA V hV B S hB hS hβα hδ hBlow hBhigh hScomplSpec
-  have hreverse : δ * directedGap W U ≤ ‖V‖ :=
+  have hreverse : δ * W.directedProjectionGap U ≤ ‖V‖ :=
     sinTheta_addBounded_reverseDirectedGap_of_spectrum_gap
       A hA V hV B S hB hS hβ'α' hδ hSlow hShigh hBcomplSpec
-  have hmax : subspaceGap U W =
-      max (directedGap U W) (directedGap W U) := by
+  have hmax : U.projectionGap W =
+      max (U.directedProjectionGap W) (W.directedProjectionGap U) := by
     show ‖U.starProjection - W.starProjection‖ =
       max ‖Wᗮ.starProjection ∘L U.starProjection‖
         ‖Uᗮ.starProjection ∘L W.starProjection‖
@@ -281,7 +283,7 @@ theorem sinTheta_addBounded_spectralProjection_sub_opNorm_of_formBounds
   rw [selfAdjointSpectralProjection_eq_starProjection A hA B hB,
     selfAdjointSpectralProjection_eq_starProjection (TauCeti.LinearPMap.addBounded A V)
       (addBounded_isSelfAdjoint A hA V hV) S hS]
-  change δ * subspaceGap U W ≤ ‖V‖
+  change δ * U.projectionGap W ≤ ‖V‖
   rw [hmax, mul_max_of_nonneg _ _ hδ.le]
   exact max_le hforward hreverse
 
@@ -290,7 +292,7 @@ theorem sinTheta_addBounded_spectralProjection_sub_opNorm_of_formBounds
 of the selected Stone restrictions, rather than on the raw Borel sets. -/
 theorem sinTheta_addBounded_spectralProjection_sub_opNorm_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α β' α' δ : ℝ}
     (hβα : β ≤ α) (hβ'α' : β' ≤ α') (hδ : 0 < δ)

@@ -30,7 +30,7 @@ Mathlib's `NormedSpace.exp` lives.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators Nat
 open Module (finrank)
@@ -369,5 +369,5 @@ theorem directRotation_eq_exp_angleComplexStructure_comp_angleOperator
 
 end Exponential
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

@@ -83,7 +83,7 @@ public section
 namespace TauCeti
 
 open scoped InnerProductSpace
-open LinearMap
+open _root_.LinearMap
 open Module (finrank)
 
 variable {𝕜 E : Type*} [RCLike 𝕜]

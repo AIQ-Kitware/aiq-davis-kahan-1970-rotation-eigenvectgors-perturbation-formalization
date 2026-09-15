@@ -6,6 +6,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.DoubleAngle.UnboundedIdeal
 import DavisKahan.SinTheta.Unbounded.FormBoundedGap
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The complex directed `sin 2Θ` theorem at the full source gap
 
@@ -62,7 +64,6 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 
-open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 
@@ -89,7 +90,7 @@ counterpart of `sinTheta_addBounded_gauge_block_of_spectrum_gap`. -/
 theorem sinTheta_addBounded_gauge_complex_block_of_formGap
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (A₀ : F →ₗ.[ℂ] F) (hA₀ : IsSelfAdjoint A₀)
     (Λ₁ : G →ₗ.[ℂ] G) (hΛ₁ : IsSelfAdjoint Λ₁)
     (X : F →L[ℂ] H) (F₁ : G →L[ℂ] H)
@@ -137,7 +138,7 @@ included.  `sinTwoTheta_reflectionResidual_block_gauge_of_spectrum_gap` is the
 same estimate under the bounded-interval hypotheses. -/
 theorem sinTwoTheta_reflectionResidual_block_gauge_of_formGap
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
-    (R : H →L[ℂ] H) (hR : IsSelfAdjointOperator R)
+    (R : H →L[ℂ] H) (hR : R.IsSymmetric)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -288,7 +289,7 @@ block form above with the block contracted back to the whole reflection
 residual. -/
 theorem sinTwoTheta_reflectionResidual_gauge_of_formGap
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
-    (R : H →L[ℂ] H) (hR : IsSelfAdjointOperator R)
+    (R : H →L[ℂ] H) (hR : R.IsSymmetric)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -328,9 +329,10 @@ local instance instCompleteSpaceCoeUnboundedIdealFormGapReducing
 space, reflection-residual block form, at an arbitrary reducing subspace.**
 
 The same estimate as `sinTwoTheta_reflectionResidual_block_gauge_of_formGap`
-with the trial subspace's spectral *selection* removed: `U` is any subspace
-reducing `A`, and the separation is the form-bounded Sylvester gap between its
-two reducing restrictions.  Section 1 of the source says in as many words that
+with the spectral *selection* of the gap-carrying subspace removed: `U` is any
+subspace reducing `A`, and the separation is the form-bounded Sylvester gap
+between its two reducing restrictions.  `V` is the reflecting subspace and is not
+assumed to reduce anything.  Section 1 of the source says in as many words that
 neither projector is assumed spectral; what is assumed is that the decomposition
 reduces the operator and that the two blocks are separated.
 
@@ -345,7 +347,7 @@ theorem sinTwoTheta_reflectionResidual_block_gauge_of_formGap_reducing
     {U : Submodule ℂ H} [U.HasOrthogonalProjection]
     (hred : TauCeti.LinearPMap.ReducesSubspace A U)
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
-    (R : H →L[ℂ] H) (hR : IsSelfAdjointOperator R)
+    (R : H →L[ℂ] H) (hR : R.IsSymmetric)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -502,7 +504,7 @@ the complex mirror of `sinTwoTheta_addBounded_gauge_real`. -/
 theorem sinTwoTheta_addBounded_gauge_of_formGap
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (Eop : H →L[ℂ] H) (hEop : IsSelfAdjointOperator Eop)
+    (Eop : H →L[ℂ] H) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -521,7 +523,7 @@ theorem sinTwoTheta_addBounded_gauge_of_formGap
   set V := selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
     (addBounded_isSelfAdjoint A hA Eop hEop) S hS with hVdef
   set D : H →L[ℂ] H := reflectionPerturbation V Eop with hDdef
-  have hD : IsSelfAdjointOperator D := reflectionPerturbation_isSelfAdjoint V Eop hEop
+  have hD : D.IsSymmetric := reflectionPerturbation_isSelfAdjoint V Eop hEop
   have hDideal := reflectionPerturbation_mem_and_gauge_le
     N.toSymmetricOperatorIdealFamily V Eop hEmem
   have hmain := sinTwoTheta_reflectionResidual_gauge_of_formGap A hA B hB N D hD V hδ hgap

@@ -217,7 +217,7 @@ omit [CompleteSpace H] in
 theorem projections_apply_of_mem_halmosCommonPart
     {U V : Submodule 𝕜 H} [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H} (hx : x ∈ halmosCommonPart U V) :
-    projection U x = x ∧ projection V x = x :=
+    U.starProjection x = x ∧ V.starProjection x = x :=
   ⟨U.starProjection_eq_self_iff.mpr hx.1,
     V.starProjection_eq_self_iff.mpr hx.2⟩
 
@@ -226,7 +226,7 @@ omit [CompleteSpace H] in
 theorem projections_apply_of_mem_halmosSourceDefect
     {U V : Submodule 𝕜 H} [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H} (hx : x ∈ halmosSourceDefect U V) :
-    projection U x = x ∧ projection V x = 0 :=
+    U.starProjection x = x ∧ V.starProjection x = 0 :=
   ⟨U.starProjection_eq_self_iff.mpr hx.1,
     (Submodule.starProjection_apply_eq_zero_iff V).mpr hx.2⟩
 
@@ -235,7 +235,7 @@ omit [CompleteSpace H] in
 theorem projections_apply_of_mem_halmosTargetDefect
     {U V : Submodule 𝕜 H} [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H} (hx : x ∈ halmosTargetDefect U V) :
-    projection U x = 0 ∧ projection V x = x :=
+    U.starProjection x = 0 ∧ V.starProjection x = x :=
   ⟨(Submodule.starProjection_apply_eq_zero_iff U).mpr hx.1,
     V.starProjection_eq_self_iff.mpr hx.2⟩
 
@@ -244,7 +244,7 @@ omit [CompleteSpace H] in
 theorem projections_apply_of_mem_halmosExteriorPart
     {U V : Submodule 𝕜 H} [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H} (hx : x ∈ halmosExteriorPart U V) :
-    projection U x = 0 ∧ projection V x = 0 :=
+    U.starProjection x = 0 ∧ V.starProjection x = 0 :=
   ⟨(Submodule.starProjection_apply_eq_zero_iff U).mpr hx.1,
     (Submodule.starProjection_apply_eq_zero_iff V).mpr hx.2⟩
 
@@ -418,10 +418,10 @@ theorem projection_mem_halmosTrivialPart_left
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H}
     (hx : x ∈ halmosTrivialPart U V) :
-    projection U x ∈ halmosTrivialPart U V := by
-  apply map_mem_sup_of_invariant (projection U)
+    U.starProjection x ∈ halmosTrivialPart U V := by
+  apply map_mem_sup_of_invariant (U.starProjection)
   · intro y hy
-    apply map_mem_sup_of_invariant (projection U)
+    apply map_mem_sup_of_invariant (U.starProjection)
     · intro z hz
       rw [(projections_apply_of_mem_halmosCommonPart hz).1]
       exact hz
@@ -430,7 +430,7 @@ theorem projection_mem_halmosTrivialPart_left
       exact hz
     · exact hy
   · intro y hy
-    apply map_mem_sup_of_invariant (projection U)
+    apply map_mem_sup_of_invariant (U.starProjection)
     · intro z hz
       rw [(projections_apply_of_mem_halmosTargetDefect hz).1]
       exact zero_mem _
@@ -446,10 +446,10 @@ theorem projection_mem_halmosTrivialPart_right
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H}
     (hx : x ∈ halmosTrivialPart U V) :
-    projection V x ∈ halmosTrivialPart U V := by
-  apply map_mem_sup_of_invariant (projection V)
+    V.starProjection x ∈ halmosTrivialPart U V := by
+  apply map_mem_sup_of_invariant (V.starProjection)
   · intro y hy
-    apply map_mem_sup_of_invariant (projection V)
+    apply map_mem_sup_of_invariant (V.starProjection)
     · intro z hz
       rw [(projections_apply_of_mem_halmosCommonPart hz).2]
       exact hz
@@ -458,7 +458,7 @@ theorem projection_mem_halmosTrivialPart_right
       exact zero_mem _
     · exact hy
   · intro y hy
-    apply map_mem_sup_of_invariant (projection V)
+    apply map_mem_sup_of_invariant (V.starProjection)
     · intro z hz
       rw [(projections_apply_of_mem_halmosTargetDefect hz).2]
       exact hz
@@ -474,7 +474,7 @@ theorem projection_mem_halmosGenericPart_left
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H}
     (hx : x ∈ halmosGenericPart U V) :
-    projection U x ∈ halmosGenericPart U V := by
+    U.starProjection x ∈ halmosGenericPart U V := by
   have hred : U.starProjection.Reduces (halmosTrivialPart U V) :=
     ContinuousLinearMap.IsSymmetric.reduces_of_invariant
       U.starProjection_isSymmetric
@@ -487,7 +487,7 @@ theorem projection_mem_halmosGenericPart_right
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] {x : H}
     (hx : x ∈ halmosGenericPart U V) :
-    projection V x ∈ halmosGenericPart U V := by
+    V.starProjection x ∈ halmosGenericPart U V := by
   have hred : V.starProjection.Reduces (halmosTrivialPart U V) :=
     ContinuousLinearMap.IsSymmetric.reduces_of_invariant
       V.starProjection_isSymmetric
@@ -499,7 +499,7 @@ omit [CompleteSpace H] in
 theorem projection_left_reduces_halmosGenericPart
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    (projection U).Reduces (halmosGenericPart U V) := by
+    (U.starProjection).Reduces (halmosGenericPart U V) := by
   exact ContinuousLinearMap.IsSymmetric.reduces_of_invariant
     U.starProjection_isSymmetric
     (fun x hx => projection_mem_halmosGenericPart_left U V (x := x) hx)
@@ -509,7 +509,7 @@ omit [CompleteSpace H] in
 theorem projection_right_reduces_halmosGenericPart
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    (projection V).Reduces (halmosGenericPart U V) := by
+    (V.starProjection).Reduces (halmosGenericPart U V) := by
   exact ContinuousLinearMap.IsSymmetric.reduces_of_invariant
     V.starProjection_isSymmetric
     (fun x hx => projection_mem_halmosGenericPart_right U V (x := x) hx)
@@ -523,15 +523,15 @@ theorem halmosSourceDefect_eq_bot_of_isUniformlyAcute
   rw [Submodule.eq_bot_iff]
   intro x hx
   by_contra hx0
-  have hPx : projection U x = x := U.starProjection_eq_self_iff.mpr hx.1
-  have hQx : projection V x = 0 :=
+  have hPx : U.starProjection x = x := U.starProjection_eq_self_iff.mpr hx.1
+  have hQx : V.starProjection x = 0 :=
     (Submodule.starProjection_apply_eq_zero_iff V).mpr hx.2
-  have happ : (projection U - projection V) x = x := by
+  have happ : (U.starProjection - V.starProjection) x = x := by
     simp [hPx, hQx]
-  have hle := (projection U - projection V).le_opNorm x
+  have hle := (U.starProjection - V.starProjection).le_opNorm x
   rw [happ] at hle
   have hpos : 0 < ‖x‖ := norm_pos_iff.mpr hx0
-  have hgap : ‖projection U - projection V‖ < 1 := hacute
+  have hgap : ‖U.starProjection - V.starProjection‖ < 1 := hacute
   nlinarith
 
 omit [CompleteSpace H] in
@@ -543,15 +543,15 @@ theorem halmosTargetDefect_eq_bot_of_isUniformlyAcute
   rw [Submodule.eq_bot_iff]
   intro x hx
   by_contra hx0
-  have hPx : projection U x = 0 :=
+  have hPx : U.starProjection x = 0 :=
     (Submodule.starProjection_apply_eq_zero_iff U).mpr hx.1
-  have hQx : projection V x = x := V.starProjection_eq_self_iff.mpr hx.2
-  have happ : (projection U - projection V) x = -x := by
+  have hQx : V.starProjection x = x := V.starProjection_eq_self_iff.mpr hx.2
+  have happ : (U.starProjection - V.starProjection) x = -x := by
     simp [hPx, hQx]
-  have hle := (projection U - projection V).le_opNorm x
+  have hle := (U.starProjection - V.starProjection).le_opNorm x
   rw [happ, norm_neg] at hle
   have hpos : 0 < ‖x‖ := norm_pos_iff.mpr hx0
-  have hgap : ‖projection U - projection V‖ < 1 := hacute
+  have hgap : ‖U.starProjection - V.starProjection‖ < 1 := hacute
   nlinarith
 
 omit [CompleteSpace H] in
@@ -580,7 +580,7 @@ calculations below can rewrite inside products without unfolding. -/
 @[simp]
 theorem projection_sq
     (U : Submodule 𝕜 H) [U.HasOrthogonalProjection] :
-    projection U * projection U = projection U :=
+    U.starProjection * U.starProjection = U.starProjection :=
   U.isIdempotentElem_starProjection
 
 omit [CompleteSpace H] in
@@ -588,8 +588,7 @@ omit [CompleteSpace H] in
 @[simp]
 theorem projection_mul_complementaryProjection
     (U : Submodule 𝕜 H) [U.HasOrthogonalProjection] :
-    projection U * complementaryProjection U = 0 := by
-  change U.starProjection * Uᗮ.starProjection = 0
+    U.starProjection * (Uᗮ).starProjection = 0 := by
   rw [Submodule.starProjection_orthogonal']
   have hP := projection_sq U
   noncomm_ring [hP]
@@ -599,8 +598,7 @@ omit [CompleteSpace H] in
 @[simp]
 theorem complementaryProjection_mul_projection
     (U : Submodule 𝕜 H) [U.HasOrthogonalProjection] :
-    complementaryProjection U * projection U = 0 := by
-  change Uᗮ.starProjection * U.starProjection = 0
+    (Uᗮ).starProjection * U.starProjection = 0 := by
   rw [Submodule.starProjection_orthogonal']
   have hP := projection_sq U
   noncomm_ring [hP]
@@ -612,8 +610,8 @@ sine identities run on. -/
 @[simp]
 theorem complementaryProjection_sq
     (U : Submodule 𝕜 H) [U.HasOrthogonalProjection] :
-    complementaryProjection U * complementaryProjection U =
-      complementaryProjection U :=
+    (Uᗮ).starProjection * (Uᗮ).starProjection =
+      (Uᗮ).starProjection :=
   Uᗮ.isIdempotentElem_starProjection
 
 /-! ## Halmos cosine and sine -/
@@ -622,16 +620,16 @@ theorem complementaryProjection_sq
 noncomputable def halmosCosineSq
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] : H →L[𝕜] H :=
-  projection U * projection V * projection U +
-    complementaryProjection U * complementaryProjection V *
-      complementaryProjection U
+  U.starProjection * V.starProjection * U.starProjection +
+    (Uᗮ).starProjection * (Vᗮ).starProjection *
+      (Uᗮ).starProjection
 
 /-- Squared sine operator of the two-projection model. -/
 noncomputable def halmosSineSq
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] : H →L[𝕜] H :=
-  projection U * complementaryProjection V * projection U +
-    complementaryProjection U * projection V * complementaryProjection U
+  U.starProjection * (Vᗮ).starProjection * U.starProjection +
+    (Uᗮ).starProjection * V.starProjection * (Uᗮ).starProjection
 
 omit [CompleteSpace H] in
 /-- The sine square is the square of the projection difference. -/
@@ -639,7 +637,7 @@ theorem halmosSineSq_eq_projection_sub_sq
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
     halmosSineSq U V =
-      (projection U - projection V) * (projection U - projection V) := by
+      (U.starProjection - V.starProjection) * (U.starProjection - V.starProjection) := by
   change
     U.starProjection * Vᗮ.starProjection * U.starProjection +
       Uᗮ.starProjection * V.starProjection * Uᗮ.starProjection =
@@ -674,7 +672,7 @@ theorem halmosCosineSq_eq_one_sub_projection_sub_sq
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
     halmosCosineSq U V =
-      1 - (projection U - projection V) * (projection U - projection V) := by
+      1 - (U.starProjection - V.starProjection) * (U.starProjection - V.starProjection) := by
   have hsum := halmosCosineSq_add_sineSq U V
   rw [halmosSineSq_eq_projection_sub_sq] at hsum
   exact eq_sub_of_add_eq hsum
@@ -684,12 +682,12 @@ omit [CompleteSpace H] in
 theorem halmosCosineSq_commute_projection
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    Commute (halmosCosineSq U V) (projection U) := by
+    Commute (halmosCosineSq U V) (U.starProjection) := by
   rw [commute_iff_eq]
-  let P : H →L[𝕜] H := projection U
-  let Pc : H →L[𝕜] H := complementaryProjection U
-  let Q : H →L[𝕜] H := projection V
-  let Qc : H →L[𝕜] H := complementaryProjection V
+  let P : H →L[𝕜] H := U.starProjection
+  let Pc : H →L[𝕜] H := (Uᗮ).starProjection
+  let Q : H →L[𝕜] H := V.starProjection
+  let Qc : H →L[𝕜] H := (Vᗮ).starProjection
   change (P * Q * P + Pc * Qc * Pc) * P =
     P * (P * Q * P + Pc * Qc * Pc)
   have hP : P * P = P := by simp [P]
@@ -718,11 +716,11 @@ omit [CompleteSpace H] in
 theorem halmosSineSq_commute_projection
     (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    Commute (halmosSineSq U V) (projection U) := by
+    Commute (halmosSineSq U V) (U.starProjection) := by
   have hs : halmosSineSq U V = 1 - halmosCosineSq U V :=
     eq_sub_of_add_eq' (halmosCosineSq_add_sineSq U V)
   rw [hs]
-  exact (Commute.one_left (projection U)).sub_left
+  exact (Commute.one_left (U.starProjection)).sub_left
     (halmosCosineSq_commute_projection U V)
 
 
@@ -742,7 +740,7 @@ theorem halmosSineSq_nonneg
     [V.HasOrthogonalProjection] :
     0 ≤ halmosSineSq U V := by
   rw [halmosSineSq_eq_projection_sub_sq]
-  let A : H →L[ℂ] H := projection U - projection V
+  let A : H →L[ℂ] H := U.starProjection - V.starProjection
   have hAstar : star A = A := by
     dsimp [A]
     rw [star_sub,
@@ -755,15 +753,15 @@ its square is `C²`. -/
 theorem spectraCanonicalAbsoluteValue_sq_eq_halmosCosineSq
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) *
-        spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) =
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) *
+        ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) =
       halmosCosineSq U V := by
-  rw [spectraOperatorAbsoluteValue_mul_self,
+  rw [ContinuousLinearMap.modulus_mul_self_eq_star_mul_self,
     star_spectraCanonicalIntertwiner]
-  let P : H →L[ℂ] H := projection U
-  let Pc : H →L[ℂ] H := complementaryProjection U
-  let Q : H →L[ℂ] H := projection V
-  let Qc : H →L[ℂ] H := complementaryProjection V
+  let P : H →L[ℂ] H := U.starProjection
+  let Pc : H →L[ℂ] H := (Uᗮ).starProjection
+  let Q : H →L[ℂ] H := V.starProjection
+  let Qc : H →L[ℂ] H := (Vᗮ).starProjection
   change (P * Q + Pc * Qc) * (Q * P + Qc * Pc) =
     P * Q * P + Pc * Qc * Pc
   have hQ : Q * Q = Q := by simp [Q]

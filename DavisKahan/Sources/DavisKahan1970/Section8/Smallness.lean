@@ -6,6 +6,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 
 import DavisKahan.Sources.DavisKahan1970.Section8.SelectedBranch
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Davis--Kahan 1970, Theorem 8.2: explicit smallness bridges
 

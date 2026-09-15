@@ -38,7 +38,7 @@ self-adjoint closed operator.
 This one *does* need the inner product: it is stated in terms of
 `IsSelfAdjointOperator` and of the **real** spectrum. -/
 structure CircleSeparatesRealSpectrum
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (B : Set ℝ) (center radius : ℝ) : Prop where
   radius_pos : 0 < radius
   contour_resolvent :

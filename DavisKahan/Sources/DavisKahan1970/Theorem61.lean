@@ -5,7 +5,9 @@ Authors: Jon Crall, Claude Opus 5
 -/
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Theorem61Universal
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Theorem62
-import DavisKahan.Sources.DavisKahan1970.SineTheta.PaperSurface
+import DavisKahan.Sources.DavisKahan1970.SineTheta.Presentation
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, Theorems 6.1 and 6.2, on ordinary mathematical hypotheses
@@ -18,8 +20,8 @@ Hilbert--Schmidt.
 
 ## What changed, and why
 
-Both canonical declarations used to be *methods on a record* — `PaperTheorem61Data`
-and `PaperTheorem62Data`, each bundling an `UnboundedSinThetaData` (itself a
+Both canonical declarations used to be *methods on a record* — `Theorem61Data`
+and `Theorem62Data`, each bundling an `UnboundedSinThetaData` (itself a
 record) together with the exact map, three self-adjointness fields, the exact
 decomposition, the gap, and the frame bound.  A reader of the paper had to build
 two nested records before invoking the theorem.
@@ -42,7 +44,7 @@ IsTrialResidualEquation + LowerFrameBound E₀ ε    ->  Theorem 6.1 / Theorem 6
 ## What is preserved
 
 The printed representative freedom is preserved exactly: the conclusion is stated
-for an arbitrary `PaperSinThetaRepresentativeAcross` of the canonical directed
+for an arbitrary `SinThetaRepresentativeAcross` of the canonical directed
 block, which is the source's "`sin Θ₀` subject only to the singular-value
 condition".  The lower-frame factor, the sharp constant, the arbitrary source
 unitarily invariant norm (Theorem 6.1) and the Hilbert--Schmidt specialization
@@ -61,9 +63,11 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan1970
 
-open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
-open _root_.DavisKahan1970
+
+
+open TauCeti.DavisKahan
+open DavisKahan1970
 
 noncomputable section
 
@@ -136,7 +140,7 @@ equivalence.
 Only `0 ≤ ε` is needed; the source's `ε > 0` is stronger.  The step is
 `re ⟪E₀* E₀ x, x⟫ = ‖E₀ x‖²`, after which the two inequalities differ by squaring
 nonnegative reals. -/
-theorem lowerFrameBound_iff_source_operator_inequality
+theorem lowerFrameBound_iff_operator_inequality
     (E₀ : F →L[𝕜] E) {ε : ℝ} (hε : 0 ≤ ε) :
     (∀ x : F, ε ^ 2 * ‖x‖ ^ 2 ≤
         RCLike.re (inner 𝕜 ((E₀.adjoint ∘L E₀) x) x)) ↔
@@ -163,12 +167,12 @@ theorem lowerFrameBound_iff_source_operator_inequality
 
 /-- The source's printed hypothesis implies the Lean one, in the direction a
 caller holding the operator inequality needs. -/
-theorem lowerFrameBound_of_source_operator_inequality
+theorem lowerFrameBound_of_operator_inequality
     (E₀ : F →L[𝕜] E) {ε : ℝ} (hε : 0 ≤ ε)
     (h : ∀ x : F, ε ^ 2 * ‖x‖ ^ 2 ≤
         RCLike.re (inner 𝕜 ((E₀.adjoint ∘L E₀) x) x)) :
     LowerFrameBound E₀ ε :=
-  (lowerFrameBound_iff_source_operator_inequality E₀ hε).mp h
+  (lowerFrameBound_iff_operator_inequality E₀ hε).mp h
 
 end LowerFrame
 
@@ -188,9 +192,9 @@ variable {E F G H : Type v}
 the lower frame bound of the trial map and `sin Θ₀` is any operator with the
 canonical directed block's singular-value sequence.
 
-Nothing about the proof's organisation appears: no `PaperTheorem61Data`, no
+Nothing about the proof's organisation appears: no `Theorem61Data`, no
 `UnboundedSinThetaData`, no Ky Fan family, no capability class. -/
-theorem theorem6_1_source_complex
+theorem theorem6_1_complex
     {E₀' F₀' : Type v}
     [NormedAddCommGroup E₀'] [InnerProductSpace ℂ E₀'] [CompleteSpace E₀']
     [NormedAddCommGroup F₀'] [InnerProductSpace ℂ F₀'] [CompleteSpace F₀']
@@ -202,11 +206,11 @@ theorem theorem6_1_source_complex
     (hexact : IsExactSpectralDecomposition A Λ₁ F₀ F₁)
     {ε : ℝ} (hε : 0 < ε) (hframe : LowerFrameBound E₀ ε)
     {δ : ℝ} (hδ : 0 < δ) (hgap : FormBoundedSylvesterGap A₀ Λ₁ δ)
-    (S : PaperSinThetaRepresentativeAcross (E₀ := E₀') (F₀ := F₀')
+    (S : SinThetaRepresentativeAcross (E₀ := E₀') (F₀ := F₀')
       (directedSinThetaOperator E₀ F₀ hframe hε))
     (hR : N.Mem R) :
     N.Mem S.operator ∧ δ * ε * N.gauge S.operator ≤ N.gauge R := by
-  let P : PaperTheorem61Data (E := E) (F := F) (G := G) (H := H) :=
+  let P : Theorem61Data (E := E) (F := F) (G := G) (H := H) :=
     { data := sectionSixData A A₀ Λ₁ E₀ F₀ F₁ R htrial hexact
       exactMap := F₀
       ambient_selfAdjoint := hA
@@ -232,8 +236,8 @@ variable {E F G H : Type v}
   [NormedAddCommGroup H] [InnerProductSpace ℝ H] [CompleteSpace H]
 
 /-- **Davis--Kahan 1970, Theorem 6.1, over `ℝ`.**  The real sibling of
-`theorem6_1_source_complex`, with the same hypotheses and the same conclusion. -/
-theorem theorem6_1_source_real
+`theorem6_1_complex`, with the same hypotheses and the same conclusion. -/
+theorem theorem6_1_real
     {E₀' F₀' : Type v}
     [NormedAddCommGroup E₀'] [InnerProductSpace ℝ E₀'] [CompleteSpace E₀']
     [NormedAddCommGroup F₀'] [InnerProductSpace ℝ F₀'] [CompleteSpace F₀']
@@ -245,11 +249,11 @@ theorem theorem6_1_source_real
     (hexact : IsExactSpectralDecomposition A Λ₁ F₀ F₁)
     {ε : ℝ} (hε : 0 < ε) (hframe : LowerFrameBound E₀ ε)
     {δ : ℝ} (hδ : 0 < δ) (hgap : FormBoundedSylvesterGap A₀ Λ₁ δ)
-    (S : PaperSinThetaRepresentativeAcross (E₀ := E₀') (F₀ := F₀')
+    (S : SinThetaRepresentativeAcross (E₀ := E₀') (F₀ := F₀')
       (directedSinThetaOperatorReal E₀ F₀ hframe hε))
     (hR : N.Mem R) :
     N.Mem S.operator ∧ δ * ε * N.gauge S.operator ≤ N.gauge R := by
-  let P : PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H) :=
+  let P : RealTheorem61Data (E := E) (F := F) (G := G) (H := H) :=
     { data := sectionSixData A A₀ Λ₁ E₀ F₀ F₁ R htrial hexact
       exactMap := F₀
       ambient_selfAdjoint := hA
@@ -293,7 +297,7 @@ representative freedom as Theorem 6.1.
 This is the counted Theorem 6.2 statement.  The stronger arbitrary-UI-norm
 theorem and the finite-rank operator-norm consequence are source-adjacent
 material and are deliberately not what this states. -/
-theorem theorem6_2_source_complex
+theorem theorem6_2_complex
     {E₀' F₀' : Type v}
     [NormedAddCommGroup E₀'] [InnerProductSpace ℂ E₀'] [CompleteSpace E₀']
     [NormedAddCommGroup F₀'] [InnerProductSpace ℂ F₀'] [CompleteSpace F₀']
@@ -304,12 +308,12 @@ theorem theorem6_2_source_complex
     (hexact : IsExactSpectralDecomposition A Λ₁ F₀ F₁)
     {ε : ℝ} (hε : 0 < ε) (hframe : LowerFrameBound E₀ ε)
     {δ : ℝ} (hδ : 0 < δ) (hdist : PairwiseSpectrumGap A₀ Λ₁ δ)
-    (S : PaperSinThetaRepresentativeAcross (E₀ := E₀') (F₀ := F₀')
+    (S : SinThetaRepresentativeAcross (E₀ := E₀') (F₀ := F₀')
       (sectionSixSinThetaBlock E₀ F₁ hframe hε))
-    (hR : IsPaperHilbertSchmidt R) :
-    IsPaperHilbertSchmidt S.operator ∧
-      δ * ε * paperHilbertSchmidtNorm S.operator ≤ paperHilbertSchmidtNorm R := by
-  let P : PaperTheorem62Data (E := E) (F := F) (G := G) (H := H) :=
+    (hR : approximationNumberEnergy R ≠ ⊤) :
+    approximationNumberEnergy S.operator ≠ ⊤ ∧
+      δ * ε * ContinuousLinearMap.hilbertSchmidtNorm S.operator ≤ ContinuousLinearMap.hilbertSchmidtNorm R := by
+  let P : Theorem62Data (E := E) (F := F) (G := G) (H := H) :=
     { data := sectionSixData A A₀ Λ₁ E₀ F₀ F₁ R htrial hexact
       exactMap := F₀
       ambient_selfAdjoint := hA
@@ -343,10 +347,10 @@ noncomputable def sectionSixSinThetaBlockReal
 
 /-- **Davis--Kahan 1970, Theorem 6.2, over `ℝ`.**
 
-The real sibling of `theorem6_2_source_complex`.  The pairwise spectral-distance
+The real sibling of `theorem6_2_complex`.  The pairwise spectral-distance
 hypothesis is written out over `realSpectrum`, which is the real spelling of the
 same condition. -/
-theorem theorem6_2_source_real
+theorem theorem6_2_real
     {E₀' F₀' : Type v}
     [NormedAddCommGroup E₀'] [InnerProductSpace ℝ E₀'] [CompleteSpace E₀']
     [NormedAddCommGroup F₀'] [InnerProductSpace ℝ F₀'] [CompleteSpace F₀']
@@ -359,12 +363,12 @@ theorem theorem6_2_source_real
     {δ : ℝ} (hδ : 0 < δ)
     (hdist : ∀ lam ∈ TauCeti.LinearPMap.realSpectrum A₀,
       ∀ α ∈ TauCeti.LinearPMap.realSpectrum Λ₁, δ ≤ |lam - α|)
-    (S : PaperSinThetaRepresentativeAcross (E₀ := E₀') (F₀ := F₀')
+    (S : SinThetaRepresentativeAcross (E₀ := E₀') (F₀ := F₀')
       (sectionSixSinThetaBlockReal E₀ F₁ hframe hε))
-    (hR : IsPaperHilbertSchmidt R) :
-    IsPaperHilbertSchmidt S.operator ∧
-      δ * ε * paperHilbertSchmidtNorm S.operator ≤ paperHilbertSchmidtNorm R := by
-  let P : PaperRealTheorem62Data (E := E) (F := F) (G := G) (H := H) :=
+    (hR : approximationNumberEnergy R ≠ ⊤) :
+    approximationNumberEnergy S.operator ≠ ⊤ ∧
+      δ * ε * ContinuousLinearMap.hilbertSchmidtNorm S.operator ≤ ContinuousLinearMap.hilbertSchmidtNorm R := by
+  let P : RealTheorem62Data (E := E) (F := F) (G := G) (H := H) :=
     { data := sectionSixData A A₀ Λ₁ E₀ F₀ F₁ R htrial hexact
       exactMap := F₀
       ambient_selfAdjoint := hA

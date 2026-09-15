@@ -7,7 +7,7 @@ module
 
 public import ForTauCeti.Analysis.InnerProductSpace.Sylvester.Basic
 public import ForTauCeti.Analysis.InnerProductSpace.Sylvester.Internal.SpectralBounds
-public import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+public import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm
 public import ForTauCeti.Analysis.InnerProductSpace.Sylvester.Bound
 
 /-!
@@ -154,7 +154,7 @@ private theorem abs_comp_sub_comp_of_sylvester
   exact congrArg (choosePolarUnitary S).symm hx
 
 private theorem uiNorm_sylvester_le_of_form_bounds_aux
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 E F)
+    (N : UnitarilyInvariantSeminorm 𝕜 E F)
     {A : F →ₗ[𝕜] F} {B : E →ₗ[𝕜] E} {X C : E →ₗ[𝕜] F}
     (hA : A.IsSymmetric) (hB : B.IsSymmetric) {c δ : ℝ} (hδ : 0 < δ)
     (hAform : ∀ y, (c + δ) * ‖y‖ ^ 2 ≤ RCLike.re ⟪A y, y⟫_𝕜)
@@ -222,7 +222,7 @@ orientation is reduced to the first by taking adjoints and transporting the
 rectangular UI norm.
 -/
 theorem uiNorm_sylvester_le_of_orderedGap
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 E F)
+    (N : UnitarilyInvariantSeminorm 𝕜 E F)
     {A : F →ₗ[𝕜] F} {B : E →ₗ[𝕜] E} {X C : E →ₗ[𝕜] F}
     (hA : A.IsSymmetric) (hB : B.IsSymmetric) {δ : ℝ} (hδ : 0 < δ)
     (hgap : OrderedSylvesterGap A B δ)
@@ -259,8 +259,8 @@ theorem uiNorm_sylvester_le_of_orderedGap
     have hAform : ∀ y, (c + δ) * ‖y‖ ^ 2 ≤ RCLike.re ⟪A y, y⟫_𝕜 :=
       le_re_inner_of_le_eigenvalues hA fun i =>
         hBA c (hA.eigenvalues rfl i)
-          (eigenvalue_mem_restrictedSpectrum_top hB j₀)
-          (eigenvalue_mem_restrictedSpectrum_top hA i)
+          (eigenvalue_mem_restrictedPointSpectrum_top hB j₀)
+          (eigenvalue_mem_restrictedPointSpectrum_top hA i)
     exact uiNorm_sylvester_le_of_form_bounds_aux N hA hB hδ hAform hBform hEq
   · let i₀ : Fin (Module.finrank 𝕜 F) := ⟨0, Module.finrank_pos⟩
     let c : ℝ := hA.eigenvalues rfl i₀
@@ -270,15 +270,15 @@ theorem uiNorm_sylvester_le_of_orderedGap
     have hBform : ∀ x, (c + δ) * ‖x‖ ^ 2 ≤ RCLike.re ⟪B x, x⟫_𝕜 :=
       le_re_inner_of_le_eigenvalues hB fun j =>
         hAB c (hB.eigenvalues rfl j)
-          (eigenvalue_mem_restrictedSpectrum_top hA i₀)
-          (eigenvalue_mem_restrictedSpectrum_top hB j)
+          (eigenvalue_mem_restrictedPointSpectrum_top hA i₀)
+          (eigenvalue_mem_restrictedPointSpectrum_top hB j)
     have hEqAdj : B ∘ₗ X.adjoint - X.adjoint ∘ₗ A = -C.adjoint :=
       sylvester_adjoint_neg hA hB hEq
     have hbound := uiNorm_sylvester_le_of_form_bounds_aux
-      (RectangularUnitarilyInvariantSeminorm.adjointTransport N)
+      (UnitarilyInvariantSeminorm.adjointTransport N)
       hB hA hδ hBform hAform hEqAdj
-    rw [RectangularUnitarilyInvariantSeminorm.adjointTransport_coe_apply,
-      RectangularUnitarilyInvariantSeminorm.adjointTransport_neg_adjoint_apply] at hbound
+    rw [UnitarilyInvariantSeminorm.adjointTransport_apply,
+      UnitarilyInvariantSeminorm.adjointTransport_neg_adjoint_apply] at hbound
     exact hbound
 
 /-- Sharp constant-one interval/exterior Sylvester estimate in every
@@ -293,7 +293,7 @@ absolutely homogeneous, and satisfies both operator-ideal inequalities.
 Unitary invariance identifies the rotated norms with the original ones.
 -/
 theorem uiNorm_sylvester_le_of_intervalGap
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 E F)
+    (N : UnitarilyInvariantSeminorm 𝕜 E F)
     {A : F →ₗ[𝕜] F} {B : E →ₗ[𝕜] E} {X C : E →ₗ[𝕜] F}
     (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {a b δ : ℝ} (hδ : 0 < δ) (hgap : IntervalSylvesterGap A B a b δ)
@@ -318,7 +318,7 @@ theorem uiNorm_sylvester_le_of_intervalGap
   let : NeZero (Module.finrank 𝕜 F) :=
     ⟨Nat.ne_of_gt Module.finrank_pos⟩
   let j₀ : Fin (Module.finrank 𝕜 E) := ⟨0, Module.finrank_pos⟩
-  have hj₀ := hgap.1 (eigenvalue_mem_restrictedSpectrum_top hB j₀)
+  have hj₀ := hgap.1 (eigenvalue_mem_restrictedPointSpectrum_top hB j₀)
   have hab : a ≤ b := hj₀.1.trans hj₀.2
   let m : ℝ := (a + b) / 2
   let r : ℝ := (b - a) / 2
@@ -330,7 +330,7 @@ theorem uiNorm_sylvester_le_of_intervalGap
   let Y : E →ₗ[𝕜] F := U.symm.toLinearMap ∘ₗ C
   have hr : 0 ≤ r := by simp only [r]; linarith
   have hTnorm : ‖T.toContinuousLinearMap‖ ≤ r := by
-    simpa [T, m, r] using opNorm_shift_le_of_spectrumIn_Icc hB hab hgap.1
+    simpa [T, m, r] using opNorm_shift_le_of_pointSpectrumIn_Icc hB hab hgap.1
   have hSlower : ∀ y, (r + δ) * ‖y‖ ≤ ‖S y‖ := by
     simpa [S, m, r] using
       norm_shift_lower_of_spectrumOutside hA hab hδ hgap.2
@@ -413,7 +413,7 @@ norm.**  If the spectrum of `A` lies in `Icc a b` and that of `B` avoids
 `δ ‖X‖ ≤ ‖C‖`.
 
 The operator norm is a rectangular unitarily invariant norm
-(`RectangularUnitarilyInvariantSeminorm.opNorm`, whose application is `‖·‖` by
+(`UnitarilyInvariantSeminorm.opNorm`, whose application is `‖·‖` by
 `rfl`), so this is the theorem directly above at that norm.  It was a separate
 82-line proof until 2026-07-30 — the same shift-and-invert argument, the same
 two `Subsingleton` cases, the same Neumann bound — placed *before* the general
@@ -424,7 +424,7 @@ theorem opNorm_sylvester_le_of_intervalGap
     {a b δ : ℝ} (hδ : 0 < δ) (hgap : IntervalSylvesterGap A B a b δ)
     (hEq : A ∘ₗ X - X ∘ₗ B = C) :
     δ * ‖X.toContinuousLinearMap‖ ≤ ‖C.toContinuousLinearMap‖ :=
-  uiNorm_sylvester_le_of_intervalGap RectangularUnitarilyInvariantSeminorm.opNorm
+  uiNorm_sylvester_le_of_intervalGap UnitarilyInvariantSeminorm.opNorm
     hA hB hδ hgap hEq
 
 /-- Sharp constant-one interval/exterior Sylvester estimate in either
@@ -434,7 +434,7 @@ The forward branch is `uiNorm_sylvester_le_of_intervalGap`.  In the reverse
 branch, take adjoints, negate the resulting Sylvester equation, and transport
 the rectangular UI norm across adjoint. -/
 theorem uiNorm_sylvester_le_of_unorderedIntervalGap
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 E F)
+    (N : UnitarilyInvariantSeminorm 𝕜 E F)
     {A : F →ₗ[𝕜] F} {B : E →ₗ[𝕜] E} {X C : E →ₗ[𝕜] F}
     (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {a b δ : ℝ} (hδ : 0 < δ)
@@ -446,10 +446,10 @@ theorem uiNorm_sylvester_le_of_unorderedIntervalGap
   · have hEqAdj : B ∘ₗ X.adjoint - X.adjoint ∘ₗ A = -C.adjoint :=
       sylvester_adjoint_neg hA hB hEq
     have hbound := uiNorm_sylvester_le_of_intervalGap
-      (RectangularUnitarilyInvariantSeminorm.adjointTransport N)
+      (UnitarilyInvariantSeminorm.adjointTransport N)
       hB hA hδ hreverse hEqAdj
-    rw [RectangularUnitarilyInvariantSeminorm.adjointTransport_coe_apply,
-      RectangularUnitarilyInvariantSeminorm.adjointTransport_neg_adjoint_apply] at hbound
+    rw [UnitarilyInvariantSeminorm.adjointTransport_apply,
+      UnitarilyInvariantSeminorm.adjointTransport_neg_adjoint_apply] at hbound
     exact hbound
 
 /-- Ky Fan specialization of the sharp interval/exterior Sylvester
@@ -462,17 +462,17 @@ theorem kyFan_sylvester_le_of_intervalGap
     (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {a b δ : ℝ} (hδ : 0 < δ) (hgap : IntervalSylvesterGap A B a b δ)
     (hEq : A ∘ₗ X - X ∘ₗ B = C) (k : ℕ) :
-    δ * RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k X ≤
-      RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k C := by
+    δ * TauCeti.kyFanSum k X ≤
+      TauCeti.kyFanSum k C := by
   have h := uiNorm_sylvester_le_of_intervalGap
-    (RectangularUnitarilyInvariantSeminorm.kyFan k) hA hB hδ hgap hEq
-  simpa only [RectangularUnitarilyInvariantSeminorm.kyFan_apply] using h
+    (UnitarilyInvariantSeminorm.kyFan k) hA hB hδ hgap hEq
+  simpa only [UnitarilyInvariantSeminorm.kyFan_apply] using h
 
 /-- Ordered positivity/coercivity form used by the existing integral-free
 proof.
 -/
 theorem uiNorm_sylvester_le_of_form_bounds
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 E F)
+    (N : UnitarilyInvariantSeminorm 𝕜 E F)
     {A : F →ₗ[𝕜] F} {B : E →ₗ[𝕜] E} {X C : E →ₗ[𝕜] F}
     (hA : A.IsSymmetric) (hB : B.IsSymmetric) {c δ : ℝ} (hδ : 0 < δ)
     (hAform : ∀ y, (c + δ) * ‖y‖ ^ 2 ≤ RCLike.re ⟪A y, y⟫_𝕜)

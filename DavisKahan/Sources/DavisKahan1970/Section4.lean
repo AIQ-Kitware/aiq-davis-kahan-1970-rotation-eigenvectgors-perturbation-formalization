@@ -4,12 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 5
 -/
 import DavisKahan.FiniteDimensional.DirectRotation
+import DavisKahan.FiniteDimensional.DirectRotation.ShortRotationCounterexample
 import DavisKahan.Geometry.Polar.RestrictedDisplacementExtremal
 import DavisKahan.Geometry.Polar.DisplacementSquareExtremal
 import DavisKahan.Geometry.Angle.BasisAngleEnergy
 import ForTauCeti.Analysis.InnerProductSpace.CompactSpectralDecomposition
 import ForTauCeti.Analysis.InnerProductSpace.VectorAngle
 import ForTauCeti.Analysis.OperatorIdeal.Family.GramGauge
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, Section 4: extremal properties of the direct rotation
@@ -35,28 +41,29 @@ the repository's source-coverage convention for a false printed claim.
 namespace TauCeti
 namespace DavisKahan1970
 
+
 /-! ## Proposition 4.1 -/
 
 /-- **Davis--Kahan 1970, Proposition 4.1.**  Every singular value of the displacement
 restricted to the source subspace is minimized by the direct rotation, over all isometries
 carrying `U` onto `V`. -/
-alias Proposition4_1 := DavisKahanTheory.singularValues_restrictedDisplacement_le
+alias proposition4_1 := DavisKahan.FiniteDimensional.singularValues_restrictedDisplacement_le
 
 /-- The direct rotation's restricted-displacement singular values, identified: the
 principal-plane chords, and zero past the last nontrivial angle.  This is the value the
-minimum in `Proposition4_1` takes. -/
-alias Proposition4_1_directRotationValues :=
-  DavisKahanTheory.singularValues_restrictedDisplacement_directRotation
+minimum in `proposition4_1` takes. -/
+alias proposition4_1_directRotationValues :=
+  DavisKahan.FiniteDimensional.singularValues_restrictedDisplacement_directRotation
 
 /-! ## Corollary 4.1 -/
 
 /-- **Davis--Kahan 1970, Corollary 4.1.**  Singular-value domination passes to every
 unitarily invariant norm of the restricted displacement. -/
-alias Corollary4_1 := DavisKahanTheory.uiNorm_restrictedDisplacement_le
+alias corollary4_1 := DavisKahan.FiniteDimensional.uiNorm_restrictedDisplacement_le
 
 /-- Corollary 4.1 read as a minimality statement about the direct rotation. -/
-alias Corollary4_1_minimizer :=
-  DavisKahanTheory.directRotation_minimizes_restrictedDisplacement_uiNorm
+alias corollary4_1_minimizer :=
+  DavisKahan.FiniteDimensional.directRotation_minimizes_restrictedDisplacement_uiNorm
 
 /-! ## Proposition 4.3 -/
 
@@ -67,15 +74,15 @@ Ky Fan level is the honest scope: the *individual* singular values are **not** d
 Pointwise domination would imply Proposition 4.4, which this repository refutes.  The
 refuting configuration is recorded with the stable theorem, in the module docstring of
 `DavisKahan/Geometry/Polar/DisplacementSquareExtremal.lean`. -/
-alias Proposition4_3_kyFan := DavisKahanTheory.directRotation_displacementSquare_kyFan
+alias proposition4_3_kyFan := DavisKahan.FiniteDimensional.directRotation_displacementSquare_kyFan
 
 /-- **Davis--Kahan 1970, Proposition 4.3.**  Every unitarily invariant norm of the squared
 displacement is minimized by the direct rotation. -/
-alias Proposition4_3 := DavisKahanTheory.directRotation_displacementSquare_uiNorm
+alias proposition4_3 := DavisKahan.FiniteDimensional.directRotation_displacementSquare_uiNorm
 
 /-- Proposition 4.3 read as a minimality statement about the direct rotation. -/
-alias Proposition4_3_minimizer :=
-  DavisKahanTheory.directRotation_minimizes_displacementSquare_uiNorm
+alias proposition4_3_minimizer :=
+  DavisKahan.FiniteDimensional.directRotation_minimizes_displacementSquare_uiNorm
 
 /-! ## Infinite-dimensional source forms
 
@@ -87,15 +94,15 @@ For every unitary `W` carrying `U` onto `V`, every approximation number of the
 restricted displacement is bounded below by the canonical acute direct
 rotation.  The chosen-defect declaration below carries the full nonacute scope
 of the paper. -/
-alias Proposition4_1_infiniteDimensional :=
-  DavisKahan.Section4.proposition4_1_source_approximationNumbers
+alias proposition4_1_infiniteDimensional :=
+  DavisKahan.Section4.proposition4_1_approximationNumbers
 
 
 /-- **Proposition 4.1 at the nonacute compact scope inherited from Corollary
 3.1.**  A crossed-defect isometry selects the direct rotation when `π/2`
 principal-angle blocks are present. -/
-alias Proposition4_1_infiniteDimensional_nonacute :=
-  DavisKahan.Section4.proposition4_1_nonacute_source_approximationNumbers
+alias proposition4_1_infiniteDimensional_nonacute :=
+  DavisKahan.Section4.proposition4_1_nonacute_approximationNumbers
 
 section Proposition41VectorForm
 
@@ -118,11 +125,11 @@ are absent from the index subtype because their asserted lower bound is automati
 The vectors are the compact Gram singular vectors of `P_{Vᗮ}|_U`.  Thus this declaration is
 the printed orthonormal-vector formulation, independently of the approximation-number
 minimality formulation above. -/
-theorem Proposition4_1_compact_orthonormalVectors_complex
+theorem proposition4_1_compact_orthonormalVectors_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W) :
+    (hWmap : W * U.starProjection = V.starProjection * W) :
     ∃ v : {n : ℕ // 0 < TauCeti.principalSineSequence U V n} → U,
       Orthonormal ℂ v ∧ ∀ n : {n : ℕ // 0 < TauCeti.principalSineSequence U V n},
         TauCeti.principalAngleSequence U V (n : ℕ) ≤
@@ -193,7 +200,7 @@ theorem Proposition4_1_compact_orthonormalVectors_complex
       rw [TauCeti.principalSineOperator_apply]
     have hxnormH : ‖(x : H)‖ = 1 := hxnorm
     rw [hxnormH, one_pow, ← hTdef, hTx] at hpy
-    change 1 = ‖DavisKahan.projection V (x : H)‖ ^ 2 + s ^ 2 at hpy
+    change 1 = ‖V.starProjection (x : H)‖ ^ 2 + s ^ 2 at hpy
     dsimp only [s] at hpy
     rw [hC]
     rw [hsin] at htrig
@@ -240,17 +247,17 @@ theorem principalSineOperator_norm_sq_eq_one_sub_sourceCosine_norm_sq
 /-- **The exact singular-value value in Proposition 4.1 at the inherited
 compact, matched-defect scope.**  The direct rotation realizes the principal
 chord `2 sin(theta_n / 2)` at every approximation-number index. -/
-theorem Proposition4_1_compact_nonacute_directRotationValues_complex
+theorem proposition4_1_compact_nonacute_directRotationValues_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (_hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       DavisKahan.halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W)
+    (hWmap : W * U.starProjection = V.starProjection * W)
     (n : ℕ) :
     (ContinuousLinearMap.approximationNumber
         ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L
-          DavisKahan.projection U) n : Real) =
+          U.starProjection) n : Real) =
       2 * Real.sin (TauCeti.principalAngleSequence U V n / 2) := by
   let _ : CompleteSpace U :=
     (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
@@ -298,9 +305,9 @@ theorem Proposition4_1_compact_nonacute_directRotationValues_complex
     exact A.approximationNumber_nonneg n
   have ha : a = 2 * shalf := (sq_eq_sq₀ ha0 (mul_nonneg (by norm_num) hshalf0)).1 haSq
   change (ContinuousLinearMap.approximationNumber
-      ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L DavisKahan.projection U) n : Real) = _
+      ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L U.starProjection) n : Real) = _
   have hD : ContinuousLinearMap.approximationNumber
-      ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L DavisKahan.projection U) n =
+      ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L U.starProjection) n =
       A.approximationNumber n := by
     simpa only [A] using hDseq
   rw [hD]
@@ -308,13 +315,13 @@ theorem Proposition4_1_compact_nonacute_directRotationValues_complex
 
 /-- **Proposition 4.1 with both printed formulations and the inherited compact,
 matched-defect scope in one declaration.** -/
-theorem Proposition4_1_compact_nonacute_complex
+theorem proposition4_1_compact_nonacute_complex
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       DavisKahan.halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W) :
+    (hWmap : W * U.starProjection = V.starProjection * W) :
     (∃ v : {n : ℕ // 0 < TauCeti.principalSineSequence U V n} → U,
       Orthonormal ℂ v ∧
         ∀ n : {n : ℕ // 0 < TauCeti.principalSineSequence U V n},
@@ -323,35 +330,35 @@ theorem Proposition4_1_compact_nonacute_complex
       (∀ n : ℕ,
         (ContinuousLinearMap.approximationNumber
             ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L
-              DavisKahan.projection U) n : Real) =
+              U.starProjection) n : Real) =
           2 * Real.sin (TauCeti.principalAngleSequence U V n / 2)) ∧
       ∀ n : ℕ,
         ContinuousLinearMap.approximationNumber
             ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L
-              DavisKahan.projection U) n ≤
+              U.starProjection) n ≤
           ContinuousLinearMap.approximationNumber
-            ((1 - W) ∘L DavisKahan.projection U) n := by
-  refine ⟨Proposition4_1_compact_orthonormalVectors_complex U V hcompact W hWunitary hWmap,
+            ((1 - W) ∘L U.starProjection) n := by
+  refine ⟨proposition4_1_compact_orthonormalVectors_complex U V hcompact W hWunitary hWmap,
     ?_, fun n => ?_⟩
-  · exact Proposition4_1_compact_nonacute_directRotationValues_complex
+  · exact proposition4_1_compact_nonacute_directRotationValues_complex
       U V hcompact J W hWunitary hWmap
   · exact DavisKahan.Section4.proposition4_1_nonacute_restrictedDisplacement_approximationNumbers
       U V J W hWunitary hWmap n
 
 /-- **Corollary 4.1 at the inherited compact, matched-defect scope.** -/
-theorem Corollary4_1_compact_nonacute_complex
-    (N : KyFanDominantIdealFamily (𝕜 := ℂ))
+theorem corollary4_1_compact_nonacute_complex
+    (N : DavisKahan.ExactSinTheta.FanDominantIdealFamily (𝕜 := ℂ))
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (_hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       DavisKahan.halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W)
-    (hWmem : N.Mem ((1 - W) ∘L DavisKahan.projection U)) :
-    N.Mem ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L DavisKahan.projection U) ∧
+    (hWmap : W * U.starProjection = V.starProjection * W)
+    (hWmem : N.Mem ((1 - W) ∘L U.starProjection)) :
+    N.Mem ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L U.starProjection) ∧
       N.gauge ((1 - DavisKahan.nonacuteDirectRotation U V J) ∘L
-          DavisKahan.projection U) ≤
-        N.gauge ((1 - W) ∘L DavisKahan.projection U) :=
+          U.starProjection) ≤
+        N.gauge ((1 - W) ∘L U.starProjection) :=
   DavisKahan.Section4.restrictedDisplacement_idealGauge_le N
     (DavisKahan.Section4.nonacute_restrictedDisplacementDominance
       U V J W hWunitary hWmap) hWmem
@@ -370,19 +377,19 @@ variable {H : Type v} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
 /-- **Davis--Kahan 1970, Corollary 4.1 at the matched-crossed-defect scope.**
 Approximation-number minimality of a chosen direct rotation promotes to every
 Ky-Fan-dominant unitarily invariant ideal gauge. -/
-theorem Corollary4_1_infiniteDimensional_nonacute
+theorem corollary4_1_infiniteDimensional_nonacute
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       DavisKahan.halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W)
-    (hWmem : N.Mem ((1 - W) ∘L DavisKahan.projection U)) :
+    (hWmap : W * U.starProjection = V.starProjection * W)
+    (hWmem : N.Mem ((1 - W) ∘L U.starProjection)) :
     N.Mem ((1 - DavisKahan.nonacuteDirectRotation
-          U V J) ∘L DavisKahan.projection U) ∧
+          U V J) ∘L U.starProjection) ∧
       N.gauge ((1 - DavisKahan.nonacuteDirectRotation
-          U V J) ∘L DavisKahan.projection U) ≤
-        N.gauge ((1 - W) ∘L DavisKahan.projection U) :=
+          U V J) ∘L U.starProjection) ≤
+        N.gauge ((1 - W) ∘L U.starProjection) :=
   DavisKahan.Section4.restrictedDisplacement_idealGauge_le N
     (DavisKahan.Section4.nonacute_restrictedDisplacementDominance
       U V J W hWunitary hWmap) hWmem
@@ -391,20 +398,20 @@ theorem Corollary4_1_infiniteDimensional_nonacute
 For a uniformly acute pair the canonical direct rotation is the minimizer, and its
 approximation-number minimality promotes to every Ky-Fan-dominant unitarily invariant
 ideal gauge.  Membership in the ideal is concluded rather than assumed, matching
-`Corollary4_1_real`; `Corollary4_1_infiniteDimensional_nonacute` carries the same
+`corollary4_1_real`; `corollary4_1_infiniteDimensional_nonacute` carries the same
 statement at the matched-crossed-defect scope the paper inherits from Corollary 3.1. -/
-theorem Corollary4_1_infiniteDimensional
+theorem corollary4_1_infiniteDimensional
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : DavisKahan.IsUniformlyAcute U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W)
-    (hWmem : N.Mem ((1 - W) ∘L DavisKahan.projection U)) :
+    (hWmap : W * U.starProjection = V.starProjection * W)
+    (hWmem : N.Mem ((1 - W) ∘L U.starProjection)) :
     N.Mem ((1 - DavisKahan.spectraDirectRotation
-          U V hacute) ∘L DavisKahan.projection U) ∧
+          U V hacute) ∘L U.starProjection) ∧
       N.gauge ((1 - DavisKahan.spectraDirectRotation
-          U V hacute) ∘L DavisKahan.projection U) ≤
-        N.gauge ((1 - W) ∘L DavisKahan.projection U) :=
+          U V hacute) ∘L U.starProjection) ≤
+        N.gauge ((1 - W) ∘L U.starProjection) :=
   DavisKahan.Section4.restrictedDisplacement_idealGauge_le N
     (DavisKahan.Section4.infinite_restrictedDisplacementDominance
       U V hacute W hWunitary hWmap) hWmem
@@ -415,22 +422,68 @@ end Corollary4_1Infinite
 scope.**  The principal sines are the approximation numbers of
 `P_{Vᗮ}|_U`; the extended-real sum includes the case where the printed right
 side is infinite. -/
-alias Proposition4_2_infiniteDimensional :=
+alias proposition4_2_infiniteDimensional :=
   DavisKahan.Section4.tsum_displacementAngleSineSq_ge_tsum_sq_sin_principalAngleSequence
+
+section Proposition42SourceScope
+
+universe u4
+
+variable {H : Type u4} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+
+/-- **Davis--Kahan 1970, Proposition 4.2, carrying the Section 4 setup it is
+printed under.**
+
+Section 4 opens, inside the Proposition 4.1 block, by fixing the
+compact/classification setup: the principal sine operator is compact, and every
+unitary carrying `Uℋ` onto `Vℋ` factors as `V = UZ` with the principal angles
+ordered.  Proposition 4.2 is printed under that setup and does not restate it.
+
+`proposition4_2_infiniteDimensional` proves the inequality without either
+hypothesis, which is a stronger and correct theorem but not, by this
+repository's contract, automatically an exact witness for the printed one.  This
+wrapper is the source-shaped statement: it carries the inherited hypotheses
+exactly as Section 4 imposes them, and discharges them by invoking the stronger
+result, which needs neither.
+
+**The crossed-defect hypothesis is a proposition, not an isometry.**  Section 4
+inherits the *condition* under which the direct rotation exists; the identifying
+isometry is something Theorem 3.1 produces from it, not something a caller
+supplies.  `CrossedDefectsEquivalent` is that condition -- `Nonempty` of the
+isometry -- and taking it instead of a chosen `J` keeps proof data out of the
+public statement.  Corrected 2026-09-05 after a source-first review.
+
+Keeping both is deliberate.  The reusable theorem stays as strong as it is, and
+the canonical source endpoint stays faithful to what Davis and Kahan printed. -/
+theorem proposition4_2_compact_nonacute
+    (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
+    (_hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
+    (_hcrossed : DavisKahan.CrossedDefectsEquivalent U V)
+    {ι : Type u4} (b : HilbertBasis ι ℂ U)
+    (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
+    (hWmap : W * U.starProjection = V.starProjection * W) :
+    (∑' n : ℕ, ENNReal.ofReal
+        (Real.sin (TauCeti.principalAngleSequence U V n)) ^ 2) ≤
+      ∑' i, ENNReal.ofReal
+        (DavisKahan.Section4.displacementAngleSineSq W ((b i : U) : H)) :=
+  DavisKahan.Section4.tsum_displacementAngleSineSq_ge_tsum_sq_sin_principalAngleSequence
+    U V b W hWunitary hWmap
+
+end Proposition42SourceScope
 
 /-- **Davis--Kahan 1970, Proposition 4.3, at the printed scope.**  In an arbitrary complex
 Hilbert space, the Ky Fan prefix sums of `(1 − W)⋆(1 − W)` are minimized by the direct
 rotation, over all unitaries `W` carrying `U` onto `V`.
 
-Ky Fan level is the honest scope here for the same reason as in `Proposition4_3_kyFan`:
+Ky Fan level is the honest scope here for the same reason as in `proposition4_3_kyFan`:
 pointwise domination of the individual singular values would imply Proposition 4.4, which
 this repository refutes. -/
-alias Proposition4_3_infiniteDimensional :=
+alias proposition4_3_infiniteDimensional :=
   DavisKahan.Section4.proposition4_3_squaredDisplacement_kyFan
 
 /-- **Davis--Kahan 1970, Proposition 4.3 at the compact matched-crossed-defect scope.**
 The chosen defect equivalence selects the paper direct rotation on the right-angle blocks. -/
-alias Proposition4_3_infiniteDimensional_nonacute :=
+alias proposition4_3_infiniteDimensional_nonacute :=
   DavisKahan.Section4.proposition4_3_nonacute_squaredDisplacement_kyFan
 
 /-! ### Proposition 4.3 and unitarily invariant gauges
@@ -439,7 +492,7 @@ The alias above stops at Ky Fan, which is where its proof stops.  The printed
 clause is about every unitarily invariant norm, and in infinite dimensions the
 carrier of that phrase is an arbitrary Ky-Fan-dominant symmetric operator ideal
 family, exactly as for Corollary 4.1.  The promotion is
-`KyFanDominantIdealFamily.majorization_mem_and_gauge_le`, whose hypothesis is
+`FanDominantIdealFamily.majorization_mem_and_gauge_le`, whose hypothesis is
 the Ky Fan domination this alias supplies.
 
 Fan dominance constrains the prefix sums of the approximation numbers.  This is
@@ -466,16 +519,16 @@ direct rotation lies in the ideal and its gauge is least among all unitaries `W`
 carrying `U` onto `V`.  Membership of the minimizer is **concluded**, not
 assumed; only the competitor is assumed to lie in the ideal.
 
-This is `Proposition4_3_infiniteDimensional` promoted through
-`KyFanDominantIdealFamily.majorization_mem_and_gauge_le`.  The promotion consumes
+This is `proposition4_3_infiniteDimensional` promoted through
+`FanDominantIdealFamily.majorization_mem_and_gauge_le`.  The promotion consumes
 Ky Fan prefix sums only: no pointwise approximation-number domination is claimed
 here, and none is true. -/
-theorem Proposition4_3_infiniteDimensional_idealGauge
+theorem proposition4_3_infiniteDimensional_idealGauge
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) (W : H →L[ℂ] H)
     (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W)
+    (hWmap : W * U.starProjection = V.starProjection * W)
     (hWmem : N.Mem ((1 - star W) * (1 - W))) :
     N.Mem ((1 - star (spectraDirectRotation U V hacute)) *
         (1 - spectraDirectRotation U V hacute)) ∧
@@ -483,17 +536,17 @@ theorem Proposition4_3_infiniteDimensional_idealGauge
           (1 - spectraDirectRotation U V hacute)) ≤
         N.gauge ((1 - star W) * (1 - W)) :=
   N.majorization_mem_and_gauge_le hWmem
-    (Proposition4_3_infiniteDimensional U V hacute W hWunitary hWmap)
+    (proposition4_3_infiniteDimensional U V hacute W hWunitary hWmap)
 
 /-- Proposition 4.3 promoted from Ky Fan sums to every ideal gauge at the full
 matched-crossed-defect scope inherited by Section 4. -/
-theorem Proposition4_3_infiniteDimensional_nonacute_idealGauge
-    (N : KyFanDominantIdealFamily (𝕜 := ℂ))
+theorem proposition4_3_infiniteDimensional_nonacute_idealGauge
+    (N : DavisKahan.ExactSinTheta.FanDominantIdealFamily (𝕜 := ℂ))
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       DavisKahan.halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W)
+    (hWmap : W * U.starProjection = V.starProjection * W)
     (hWmem : N.Mem ((1 - star W) * (1 - W))) :
     N.Mem ((1 - star (DavisKahan.nonacuteDirectRotation U V J)) *
         (1 - DavisKahan.nonacuteDirectRotation U V J)) ∧
@@ -501,26 +554,26 @@ theorem Proposition4_3_infiniteDimensional_nonacute_idealGauge
           (1 - DavisKahan.nonacuteDirectRotation U V J)) ≤
         N.gauge ((1 - star W) * (1 - W)) :=
   N.majorization_mem_and_gauge_le hWmem
-    (Proposition4_3_infiniteDimensional_nonacute U V J W hWunitary hWmap)
+    (proposition4_3_infiniteDimensional_nonacute U V J W hWunitary hWmap)
 
 /-- **Proposition 4.3 at the inherited compact, matched-defect source scope.**
 The compactness hypothesis records the paper's Section 3 setting; the Ky Fan proof is valid
 without it. -/
-theorem Proposition4_3_compact_nonacute_idealGauge
-    (N : KyFanDominantIdealFamily (𝕜 := ℂ))
+theorem proposition4_3_compact_nonacute_idealGauge
+    (N : DavisKahan.ExactSinTheta.FanDominantIdealFamily (𝕜 := ℂ))
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (_hcompact : IsCompactOperator (TauCeti.principalSineOperator U V))
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       DavisKahan.halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W)
+    (hWmap : W * U.starProjection = V.starProjection * W)
     (hWmem : N.Mem ((1 - star W) * (1 - W))) :
     N.Mem ((1 - star (DavisKahan.nonacuteDirectRotation U V J)) *
         (1 - DavisKahan.nonacuteDirectRotation U V J)) ∧
       N.gauge ((1 - star (DavisKahan.nonacuteDirectRotation U V J)) *
           (1 - DavisKahan.nonacuteDirectRotation U V J)) ≤
         N.gauge ((1 - star W) * (1 - W)) :=
-  Proposition4_3_infiniteDimensional_nonacute_idealGauge
+  proposition4_3_infiniteDimensional_nonacute_idealGauge
     N U V J W hWunitary hWmap hWmem
 
 end IdealGauge
@@ -579,9 +632,9 @@ theorem Proposition4_3_infiniteDimensional_nonacute_fullDisplacement_opNorm
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       DavisKahan.halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W) :
+    (hWmap : W * U.starProjection = V.starProjection * W) :
     ‖1 - DavisKahan.nonacuteDirectRotation U V J‖ ≤ ‖1 - W‖ := by
-  have hk := Proposition4_3_infiniteDimensional_nonacute U V J W hWunitary hWmap 1
+  have hk := proposition4_3_infiniteDimensional_nonacute U V J W hWunitary hWmap 1
   rw [displacementSquare_eq_gramOperator, displacementSquare_eq_gramOperator] at hk
   simp only [TauCeti.ApproximationNumber.kyFanApproximationGauge_eq_kyFanGauge,
     ContinuousLinearMap.kyFanGauge_one, norm_gramOperator] at hk
@@ -603,7 +656,7 @@ theorem Proposition4_3_infiniteDimensional_nonacute_fullDisplacement_hilbertSchm
     (J : DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       DavisKahan.halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * DavisKahan.projection U = DavisKahan.projection V * W) :
+    (hWmap : W * U.starProjection = V.starProjection * W) :
     (1 - DavisKahan.nonacuteDirectRotation U V J).hilbertSchmidtENorm ≤
       (1 - W).hilbertSchmidtENorm := by
   have hnuc : (gramOperator (1 - DavisKahan.nonacuteDirectRotation U V J)).nuclearENorm ≤
@@ -611,7 +664,7 @@ theorem Proposition4_3_infiniteDimensional_nonacute_fullDisplacement_hilbertSchm
     rw [ContinuousLinearMap.nuclearENorm_eq_iSup_kyFanGauge,
       ContinuousLinearMap.nuclearENorm_eq_iSup_kyFanGauge]
     refine iSup_mono fun k => ENNReal.ofReal_le_ofReal ?_
-    have hk := Proposition4_3_infiniteDimensional_nonacute U V J W hWunitary hWmap k
+    have hk := proposition4_3_infiniteDimensional_nonacute U V J W hWunitary hWmap k
     rw [displacementSquare_eq_gramOperator, displacementSquare_eq_gramOperator] at hk
     simpa only [TauCeti.ApproximationNumber.kyFanApproximationGauge_eq_kyFanGauge] using hk
   rw [nuclearENorm_gramOperator, nuclearENorm_gramOperator] at hnuc
@@ -619,6 +672,35 @@ theorem Proposition4_3_infiniteDimensional_nonacute_fullDisplacement_hilbertSchm
   exact (ENNReal.rpow_le_rpow_iff (by norm_num)).mp hnuc
 
 end FullDisplacement
+
+
+/-! ## Proposition 4.4: source-facing names for the printed statement and its refutation
+
+The printed statement, its refutation and the witnessing pair are declared in
+`DavisKahan/FiniteDimensional/DirectRotation/ShortRotationCounterexample.lean`, their natural
+home next to the `ℝ⁴` construction.  A census row registers all three, and a registered source
+witness should be reachable under `TauCeti.DavisKahan1970`; these aliases give them that name.
+Finding F6.4 of the 2026-09-04 hostile review. -/
+
+/-- **Davis--Kahan 1970, Proposition 4.4 exactly as printed**, as a `Prop`: over every real
+finite-dimensional space, every acute pair with first principal angle at most `π/3`, every
+unitary carrying one subspace onto the other and every unitarily invariant seminorm, the direct
+rotation minimizes the full displacement.  It is a definition rather than a theorem because it
+is false. -/
+alias proposition4_4_printedStatement :=
+  DavisKahan.FiniteDimensional.DavisKahanProposition4_4_Finite
+
+/-- **Proposition 4.4 is false as printed.**  The source-facing name for
+`DavisKahan.FiniteDimensional.not_davisKahanProposition4_4_Finite`. -/
+alias proposition4_4_refuted :=
+  DavisKahan.FiniteDimensional.not_davisKahanProposition4_4_Finite
+
+/-- **The `ℝ⁴` witness behind the refutation**: an acute pair with both principal angles `π/4`
+and a unitary whose full displacement has strictly smaller trace norm than the direct
+rotation's.  The source-facing name for
+`DavisKahan.FiniteDimensional.shortRotation_fullDisplacement_refuted`. -/
+alias proposition4_4_refutingPair :=
+  DavisKahan.FiniteDimensional.shortRotation_fullDisplacement_refuted
 
 end DavisKahan1970
 end TauCeti

@@ -8,6 +8,11 @@ import DavisKahan.OperatorIdeal.CanonicalRealView
 import DavisKahan.TanTwoTheta.Unbounded
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Ideal-gauge unbounded tangent two theta
 
@@ -19,7 +24,7 @@ the right with the inverse extended double-angle cosine.
 
 This construction gives genuine rectangular-ideal membership and the expected
 quarter-acute gauge denominator.  It does not claim an unavailable equality
-between this reflected-overlap companion and `tanTwoAngleOperatorC`.
+between this reflected-overlap companion and `directedTanTwoAngleOperatorC`.
 -/
 
 open scoped InnerProductSpace
@@ -58,10 +63,10 @@ theorem tanTwoThetaIdealBlock_mem_and_gauge_le
     N.Mem (tanTwoThetaIdealBlock U V hquarter) ∧
       N.gaugeReal (tanTwoThetaIdealBlock U V hquarter) ≤
         N.gaugeReal (sinTwoThetaIdealBlock U V) /
-          (1 - 2 * directedGap U V ^ 2) := by
+          (1 - 2 * U.directedProjectionGap V ^ 2) := by
   let R : H →L[ℂ] H :=
     (cosTwoAngleExtendedCEquiv U V hquarter).symm.toContinuousLinearMap
-  have hRnorm : ‖R‖ ≤ (1 - 2 * directedGap U V ^ 2)⁻¹ := by
+  have hRnorm : ‖R‖ ≤ (1 - 2 * U.directedProjectionGap V ^ 2)⁻¹ := by
     simpa only [R] using
       norm_cosTwoAngleExtendedCEquiv_symm_le U V hquarter
   have hmem : N.Mem (sinTwoThetaIdealBlock U V ∘L R) :=
@@ -77,10 +82,10 @@ theorem tanTwoThetaIdealBlock_mem_and_gauge_le
       N.gaugeReal (sinTwoThetaIdealBlock U V ∘L R) ≤
           N.gaugeReal (sinTwoThetaIdealBlock U V) * ‖R‖ := hgauge
       _ ≤ N.gaugeReal (sinTwoThetaIdealBlock U V) *
-          (1 - 2 * directedGap U V ^ 2)⁻¹ :=
+          (1 - 2 * U.directedProjectionGap V ^ 2)⁻¹ :=
         mul_le_mul_of_nonneg_left hRnorm (N.gaugeReal_nonneg hsin)
       _ = N.gaugeReal (sinTwoThetaIdealBlock U V) /
-          (1 - 2 * directedGap U V ^ 2) := by
+          (1 - 2 * U.directedProjectionGap V ^ 2) := by
         rw [div_eq_mul_inv]
 
 /-- Canonical bounded-perturbation unbounded tangent-two-theta theorem at
@@ -89,7 +94,7 @@ theorem tanTwoTheta_addBounded_gauge_of_spectrum_gap
     (N : TauCeti.SymmetricOperatorIdealFamily.{0, v} ℂ)
     [N.toOperatorIdealFamily.IsComplete]
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -115,7 +120,7 @@ theorem tanTwoTheta_addBounded_gauge_of_spectrum_gap
           (addBounded_isSelfAdjoint A hA E hE) S hS)
         hquarter) ≤
         (2 * N.gaugeReal E) /
-          (1 - 2 * directedGap
+          (1 - 2 * Submodule.directedProjectionGap
             (selfAdjointSpectralSubspace A hA B hB)
             (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
               (addBounded_isSelfAdjoint A hA E hE) S hS) ^ 2) := by
@@ -126,18 +131,18 @@ theorem tanTwoTheta_addBounded_gauge_of_spectrum_gap
     N A hA E hE B S hB hS hβα hδ hBlow hBhigh hBcomplSpec hEmem
   have htan := tanTwoThetaIdealBlock_mem_and_gauge_le
     N U V hquarter hsin.1
-  have hden : 0 < 1 - 2 * directedGap U V ^ 2 :=
+  have hden : 0 < 1 - 2 * U.directedProjectionGap V ^ 2 :=
     doubleCosineDenominator_pos U V hquarter
   refine ⟨htan.1, ?_⟩
   calc
     δ * N.gaugeReal (tanTwoThetaIdealBlock U V hquarter) ≤
         δ * (N.gaugeReal (sinTwoThetaIdealBlock U V) /
-          (1 - 2 * directedGap U V ^ 2)) :=
+          (1 - 2 * U.directedProjectionGap V ^ 2)) :=
       mul_le_mul_of_nonneg_left htan.2 hδ.le
     _ = (δ * N.gaugeReal (sinTwoThetaIdealBlock U V)) /
-          (1 - 2 * directedGap U V ^ 2) := by ring
+          (1 - 2 * U.directedProjectionGap V ^ 2) := by ring
     _ ≤ (2 * N.gaugeReal E) /
-          (1 - 2 * directedGap U V ^ 2) :=
+          (1 - 2 * U.directedProjectionGap V ^ 2) :=
       div_le_div_of_nonneg_right hsin.2 hden.le
 
 /-- Set-localized rectangular ideal-gauge form of unbounded tangent two theta. -/
@@ -145,7 +150,7 @@ theorem tanTwoTheta_addBounded_gauge_of_intervalExterior
     (N : TauCeti.SymmetricOperatorIdealFamily.{0, v} ℂ)
     [N.toOperatorIdealFamily.IsComplete]
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)
@@ -166,7 +171,7 @@ theorem tanTwoTheta_addBounded_gauge_of_intervalExterior
           (addBounded_isSelfAdjoint A hA E hE) S hS)
         hquarter) ≤
         (2 * N.gaugeReal E) /
-          (1 - 2 * directedGap
+          (1 - 2 * Submodule.directedProjectionGap
             (selfAdjointSpectralSubspace A hA B hB)
             (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
               (addBounded_isSelfAdjoint A hA E hE) S hS) ^ 2) := by
@@ -185,7 +190,7 @@ form. -/
 theorem tanTwoTheta_addBounded_unitaryInvariant_of_spectrum_gap
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -211,7 +216,7 @@ theorem tanTwoTheta_addBounded_unitaryInvariant_of_spectrum_gap
           (addBounded_isSelfAdjoint A hA E hE) S hS)
         hquarter) ≤
         (2 * N.gauge E) /
-          (1 - 2 * directedGap
+          (1 - 2 * Submodule.directedProjectionGap
             (selfAdjointSpectralSubspace A hA B hB)
             (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
               (addBounded_isSelfAdjoint A hA E hE) S hS) ^ 2) := by
@@ -224,7 +229,7 @@ form. -/
 theorem tanTwoTheta_addBounded_unitaryInvariant_of_intervalExterior
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)
@@ -245,7 +250,7 @@ theorem tanTwoTheta_addBounded_unitaryInvariant_of_intervalExterior
           (addBounded_isSelfAdjoint A hA E hE) S hS)
         hquarter) ≤
         (2 * N.gauge E) /
-          (1 - 2 * directedGap
+          (1 - 2 * Submodule.directedProjectionGap
             (selfAdjointSpectralSubspace A hA B hB)
             (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
               (addBounded_isSelfAdjoint A hA E hE) S hS) ^ 2) := by

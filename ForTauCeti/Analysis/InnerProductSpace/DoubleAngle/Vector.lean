@@ -15,9 +15,8 @@ is realized by test vectors with *polynomial* coefficients
 normalizations appear anywhere.  No finite-dimensionality is assumed: the
 subspace only needs an orthogonal projection.
 
-The `tan 2θ` theorem (plan step W6.2) was added by Claude Opus 4.8
-(claude-opus-4-8[1m]): under the vanishing-pinch hypotheses (`H` has no
-diagonal blocks with respect to `U ⊕ Uᗮ`) the same `key_identity` collapses to
+For the `tan 2θ` theorem, under the vanishing-pinch hypotheses (`H` has no
+diagonal blocks with respect to `U ⊕ Uᗮ`) the same block energy identity collapses to
 `c·s·(re⟪y,Ty⟫ − re⟪z,Tz⟫) = (c² − s²)·re⟪y,Hz⟫`, and bounding the single
 mixed term directly (no rotation, no half-angle) gives
 `(b − a)·(‖Px‖·‖x − Px‖) ≤ |‖Px‖² − ‖x − Px‖²|·ε`, i.e. `tan 2θ ≤ 2ε/(b − a)`,
@@ -140,7 +139,7 @@ private theorem norm_smul_add_smul_sq {y z : E} (hyz : ⟪y, z⟫_𝕜 = 0) (γ 
   rw [norm_add_sq (𝕜 := 𝕜), inner_smul_left, inner_smul_right, hyz]
   simp [norm_smul, mul_pow, sq_abs]
 
-/-- **The key identity** (phase-free form of Davis's 2×2 compression).  If
+/-- **The block energy identity** (phase-free form of Davis's 2×2 compression).  If
 `y ∈ U`, `z ∈ Uᗮ` for a `T`-invariant subspace `U` of a symmetric operator,
 and `y + z` is an eigenvector of `T + H` with real eigenvalue `μ`, then
 
@@ -148,9 +147,9 @@ and `y + z` is an eigenvector of `T + H` with real eigenvalue `μ`, then
 + (‖z‖² - ‖y‖²) re ⟪y, H z⟫ = 0`.
 
 The eigenvalue `μ` is eliminated; no location assumption on it is ever used.
-This identity is the shared engine of the sin 2θ theorem below and of the
-tan 2θ theorem (plan step W6.2). -/
-private theorem key_identity (hT : T.IsSymmetric) (hH : H.IsSymmetric)
+This identity is the shared engine of both the sin 2θ and the tan 2θ theorem
+below. -/
+private theorem eigenvector_block_energy_identity (hT : T.IsSymmetric) (hH : H.IsSymmetric)
     {U : Submodule 𝕜 E} (hUinv : ∀ u ∈ U, T u ∈ U)
     {y z : E} (hyU : y ∈ U) (hzU : z ∈ Uᗮ) {μ : ℝ}
     (hμ : T (y + z) + H (y + z) = (μ : 𝕜) • (y + z)) :
@@ -227,8 +226,8 @@ theorem sin_two_theta_le_of_mem (hT : T.IsSymmetric) (hH : H.IsSymmetric)
   have hc : 0 < ‖y‖ := (norm_nonneg y).lt_of_ne' hc0
   have hs : 0 < ‖z‖ := (norm_nonneg z).lt_of_ne' hs0
   have hcs : 0 < ‖y‖ * ‖z‖ := mul_pos hc hs
-  -- The key identity and the two quadratic-form bounds.
-  have key := key_identity hT hH hUinv hyU hzU hμ
+  -- The block energy identity and the two quadratic-form bounds.
+  have key := eigenvector_block_energy_identity hT hH hUinv hyU hzU hμ
   have hby : b * ‖y‖ ^ 2 ≤ RCLike.re ⟪y, T y⟫_𝕜 := by
     have h := hb y hyU
     rwa [← inner_conj_symm, RCLike.conj_re] at h
@@ -263,7 +262,7 @@ theorem sin_two_theta_le_of_mem (hT : T.IsSymmetric) (hH : H.IsSymmetric)
   have habs1 := abs_le.mp hb1
   have habs2 := abs_le.mp hb2
   -- The difference of the two tested forms is `4cs (s² re⟪y,Ty⟫ - c² re⟪z,Tz⟫)`
-  -- by the key identity; multiply the identity by `4cs` to keep everything
+  -- by the block energy identity; multiply it by `4cs` to keep everything
   -- linear over monomials.
   have key4 : 4 * (‖y‖ * ‖z‖)
       * (‖z‖ ^ 2 * RCLike.re ⟪y, T y⟫_𝕜 - ‖y‖ ^ 2 * RCLike.re ⟪z, T z⟫_𝕜
@@ -355,7 +354,8 @@ Since `2 * ‖y‖ * ‖z‖ = sin 2θ` and `‖y‖ ^ 2 - ‖z‖ ^ 2 = cos 2θ
 eigenvector, this is Davis's `tan 2θ ≤ 2ε / (b - a)`, with **no smallness
 assumption** on the perturbation (the diagonal-block hypothesis replaces it).
 Unlike the angle form, the product form carries no `θ ≠ π/4` side condition.
-The proof reuses the `key_identity` engine of the sin 2θ theorem: the two
+The proof reuses the `eigenvector_block_energy_identity` engine of the sin 2θ
+theorem: the two
 vanishing-block hypotheses kill the two diagonal `H`-terms, so the identity
 collapses to `‖z‖² re⟪y,Ty⟫ - ‖y‖² re⟪z,Tz⟫ = (‖y‖² - ‖z‖²) re⟪y,Hz⟫`, and the
 single mixed term is bounded directly with no rotation trick. -/
@@ -373,7 +373,7 @@ theorem tan_two_theta_le_of_mem (hT : T.IsSymmetric) (hH : H.IsSymmetric)
     have h := hε (y + z)
     rw [hx, mul_one] at h
     exact (norm_nonneg _).trans h
-  have key := key_identity hT hH hUinv hyU hzU hμ
+  have key := eigenvector_block_energy_identity hT hH hUinv hyU hzU hμ
   have hyH : RCLike.re ⟪y, H y⟫_𝕜 = 0 := by rw [hHU y hyU y hyU]; simp
   have hzH : RCLike.re ⟪z, H z⟫_𝕜 = 0 := by rw [hHUperp z hzU z hzU]; simp
   have hby : b * ‖y‖ ^ 2 ≤ RCLike.re ⟪y, T y⟫_𝕜 := by
@@ -387,7 +387,7 @@ theorem tan_two_theta_le_of_mem (hT : T.IsSymmetric) (hH : H.IsSymmetric)
       _ ≤ ‖y‖ * ‖H z‖ := norm_inner_le_norm _ _
       _ ≤ ‖y‖ * (ε * ‖z‖) := by gcongr; exact hε z
       _ = ‖y‖ * ‖z‖ * ε := by ring
-  -- The vanishing diagonal blocks collapse the key identity.
+  -- The vanishing diagonal blocks collapse the block energy identity.
   have hcollapse : ‖z‖ ^ 2 * RCLike.re ⟪y, T y⟫_𝕜 - ‖y‖ ^ 2 * RCLike.re ⟪z, T z⟫_𝕜
       = (‖y‖ ^ 2 - ‖z‖ ^ 2) * RCLike.re ⟪y, H z⟫_𝕜 := by
     rw [hyH, hzH] at key

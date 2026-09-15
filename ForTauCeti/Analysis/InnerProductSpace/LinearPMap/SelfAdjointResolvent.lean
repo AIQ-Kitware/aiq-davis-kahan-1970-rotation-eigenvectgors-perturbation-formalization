@@ -5,7 +5,7 @@ Authors: Jon Crall, Claude Opus 5
 -/
 module
 
-public import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.ResolventBound
+public import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Shift
 public import Mathlib.Analysis.InnerProductSpace.LinearPMap
 public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Unitary
@@ -54,12 +54,6 @@ section Estimate
 -- The estimate needs no completeness; `Star` on `LinearPMap` does, so the
 -- self-adjointness results below open their own section.
 
-/-- For a symmetric operator the quadratic form is real. -/
-theorem inner_apply_self_isReal {A : E →ₗ.[ℂ] E} (hsym : A.IsFormalAdjoint A)
-    (x : A.domain) : (starRingEnd ℂ) ⟪A x, (x : E)⟫_ℂ = ⟪A x, (x : E)⟫_ℂ := by
-  rw [inner_conj_symm]
-  exact (hsym x x).symm
-
 /-- **The exact norm identity.**  `‖(A - z)x‖² = ‖(A - Re z)x‖² + (Im z)²‖x‖²`.
 
 The cross term vanishes because `⟪A x - (Re z) x, x⟫` is real while the vector
@@ -104,20 +98,6 @@ section SelfAdjoint
 
 variable [CompleteSpace E]
 
-omit [CompleteSpace E] in
-/-- **Orthogonality to the shifted range identifies the adjoint's action.**
-
-`⟪y, A x - z x⟫ = 0` for every `x` says exactly `⟪conj z • y, x⟫ = ⟪y, A x⟫`,
-which is what puts `y` in the adjoint's domain.  Used identically here and in
-`RealLowerBound`. -/
-theorem inner_conj_smul_eq_of_orthogonal_shiftRange {A : E →ₗ.[ℂ] E} {z : ℂ} {y : E}
-    (hy : ∀ x : A.domain, ⟪y, A x - z • (x : E)⟫_ℂ = 0) (x : A.domain) :
-    ⟪(starRingEnd ℂ) z • y, (x : E)⟫_ℂ = ⟪y, A x⟫_ℂ := by
-  have h := hy x
-  rw [inner_sub_right, inner_smul_right, sub_eq_zero] at h
-  rw [inner_smul_left, starRingEnd_self_apply]
-  exact h.symm
-
 /-- **Dense range.**  A vector orthogonal to the range of `A - z` would make
 `z ⟪y, y⟫` real; since `⟪y, y⟫` is a nonnegative real, a non-real `z` forces
 `y = 0`.
@@ -154,81 +134,6 @@ theorem eq_zero_of_orthogonal_shiftRange {A : E →ₗ.[ℂ] E}
     simpa [inner_self_eq_zero] using hy0
   have : (starRingEnd ℂ) z = z := mul_right_cancel₀ hnz hkey
   exact hz (Complex.conj_eq_iff_im.mp this)
-
-/-- `A - z` as a linear map out of the domain of `A`. -/
-@[expose]
-def shiftMap (A : E →ₗ.[ℂ] E) (z : ℂ) : A.domain →ₗ[ℂ] E :=
-  A.toFun - z • A.domain.subtype
-
-omit [CompleteSpace E] in
-/-- The shifted map `A - z`, unfolded. -/
-@[simp] theorem shiftMap_apply (A : E →ₗ.[ℂ] E) (z : ℂ) (x : A.domain) :
-    shiftMap A z x = A x - z • (x : E) := (rfl)
-
-omit [CompleteSpace E] in
-/-- **The shifted range has trivial orthogonal complement**, given that nothing
-nonzero is orthogonal to it.
-
-The `Submodule.eq_bot_iff` unfolding and the `inner_eq_zero_symm` flip are the
-same at both call sites; only the reason a vector orthogonal to the range must
-vanish differs, so that is the hypothesis. -/
-theorem orthogonal_range_shiftMap_eq_bot {A : E →ₗ.[ℂ] E} {z : ℂ}
-    (h0 : ∀ y : E, (∀ x : A.domain, ⟪y, A x - z • (x : E)⟫_ℂ = 0) → y = 0) :
-    (LinearMap.range (shiftMap A z))ᗮ = ⊥ := by
-  rw [Submodule.eq_bot_iff]
-  intro y hy
-  refine h0 y fun x => ?_
-  have h := hy (shiftMap A z x) ⟨x, rfl⟩
-  rwa [inner_eq_zero_symm] at h
-
-/-- **A lower bound makes the range of `A - z` closed.**
-
-Stated with the bound as a hypothesis so both users can reach it: the
-`z.im ≠ 0` case below supplies `c = |z.im|`, and `RealLowerBound.lean` supplies
-it from a real spectral lower bound.  It lived in that module until 2026-07-30,
-which put it *downstream* of the specialisation directly below — so the two
-carried the same thirteen-line closedness argument twice. -/
-theorem isClosed_range_shiftMap_of_lower_bound {A : E →ₗ.[ℂ] E} {z : ℂ} {c : ℝ}
-    (hA : IsSelfAdjoint A) (hc : 0 < c)
-    (hbd : ∀ x : A.domain, c * ‖(x : E)‖ ≤ ‖A x - z • (x : E)‖) :
-    IsClosed (Set.range (shiftMap A z)) := by
-  apply IsSeqClosed.isClosed
-  intro w a hw hlim
-  choose x hx using hw
-  have hwCauchy : CauchySeq w := hlim.cauchySeq
-  have hCauchy : CauchySeq fun n => ((x n : E)) := by
-    rw [Metric.cauchySeq_iff] at hwCauchy ⊢
-    intro ε hε
-    obtain ⟨N, hN⟩ := hwCauchy (c * ε) (by positivity)
-    refine ⟨N, fun m hm n hn => ?_⟩
-    have hest := hbd (x m - x n)
-    have hcoe : ((x m - x n : A.domain) : E) = (x m : E) - (x n : E) := rfl
-    have hAsub : A (x m - x n) = A (x m) - A (x n) := map_sub _ _ _
-    have hval : A (x m - x n) - z • ((x m - x n : A.domain) : E) = w m - w n := by
-      rw [hAsub, hcoe, smul_sub, ← hx m, ← hx n]
-      simp only [shiftMap_apply]
-      abel
-    rw [hval, hcoe] at hest
-    have hd : dist (w m) (w n) < c * ε := hN m hm n hn
-    rw [dist_eq_norm] at hd ⊢
-    nlinarith [norm_nonneg ((x m : E) - (x n : E))]
-  obtain ⟨p, hp⟩ := cauchySeq_tendsto_of_complete hCauchy
-  have hAx : Filter.Tendsto (fun n => A (x n)) Filter.atTop (nhds (a + z • p)) := by
-    have hval : ∀ n, A (x n) = w n + z • ((x n : E)) := by
-      intro n; rw [← hx n]; simp only [shiftMap_apply]; abel
-    simp only [hval]
-    exact hlim.add ((continuous_const_smul z).continuousAt.tendsto.comp hp)
-  have hgraph : ((p, a + z • p) : E × E) ∈ A.graph := by
-    refine (hA.isClosed).mem_of_tendsto (b := Filter.atTop)
-      (f := fun n => ((x n : E), A (x n))) ?_ ?_
-    · exact hp.prodMk_nhds hAx
-    · filter_upwards with n using A.mem_graph (x n)
-  obtain ⟨q, hq⟩ := (A.mem_graph_iff).mp hgraph
-  refine ⟨q, ?_⟩
-  have hq1 : (q : E) = p := hq.1
-  have hq2 : A q = a + z • p := hq.2
-  simp only [shiftMap_apply, hq1, hq2]
-  abel
 
 /-- **Closed range.**  The estimate turns a convergent sequence in the range into
 a Cauchy sequence of preimages; closedness of `A` (which self-adjointness

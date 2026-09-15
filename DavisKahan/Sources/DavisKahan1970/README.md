@@ -24,30 +24,17 @@ reachability rather than copying a current count into this document.
 
 ## The four Section 2 theorems
 
-`SectionTwo.lean` is the public inventory of the paper's four unnumbered headline
-theorems, over both scalar fields:
+`SectionTwo.lean` contains the public convenience aliases for the four unnumbered
+headline families.  Those aliases are not source-fidelity certificates.  The
+current source witnesses are selected by
+`dev/davis-kahan-1970-formalization-result-inventory.json`; the curated map of
+fixed-field, scalar-generic, implementation, and probe variants is
+`dev/davis-kahan-1970-section-two-variant-index.json`.
 
-```
-TauCeti.DavisKahan1970.SectionTwo.sinTheta_complex       sinTheta_real
-TauCeti.DavisKahan1970.SectionTwo.tanTheta_complex       tanTheta_real
-TauCeti.DavisKahan1970.SectionTwo.sinTwoTheta_complex    sinTwoTheta_real
-TauCeti.DavisKahan1970.SectionTwo.tanTwoTheta_complex    tanTwoTheta_real
-```
-
-Each *type* displays an unbounded self-adjoint `LinearPMap` ambient operator,
-arbitrary Hilbert dimension, a `SymmetricNormingFunction`, and both printed
-conclusions. `SectionTwoUsage.lean` shows each being called from ordinary
-operator-theory hypotheses.
-
-Whether each matches the printed result is a separate, reviewed question, and
-`dev/davis-kahan-1970-formalization-result-inventory.json` owns the answer --
-including its standing qualification for `S2-tan-theta`. Do not read the sentence
-above as that review's verdict; it describes the signatures, not the audit.
-
-The scalar-generic presentation forms, directed and whole-space variants, finite
-specializations, operator-norm statements and bundled-problem entry points remain
-where they are and are unaffected; they are simply not the inventory a reader
-should have to assemble.
+Treat the real, complex, and `RCLike` surfaces as one maintenance family.  The
+unqualified short names `sinTheta`, `tanTheta`, `sinTwoTheta`, and `tanTwoTheta`
+are reserved for scalar-generic endpoints carrying the ledger-selected statement
+boundary and remain unbound when no such endpoint has been promoted.
 
 ## Production source aggregate
 

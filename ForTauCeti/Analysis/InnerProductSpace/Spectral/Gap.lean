@@ -48,18 +48,18 @@ variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
 
 /-- Two restricted spectra are separated by at least `δ`. -/
 @[expose]
-def SpectraSeparated (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E)
+def PointSpectraSeparated (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E)
     (B : F →ₗ[𝕜] F) (V : Submodule 𝕜 F) (δ : ℝ) : Prop :=
-  ∀ lam μ, lam ∈ restrictedSpectrum A U → μ ∈ restrictedSpectrum B V →
+  ∀ lam μ, lam ∈ restrictedPointSpectrum A U → μ ∈ restrictedPointSpectrum B V →
     δ ≤ |lam - μ|
 
 /-- The mixed separation used by the `sin Θ` theorem: the selected block of
 `A` is separated from the complementary block of `B`. -/
 @[expose]
 def HybridGap (A B : E →ₗ[𝕜] E) (U V : Submodule 𝕜 E) (δ : ℝ) : Prop :=
-  SpectraSeparated A U B Vᗮ δ
+  PointSpectraSeparated A U B Vᗮ δ
 
-/-- Absolute separation between the two diagonal blocks of `A`.
+/-- Invariance of `U` and separation of the point spectra on `U` and its complement.
 
 This predicate is appropriate for the `sin Θ` and `sin (2Θ)` families and for
 the general disjoint-spectrum Sylvester estimate.  It is not sufficient for
@@ -68,8 +68,8 @@ separation while an off-diagonal perturbation produces a quarter-turn angle.
 That theorem requires `OrderedInternalGap` (or an equivalent two-sided form
 ordering). -/
 @[expose]
-def InternalGap (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E) (δ : ℝ) : Prop :=
-  SpectraSeparated A U A Uᗮ δ
+def PointInternalGap (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E) (δ : ℝ) : Prop :=
+  IsInvariant A U ∧ PointSpectraSeparated A U A Uᗮ δ
 
 /-- Ordered quadratic-form separation between the two blocks of `A`.
 
@@ -81,18 +81,19 @@ def TwoBlockFormGap (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E)
   (∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_𝕜) ∧
     (∀ x ∈ Uᗮ, RCLike.re ⟪A x, x⟫_𝕜 ≤ a * ‖x‖ ^ 2)
 
-/-- The interval/exterior form of the mixed gap. -/
+/-- Point spectra in an interval and its enlarged exterior, on possibly different spaces.
+The complementary subspace, when needed, is supplied explicitly by the caller. -/
 @[expose]
-def IntervalExteriorGap (A B : E →ₗ[𝕜] E) (U V : Submodule 𝕜 E)
-    (a b δ : ℝ) : Prop :=
-  SpectrumIn A U (Set.Icc a b) ∧
-    SpectrumIn B Vᗮ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}
+def PointIntervalExteriorGap (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E)
+    (B : F →ₗ[𝕜] F) (V : Submodule 𝕜 F) (a b δ : ℝ) : Prop :=
+  PointSpectrumIn A U (Set.Icc a b) ∧
+    PointSpectrumIn B V {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}
 
 /-- The one-sided gap used by the tangent theorems. -/
 @[expose]
 def OrderedGap (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E)
     (B : F →ₗ[𝕜] F) (V : Submodule 𝕜 F) (δ : ℝ) : Prop :=
-  ∀ lam μ, lam ∈ restrictedSpectrum A U → μ ∈ restrictedSpectrum B V →
+  ∀ lam μ, lam ∈ restrictedPointSpectrum A U → μ ∈ restrictedPointSpectrum B V →
     lam + δ ≤ μ
 
 /-- Ordered separation of the two diagonal blocks of `A`, in either
@@ -104,9 +105,9 @@ def OrderedInternalGap (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E) (δ : ℝ) 
 omit [FiniteDimensional 𝕜 E] [FiniteDimensional 𝕜 F] in
 /-- The conversion between the two primitives, and the reason both are named: a theorem
 family stated against the weaker hypothesis applies to a caller holding the stronger one. -/
-theorem SpectraSeparated.of_orderedGap {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E}
+theorem PointSpectraSeparated.of_orderedGap {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E}
     {B : F →ₗ[𝕜] F} {V : Submodule 𝕜 F} {δ : ℝ} (hδ : 0 ≤ δ)
-    (h : OrderedGap A U B V δ) : SpectraSeparated A U B V δ := by
+    (h : OrderedGap A U B V δ) : PointSpectraSeparated A U B V δ := by
   intro lam μ hlam hμ
   have hle : lam + δ ≤ μ := h lam μ hlam hμ
   rw [abs_sub_comm, abs_of_nonneg (by linarith : (0 : ℝ) ≤ μ - lam)]
@@ -115,10 +116,10 @@ theorem SpectraSeparated.of_orderedGap {A : E →ₗ[𝕜] E} {U : Submodule �
 omit [FiniteDimensional 𝕜 E] [FiniteDimensional 𝕜 F] in
 /-- Spectral inclusion on opposite sides of a cut gives ordered separation: the bridge that
 turns a hypothesis a caller can check into the one the theorems consume. -/
-theorem orderedGap_of_restrictedSpectrum_subset {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E}
+theorem orderedGap_of_restrictedPointSpectrum_subset {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E}
     {B : F →ₗ[𝕜] F} {V : Submodule 𝕜 F} {a δ : ℝ}
-    (hA : restrictedSpectrum A U ⊆ Set.Iic a)
-    (hB : restrictedSpectrum B V ⊆ Set.Ici (a + δ)) :
+    (hA : restrictedPointSpectrum A U ⊆ Set.Iic a)
+    (hB : restrictedPointSpectrum B V ⊆ Set.Ici (a + δ)) :
     OrderedGap A U B V δ := by
   intro lam μ hlam hμ
   have h1 : lam ≤ a := hA hlam
@@ -128,10 +129,10 @@ theorem orderedGap_of_restrictedSpectrum_subset {A : E →ₗ[𝕜] E} {U : Subm
 omit [FiniteDimensional 𝕜 E] in
 /-- Spectral inclusion on opposite sides of a cut gives the corresponding
 ordered internal gap. -/
-theorem orderedInternalGap_of_spectrumIn_Iic_Ici
+theorem orderedInternalGap_of_pointSpectrumIn_Iic_Ici
     {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E} {a b : ℝ}
-    (hUa : SpectrumIn A U (Set.Iic a))
-    (hUb : SpectrumIn A Uᗮ (Set.Ici b)) :
+    (hUa : PointSpectrumIn A U (Set.Iic a))
+    (hUb : PointSpectrumIn A Uᗮ (Set.Ici b)) :
     OrderedInternalGap A U (b - a) := by
   left
   intro lam μ hlam hμ
@@ -142,9 +143,11 @@ theorem orderedInternalGap_of_spectrumIn_Iic_Ici
 omit [FiniteDimensional 𝕜 E] in
 /-- Ordered block separation implies absolute block separation.
 -/
-theorem OrderedInternalGap.internalGap {A : E →ₗ[𝕜] E}
+theorem OrderedInternalGap.pointInternalGap {A : E →ₗ[𝕜] E}
     {U : Submodule 𝕜 E} {δ : ℝ} (hδ : 0 ≤ δ)
-    (h : OrderedInternalGap A U δ) : InternalGap A U δ := by
+    (h : OrderedInternalGap A U δ) (hU : IsInvariant A U) :
+    PointInternalGap A U δ := by
+  refine ⟨hU, ?_⟩
   intro lam μ hlam hμ
   rcases h with hlow | hhigh
   · have hle := hlow lam μ hlam hμ

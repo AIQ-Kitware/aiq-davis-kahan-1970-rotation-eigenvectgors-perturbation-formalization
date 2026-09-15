@@ -66,12 +66,12 @@ public section
 
 namespace ContinuousLinearMap
 
-universe u v
+universe u v w
 
 section Basic
 
 variable {𝕜 : Type u} [RCLike 𝕜]
-variable {E F : Type v}
+variable {E : Type v} {F : Type w}
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
   [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
 

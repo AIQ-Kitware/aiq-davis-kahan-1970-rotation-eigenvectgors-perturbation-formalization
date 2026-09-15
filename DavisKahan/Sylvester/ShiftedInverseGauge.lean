@@ -17,10 +17,11 @@ Sylvester estimate built from it.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 
 open scoped InnerProductSpace
+open TauCeti.DavisKahan.ExactSinTheta
 
 universe u v
 
@@ -177,6 +178,6 @@ theorem mem_and_gauge_le_of_exteriorLeft_intervalRight
     rw [sub_eq_add_neg] at h
     exact h
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

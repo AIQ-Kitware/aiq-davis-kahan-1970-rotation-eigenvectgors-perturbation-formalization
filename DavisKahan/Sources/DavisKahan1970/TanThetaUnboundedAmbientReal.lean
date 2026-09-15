@@ -6,6 +6,12 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Sources.DavisKahan1970.TanThetaUnboundedAmbient
 import DavisKahan.Sources.DavisKahan1970.DirectedUnboundedReal
 import DavisKahan.Sources.DavisKahan1970.UnboundedCompressionReal
+import DavisKahan.Sources.DavisKahan1970.SymmetricNormingFanDominance
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # The unbounded ambient `tan Theta` theorem over a **real** Hilbert space
@@ -29,20 +35,20 @@ unchanged.  The conclusion is read back by `SymmetricNormingFunction.gauge_compl
 No complexification of the source ambient closed operator is required.
 
 The printed standing assumption (3.5) is consumed entirely on the real side.
-`norm_paperSinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent` derives real uniform
+`norm_sinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent` derives real uniform
 transversality from the real directed no-pole estimate and (3.5); only its consequence
 `‖sin Θ‖ < 1` crosses to the complexification.  That is why the crossed-defect condition
 itself never has to be transported.
 
 ## Main results
 
-* `norm_paperSinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent`: real ambient
+* `norm_sinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent`: real ambient
   uniform transversality from real trial-block form bounds and the printed (3.5);
 * `tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_real`: the ambient estimate over real
   trial-block data;
 * `tanTheta_ambient_unboundedOperator_boundedRitz_symmetricNorming_real`: the specialization with an
   unbounded ambient operator but bounded Ritz compression;
-* `tanTheta_ambient_unboundedRitz_raw_symmetricNorming_real`: the Appendix-complete
+* `tanTheta_ambient_unboundedRitz_explicitCompatibility_symmetricNorming_real`: the Appendix-complete
   endpoint in which the Ritz compression itself may be unbounded.
 
 ## References
@@ -59,11 +65,12 @@ open scoped InnerProductSpace BigOperators
 open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
-open TauCeti.DavisKahan.ExactTanTheta
+open TauCeti.DavisKahan.TanTheta
 open TauCeti.DavisKahan.TanTheta
 open TauCeti.ApproximationNumber
 open TauCeti.RealComplexification
 open TauCeti.DavisKahan.Foundation.RealComplexification
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -72,13 +79,21 @@ universe v
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
 
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionUnboundedAmbientReal
-    {k : Type*} [RCLike k] {G : Type v} [NormedAddCommGroup G]
-    [InnerProductSpace k G] [CompleteSpace G]
-    (Z : Submodule k G) [Z.HasOrthogonalProjection] : CompleteSpace Z :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection Z).completeSpace_coe
-
 variable {U V : Submodule ℝ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
+
+/-- **The paper's real `tan Θ` exists as a bounded operator**: no principal angle reaches
+`π/2`.  The real reading of `HasDefinedAmbientTangent`. -/
+def HasDefinedAmbientTangentReal (U V : Submodule ℝ E)
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : Prop :=
+  U.projectionGap V < 1
+
+/-- `HasDefinedAmbientTangentReal` is exactly `‖sin Θ‖ < 1`; the projection gap and the real
+ambient sine are the same number. -/
+theorem hasDefinedAmbientTangentReal_iff_norm_sinAngleOperatorR_lt_one
+    (U V : Submodule ℝ E) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
+    HasDefinedAmbientTangentReal U V ↔ ‖sinAngleOperatorR U V‖ < 1 := by
+  rw [HasDefinedAmbientTangentReal, norm_sinAngleOperatorR U V]
+
 
 /-! ## Real uniform transversality from real trial-block data -/
 
@@ -91,16 +106,16 @@ whose real approximation singular values are already known to be strictly below 
 every trial dimension, and (3.5) identifies the symmetric gap with the directed one.
 
 This is the trial-data twin of
-`norm_paperSinAngleOperatorR_lt_one_of_crossedDefectsEquivalent`, which takes its no-pole
+`norm_sinAngleOperatorR_lt_one_of_crossedDefectsEquivalent`, which takes its no-pole
 input from the *bounded* ambient hypotheses instead. -/
-theorem norm_paperSinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent
+theorem norm_sinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent
     (data : Theorem63TrialData U V)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hCompression : ∀ z : U, ⟪data.compression z, z⟫_ℝ ≤ alpha * ‖z‖ ^ 2)
     (hcross : ∀ z : U, (alpha + delta) * ‖Vᗮ.starProjection ((z : U) : E)‖ ^ 2 ≤
       ⟪Vᗮ.starProjection ((z : U) : E), Vᗮ.starProjection (data.action z)⟫_ℝ)
     (h35 : DavisKahan.CrossedDefectsEquivalent U V) :
-    ‖paperSinAngleOperatorR U V‖ < 1 := by
+    ‖sinAngleOperatorR U V‖ < 1 := by
   have hdirected := approximationSingularValue_sineBlockReal_lt_one_infiniteData
     data hdelta hCompression hcross 0
   rw [approximationSingularValue_zero] at hdirected
@@ -115,7 +130,7 @@ theorem norm_paperSinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent
           mul_le_mul_of_nonneg_left U.orthogonalProjectionOnto_norm_le
             (ContinuousLinearMap.opNorm_nonneg (theorem63DirectedSineBlockReal U V))
       _ < 1 := by rwa [mul_one]
-  rw [norm_paperSinAngleOperatorR,
+  rw [norm_sinAngleOperatorR,
     DavisKahan.subspaceGap_eq_directedGap_of_crossedDefectsEquivalent U V h35]
   exact hnorm
 
@@ -170,11 +185,15 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_real
     (h35 : DavisKahan.CrossedDefectsEquivalent U V)
     (hResidual : data.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
     (hMem : N.Mem H) :
-    N.Mem (paperTanAngleOperatorR U V) ∧
-      delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H := by
+    HasDefinedAmbientTangentReal U V ∧
+      N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge H := by
+  refine ⟨(hasDefinedAmbientTangentReal_iff_norm_sinAngleOperatorR_lt_one U V).2
+    (norm_sinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent
+      data hdelta hCompression hcross h35), ?_⟩
   have htrC : ‖sinAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)‖ < 1 := by
-    rw [← complexify_paperSinAngleOperatorR U V, norm_complexify]
-    exact norm_paperSinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent
+    rw [← complexify_sinAngleOperatorR U V, norm_complexify]
+    exact norm_sinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent
       data hdelta hCompression hcross h35
   have hMemC : N.Mem (complexify H) :=
     (SymmetricNormingFunction.mem_complexify_iff N H).2 hMem
@@ -185,7 +204,7 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_real
       (complexifyTrialData_compression_upper data hCompression)
       (complexifyTrialData_crossed_lower data hcross)
       htrC (complexifyTrialData_residual_eq_projectionBlock data H hResidual) hMemC
-  rw [← complexify_paperTanAngleOperatorR U V] at hmemC hboundC
+  rw [← complexify_tanAngleOperatorR U V] at hmemC hboundC
   refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
   rwa [SymmetricNormingFunction.gauge_complexify,
     SymmetricNormingFunction.gauge_complexify] at hboundC
@@ -212,7 +231,7 @@ approximation numbers are preserved exactly. -/
 theorem tanTheta_ambient_unboundedOperator_boundedRitz_symmetricNorming_real
     (N : SymmetricNormingFunction)
     (A : E →ₗ.[ℝ] E)
-    (D : UnboundedTrialBlock A U)
+    (D : BoundedCompressionTrialBlock A U)
     (H : E →L[ℝ] E) (hH : IsSelfAdjoint H)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hVdom : ∀ x : A.domain, Vᗮ.starProjection ((x : E)) ∈ A.domain)
@@ -225,8 +244,9 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitz_symmetricNorming_real
     (h35 : DavisKahan.CrossedDefectsEquivalent U V)
     (hResidual : D.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
     (hMem : N.Mem H) :
-    N.Mem (paperTanAngleOperatorR U V) ∧
-      delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H :=
+    HasDefinedAmbientTangentReal U V ∧
+      N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge H :=
   tanTheta_ambient_unboundedOperator_boundedRitzData_symmetricNorming_real N
     (Theorem63TrialData.ofUnbounded D V) H hH hdelta hCompression
     (fun z => by
@@ -241,10 +261,10 @@ theorem tanTheta_ambient_unboundedOperator_boundedRitz_symmetricNorming_real
 compression.**
 
 This is the Appendix-scope twin of
-`norm_paperSinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent`.  The no-pole
+`norm_sinAngleOperatorR_lt_one_of_data_crossedDefectsEquivalent`.  The no-pole
 input is the real unbounded-compression theorem; the standing crossed-defect
 condition (3.5) then converts the directed gap into the ambient gap. -/
-theorem norm_paperSinAngleOperatorR_lt_one_of_unboundedCompression_crossedDefectsEquivalent
+theorem norm_sinAngleOperatorR_lt_one_of_unboundedCompression_crossedDefectsEquivalent
     (D : UnboundedCompressionTrialData U)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hupper : TauCeti.LinearPMap.SemiboundedAbove D.compression alpha)
@@ -252,7 +272,7 @@ theorem norm_paperSinAngleOperatorR_lt_one_of_unboundedCompression_crossedDefect
       (alpha + delta) * ‖Vᗮ.starProjection (((z : U) : E))‖ ^ 2 ≤
         ⟪Vᗮ.starProjection (((z : U) : E)), Vᗮ.starProjection (D.action z)⟫_ℝ)
     (h35 : DavisKahan.CrossedDefectsEquivalent U V) :
-    ‖paperSinAngleOperatorR U V‖ < 1 := by
+    ‖sinAngleOperatorR U V‖ < 1 := by
   have hdirected := approximationSingularValue_sineBlockReal_lt_one_unboundedCompression
     D V hdelta hupper hcross 0
   rw [approximationSingularValue_zero] at hdirected
@@ -268,7 +288,7 @@ theorem norm_paperSinAngleOperatorR_lt_one_of_unboundedCompression_crossedDefect
         mul_le_mul_of_nonneg_left U.orthogonalProjectionOnto_norm_le
           (ContinuousLinearMap.opNorm_nonneg (theorem63DirectedSineBlockReal U V))
       _ < 1 := by rwa [mul_one]
-  rw [norm_paperSinAngleOperatorR,
+  rw [norm_sinAngleOperatorR,
     DavisKahan.subspaceGap_eq_directedGap_of_crossedDefectsEquivalent U V h35]
   exact hnorm
 
@@ -299,7 +319,7 @@ theorem complexifyUnboundedCompressionTrialData_residual_eq_projectionBlock
 space, with a genuinely unbounded Ritz compression.**
 
 The unbounded compression is transported only as trial data.  The source
-operator `paperTanAngleOperatorR U V`, perturbation `H`, and final norm statement
+operator `tanAngleOperatorR U V`, perturbation `H`, and final norm statement
 remain genuinely real.  The complex proof performs the spectral cutoff on the
 complexified Ritz compression and the bounded two-corner ambient assembly; exact
 complexification identities then descend the result without changing the
@@ -316,12 +336,16 @@ theorem tanTheta_ambient_unboundedRitzData_symmetricNorming_real
     (h35 : DavisKahan.CrossedDefectsEquivalent U V)
     (hResidual : D.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
     (hMem : N.Mem H) :
-    N.Mem (paperTanAngleOperatorR U V) ∧
-      delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H := by
+    HasDefinedAmbientTangentReal U V ∧
+      N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge H := by
+  refine ⟨(hasDefinedAmbientTangentReal_iff_norm_sinAngleOperatorR_lt_one U V).2
+    (norm_sinAngleOperatorR_lt_one_of_unboundedCompression_crossedDefectsEquivalent
+      D hdelta hupper hcross h35), ?_⟩
   have htrC :
       ‖sinAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)‖ < 1 := by
-    rw [← complexify_paperSinAngleOperatorR U V, norm_complexify]
-    exact norm_paperSinAngleOperatorR_lt_one_of_unboundedCompression_crossedDefectsEquivalent
+    rw [← complexify_sinAngleOperatorR U V, norm_complexify]
+    exact norm_sinAngleOperatorR_lt_one_of_unboundedCompression_crossedDefectsEquivalent
       D hdelta hupper hcross h35
   have hMemC : N.Mem (complexify H) :=
     (SymmetricNormingFunction.mem_complexify_iff N H).2 hMem
@@ -333,7 +357,7 @@ theorem tanTheta_ambient_unboundedRitzData_symmetricNorming_real
       (complexifyUnboundedCompressionTrialData_crossed_lower D hcross)
       htrC (complexifyUnboundedCompressionTrialData_residual_eq_projectionBlock D H hResidual)
       hMemC
-  rw [← complexify_paperTanAngleOperatorR U V] at hmemC hboundC
+  rw [← complexify_tanAngleOperatorR U V] at hmemC hboundC
   refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
   rwa [SymmetricNormingFunction.gauge_complexify,
     SymmetricNormingFunction.gauge_complexify] at hboundC
@@ -343,7 +367,7 @@ theorem tanTheta_ambient_unboundedRitzData_symmetricNorming_real
 Both the ambient self-adjoint operator and the Ritz compression may be
 unbounded.  The residual and perturbation remain bounded, exactly as required
 for the displayed unitary-invariant norm inequality. -/
-theorem tanTheta_ambient_unboundedRitz_raw_symmetricNorming_real
+theorem tanTheta_ambient_unboundedRitz_explicitCompatibility_symmetricNorming_real
     (N : SymmetricNormingFunction)
     (D : UnboundedCompressionTrialData U)
     (A : E →ₗ.[ℝ] E)
@@ -362,8 +386,9 @@ theorem tanTheta_ambient_unboundedRitz_raw_symmetricNorming_real
     (h35 : DavisKahan.CrossedDefectsEquivalent U V)
     (hResidual : D.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
     (hMem : N.Mem H) :
-    N.Mem (paperTanAngleOperatorR U V) ∧
-      delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H := by
+    HasDefinedAmbientTangentReal U V ∧
+      N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge H := by
   refine tanTheta_ambient_unboundedRitzData_symmetricNorming_real
     N D H hH hdelta hupper ?_ h35 hResidual hMem
   intro z
@@ -381,14 +406,14 @@ scalar-generic, so no real-specific vocabulary is introduced. -/
 /-- **Davis--Kahan 1970, `tan Θ`, unbounded ambient form over `ℝ`, taking the Ritz
 pair and the reducing complement as objects.**
 
-`tanTheta_ambient_unboundedRitz_raw_symmetricNorming_real` with its four
+`tanTheta_ambient_unboundedRitz_explicitCompatibility_symmetricNorming_real` with its four
 structural arguments replaced by `DavisKahan.UnboundedRitzPair A U` and
 `DavisKahan.ReducingComplement A V`.  The mathematics -- semiboundedness of the
 compression, coercivity on the unwanted subspace, and the crossed-defect standing
 condition (3.5) -- is unchanged and still supplied by the caller.
 
 Everything here is real: the space, the operator, the subspaces, the
-perturbation, the ambient tangent `paperTanAngleOperatorR U V`, and the gauge. -/
+perturbation, the ambient tangent `tanAngleOperatorR U V`, and the gauge. -/
 theorem tanTheta_ambient_unboundedRitz_symmetricNorming_real
     (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E}
@@ -402,11 +427,75 @@ theorem tanTheta_ambient_unboundedRitz_symmetricNorming_real
     (h35 : DavisKahan.CrossedDefectsEquivalent U V)
     (hResidual : D.trial.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
     (hMem : N.Mem H) :
-    N.Mem (paperTanAngleOperatorR U V) ∧
-      delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge H :=
-  tanTheta_ambient_unboundedRitz_raw_symmetricNorming_real N D.trial A H hH
+    HasDefinedAmbientTangentReal U V ∧
+      N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge H :=
+  tanTheta_ambient_unboundedRitz_explicitCompatibility_symmetricNorming_real N D.trial A H hH
     hdelta D.mem_domain D.action_eq hV.mapsDomain hV.commutes hupper hUnwanted h35
     hResidual hMem
+
+/-! ## The printed `tan Θ` hypotheses over `ℝ`, with the source's own vacuity convention
+
+The real mirror of the `DefinedTangent` section in `TanThetaUnboundedAmbient.lean`; see its
+note for why condition (3.5) is not a hypothesis of the Section 2 theorem and what replaces
+it. -/
+
+section DefinedTangent
+
+omit [CompleteSpace E] in
+/-- A defined real tangent implies condition (3.5), for the same reason as over `ℂ`. -/
+theorem crossedDefectsEquivalent_of_hasDefinedAmbientTangentReal
+    {U V : Submodule ℝ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
+    (h : HasDefinedAmbientTangentReal U V) : DavisKahan.CrossedDefectsEquivalent U V :=
+  DavisKahan.crossedDefectsEquivalent_of_isAcute U V (TauCeti.isAcute_of_projectionGap_lt_one h)
+
+/-- **Davis--Kahan 1970, the `tan Θ` theorem, ambient clause, over `ℝ`, at the printed
+hypotheses**, with the source's vacuity convention in place of condition (3.5). -/
+theorem tanTheta_ambient_unboundedRitz_definedTangent_symmetricNorming_real
+    (N : SymmetricNormingFunction)
+    {A : E →ₗ.[ℝ] E}
+    (D : DavisKahan.UnboundedRitzPair A U)
+    (hV : DavisKahan.ReducingComplement A V)
+    (H : E →L[ℝ] E) (hH : IsSelfAdjoint H)
+    {alpha delta : ℝ} (hdelta : 0 < delta)
+    (hupper : TauCeti.LinearPMap.SemiboundedAbove D.trial.compression alpha)
+    (hUnwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
+      (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪A ⟨y, hy⟩, y⟫_ℝ)
+    (hdefined : HasDefinedAmbientTangentReal U V)
+    (hResidual : D.trial.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
+    (hMem : N.Mem H) :
+    N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge H :=
+  (tanTheta_ambient_unboundedRitz_symmetricNorming_real N D hV H hH hdelta hupper hUnwanted
+    (crossedDefectsEquivalent_of_hasDefinedAmbientTangentReal hdefined) hResidual hMem).2
+
+/-- **Davis--Kahan 1970, the ambient `tan Θ` theorem at the printed source scope
+over `ℝ`.**
+
+Separable ambient Hilbert space and normalized unitarily invariant norm.  The
+definedness hypothesis stays exactly as printed; the estimate goes through the
+Fan-dominance bridge. -/
+theorem tanTheta_ambient_unboundedRitz_definedTangent_normalizedUIN_real
+    [TopologicalSpace.SeparableSpace E]
+    (N : NormalizedUnitaryInvariantNorm.{0, v} ℝ)
+    {A : E →ₗ.[ℝ] E}
+    (D : DavisKahan.UnboundedRitzPair A U)
+    (hV : DavisKahan.ReducingComplement A V)
+    (H : E →L[ℝ] E) (hH : IsSelfAdjoint H)
+    {alpha delta : ℝ} (hdelta : 0 < delta)
+    (hupper : TauCeti.LinearPMap.SemiboundedAbove D.trial.compression alpha)
+    (hUnwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
+      (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪A ⟨y, hy⟩, y⟫_ℝ)
+    (hdefined : HasDefinedAmbientTangentReal U V)
+    (hResidual : D.trial.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL)
+    (hMem : N.Mem H) :
+    N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge H :=
+  normalizedUnitaryInvariant_of_symmetricNorming N hdelta hMem fun M hM =>
+    tanTheta_ambient_unboundedRitz_definedTangent_symmetricNorming_real M D hV H hH
+      hdelta hupper hUnwanted hdefined hResidual hM
+
+end DefinedTangent
 
 end
 

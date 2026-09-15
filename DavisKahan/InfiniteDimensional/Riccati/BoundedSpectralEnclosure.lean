@@ -6,6 +6,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.Riccati.BoundedBlockSpectrum
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+
 /-!
 # Bounded Riccati spectral enclosures
 
@@ -139,7 +140,7 @@ theorem complex_blockDiagonalization_with_realSpectrum_of_riccati
     {X : E0 →L[ℂ] E1} (hX : SolvesRiccati H X) :
     ∃ W Winv : WithLp 2 (E0 × E1) →L[ℂ] WithLp 2 (E0 × E1),
       ∃ D0 : E0 →L[ℂ] E0, ∃ D1 : E1 →L[ℂ] E1,
-      IsUnitaryOperator W ∧ IsUnitaryOperator Winv ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ TauCeti.LinearPMap.IsUnitaryOperator Winv ∧
       Winv ∘L W = ContinuousLinearMap.id ℂ _ ∧
       W ∘L Winv = ContinuousLinearMap.id ℂ _ ∧
       Winv ∘L blockOperator H ∘L W = blockDiagonalOperator D0 D1 ∧

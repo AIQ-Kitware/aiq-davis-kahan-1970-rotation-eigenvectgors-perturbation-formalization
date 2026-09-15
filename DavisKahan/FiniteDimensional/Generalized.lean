@@ -18,7 +18,7 @@ not imported through this finite module.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators Topology unitInterval
 open Module (finrank)
@@ -74,10 +74,10 @@ theorem generalizedSinTheta_frobenius_le_of_spectralDistance
     (hM : (whitenedCoordinateOperator X hX M).IsSymmetric)
     {δ ε : ℝ} (hδ : 0 < δ) (hε : 0 < ε)
     (hframe : LowerFrameBound X ε)
-    (hgap : SpectraSeparated (whitenedCoordinateOperator X hX M) ⊤ A Vᗮ δ) :
-    δ * ε * RectangularUnitarilyInvariantSeminorm.frobenius
+    (hgap : PointSpectraSeparated (whitenedCoordinateOperator X hX M) ⊤ A Vᗮ δ) :
+    δ * ε * UnitarilyInvariantSeminorm.frobenius
         (sinThetaEmbedding V (orthonormalizedEmbedding X hX)) ≤
-      RectangularUnitarilyInvariantSeminorm.frobenius
+      UnitarilyInvariantSeminorm.frobenius
         (generalResidual A X M) := by
   let Q := orthonormalizedEmbedding X hX
   let Mhat := whitenedCoordinateOperator X hX M
@@ -88,27 +88,27 @@ theorem generalizedSinTheta_frobenius_le_of_spectralDistance
     simpa [Q, Mhat] using
       residual_orthonormalizedEmbedding_whitenedCoordinateOperator A X hX M
   have hright :=
-    (RectangularUnitarilyInvariantSeminorm.frobenius (𝕜 := 𝕜) (E := F) (F := E)).comp_le_mul_opNorm
+    (UnitarilyInvariantSeminorm.frobenius (𝕜 := 𝕜) (E := F) (F := E)).comp_le_mul_opNorm
       (generalResidual A X M)
       (trialGramSqrtEquiv X hX).symm.toLinearMap
   rw [← hfactor] at hright
   have hinv := opNorm_trialGramSqrtEquiv_symm_le X hX hframe hε
-  have hres : RectangularUnitarilyInvariantSeminorm.frobenius (residual A Q Mhat) ≤
-      RectangularUnitarilyInvariantSeminorm.frobenius (generalResidual A X M) * ε⁻¹ :=
+  have hres : UnitarilyInvariantSeminorm.frobenius (residual A Q Mhat) ≤
+      UnitarilyInvariantSeminorm.frobenius (generalResidual A X M) * ε⁻¹ :=
     hright.trans (mul_le_mul_of_nonneg_left hinv
-      ((RectangularUnitarilyInvariantSeminorm.frobenius
+      ((UnitarilyInvariantSeminorm.frobenius
         (𝕜 := 𝕜) (E := F) (F := E)).nonneg _))
   calc
-    δ * ε * RectangularUnitarilyInvariantSeminorm.frobenius
+    δ * ε * UnitarilyInvariantSeminorm.frobenius
         (sinThetaEmbedding V Q) =
-      ε * (δ * RectangularUnitarilyInvariantSeminorm.frobenius
+      ε * (δ * UnitarilyInvariantSeminorm.frobenius
         (sinThetaEmbedding V Q)) := by ring
-    _ ≤ ε * RectangularUnitarilyInvariantSeminorm.frobenius
+    _ ≤ ε * UnitarilyInvariantSeminorm.frobenius
         (residual A Q Mhat) := mul_le_mul_of_nonneg_left hnormalized hε.le
-    _ ≤ ε * (RectangularUnitarilyInvariantSeminorm.frobenius
+    _ ≤ ε * (UnitarilyInvariantSeminorm.frobenius
         (generalResidual A X M) * ε⁻¹) :=
       mul_le_mul_of_nonneg_left hres hε.le
-    _ = RectangularUnitarilyInvariantSeminorm.frobenius
+    _ = UnitarilyInvariantSeminorm.frobenius
         (generalResidual A X M) := by field_simp [hε.ne']
 
 /-- Nuclear fallback obtained from Theorem 6.2 and finite Cauchy--Schwarz. -/
@@ -120,31 +120,31 @@ theorem generalizedSinTheta_nuclear_le_of_spectralDistance
     (hM : (whitenedCoordinateOperator X hX M).IsSymmetric)
     {δ ε : ℝ} (hδ : 0 < δ) (hε : 0 < ε)
     (hframe : LowerFrameBound X ε)
-    (hgap : SpectraSeparated (whitenedCoordinateOperator X hX M) ⊤ A Vᗮ δ) :
-    δ * ε * RectangularUnitarilyInvariantSeminorm.nuclear
+    (hgap : PointSpectraSeparated (whitenedCoordinateOperator X hX M) ⊤ A Vᗮ δ) :
+    δ * ε * UnitarilyInvariantSeminorm.nuclear
         (sinThetaEmbedding V (orthonormalizedEmbedding X hX)) ≤
       Real.sqrt (finrank 𝕜 F) *
-        RectangularUnitarilyInvariantSeminorm.frobenius
+        UnitarilyInvariantSeminorm.frobenius
           (generalResidual A X M) := by
   let S := sinThetaEmbedding V (orthonormalizedEmbedding X hX)
   have hHS := generalizedSinTheta_frobenius_le_of_spectralDistance
     hA hV X hX hM hδ hε hframe hgap
-  have hnuc := RectangularUnitarilyInvariantSeminorm.nuclear_le_sqrt_finrank_mul_frobenius S
+  have hnuc := UnitarilyInvariantSeminorm.nuclear_le_sqrt_finrank_mul_frobenius S
   have hδε : 0 ≤ δ * ε := mul_nonneg hδ.le hε.le
   calc
-    δ * ε * RectangularUnitarilyInvariantSeminorm.nuclear S ≤
+    δ * ε * UnitarilyInvariantSeminorm.nuclear S ≤
         δ * ε * (Real.sqrt (finrank 𝕜 F) *
-          RectangularUnitarilyInvariantSeminorm.frobenius S) :=
+          UnitarilyInvariantSeminorm.frobenius S) :=
       mul_le_mul_of_nonneg_left hnuc hδε
     _ = Real.sqrt (finrank 𝕜 F) *
-        (δ * ε * RectangularUnitarilyInvariantSeminorm.frobenius S) := by ring
+        (δ * ε * UnitarilyInvariantSeminorm.frobenius S) := by ring
     _ ≤ Real.sqrt (finrank 𝕜 F) *
-        RectangularUnitarilyInvariantSeminorm.frobenius (generalResidual A X M) :=
+        UnitarilyInvariantSeminorm.frobenius (generalResidual A X M) :=
       mul_le_mul_of_nonneg_left hHS (Real.sqrt_nonneg _)
 
 /-- Davis--Kahan Theorem 6.3 in whitened trial coordinates. -/
 theorem generalizedTanTheta_residual_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : IsInvariant A V)
     (X : F →ₗ[𝕜] E) (hX : Function.Injective X)
@@ -161,7 +161,7 @@ theorem generalizedTanTheta_residual_le
 
 /-- Unequal-dimensional ordered-gap `sin 2Θ` residual extension. -/
 theorem generalizedSinTwoTheta_unequalFinrank
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
@@ -170,5 +170,5 @@ theorem generalizedSinTwoTheta_unequalFinrank
   sinTwoTheta_residual_le_of_orderedGap N hA hU X hM hδ hgap
 
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

@@ -7,6 +7,8 @@ import DavisKahan.SinTheta.Bounded.Core
 import DavisKahan.OperatorIdeal.CanonicalRealView
 import DavisKahan.Sylvester.Gap
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Unbounded `sin Θ` problem data and residual block identity
 

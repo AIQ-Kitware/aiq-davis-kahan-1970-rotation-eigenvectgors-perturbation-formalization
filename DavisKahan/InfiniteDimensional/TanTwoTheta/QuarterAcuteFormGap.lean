@@ -9,6 +9,10 @@ import DavisKahan.InfiniteDimensional.Riccati.BoundedSpectralTransport
 import DavisKahan.SinTheta.FrameFactorization
 import ForTauCeti.Analysis.InnerProductSpace.CoerciveUnit
 import ForTauCeti.Analysis.InnerProductSpace.BorelCalculus.DiagonalMeasure
+import DavisKahan.SpectralTheory.OperatorAngle
+
+open TauCeti.DavisKahan.Angle
+
 
 /-!
 # Dimension-free quarter-angle branch for the off-diagonal tan 2Theta theorem
@@ -120,7 +124,7 @@ theorem reflected_centered_form_lower
       RCLike.re ⟪A x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (x : E) :
     (b - a) / 2 * ‖x‖ ^ 2 ≤
-      RCLike.re ⟪(reflectionOperator U ∘L
+      RCLike.re ⟪(U.reflectionOperator ∘L
         (A - (((a + b) / 2 : ℝ) : ℂ) • ContinuousLinearMap.id ℂ E)) x, x⟫_ℂ := by
   have hAsym : A.toLinearMap.IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
@@ -136,8 +140,8 @@ theorem reflected_centered_form_lower
     U.sub_mem (hAU p hp) (U.smul_mem _ hp)
   have hAm : A m - (((a + b) / 2 : ℝ) : ℂ) • m ∈ Uᗮ :=
     Uᗮ.sub_mem (hUperp m hm) (Uᗮ.smul_mem _ hm)
-  have hJx : reflectionOperator U x = p - m := by
-    rw [reflectionOperator_apply]
+  have hJx : U.reflectionOperator x = p - m := by
+    rw [Submodule.reflectionOperator_apply]
     simp only [p, m]
     module
   have hsplit :
@@ -147,19 +151,19 @@ theorem reflected_centered_form_lower
     rw [hxpm, map_add, smul_add]
     module
   have hJAp :
-      reflectionOperator U (A p - (((a + b) / 2 : ℝ) : ℂ) • p) =
+      U.reflectionOperator (A p - (((a + b) / 2 : ℝ) : ℂ) • p) =
         A p - (((a + b) / 2 : ℝ) : ℂ) • p := by
-    rw [reflectionOperator_apply,
+    rw [Submodule.reflectionOperator_apply,
       Submodule.starProjection_eq_self_iff.mpr hAp]
     module
   have hJAm :
-      reflectionOperator U (A m - (((a + b) / 2 : ℝ) : ℂ) • m) =
+      U.reflectionOperator (A m - (((a + b) / 2 : ℝ) : ℂ) • m) =
         -(A m - (((a + b) / 2 : ℝ) : ℂ) • m) := by
-    rw [reflectionOperator_apply,
+    rw [Submodule.reflectionOperator_apply,
       (Submodule.starProjection_apply_eq_zero_iff U).mpr hAm]
     module
   have hreflect :
-      reflectionOperator U
+      U.reflectionOperator
           (A x - (((a + b) / 2 : ℝ) : ℂ) • x) =
         (A p - (((a + b) / 2 : ℝ) : ℂ) • p) -
         (A m - (((a + b) / 2 : ℝ) : ℂ) • m) := by
@@ -205,7 +209,7 @@ theorem reflection_anticommutes_of_maps_orthogonal
     (H : E →L[ℂ] E) (U : Submodule ℂ E) [U.HasOrthogonalProjection]
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ)
     (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U) :
-    reflectionOperator U ∘L H = -(H ∘L reflectionOperator U) := by
+    U.reflectionOperator ∘L H = -(H ∘L U.reflectionOperator) := by
   apply ContinuousLinearMap.ext
   intro x
   let p : E := U.starProjection x
@@ -215,34 +219,34 @@ theorem reflection_anticommutes_of_maps_orthogonal
   have hxpm : x = p + m := by simp only [p, m]; abel
   have hHp : H p ∈ Uᗮ := hHU p hp
   have hHm : H m ∈ U := hHUperp m hm
-  have hJp : reflectionOperator U p = p := by
-    rw [reflectionOperator_apply,
+  have hJp : U.reflectionOperator p = p := by
+    rw [Submodule.reflectionOperator_apply,
       Submodule.starProjection_eq_self_iff.mpr hp]
     module
-  have hJm : reflectionOperator U m = -m := by
-    rw [reflectionOperator_apply,
+  have hJm : U.reflectionOperator m = -m := by
+    rw [Submodule.reflectionOperator_apply,
       (Submodule.starProjection_apply_eq_zero_iff U).mpr hm]
     module
-  have hJHp : reflectionOperator U (H p) = -(H p) := by
-    rw [reflectionOperator_apply,
+  have hJHp : U.reflectionOperator (H p) = -(H p) := by
+    rw [Submodule.reflectionOperator_apply,
       (Submodule.starProjection_apply_eq_zero_iff U).mpr hHp]
     module
-  have hJHm : reflectionOperator U (H m) = H m := by
-    rw [reflectionOperator_apply,
+  have hJHm : U.reflectionOperator (H m) = H m := by
+    rw [Submodule.reflectionOperator_apply,
       Submodule.starProjection_eq_self_iff.mpr hHm]
     module
   simp only [ContinuousLinearMap.comp_apply, neg_apply]
   calc
-    reflectionOperator U (H x) = reflectionOperator U (H p + H m) := by
+    U.reflectionOperator (H x) = U.reflectionOperator (H p + H m) := by
       rw [hxpm, map_add]
-    _ = reflectionOperator U (H p) + reflectionOperator U (H m) := map_add _ _ _
+    _ = U.reflectionOperator (H p) + U.reflectionOperator (H m) := map_add _ _ _
     _ = -(H p) + H m := by rw [hJHp, hJHm]
     _ = -(H (p - m)) := by
       have hmap : H (p - m) = H p - H m := map_sub H p m
       rw [hmap]
       abel
-    _ = -(H (reflectionOperator U x)) := by
-      have hJx : reflectionOperator U x = p - m := by
+    _ = -(H (U.reflectionOperator x)) := by
+      have hJx : U.reflectionOperator x = p - m := by
         rw [hxpm, map_add, hJp, hJm]
         module
       rw [hJx]
@@ -278,7 +282,7 @@ theorem spectrum_re_lower_of_coercive
 
 /-- Dimension-free strict quarter-angle branch from the paper's ordered form
 hypotheses and full off-diagonality. -/
-theorem isQuarterAcute_of_paper_form_gap_infinite
+theorem isQuarterAcute_of_orderedFormGap
     (A H : E →L[ℂ] E)
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -304,8 +308,8 @@ theorem isQuarterAcute_of_paper_form_gap_infinite
   let δ : ℝ := (b - a) / 2
   let T0 : E →L[ℂ] E := A - (c : ℂ) • ContinuousLinearMap.id ℂ E
   let S0 : E →L[ℂ] E := A + H - (c : ℂ) • ContinuousLinearMap.id ℂ E
-  let J : E →L[ℂ] E := reflectionOperator U
-  let K : E →L[ℂ] E := reflectionOperator V
+  let J : E →L[ℂ] E := U.reflectionOperator
+  let K : E →L[ℂ] E := V.reflectionOperator
   let B : E →L[ℂ] E := J ∘L T0
   let C : E →L[ℂ] E := K ∘L S0
   let W : E →L[ℂ] E := K ∘L J
@@ -315,13 +319,13 @@ theorem isQuarterAcute_of_paper_form_gap_infinite
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
   have hAHsym : (A + H).toLinearMap.IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hAH
-  have hUred : Reduces A U := reduces_orthogonalComplement hAsym hAU
-  have hVred : Reduces (A + H) V :=
-    reduces_orthogonalComplement hAHsym hAplusH_V
+  have hUred : A.Reduces U := ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAsym hAU
+  have hVred : ContinuousLinearMap.Reduces (A + H) V :=
+    ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAHsym hAplusH_V
   have hJcommA : J ∘L A = A ∘L J := by
-    simpa only [J] using reflectionOperator_comm_of_reduces A U hUred
+    simpa only [J] using Submodule.reflectionOperator_comm_of_reduces A U hUred
   have hKcommAH : K ∘L (A + H) = (A + H) ∘L K := by
-    simpa only [K] using reflectionOperator_comm_of_reduces (A + H) V hVred
+    simpa only [K] using Submodule.reflectionOperator_comm_of_reduces (A + H) V hVred
   have hJstar : star J = J := by
     simpa only [J] using
       TauCeti.DavisKahan.star_reflectionOperator_complex U
@@ -329,9 +333,9 @@ theorem isQuarterAcute_of_paper_form_gap_infinite
     simpa only [K] using
       TauCeti.DavisKahan.star_reflectionOperator_complex V
   have hJ2 : J ∘L J = ContinuousLinearMap.id ℂ E := by
-    simpa only [J] using reflectionOperator_involutive U
+    simpa only [J] using Submodule.reflectionOperator_involutive U
   have hK2 : K ∘L K = ContinuousLinearMap.id ℂ E := by
-    simpa only [K] using reflectionOperator_involutive V
+    simpa only [K] using Submodule.reflectionOperator_involutive V
   have hT0star : IsSelfAdjoint T0 := by
     rw [isSelfAdjoint_iff]
     dsimp [T0, c]
@@ -602,19 +606,19 @@ theorem isQuarterAcute_of_paper_form_gap_infinite
       mul_apply_eq_comp, ContinuousLinearMap.comp_apply]
     dsimp [W, J, K, D]
     have hKJ :
-        reflectionOperator V (reflectionOperator U x) =
+        V.reflectionOperator (U.reflectionOperator x) =
           (4 : ℂ) • V.starProjection (U.starProjection x) -
             (2 : ℂ) • V.starProjection x -
             (2 : ℂ) • U.starProjection x + x := by
-      rw [reflectionOperator_apply V, reflectionOperator_apply U]
+      rw [Submodule.reflectionOperator_apply V, Submodule.reflectionOperator_apply U]
       simp only [map_sub, map_smul]
       module
     have hJK :
-        reflectionOperator U (reflectionOperator V x) =
+        U.reflectionOperator (V.reflectionOperator x) =
           (4 : ℂ) • U.starProjection (V.starProjection x) -
             (2 : ℂ) • U.starProjection x -
             (2 : ℂ) • V.starProjection x + x := by
-      rw [reflectionOperator_apply U, reflectionOperator_apply V]
+      rw [Submodule.reflectionOperator_apply U, Submodule.reflectionOperator_apply V]
       simp only [map_sub, map_smul]
       module
     have hPU : U.starProjection (U.starProjection x) = U.starProjection x :=
@@ -695,6 +699,167 @@ theorem isQuarterAcute_of_paper_form_gap_infinite
     have hsqle := pow_le_pow_left₀ hthresholdPos.le hle 2
     rw [hthresholdSq] at hsqle
     exact (not_le_of_gt hDsq) hsqle
+
+/-! ### The non-strict quarter angle, and why it is stated separately
+
+`isQuarterAcute_of_orderedFormGap` concludes `subspaceGap U V < √2/2`, strictly.
+That is stronger than Davis and Kahan's printed `Θ ≤ π/4`, and the strictness is
+paid for with the constant `α = δ / (1 + ‖C‖)`, which degenerates as `‖A‖ → ∞`.
+
+The printed conclusion needs only the *non-strict* bound, and that follows from
+the reflection product being positive with no constant at all.  Everything below
+is the last third of the bounded proof with `α = 0`, extracted so that an
+unbounded argument can reach the source conclusion without reproducing the part
+that does not survive. -/
+
+omit [CompleteSpace E] in
+/-- **The reflection product's real part, in terms of the projector
+difference.**  `K J + J K = 2 - 4 (P_U - P_V)²`. -/
+theorem reflectionProduct_add_swap_eq
+    (U V : Submodule ℂ E)
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
+    V.reflectionOperator * U.reflectionOperator
+        + U.reflectionOperator * V.reflectionOperator =
+      (2 : ℂ) • (1 : E →L[ℂ] E) -
+        (4 : ℂ) • ((U.starProjection - V.starProjection) *
+          (U.starProjection - V.starProjection)) := by
+  apply ContinuousLinearMap.ext
+  intro x
+  simp only [add_apply, sub_apply, smul_apply, one_apply_eq_self,
+    mul_apply_eq_comp]
+  have hKJ :
+      V.reflectionOperator (U.reflectionOperator x) =
+        (4 : ℂ) • V.starProjection (U.starProjection x) -
+          (2 : ℂ) • V.starProjection x -
+          (2 : ℂ) • U.starProjection x + x := by
+    rw [Submodule.reflectionOperator_apply V, Submodule.reflectionOperator_apply U]
+    simp only [map_sub, map_smul]
+    module
+  have hJK :
+      U.reflectionOperator (V.reflectionOperator x) =
+        (4 : ℂ) • U.starProjection (V.starProjection x) -
+          (2 : ℂ) • U.starProjection x -
+          (2 : ℂ) • V.starProjection x + x := by
+    rw [Submodule.reflectionOperator_apply U, Submodule.reflectionOperator_apply V]
+    simp only [map_sub, map_smul]
+    module
+  have hPU : U.starProjection (U.starProjection x) = U.starProjection x :=
+    Submodule.starProjection_eq_self_iff.mpr (U.starProjection_apply_mem x)
+  have hPV : V.starProjection (V.starProjection x) = V.starProjection x :=
+    Submodule.starProjection_eq_self_iff.mpr (V.starProjection_apply_mem x)
+  have hDDx :
+      U.starProjection (U.starProjection x - V.starProjection x) -
+          V.starProjection (U.starProjection x - V.starProjection x) =
+        U.starProjection x - U.starProjection (V.starProjection x) -
+          V.starProjection (U.starProjection x) + V.starProjection x := by
+    simp only [map_sub, hPU, hPV]
+    abel
+  rw [hKJ, hJK, hDDx]
+  module
+
+/-- **`Θ ≤ π/4` from a positive reflection product.**
+
+Davis--Kahan's printed Section 8 conclusion, in projector form: if the real part
+of `K J` is nonnegative -- equivalently `K J + J K ≥ 0` -- then
+`‖P_U − P_V‖ ≤ √2/2`.
+
+No constant appears anywhere, which is exactly why this survives to unbounded
+scope where `isQuarterAcute_of_orderedFormGap`'s strict bound does not. -/
+theorem subspaceGap_le_of_reflectionProduct_form_nonneg
+    (U V : Submodule ℂ E)
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
+    (h : ∀ x : E, 0 ≤ RCLike.re ⟪(V.reflectionOperator * U.reflectionOperator
+      + U.reflectionOperator * V.reflectionOperator) x, x⟫_ℂ) :
+    U.projectionGap V ≤ Real.sqrt 2 / 2 := by
+  obtain ⟨D, hDdef⟩ : ∃ D : E →L[ℂ] E, D = U.starProjection - V.starProjection := ⟨_, rfl⟩
+  have hDstar : IsSelfAdjoint D := by
+    rw [hDdef]
+    exact (isSelfAdjoint_starProjection U).sub (isSelfAdjoint_starProjection V)
+  have hpoint : ∀ x : E, ‖D x‖ ^ 2 ≤ (1 / 2 : ℝ) * ‖x‖ ^ 2 := by
+    intro x
+    have hx := h x
+    rw [reflectionProduct_add_swap_eq U V, ← hDdef] at hx
+    have hval : ((2 : ℂ) • (1 : E →L[ℂ] E) - (4 : ℂ) • (D * D)) x
+        = (2 : ℂ) • x - (4 : ℂ) • D (D x) := by
+      simp only [sub_apply, smul_apply, one_apply_eq_self, mul_apply_eq_comp]
+    rw [hval, inner_sub_left, map_sub, inner_smul_left, inner_smul_left] at hx
+    have hDsq : RCLike.re ⟪D (D x), x⟫_ℂ = ‖D x‖ ^ 2 := by
+      calc RCLike.re ⟪D (D x), x⟫_ℂ = RCLike.re ⟪(star D) (D x), x⟫_ℂ := by
+            rw [hDstar.star_eq]
+        _ = RCLike.re ⟪D x, D x⟫_ℂ := by
+            rw [ContinuousLinearMap.star_eq_adjoint,
+              ContinuousLinearMap.adjoint_inner_left]
+        _ = ‖D x‖ ^ 2 := by rw [inner_self_eq_norm_sq]
+    have htwo : RCLike.re ((starRingEnd ℂ) (2 : ℂ) * ⟪x, x⟫_ℂ) = 2 * ‖x‖ ^ 2 := by
+      simpa using re_conj_real_mul_inner_self (E := E) 2 x
+    have hfour : RCLike.re ((starRingEnd ℂ) (4 : ℂ) * ⟪D (D x), x⟫_ℂ) =
+        4 * RCLike.re ⟪D (D x), x⟫_ℂ := re_conj_real_mul 4 ⟪D (D x), x⟫_ℂ
+    rw [htwo, hfour, hDsq] at hx
+    linarith
+  have hDnorm : ‖D‖ ≤ Real.sqrt (1 / 2 : ℝ) :=
+    opNorm_le_sqrt_of_sq_apply_le D (by norm_num) hpoint
+  have hsqrt : Real.sqrt (1 / 2 : ℝ) = Real.sqrt 2 / 2 := by
+    rw [show (1 / 2 : ℝ) = 2 / 2 ^ 2 by norm_num, Real.sqrt_div' 2 (by norm_num),
+      Real.sqrt_sq (by norm_num : (0 : ℝ) ≤ 2)]
+  change ‖U.starProjection - V.starProjection‖ ≤ Real.sqrt 2 / 2
+  rw [← hDdef, ← hsqrt]
+  exact hDnorm
+
+/-- **The pointwise strict form.**  Where the reflection product's real part is
+strictly positive on a vector, the projector difference is strictly below the
+`√2/2` threshold *at that vector*.
+
+This is the same computation as `hpoint` inside
+`subspaceGap_le_of_reflectionProduct_form_nonneg`, kept strict.  A supremum
+bound does not follow -- the strictness is pointwise and need not be uniform --
+which is exactly the distinction Section 8 turns on at unbounded scope. -/
+theorem norm_starProjection_sub_sq_lt_of_reflectionProduct_form_pos
+    (U V : Submodule ℂ E)
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] {x : E}
+    (h : 0 < RCLike.re ⟪(V.reflectionOperator * U.reflectionOperator
+      + U.reflectionOperator * V.reflectionOperator) x, x⟫_ℂ) :
+    ‖U.starProjection x - V.starProjection x‖ ^ 2 < (1 / 2 : ℝ) * ‖x‖ ^ 2 := by
+  obtain ⟨D, hDdef⟩ : ∃ D : E →L[ℂ] E, D = U.starProjection - V.starProjection := ⟨_, rfl⟩
+  have hDstar : IsSelfAdjoint D := by
+    rw [hDdef]
+    exact (isSelfAdjoint_starProjection U).sub (isSelfAdjoint_starProjection V)
+  have hDx : D x = U.starProjection x - V.starProjection x := by rw [hDdef]; rfl
+  have hx := h
+  rw [reflectionProduct_add_swap_eq U V, ← hDdef] at hx
+  have hval : ((2 : ℂ) • (1 : E →L[ℂ] E) - (4 : ℂ) • (D * D)) x
+      = (2 : ℂ) • x - (4 : ℂ) • D (D x) := by
+    simp only [sub_apply, smul_apply, one_apply_eq_self, mul_apply_eq_comp]
+  rw [hval, inner_sub_left, map_sub, inner_smul_left, inner_smul_left] at hx
+  have hDsq : RCLike.re ⟪D (D x), x⟫_ℂ = ‖D x‖ ^ 2 := by
+    calc RCLike.re ⟪D (D x), x⟫_ℂ = RCLike.re ⟪(star D) (D x), x⟫_ℂ := by
+          rw [hDstar.star_eq]
+      _ = RCLike.re ⟪D x, D x⟫_ℂ := by
+          rw [ContinuousLinearMap.star_eq_adjoint,
+            ContinuousLinearMap.adjoint_inner_left]
+      _ = ‖D x‖ ^ 2 := by rw [inner_self_eq_norm_sq]
+  have htwo : RCLike.re ((starRingEnd ℂ) (2 : ℂ) * ⟪x, x⟫_ℂ) = 2 * ‖x‖ ^ 2 := by
+    simpa using re_conj_real_mul_inner_self (E := E) 2 x
+  have hfour : RCLike.re ((starRingEnd ℂ) (4 : ℂ) * ⟪D (D x), x⟫_ℂ) =
+      4 * RCLike.re ⟪D (D x), x⟫_ℂ := re_conj_real_mul 4 ⟪D (D x), x⟫_ℂ
+  rw [htwo, hfour, hDsq] at hx
+  rw [← hDx]
+  linarith
+
+/-- **`Θ ≤ π/4` in the printed angle form.** -/
+theorem maximalAngle_le_pi_div_four_of_reflectionProduct_form_nonneg
+    (U V : Submodule ℂ E)
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
+    (h : ∀ x : E, 0 ≤ RCLike.re ⟪(V.reflectionOperator * U.reflectionOperator
+      + U.reflectionOperator * V.reflectionOperator) x, x⟫_ℂ) :
+    TauCeti.DavisKahanExt.maximalAngle U V ≤ Real.pi / 4 := by
+  have hle := subspaceGap_le_of_reflectionProduct_form_nonneg U V h
+  have hpi : Real.arcsin (Real.sqrt 2 / 2) = Real.pi / 4 := by
+    rw [← Real.sin_pi_div_four]
+    exact Real.arcsin_sin (by linarith [Real.pi_pos]) (by linarith [Real.pi_pos])
+  calc TauCeti.DavisKahanExt.maximalAngle U V
+      = Real.arcsin (U.projectionGap V) := rfl
+    _ ≤ Real.arcsin (Real.sqrt 2 / 2) := Real.arcsin_le_arcsin hle
+    _ = Real.pi / 4 := hpi
 
 end
 

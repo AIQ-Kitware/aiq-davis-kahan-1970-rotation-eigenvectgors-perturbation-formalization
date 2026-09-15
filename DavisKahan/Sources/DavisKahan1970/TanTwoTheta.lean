@@ -120,7 +120,7 @@ namespace DavisKahan1970
 /-! ## The source norm scope: every unitarily invariant norm -/
 
 /-- The double-angle tangent scalar function `t ↦ 2t/(1 - t²)`. -/
-alias tanTwoTheta_doubleAngleTangent := DavisKahanTheory.doubleAngleTangent
+alias tanTwoTheta_doubleAngleTangent := DavisKahan.TanTwoTheta.doubleAngleTangent
 
 /-- **Davis--Kahan 1970, `tan 2Θ` theorem, every rectangular unitarily
 invariant norm** (Section 7, equation (7.6), paired-singular-vector proof;
@@ -129,16 +129,16 @@ for a fully off-diagonal symmetric perturbation `H` across the form gap
 `[a, b]`, where `tan 2Θ₀` is any operator whose singular values are the
 double-angle tangents of the principal angles between `U` and the perturbed
 invariant graph subspace. -/
-alias tanTwoTheta_principalBranch_finiteDimensional_uiNorm_rclike := DavisKahanTheory.tanTwoTheta0_offDiagonal_le
+alias tanTwoTheta_principalBranch_finiteDimensional_uiNorm_rclike := DavisKahan.FiniteDimensional.tanTwoTheta0_offDiagonal_le
 
 /-- The Ky Fan prefix root of `tanTwoTheta_principalBranch_finiteDimensional_uiNorm_rclike`: equation (7.6) summed
 over paired singular vectors. -/
-alias tanTwoTheta_principalBranch_finiteDimensional_kyFan_rclike := DavisKahanTheory.kyFan_tanTwoTheta0_offDiagonal_le
+alias tanTwoTheta_principalBranch_finiteDimensional_kyFan_rclike := DavisKahan.FiniteDimensional.kyFan_tanTwoTheta0_offDiagonal_le
 
 /-- The paired-singular-vector scalar inequality at the heart of the source
 argument. -/
 alias tanTwoTheta_pairedSingularVector_scalar :=
-  DavisKahanTheory.doubleAngleTangent_scalar
+  DavisKahan.FiniteDimensional.doubleAngleTangent_scalar
 
 /-! ## The infinite-dimensional sharp ideal form -/
 
@@ -148,18 +148,18 @@ configuration): membership of the off-diagonal perturbation in the ideal
 transports to any `tan 2Θ₀` representative, with
 `(b - a) · N(tan 2Θ₀) ≤ 2 · N(H)`. -/
 alias tanTwoTheta_principalBranch_finiteSubspace_idealFamily_rclike :=
-  DavisKahanTheory.tanTwoTheta0_offDiagonal_mem_and_gauge_le_of_finiteDimensional_invariantSubspace
+  DavisKahan.TanTwoTheta.tanTwoTheta0_offDiagonal_mem_and_gauge_le_of_finiteDimensional_invariantSubspace
 
 /-- The Ky Fan approximation-number root of the infinite-dimensional sharp
 form; holds for every `k` with no ideal hypothesis. -/
 alias tanTwoTheta_principalBranch_finiteSubspace_kyFan_rclike :=
-  DavisKahanTheory.kyFan_tanTwoTheta0_offDiagonal_le_of_finiteDimensional_invariantSubspace
+  DavisKahan.TanTwoTheta.kyFan_tanTwoTheta0_offDiagonal_le_of_finiteDimensional_invariantSubspace
 
 /-- Representative-free infinite-dimensional Ky Fan root, phrased directly
 in the double-angle tangents of the graph-coordinate approximation
 numbers. -/
 alias tanTwoTheta_doubleAngleTangent_finiteSubspace_kyFan_rclike :=
-  DavisKahanTheory.kyFan_doubleAngleTangent_offDiagonal_le_of_finiteDimensional_invariantSubspace
+  DavisKahan.TanTwoTheta.kyFan_doubleAngleTangent_offDiagonal_le_of_finiteDimensional_invariantSubspace
 
 /-- The Ky Fan variational bound for approximation-number prefixes: the
 infinite-dimensional max--min principle used alongside the compression

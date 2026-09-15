@@ -8,6 +8,7 @@ CFC bridge for the finite-dimensional operator polar decomposition.
 module
 
 public import ForTauCeti.Analysis.InnerProductSpace.Polar.Decomposition
+public import ForTauCeti.Analysis.InnerProductSpace.OperatorModulus
 public import ForTauCeti.Analysis.InnerProductSpace.SelfAdjointFunctionalCalculus
 public import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Abs
 public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
@@ -18,6 +19,32 @@ namespace TauCeti
 
 open scoped InnerProductSpace
 open LinearMap InnerProductSpace
+
+/-! ### Finite/complete modulus agreement -/
+
+section ModulusAgreement
+
+variable {𝕜 : Type*} [RCLike 𝕜]
+variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
+  [FiniteDimensional 𝕜 E]
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
+  [FiniteDimensional 𝕜 F]
+
+local instance : CompleteSpace E := FiniteDimensional.complete 𝕜 E
+local instance : CompleteSpace F := FiniteDimensional.complete 𝕜 F
+
+/-- In finite dimension, the spectral source modulus and the bounded CFC source modulus are
+the same operator. -/
+theorem operatorAbs_toContinuousLinearMap_eq_modulus (A : E →ₗ[𝕜] F) :
+    (operatorAbs A).toContinuousLinearMap = A.toContinuousLinearMap.modulus := by
+  refine ContinuousLinearMap.eq_modulus_of_nonneg_of_mul_self_eq ?_ ?_
+  · exact (ContinuousLinearMap.nonneg_iff_isPositive _).mpr
+      ((LinearMap.isPositive_toContinuousLinearMap_iff (operatorAbs A)).mpr
+        (isPositive_operatorAbs A))
+  · ext x
+    exact congrArg (fun f : E →ₗ[𝕜] E => f x) (operatorAbs_mul_self A)
+
+end ModulusAgreement
 
 /-! ### CFC bridge — the ℂ / ContinuousLinearMap headline (`|A| = CFC.abs A`)
 
@@ -176,21 +203,12 @@ theorem selfAdjointFunctionalCalculus_toContinuousLinearMap_eq_cfc {T : H →ₗ
     rfl
   exact key.symm
 
-/-- The spectral modulus agrees with the C⋆-algebra `CFC.abs` on `E →L[ℂ] E`,
-transported across
-the definitional `LinearMap ↔ ContinuousLinearMap` adjoint bridge (`adjoint_toContinuousLinearMap`
-is `rfl`). This is what makes the decomposition literally "via CFC". -/
+/-- Over `ℂ`, the common modulus is Mathlib's C⋆-algebra absolute value. -/
 theorem operatorAbs_toContinuousLinearMap_eq_cfcAbs (A : H →ₗ[ℂ] H) :
     (operatorAbs A).toContinuousLinearMap = CFC.abs A.toContinuousLinearMap := by
-  refine (CFC.sqrt_unique ?_ ?_).symm
-  · -- `|A|.toCLM * |A|.toCLM = star A.toCLM * A.toCLM`, transported from
-    -- `operatorAbs_mul_self` across
-    -- the definitional `LinearMap ↔ ContinuousLinearMap` adjoint bridge.
-    ext x
-    exact congrArg (fun f : H →ₗ[ℂ] H => f x) (operatorAbs_mul_self A)
-  · exact (ContinuousLinearMap.nonneg_iff_isPositive _).mpr
-      ((LinearMap.isPositive_toContinuousLinearMap_iff (operatorAbs A)).mpr
-        (isPositive_operatorAbs A))
+  rw [operatorAbs_toContinuousLinearMap_eq_modulus]
+  simpa [CFC.abs] using
+    ContinuousLinearMap.modulus_eq_sqrt_star_mul_self A.toContinuousLinearMap
 
 /-- **Headline (via CFC):** every `A : H →L[ℂ] H` factors as `A = U ∘L CFC.abs A` with `U` a
 partial isometry. -/

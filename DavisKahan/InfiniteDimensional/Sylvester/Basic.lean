@@ -7,9 +7,15 @@ import DavisKahan.InfiniteDimensional.Ideals.Symmetric
 import DavisKahan.InfiniteDimensional.Ideals.CompactIntegral
 import DavisKahan.InfiniteDimensional.Sylvester.FourierSemigroup
 import DavisKahan.InfiniteDimensional.Sylvester.OrderedSemigroup
-import ForTauCeti.Analysis.InnerProductSpace.Sylvester.Bound
-import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+import ForTauCeti.Analysis.InnerProductSpace.Sylvester.Operator
+import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm
 import DavisKahan.SpectralTheory.AbstractSpectrum
+
+open TauCeti.DavisKahan.Angle
+
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Infinite-dimensional bounded Sylvester equations
@@ -28,7 +34,9 @@ transported through complexification.
 namespace TauCeti
 
 open TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Sylvester
+
+open TauCeti.DavisKahanExt
 
 open DavisKahan.Foundation
 
@@ -45,65 +53,6 @@ variable {𝕜 : Type*} [RCLike 𝕜]
 variable {E : Type u} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
 variable {F : Type v} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
 
-/-- Sylvester operator `X |-> A X - X B`. -/
-def sylvesterOperator (A : F →L[𝕜] F) (B : E →L[𝕜] E)
-    (X : E →L[𝕜] F) : E →L[𝕜] F :=
-  A ∘L X - X ∘L B
-
-/-- The Sylvester operator sends `0` to `0`. -/
-@[simp] theorem sylvesterOperator_zero
-    (A : F →L[𝕜] F) (B : E →L[𝕜] E) :
-    sylvesterOperator A B (0 : E →L[𝕜] F) = 0 := by
-  simp [sylvesterOperator]
-
-/-- The Sylvester operator is additive. -/
-theorem sylvesterOperator_add
-    (A : F →L[𝕜] F) (B : E →L[𝕜] E) (X Y : E →L[𝕜] F) :
-    sylvesterOperator A B (X + Y) =
-      sylvesterOperator A B X + sylvesterOperator A B Y := by
-  simp only [sylvesterOperator, ContinuousLinearMap.comp_add,
-    ContinuousLinearMap.add_comp]
-  abel
-
-/-- The Sylvester operator commutes with subtraction. -/
-theorem sylvesterOperator_sub
-    (A : F →L[𝕜] F) (B : E →L[𝕜] E) (X Y : E →L[𝕜] F) :
-    sylvesterOperator A B (X - Y) =
-      sylvesterOperator A B X - sylvesterOperator A B Y := by
-  simp only [sylvesterOperator, ContinuousLinearMap.comp_sub,
-    ContinuousLinearMap.sub_comp]
-  abel
-
-/-- The Sylvester operator is homogeneous. -/
-theorem sylvesterOperator_smul
-    (A : F →L[𝕜] F) (B : E →L[𝕜] E) (c : 𝕜) (X : E →L[𝕜] F) :
-    sylvesterOperator A B (c • X) = c • sylvesterOperator A B X := by
-  ext x
-  simp [sylvesterOperator, smul_sub]
-
-/-- Elementary operator-norm bound. -/
-theorem norm_sylvesterOperator_le
-    (A : F →L[𝕜] F) (B : E →L[𝕜] E) (X : E →L[𝕜] F) :
-    ‖sylvesterOperator A B X‖ ≤ (‖A‖ + ‖B‖) * ‖X‖ := by
-  calc
-    ‖sylvesterOperator A B X‖ ≤ ‖A ∘L X‖ + ‖X ∘L B‖ := norm_sub_le _ _
-    _ ≤ ‖A‖ * ‖X‖ + ‖X‖ * ‖B‖ :=
-      add_le_add (ContinuousLinearMap.opNorm_comp_le A X)
-        (ContinuousLinearMap.opNorm_comp_le X B)
-    _ = (‖A‖ + ‖B‖) * ‖X‖ := by ring
-
-/-- The sharp coercive form of the ordered Sylvester estimate. -/
-theorem norm_sylvester_le_of_coercive
-    {A : F →L[𝕜] F} {B : E →L[𝕜] E} {X C : E →L[𝕜] F}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
-    {c g : ℝ} (hg : 0 < g)
-    (hAc : ∀ x, (c + g) * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_𝕜)
-    (hBc : ∀ x, RCLike.re ⟪B x, x⟫_𝕜 ≤ c * ‖x‖ ^ 2)
-    (hEq : sylvesterOperator A B X = C) :
-    ‖X‖ ≤ ‖C‖ / g :=
-  TauCeti.ContinuousLinearMap.opNorm_le_div_of_comp_sub_comp_eq hA hB hg hAc hBc hEq
-
-
 section OrderedComplex
 
 variable {Ec : Type u} [NormedAddCommGroup Ec] [InnerProductSpace ℂ Ec]
@@ -114,10 +63,10 @@ variable {Fc : Type v} [NormedAddCommGroup Fc] [InnerProductSpace ℂ Fc]
 /-- Sharp constant-one estimate for ordered bounded self-adjoint spectra. -/
 theorem norm_sylvester_le_of_orderedSeparation
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec} {X C : Ec →L[ℂ] Fc}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : OrderedSpectraSeparated B ⊤ A ⊤ d)
-    (hEq : sylvesterOperator A B X = C) :
+    (hEq : ContinuousLinearMap.sylvesterOperator A B X = C) :
     d * ‖X‖ ≤ ‖C‖ := by
   have hrep := orderedSylvester_reconstruction hA hB hd hsep hEq
   have hgint : Integrable (Set.indicator (Set.Ici 0)
@@ -174,11 +123,11 @@ noncomputable def separatedSylvesterSolution
 /-- Exact reconstruction of any solution by the reciprocal Fourier kernel. -/
 theorem separatedSylvester_reconstruction
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
     (X C : Ec →L[ℂ] Fc)
-    (hEq : sylvesterOperator A B X = C) :
+    (hEq : ContinuousLinearMap.sylvesterOperator A B X = C) :
     X = separatedSylvesterSolution A B d hd C := by
   unfold separatedSylvesterSolution
   exact separatedSylvester_reconstruction_complex hA hB hd hsep X C hEq
@@ -186,7 +135,7 @@ theorem separatedSylvester_reconstruction
 /-- The selected Fourier integral is Bochner integrable. -/
 theorem separatedSylvester_integrable
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d) (C : Ec →L[ℂ] Fc) :
     Integrable fun t : ℝ => separatedSylvesterMultiplier d hd t •
       (unitaryGroup A t ∘L C ∘L unitaryGroup B (-t)) :=
@@ -195,22 +144,22 @@ theorem separatedSylvester_integrable
 /-- The Fourier integral solves the Sylvester equation. -/
 theorem sylvester_solve
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
     (C : Ec →L[ℂ] Fc) :
-    sylvesterOperator A B (separatedSylvesterSolution A B d hd C) = C := by
-  unfold sylvesterOperator separatedSylvesterSolution
+    ContinuousLinearMap.sylvesterOperator A B (separatedSylvesterSolution A B d hd C) = C := by
+  unfold ContinuousLinearMap.sylvesterOperator separatedSylvesterSolution
   exact spectral_step_integral_right_inverse hA hB hd hsep C
 
 /-- Universal Bhatia--Davis--McIntosh bound. -/
 theorem norm_sylvester_le_of_generalSeparation
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec}
     {X C : Ec →L[ℂ] Fc}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
-    (hEq : sylvesterOperator A B X = C) :
+    (hEq : ContinuousLinearMap.sylvesterOperator A B X = C) :
     d * ‖X‖ ≤ (Real.pi / 2) * ‖C‖ := by
   rw [separatedSylvester_reconstruction hA hB hd hsep X C hEq]
   have hint := separatedSylvester_integrable hA hB hd C
@@ -238,14 +187,15 @@ theorem norm_sylvester_le_of_generalSeparation
 /-- Uniqueness under separated spectra. -/
 theorem sylvester_unique
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
     {X Y : Ec →L[ℂ] Fc}
-    (hX : sylvesterOperator A B X = sylvesterOperator A B Y) :
+    (hX : ContinuousLinearMap.sylvesterOperator A B X = ContinuousLinearMap.sylvesterOperator A B
+      Y) :
     X = Y := by
-  have hzero : sylvesterOperator A B (X - Y) = 0 := by
-    rw [sylvesterOperator_sub, hX, sub_self]
+  have hzero : ContinuousLinearMap.sylvesterOperator A B (X - Y) = 0 := by
+    rw [ContinuousLinearMap.sylvesterOperator_sub, hX, sub_self]
   have hle := norm_sylvester_le_of_generalSeparation hA hB hd hsep hzero
   rw [norm_zero, mul_zero] at hle
   have hnorm : ‖X - Y‖ = 0 := by
@@ -261,11 +211,11 @@ abbreviation used by those consumers unfolds to that ideal. -/
 theorem compact_mem_of_separatedSylvester_solution
     (_I : SymmetricNormIdeal (𝕜 := ℂ) (E := Ec))
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
     {X C : Ec →L[ℂ] Fc}
-    (hEq : sylvesterOperator A B X = C)
+    (hEq : ContinuousLinearMap.sylvesterOperator A B X = C)
     (hC : IsCompactOperator C) :
     IsCompactOperator X := by
   have hrep := separatedSylvester_reconstruction_complex hA hB hd hsep X C hEq
@@ -283,5 +233,5 @@ end Complex
 
 end
 
-end DavisKahanExt
+end DavisKahan.Sylvester
 end TauCeti

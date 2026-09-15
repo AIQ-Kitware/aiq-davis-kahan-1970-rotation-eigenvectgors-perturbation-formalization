@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.SinTheta.Real.Unbounded
 import DavisKahan.SinTheta.Real.FrameFactorization
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Real generalized unbounded sine-theta theorem
 
@@ -107,7 +109,7 @@ theorem generalizedSinTheta_unbounded_exact_real
       directedSinThetaOperatorReal D.X F₀ hframe hε =
         directedSinThetaOperatorOfPolarData P F₀ := rfl
   refine ⟨hDirectedDef ▸ hAngle.1, ?_⟩
-  simp only [KyFanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
+  simp only [FanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
   rw [hDirectedDef, hAngle.2, ← hBlockDef]
   exact hBlock.2
 

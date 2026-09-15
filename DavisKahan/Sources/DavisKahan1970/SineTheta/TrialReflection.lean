@@ -7,6 +7,8 @@ import DavisKahan.BoundedOperator.Reflection
 import DavisKahan.InfiniteDimensional.DoubleAngle
 import DavisKahan.DoubleAngle.UnboundedIdeal
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The reflected system built from Davis--Kahan trial data
 
@@ -41,6 +43,7 @@ open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -50,22 +53,16 @@ variable {𝕜 : Type u} [RCLike 𝕜]
 variable {H : Type v} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
   [CompleteSpace H]
 
-/-- A subspace admitting an orthogonal projection inside a complete ambient
-space is itself complete.  `local instance` does not propagate through imports,
-so it is reinstalled here. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionTrialReflection
-    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
-    (U : Submodule 𝕜 G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
-
 section TrialReflection
 
 variable (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
   (M : V →L[𝕜] V) (R : V →L[𝕜] H)
 
 /-- The bounded operator the trial data determines, namely `A P_V`.  It is
-bounded because the residual and the trial operator are, which is exactly the
-source's standing requirement for a useful unbounded conclusion. -/
+bounded because this specialization assumes both residual and trial operator
+bounded. That is stronger than the source common-dense-domain setup, where the
+trial operator may be unbounded. Only its off-diagonal residual block is needed
+in the common-domain replacement. -/
 def trialCompression : H →L[𝕜] H :=
   (R + V.subtypeL ∘L M) ∘L V.subtypeL.adjoint
 

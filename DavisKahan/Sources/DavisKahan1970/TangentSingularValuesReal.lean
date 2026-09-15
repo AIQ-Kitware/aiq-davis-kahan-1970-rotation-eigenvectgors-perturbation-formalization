@@ -4,8 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 5
 -/
 import DavisKahan.Sources.DavisKahan1970.TangentSingularValues
-import DavisKahan.Geometry.Angle.PaperOperatorAngleReal
+import DavisKahan.Geometry.Angle.AngleFunctionalCalculusReal
 import DavisKahan.OperatorIdeal.ComplexificationApproximation
+
+open TauCeti.DavisKahan.Angle
+
 
 /-!
 # The single-angle tangent's singular values, over `ℝ`
@@ -18,7 +21,7 @@ analysis.
 
 ## Main results
 
-* `approximationNumber_paperTanAngleOperatorR` — `aₙ(tan Θ) = tan (arcsin aₙ(sin Θ))`
+* `approximationNumber_tanAngleOperatorR` — `aₙ(tan Θ) = tan (arcsin aₙ(sin Θ))`
   over `ℝ`, with `sin Θ` presented as the projector difference.
 * `approximationNumber_projectorDifference_lt_one_real` — the transversality that
   makes each of those a genuine tangent.
@@ -33,7 +36,6 @@ namespace TauCeti
 namespace DavisKahan1970
 
 open scoped InnerProductSpace
-open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.ApproximationNumber
@@ -53,6 +55,7 @@ section SingleAngleReal
 variable (U V : Submodule ℝ E)
   [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
 
+omit [CompleteSpace E] in
 /-- The complexified projector difference is the projector difference of the
 complexified subspaces. -/
 theorem complexify_projectorDifference :
@@ -64,10 +67,10 @@ theorem complexify_projectorDifference :
 
 /-- Uniform transversality transfers to the complexification. -/
 theorem norm_sinAngleOperatorC_complexify_lt_one
-    (htr : ‖paperSinAngleOperatorR U V‖ < 1) :
+    (htr : ‖sinAngleOperatorR U V‖ < 1) :
     ‖sinAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)‖ < 1 := by
   rw [norm_sinAngleOperatorC, subspaceGap_complexifySubmodule U V,
-    ← norm_paperSinAngleOperatorR]
+    ← norm_sinAngleOperatorR]
   exact htr
 
 /-- **The real ambient tangent carries the tangents of the principal angles.**
@@ -75,30 +78,30 @@ theorem norm_sinAngleOperatorC_complexify_lt_one
 `aₙ(tan Θ) = tan (arcsin aₙ(sin Θ))` over `ℝ`, with `sin Θ` presented as the
 projector difference `P_V − P_U`, whose singular values are the sines of the
 principal angles with their ambient multiplicity. -/
-theorem approximationNumber_paperTanAngleOperatorR
-    (htr : ‖paperSinAngleOperatorR U V‖ < 1) (n : ℕ) :
-    (paperTanAngleOperatorR U V).approximationNumber n =
+theorem approximationNumber_tanAngleOperatorR
+    (htr : ‖sinAngleOperatorR U V‖ < 1) (n : ℕ) :
+    (tanAngleOperatorR U V).approximationNumber n =
       Real.tan (Real.arcsin
         ((V.starProjection - U.starProjection).approximationNumber n)) := by
   have htrC := norm_sinAngleOperatorC_complexify_lt_one U V htr
-  have h1 : (paperTanAngleOperatorR U V).approximationNumber n =
-      (paperTanAngleOperatorC (complexifySubmodule U)
+  have h1 : (tanAngleOperatorR U V).approximationNumber n =
+      (tanAngleOperatorC (complexifySubmodule U)
         (complexifySubmodule V)).approximationNumber n := by
-    rw [← complexify_paperTanAngleOperatorR]
+    rw [← complexify_tanAngleOperatorR]
     exact (ComplexificationApproximation.approximationSingularValue_complexify
-      (paperTanAngleOperatorR U V) n).symm
+      (tanAngleOperatorR U V) n).symm
   have h2 : (sinAngleOperatorC (complexifySubmodule U)
       (complexifySubmodule V)).approximationNumber n =
       (V.starProjection - U.starProjection).approximationNumber n := by
     rw [approximationNumber_sinAngleOperatorC, ← complexify_projectorDifference]
     exact ComplexificationApproximation.approximationSingularValue_complexify
       (V.starProjection - U.starProjection) n
-  rw [h1, approximationNumber_paperTanAngleOperatorC _ _ htrC n, h2]
+  rw [h1, approximationNumber_tanAngleOperatorC _ _ htrC n, h2]
 
 /-- Under uniform transversality no principal angle is a right angle, so each
 `tan (arcsin aₙ)` above is a genuine tangent. -/
 theorem approximationNumber_projectorDifference_lt_one_real
-    (htr : ‖paperSinAngleOperatorR U V‖ < 1) (n : ℕ) :
+    (htr : ‖sinAngleOperatorR U V‖ < 1) (n : ℕ) :
     (V.starProjection - U.starProjection).approximationNumber n < 1 := by
   have htrC := norm_sinAngleOperatorC_complexify_lt_one U V htr
   have h2 : (sinAngleOperatorC (complexifySubmodule U)

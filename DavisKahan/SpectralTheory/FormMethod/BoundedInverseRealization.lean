@@ -154,7 +154,7 @@ theorem isClosed_graph_rangeInverse
 partial map.  Density and graph closedness are the two lemmas below. -/
 noncomputable def inversePartialMap
     (R : H →L[𝕜] H)
-    (hR : IsSelfAdjoint R)
+    (_hR : IsSelfAdjoint R)
     (hinj : Function.Injective R) :
     H →ₗ.[𝕜] H where
   domain := inverseDomain R

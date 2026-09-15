@@ -82,6 +82,7 @@ variable {E F : Type*}
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [FiniteDimensional 𝕜 E]
   [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [FiniteDimensional 𝕜 F]
 
+omit [FiniteDimensional 𝕜 F] in
 /-- **Acceptance example: the rank cutoff on a concrete map.**  The `Cardinal`-free
 form of `ContinuousLinearMap.approximationNumber_eq_zero_of_rank_le`, which is what
 a consumer holding an explicit finite-dimensional map has. -/

@@ -24,7 +24,7 @@ public import ForTauCeti.Analysis.Matrix.SpectralFunctionMeasurable
 Weyl's inequality bounds the eigenvalue perturbation by the *operator* norm of the
 difference.  Combined with the entrywise→operator-norm comparison
 `‖toEuclideanLin A‖ ≤ n · (entrywise sup of A)`, this gives a directly usable
-**entrywise** eigenvalue-perturbation bound: if two real symmetric `n × n`
+**entrywise** eigenvalue-perturbation bound: if two Hermitian `n × n`
 matrices are entrywise `ε`-close, their sorted eigenvalues differ by at most
 `n · ε`.
 
@@ -55,20 +55,21 @@ namespace TauCeti.Matrix
 
 variable {n : ℕ}
 
-/-- **Entrywise eigenvalue perturbation.**  If two real symmetric matrices `A`,
+/-- **Entrywise eigenvalue perturbation.**  If two Hermitian matrices `A`,
 `Ahat` are entrywise `ε`-close, their `k`-th eigenvalues differ by at most
 `n · ε` (Weyl's inequality through the entrywise → operator-norm comparison). -/
-theorem abs_eigenvalues₀_sub_le_of_entry_le {A Ahat : Matrix (Fin n) (Fin n) ℝ}
+theorem abs_eigenvalues₀_sub_le_of_entry_le {𝕜 : Type*} [RCLike 𝕜]
+    {A Ahat : Matrix (Fin n) (Fin n) 𝕜}
     (hA : A.IsHermitian) (hAhat : Ahat.IsHermitian)
-    {ε : ℝ} (hentry : ∀ i j, |Ahat i j - A i j| ≤ ε)
+    {ε : ℝ} (hentry : ∀ i j, ‖Ahat i j - A i j‖ ≤ ε)
     (k : Fin (Fintype.card (Fin n))) :
     |hAhat.eigenvalues₀ k - hA.eigenvalues₀ k| ≤ (n : ℝ) * ε := by
   -- Operator-norm bound on the difference, from the entrywise bound.
-  have hop : ∀ x : EuclideanSpace ℝ (Fin n),
+  have hop : ∀ x : EuclideanSpace 𝕜 (Fin n),
       ‖(Matrix.toEuclideanLin Ahat - Matrix.toEuclideanLin A) x‖ ≤ ((n : ℝ) * ε) * ‖x‖ := by
     intro x
     rw [← map_sub]
-    have hentry' : ∀ i j, |(Ahat - A) i j| ≤ ε := by
+    have hentry' : ∀ i j, ‖(Ahat - A) i j‖ ≤ ε := by
       intro i j; simpa [Matrix.sub_apply] using hentry i j
     exact TauCeti.norm_toEuclideanLin_le_of_entry_le hentry' x
   -- Weyl on the symmetric operators.

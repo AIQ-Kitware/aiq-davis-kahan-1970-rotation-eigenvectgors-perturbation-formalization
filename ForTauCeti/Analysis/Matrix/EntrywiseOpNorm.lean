@@ -26,7 +26,7 @@ bound of it by the entrywise norm):
 
 * on `EuclideanSpace 𝕜 ι`, `∑ i, ‖x i‖ ≤ √(card ι) · ‖x‖` (Cauchy–Schwarz /
   Chebyshev);
-* for a real `n × n` matrix with entries bounded by `ε`, the induced Euclidean
+* for an `RCLike` `n × n` matrix with entries bounded by `ε`, the induced Euclidean
   operator `Matrix.toEuclideanLin A` has `‖A x‖ ≤ n ε ‖x‖`.
 
 ## Main results
@@ -34,20 +34,10 @@ bound of it by the entrywise norm):
 * `TauCeti.sum_norm_le_sqrt_card_mul_norm`
 * `TauCeti.norm_toEuclideanLin_le_of_entry_le`
 
-The matrix bound's constant `n` is loose (the Frobenius bound gives `√(card)`);
-it is the form produced by an entrywise sup bound and consumed by operator-norm
-spectral-perturbation arguments.
-
-**The matrix bound is stated over `ℝ`, and the `RCLike` form is open — but it is
-not the routine transport an earlier version of this docstring promised.**
-`Matrix.toEuclideanLin` over a general `𝕜` carries the conjugate-linear
-convention on one side, so the entrywise hypothesis composes through `‖·‖` rather
-than through the real absolute value and **the factor `n` has to be re-derived**
-rather than transported.  Restating the real proof with `[RCLike 𝕜]` written over
-it is the move the operator-ideal roadmap's generality bar forbids, and it is the
-first thing a reader who trusts the word *routine* will try.  The `ℓ¹`-versus-`ℓ²`
-companion, `sum_norm_le_sqrt_card_mul_norm`, is already `RCLike` and is not
-affected.
+The matrix estimate uses the scalar norm over any `RCLike` field. Apply the triangle
+inequality in each row, then the two `l1`-to-`l2` estimates. For an `n` by `n`
+matrix with every entry bounded by `epsilon`, the resulting constant is `n * epsilon`.
+This includes `n = 0` without a nonnegativity assumption on the entry bound.
 
 ## Provenance
 
@@ -90,73 +80,53 @@ theorem sum_norm_le_sqrt_card_mul_norm {𝕜 ι : Type*} [RCLike 𝕜] [Fintype 
     rw [hrw, hnorm]; exact hcs
   exact (abs_le_of_sq_le_sq' hsq hrhs_nonneg).2
 
-/--
-**Entrywise → Euclidean operator-norm bound.** If every entry of a real
-`n × n` matrix `A` has `|A i j| ≤ ε`, then the operator `Matrix.toEuclideanLin A`
-satisfies `‖A x‖ ≤ n ε ‖x‖` for all `x`.
--/
-theorem norm_toEuclideanLin_le_of_entry_le {n : ℕ} {A : Matrix (Fin n) (Fin n) ℝ}
-    {ε : ℝ} (hentry : ∀ i j, |A i j| ≤ ε) (x : EuclideanSpace ℝ (Fin n)) :
+/-- An entrywise scalar-norm bound gives a Euclidean operator bound, over `RCLike`. -/
+theorem norm_toEuclideanLin_le_of_entry_le {𝕜 : Type*} [RCLike 𝕜]
+    {n : ℕ} {A : Matrix (Fin n) (Fin n) 𝕜}
+    {ε : ℝ} (hentry : ∀ i j, ‖A i j‖ ≤ ε)
+    (x : EuclideanSpace 𝕜 (Fin n)) :
     ‖Matrix.toEuclideanLin A x‖ ≤ (n : ℝ) * ε * ‖x‖ := by
   rcases Nat.eq_zero_or_pos n with hn | hn
   · subst hn
     have hzero : Matrix.toEuclideanLin A x = 0 := Subsingleton.elim _ _
-    rw [hzero, norm_zero]; simp
-  · have hε : 0 ≤ ε := (abs_nonneg _).trans (hentry ⟨0, hn⟩ ⟨0, hn⟩)
-    -- Row-wise: `|(A x) i| ≤ ε ∑ |x j| ≤ ε √n ‖x‖`.
+    rw [hzero, norm_zero]
+    simp
+  · have heps : 0 ≤ ε := (norm_nonneg _).trans (hentry ⟨0, hn⟩ ⟨0, hn⟩)
     have hrow : ∀ i : Fin n,
-        |(Matrix.toEuclideanLin A x) i| ≤ ε * (Real.sqrt n * ‖x‖) := by
+        ‖(Matrix.toEuclideanLin A x) i‖ ≤ ε * (Real.sqrt n * ‖x‖) := by
       intro i
       have happ : (Matrix.toEuclideanLin A x) i = ∑ j : Fin n, A i j * x j := by
-        -- states the goal with the definition unfolded, in the shape the next step needs;
-        -- there is no `_apply` lemma to rewrite with here.
         change (A.mulVec (WithLp.ofLp x)) i = _
         simp [Matrix.mulVec, dotProduct]
       calc
-        |(Matrix.toEuclideanLin A x) i|
-            = |∑ j : Fin n, A i j * x j| := by rw [happ]
-          _ ≤ ∑ j : Fin n, |A i j * x j| := Finset.abs_sum_le_sum_abs _ _
-          _ = ∑ j : Fin n, |A i j| * |x j| := by simp [abs_mul]
-          _ ≤ ∑ j : Fin n, ε * |x j| :=
-                Finset.sum_le_sum fun j _ =>
-                  mul_le_mul_of_nonneg_right (hentry i j) (abs_nonneg _)
-          _ = ε * ∑ j : Fin n, |x j| := by rw [Finset.mul_sum]
-          _ ≤ ε * (Real.sqrt n * ‖x‖) := by
-                refine mul_le_mul_of_nonneg_left ?_ hε
-                simpa using sum_norm_le_sqrt_card_mul_norm x
-    -- Sum the squared rows.
+        ‖(Matrix.toEuclideanLin A x) i‖ = ‖∑ j : Fin n, A i j * x j‖ := by rw [happ]
+        _ ≤ ∑ j : Fin n, ‖A i j * x j‖ := norm_sum_le _ _
+        _ = ∑ j : Fin n, ‖A i j‖ * ‖x j‖ := by simp only [norm_mul]
+        _ ≤ ∑ j : Fin n, ε * ‖x j‖ :=
+          Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_right (hentry i j) (norm_nonneg _)
+        _ = ε * ∑ j : Fin n, ‖x j‖ := by rw [Finset.mul_sum]
+        _ ≤ ε * (Real.sqrt n * ‖x‖) := by
+          exact mul_le_mul_of_nonneg_left
+            (by simpa using sum_norm_le_sqrt_card_mul_norm x) heps
     have hnorm_sq : ‖Matrix.toEuclideanLin A x‖ ^ 2
         ≤ (n : ℝ) * (ε * (Real.sqrt n * ‖x‖)) ^ 2 := by
-      have hexp : ‖Matrix.toEuclideanLin A x‖ ^ 2
-          = ∑ i : Fin n, |(Matrix.toEuclideanLin A x) i| ^ 2 := by
-        rw [EuclideanSpace.norm_sq_eq]
-        exact Finset.sum_congr rfl fun i _ => by rw [Real.norm_eq_abs]
-      have hpt : ∀ i : Fin n,
-          |(Matrix.toEuclideanLin A x) i| ^ 2 ≤ (ε * (Real.sqrt n * ‖x‖)) ^ 2 := by
-        intro i
-        rw [sq, sq]
-        exact mul_self_le_mul_self (abs_nonneg _) (hrow i)
-      rw [hexp]
+      rw [EuclideanSpace.norm_sq_eq]
       calc
-        ∑ i : Fin n, |(Matrix.toEuclideanLin A x) i| ^ 2
+        ∑ i : Fin n, ‖(Matrix.toEuclideanLin A x) i‖ ^ 2
             ≤ ∑ _i : Fin n, (ε * (Real.sqrt n * ‖x‖)) ^ 2 := by
-              apply Finset.sum_le_sum
-              intro i _
-              exact hpt i
-          _ = (n : ℝ) * (ε * (Real.sqrt n * ‖x‖)) ^ 2 := by
-              rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
-    -- Take square roots.
-    have hrhs_nonneg : 0 ≤ (n : ℝ) * ε * ‖x‖ := by positivity
-    have hsq_eq : ((n : ℝ) * ε * ‖x‖) ^ 2 = (n : ℝ) * (ε * (Real.sqrt n * ‖x‖)) ^ 2 := by
-      have hs : Real.sqrt (n : ℝ) * Real.sqrt (n : ℝ) = (n : ℝ) :=
-        Real.mul_self_sqrt (by positivity)
-      calc ((n : ℝ) * ε * ‖x‖) ^ 2
-          = (n : ℝ) * ((n : ℝ) * (ε ^ 2 * ‖x‖ ^ 2)) := by ring
-        _ = (n : ℝ) * ((Real.sqrt (n : ℝ) * Real.sqrt (n : ℝ)) * (ε ^ 2 * ‖x‖ ^ 2)) := by
-              rw [hs]
-        _ = (n : ℝ) * (ε * (Real.sqrt n * ‖x‖)) ^ 2 := by ring
-    have hle : ‖Matrix.toEuclideanLin A x‖ ^ 2 ≤ ((n : ℝ) * ε * ‖x‖) ^ 2 := by
-      rw [hsq_eq]; exact hnorm_sq
-    exact (abs_le_of_sq_le_sq' hle hrhs_nonneg).2
+          exact Finset.sum_le_sum fun i _ =>
+            pow_le_pow_left₀ (norm_nonneg _) (hrow i) 2
+        _ = (n : ℝ) * (ε * (Real.sqrt n * ‖x‖)) ^ 2 := by
+          rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+    have hs : (Real.sqrt (n : ℝ)) ^ 2 = (n : ℝ) := Real.sq_sqrt (by positivity)
+    have hsq_eq : ((n : ℝ) * ε * ‖x‖) ^ 2 =
+        (n : ℝ) * (ε * (Real.sqrt n * ‖x‖)) ^ 2 := by
+      simp only [mul_pow, hs]
+      ring
+    have hle : ‖Matrix.toEuclideanLin A x‖ ^ 2
+        ≤ ((n : ℝ) * ε * ‖x‖) ^ 2 := by
+      rw [hsq_eq]
+      exact hnorm_sq
+    exact (abs_le_of_sq_le_sq' hle (by positivity)).2
 
 end TauCeti

@@ -7,6 +7,8 @@ import DavisKahan.SpectralTheory.Real.SpectralRestriction
 import DavisKahan.SpectralTheory.Complexification.Spectrum
 import ForTauCeti.Analysis.InnerProductSpace.BorelCalculus.AlmostInvariant
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Bounded spectral bands over a real Hilbert space, by descent
 
@@ -41,6 +43,7 @@ open scoped InnerProductSpace ComplexConjugate
 namespace TauCeti
 namespace DavisKahan
 namespace RealSpectralRestriction
+
 
 open TauCeti.RealComplexification
 open TauCeti.DavisKahan.Foundation.RealComplexification

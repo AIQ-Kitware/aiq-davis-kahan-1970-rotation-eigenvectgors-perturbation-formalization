@@ -26,7 +26,7 @@ proof expands `P_{Uᗮ} wᵢ` in an eigenfamily of `T|Uᗮ` (`exists_isEigenFami
 each coordinate is multiplied by `lam i − μₖ`, and every such difference is at
 least `Δ` because `lam i` and `μₖ` sit on opposite sides of the gap.
 
-Because the trial values are only required to lie in `restrictedSpectrum T U`,
+Because the trial values are only required to lie in `restrictedPointSpectrum T U`,
 the statement is insensitive to which eigenvectors were chosen inside a repeated
 eigenspace — the point of `TauCeti.IsEigenFamily`.
 
@@ -74,7 +74,7 @@ theorem exists_isEigenFamily_span_eq (hT : T.IsSymmetric) {W : Submodule 𝕜 E}
     ∃ (m : ℕ) (y : Fin m → E) (c : Fin m → ℝ),
       IsEigenFamily T c y ∧ Submodule.span 𝕜 (Set.range y) = W := by
   classical
-  have hsym : (T.restrict hW).IsSymmetric := isSymmetric_restrict hT hW
+  have hsym : (T.restrict hW).IsSymmetric := hT.restrict_invariant hW
   have hm : finrank 𝕜 W = finrank 𝕜 W := rfl
   set b := hsym.eigenvectorBasis hm with hb
   have hon : Orthonormal 𝕜 fun k => ((b k : W) : E) :=
@@ -100,18 +100,19 @@ per unit of residual:
 No hypothesis is placed on `w`; the estimate is coordinatewise in an eigenfamily
 of `T|Uᗮ` followed by Bessel. -/
 theorem sq_gap_mul_sum_sq_norm_starProjection_orthogonal_le (hT : T.IsSymmetric)
-    {U : Submodule 𝕜 E} (hU : IsInvariant T U) {Δ : ℝ} (hΔ : 0 ≤ Δ)
-    (hgap : InternalGap T U Δ) {d : ℕ} (w : Fin d → E) (lam : Fin d → ℝ)
-    (hlam : ∀ i, lam i ∈ restrictedSpectrum T U) :
+    {U : Submodule 𝕜 E} {Δ : ℝ} (hΔ : 0 ≤ Δ)
+    (hgap : PointInternalGap T U Δ) {d : ℕ} (w : Fin d → E) (lam : Fin d → ℝ)
+    (hlam : ∀ i, lam i ∈ restrictedPointSpectrum T U) :
     Δ ^ 2 * ∑ i, ‖Uᗮ.starProjection (w i)‖ ^ 2
       ≤ ∑ i, ‖(lam i : 𝕜) • w i - T (w i)‖ ^ 2 := by
   classical
+  have hU := hgap.1
   obtain ⟨m, y, c, hfam, hspan⟩ :=
     exists_isEigenFamily_span_eq hT (isInvariant_orthogonal_of_isSymmetric hT hU)
   -- Each complementary eigenvalue is separated from every trial value.
   have hsep : ∀ (i : Fin d) (k : Fin m), Δ ≤ |lam i - c k| := fun i k =>
-    hgap (lam i) (c k) (hlam i)
-      (hspan ▸ hfam.eigenvalue_mem_restrictedSpectrum k)
+    hgap.2 (lam i) (c k) (hlam i)
+      (hspan ▸ hfam.eigenvalue_mem_restrictedPointSpectrum k)
   rw [Finset.mul_sum]
   refine Finset.sum_le_sum fun i _ => ?_
   -- The residual's coordinate at `y k` is `(lam i − cₖ) ⟪yₖ, wᵢ⟫`.

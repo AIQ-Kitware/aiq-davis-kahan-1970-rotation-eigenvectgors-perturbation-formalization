@@ -6,6 +6,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.TanTwoTheta.Unbounded
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Per-vector unbounded tangent two theta
 
@@ -33,9 +36,9 @@ variable {H : Type v}
 
 /-- Per-vector unbounded tangent-two-theta estimate for a bounded self-adjoint
 perturbation under an explicit spectral gap and quarter-acuteness hypothesis. -/
-theorem norm_tanTwoAngleOperatorC_apply_le_addBounded_of_spectrum_gap
+theorem norm_directedTanTwoAngleOperatorC_apply_le_addBounded_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -50,36 +53,36 @@ theorem norm_tanTwoAngleOperatorC_apply_le_addBounded_of_spectrum_gap
       (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
         (addBounded_isSelfAdjoint A hA E hE) S hS))
     (x : H) :
-    ‖tanTwoAngleOperatorC
+    ‖directedTanTwoAngleOperatorC
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
           (addBounded_isSelfAdjoint A hA E hE) S hS)
         hquarter x‖ ≤
       ((2 * ‖E‖ / δ) /
-        (1 - 2 * directedGap
+        (1 - 2 * Submodule.directedProjectionGap
           (selfAdjointSpectralSubspace A hA B hB)
           (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
             (addBounded_isSelfAdjoint A hA E hE) S hS) ^ 2)) * ‖x‖ := by
   let U := selfAdjointSpectralSubspace A hA B hB
   let V := selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
     (addBounded_isSelfAdjoint A hA E hE) S hS
-  have hop : ‖tanTwoAngleOperatorC U V hquarter‖ ≤
+  have hop : ‖directedTanTwoAngleOperatorC U V hquarter‖ ≤
       (2 * ‖E‖ / δ) /
-        (1 - 2 * directedGap U V ^ 2) :=
+        (1 - 2 * U.directedProjectionGap V ^ 2) :=
     tanTwoTheta_addBounded_of_spectrum_gap
       A hA E hE B S hB hS hβα hδ hBlow hBhigh hBcomplSpec hquarter
   calc
-    ‖tanTwoAngleOperatorC U V hquarter x‖ ≤
-        ‖tanTwoAngleOperatorC U V hquarter‖ * ‖x‖ :=
-      (tanTwoAngleOperatorC U V hquarter).le_opNorm x
+    ‖directedTanTwoAngleOperatorC U V hquarter x‖ ≤
+        ‖directedTanTwoAngleOperatorC U V hquarter‖ * ‖x‖ :=
+      (directedTanTwoAngleOperatorC U V hquarter).le_opNorm x
     _ ≤ ((2 * ‖E‖ / δ) /
-          (1 - 2 * directedGap U V ^ 2)) * ‖x‖ :=
+          (1 - 2 * U.directedProjectionGap V ^ 2)) * ‖x‖ :=
       mul_le_mul_of_nonneg_right hop (norm_nonneg x)
 
 /-- Set-localized per-vector form of the unbounded tangent-two-theta estimate. -/
-theorem norm_tanTwoAngleOperatorC_apply_le_addBounded_of_intervalExterior
+theorem norm_directedTanTwoAngleOperatorC_apply_le_addBounded_of_intervalExterior
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)
@@ -89,30 +92,30 @@ theorem norm_tanTwoAngleOperatorC_apply_le_addBounded_of_intervalExterior
       (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
         (addBounded_isSelfAdjoint A hA E hE) S hS))
     (x : H) :
-    ‖tanTwoAngleOperatorC
+    ‖directedTanTwoAngleOperatorC
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
           (addBounded_isSelfAdjoint A hA E hE) S hS)
         hquarter x‖ ≤
       ((2 * ‖E‖ / δ) /
-        (1 - 2 * directedGap
+        (1 - 2 * Submodule.directedProjectionGap
           (selfAdjointSpectralSubspace A hA B hB)
           (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
             (addBounded_isSelfAdjoint A hA E hE) S hS) ^ 2)) * ‖x‖ := by
   let U := selfAdjointSpectralSubspace A hA B hB
   let V := selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
     (addBounded_isSelfAdjoint A hA E hE) S hS
-  have hop : ‖tanTwoAngleOperatorC U V hquarter‖ ≤
+  have hop : ‖directedTanTwoAngleOperatorC U V hquarter‖ ≤
       (2 * ‖E‖ / δ) /
-        (1 - 2 * directedGap U V ^ 2) :=
+        (1 - 2 * U.directedProjectionGap V ^ 2) :=
     tanTwoTheta_addBounded_of_intervalExterior
       A hA E hE B S hB hS hβα hδ hBsub hBcomplDisj hquarter
   calc
-    ‖tanTwoAngleOperatorC U V hquarter x‖ ≤
-        ‖tanTwoAngleOperatorC U V hquarter‖ * ‖x‖ :=
-      (tanTwoAngleOperatorC U V hquarter).le_opNorm x
+    ‖directedTanTwoAngleOperatorC U V hquarter x‖ ≤
+        ‖directedTanTwoAngleOperatorC U V hquarter‖ * ‖x‖ :=
+      (directedTanTwoAngleOperatorC U V hquarter).le_opNorm x
     _ ≤ ((2 * ‖E‖ / δ) /
-          (1 - 2 * directedGap U V ^ 2)) * ‖x‖ :=
+          (1 - 2 * U.directedProjectionGap V ^ 2)) * ‖x‖ :=
       mul_le_mul_of_nonneg_right hop (norm_nonneg x)
 
 end DavisKahan

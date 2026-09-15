@@ -46,10 +46,12 @@ singular-subspace argument that consumes them.
   `norm_gram_sub_gram_apply_le`, already lives in
   `ForTauCeti/Analysis/InnerProductSpace/SingularSubspace.lean`.
 * Deliberately **not** migrated with it: `rightSingularSubspace` and
-  `leftSingularSubspace`, which depend on `spectralSubspace` (still in
-  `DavisKahan/FiniteDimensional/Core`), and the Hermitian-dilation block —
-  unused outside its defining file, and homonymous with an unrelated bounded
-  `hermitianDilation` in `TauCeti.DavisKahanExt`.
+  `leftSingularSubspace`, which depend on `pointSpectralSubspace` (still in
+  `DavisKahan/FiniteDimensional/Core`), and the Hermitian-dilation block,
+  which is unused outside its defining file.  (This note used to add that the
+  name was homonymous with an unrelated bounded `hermitianDilation` in
+  `TauCeti.DavisKahanExt`; no such declaration exists, so that half of the
+  recorded reason is void.)
 * Spectra influence: none.
 -/
 

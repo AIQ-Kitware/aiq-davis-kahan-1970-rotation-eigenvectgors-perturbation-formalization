@@ -52,8 +52,10 @@ alias sinTheta_generalized_intervalExterior_complementaryBlock_complex :=
 
 /-- The bundled-problem entry point for the complex sine theorem: it takes a
 `FormBoundedIsometricSinThetaProblem` record rather than an argument list.  The
-direct-argument statement of the same result is
-`TauCeti.DavisKahan1970.SectionTwo.sinTheta_complex`, which is the one to cite. -/
+direct-argument stronger API is
+`TauCeti.DavisKahan1970.sinTheta_unbounded_formGap_symmetricNorming_complex`; the short
+SectionTwo API now uses the where-defined norm boundary.
+For source-fidelity evidence, follow the result ledger rather than an alias name. -/
 alias sinTheta_bundled_complex :=
   DavisKahan.ExactSinTheta.FormBoundedIsometricSinThetaProblem.result_complex
 

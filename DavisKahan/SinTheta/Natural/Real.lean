@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.SinTheta.Real.Generalized
 import DavisKahan.SpectralTheory.Real.SpectralRestriction
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Natural real spectral inputs for the unbounded sine-theta theorem
 
@@ -25,6 +27,7 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
+
 
 open RealSpectralRestriction
 

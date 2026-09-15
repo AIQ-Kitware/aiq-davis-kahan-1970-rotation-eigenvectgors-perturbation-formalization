@@ -5,16 +5,20 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.CircleWitness
-import DavisKahan.Sources.DavisKahan1970.Section8.SourceTheorem81
+import DavisKahan.Sources.DavisKahan1970.Section8.Theorem81
 import DavisKahan.Sources.DavisKahan1970.Section8.SelectedBranch
 import DavisKahan.Sources.DavisKahan1970.Section8.Smallness
 import DavisKahan.Sources.DavisKahan1970.Section8.CompressionRepulsion
 import DavisKahan.Sources.DavisKahan1970.Section8.CompressionApproximation
-import DavisKahan.Sources.DavisKahan1970.Section8.SourceSurface
-import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder.Complex
+import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.SharpDiagonalResolvents
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.SharpSchurComplement
 import DavisKahan.InfiniteDimensional.Riccati.ContinuationWitnessOrientedBlocks
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, Section 8: the selected branch and its spectral repulsion
@@ -28,7 +32,7 @@ from a target splitting and at the canonical branch.
 The machinery is owned upstream.  The circle continuation witness is
 `InfiniteDimensional/SinTheta/Continuation/CircleWitness.lean`, the form/spectrum
 bridges are `SpectralTheory/SpectralGapFormBounds.lean`, and the branch itself
-is `Section8/SourceTheorem81.lean`; this module states the paper's sentences
+is `Section8/Theorem81.lean`; this module states the paper's sentences
 against them.
 -/
 
@@ -38,6 +42,7 @@ open Set Filter
 namespace TauCeti
 namespace DavisKahan1970
 namespace Section8
+
 
 open DavisKahanExt
 open TauCeti.DavisKahan
@@ -149,7 +154,7 @@ complement.  The former placeholder statement compared the unperturbed and
 perturbed forms with cancelling cut terms and was false as transcribed. -/
 theorem theorem8_1_upperCompressionRepulsion_of_targetSplitting
     (C : SpectralContinuationWitness A E s) {a : ℝ}
-    (hsym : IsSelfAdjointOperator (A + E))
+    (hsym : (A + E).IsSymmetric)
     (h0 : SpectrumIn (A + E) C.targetSelectedSpectralSubspace (Set.Iic a))
     (h1inv : InvariantFor (A + E) C.targetSelectedSpectralSubspaceᗮ) :
     ∀ x : C.sourceSelectedSpectralSubspaceᗮ,
@@ -185,7 +190,7 @@ theorem theorem8_1_upperCompressionRepulsion_of_targetSplitting
 faithfully over the old selected subspace. -/
 theorem theorem8_1_lowerCompressionRepulsion_of_targetSplitting
     (C : SpectralContinuationWitness A E s) {b : ℝ}
-    (hsym : IsSelfAdjointOperator (A + E))
+    (hsym : (A + E).IsSymmetric)
     (h0inv : InvariantFor (A + E) C.targetSelectedSpectralSubspace)
     (h1 : SpectrumIn (A + E) C.targetSelectedSpectralSubspaceᗮ (Set.Ici b)) :
     ∀ x : C.sourceSelectedSpectralSubspace,
@@ -235,7 +240,7 @@ unperturbed and perturbed forms with cancelling cut terms, which is not the
 source inequality and is false in general.  The faithful quadratic-form
 content of Theorem 8.1(i) compares the perturbed form on the old branch with
 its cosine-block compression into the corresponding new branch. -/
-structure Theorem81SourceConclusion
+structure Theorem81ContinuationConclusion
     (C : SpectralContinuationWitness A E s) (a b delta : ℝ) : Prop where
   core : DavisKahan1970.Section8.Theorem81CoreConclusion C a b delta
   upper_compression :
@@ -266,9 +271,9 @@ theorem theorem8_1_selectedBranch_and_spectralRepulsion
     (h1 : SpectrumIn (A + E)
       (spectralContinuationWitness_of_circle D).targetSelectedSpectralSubspaceᗮ
       (Set.Ici b)) :
-    Theorem81SourceConclusion
+    Theorem81ContinuationConclusion
       (spectralContinuationWitness_of_circle D) a b delta := by
-  have hsym : IsSelfAdjointOperator (A + E) := D.hA.add D.hE
+  have hsym : (A + E).IsSymmetric := D.hA.add D.hE
   have hsmallC : selectedBranchProjectionLipschitzConstant
       (spectralContinuationWitness_of_circle D).contour E D.margin <
         Real.sqrt 2 / 2 :=
@@ -293,7 +298,7 @@ from the finite-gap, off-diagonal, and perturbation half-gap hypotheses by
 below is a sufficient one-step estimate for locating the endpoint below the
 quarter-turn threshold; replacing it by the source continuation/no-crossing
 argument is a separate branch-selection step. -/
-theorem perturbationHalfGapBridge_of_sourceHypotheses
+theorem perturbationHalfGapBridge_of_circleContinuationData
     (D : CircleContinuationData A E s) {delta : ℝ}
     (hdelta : 0 < delta) (hsmall : ‖E‖ < delta / 2)
     (hquant : D.radius * ‖E‖ / D.margin ^ 2 < Real.sqrt 2 / 2) :
@@ -309,7 +314,7 @@ theorem perturbationHalfGapBridge_of_sourceHypotheses
 the source the quantitative circle input for the residual alternative is
 produced by the Krein replacement argument, which remains the open analytic
 step. -/
-theorem residualHalfGapBridge_of_sourceHypotheses
+theorem residualHalfGapBridge_of_circleContinuationData
     (D : CircleContinuationData A E s) (R : F →L[ℂ] H) {delta : ℝ}
     (hdelta : 0 < delta) (hsmall : ‖R‖ < delta / 2)
     (hquant : D.radius * ‖E‖ / D.margin ^ 2 < Real.sqrt 2 / 2) :
@@ -330,7 +335,7 @@ theorem theorem8_2_perturbationHalfGap_selectedBranch
     DavisKahan1970.Section8.SelectedBranchConclusion
       (spectralContinuationWitness_of_circle D) :=
   DavisKahan1970.Section8.theorem82_branch_of_perturbationHalfGapBridge _
-    (perturbationHalfGapBridge_of_sourceHypotheses D hdelta hsmall hquant)
+    (perturbationHalfGapBridge_of_circleContinuationData D hdelta hsmall hquant)
 
 /-- Davis--Kahan 1970, Theorem 8.2, residual-smallness alternative, from the
 quantitative circle datum. -/
@@ -341,7 +346,7 @@ theorem theorem8_2_residualHalfGap_selectedBranch
     DavisKahan1970.Section8.SelectedBranchConclusion
       (spectralContinuationWitness_of_circle D) :=
   DavisKahan1970.Section8.theorem82_branch_of_residualHalfGapBridge _ R
-    (residualHalfGapBridge_of_sourceHypotheses D R hdelta hsmall hquant)
+    (residualHalfGapBridge_of_circleContinuationData D R hdelta hsmall hquant)
 
 end SourceTheorems
 
@@ -500,7 +505,7 @@ read as a quadratic form.  The point of restricting is that off-diagonality of
 *unperturbed* compression `A₁` and not of `A + K`.  The right-hand side is the
 form of `Λ₁ - α` evaluated at `C₁ x = P_{Qᗮ} x`, which is the printed
 cosine-sandwiched term. -/
-theorem theorem8_1_upperCompressionRepulsion_source
+theorem theorem8_1_upperCompressionRepulsion
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -548,7 +553,7 @@ of `A + K`.  The right-hand side is the form of `(α + δ) - Λ₀` evaluated at
 The orientation is the mirror of the upper theorem: there `x ∈ Pᗮ` and
 `K x ∈ P`, here `x ∈ P` and `K x ∈ Pᗮ`, so the vanishing inner product is read
 off in the other argument order. -/
-theorem theorem8_1_lowerCompressionRepulsion_source
+theorem theorem8_1_lowerCompressionRepulsion
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)

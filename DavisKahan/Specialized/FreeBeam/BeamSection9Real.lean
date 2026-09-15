@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 
 import DavisKahan.Specialized.FreeBeam.BeamEigenvalueSequenceReal
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Source-facing real model for Davis--Kahan Section 9
 
@@ -24,6 +26,7 @@ namespace DavisKahan
 namespace FreeBeam
 namespace Model
 namespace Real
+
 
 noncomputable section
 
@@ -79,7 +82,7 @@ theorem beamRealZeroMode_sourceFacts :
 
 /-- A source-facing summary of the real Section 9 perturbation and trial-space data. -/
 theorem beamRealFiniteData_sourceFacts (ε : ℝ) (hε : 0 < ε) :
-    DavisKahan.IsSelfAdjointOperator (beamPerturbation ε) ∧
+    (beamPerturbation ε).IsSymmetric ∧
       ‖beamPerturbation ε‖ ≤ ε ∧
       (‖centeredAffineLp trialOne‖ ^ 2 = 1 ∧
         ‖centeredAffineLp trialTwo‖ ^ 2 = 1 ∧

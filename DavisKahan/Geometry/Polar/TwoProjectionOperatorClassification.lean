@@ -51,7 +51,7 @@ omit [CompleteSpace H] in
 theorem projection_left_invariant_halmosTrivialPart
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    ∀ x ∈ halmosTrivialPart U V, projection U x ∈ halmosTrivialPart U V :=
+    ∀ x ∈ halmosTrivialPart U V, U.starProjection x ∈ halmosTrivialPart U V :=
   fun _ hx => projection_mem_halmosTrivialPart_left U V hx
 
 omit [CompleteSpace H] in
@@ -59,7 +59,7 @@ omit [CompleteSpace H] in
 theorem projection_right_invariant_halmosTrivialPart
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    ∀ x ∈ halmosTrivialPart U V, projection V x ∈ halmosTrivialPart U V :=
+    ∀ x ∈ halmosTrivialPart U V, V.starProjection x ∈ halmosTrivialPart U V :=
   fun _ hx => projection_mem_halmosTrivialPart_right U V hx
 
 /-- Restricted left projection on the elementary Halmos summand. -/
@@ -67,7 +67,7 @@ noncomputable def trivialLeftProjection
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
     halmosTrivialPart U V →L[ℂ] halmosTrivialPart U V :=
-  restrictToInvariant (projection U) (halmosTrivialPart U V)
+  restrictToInvariant (U.starProjection) (halmosTrivialPart U V)
     (projection_left_invariant_halmosTrivialPart U V)
 
 /-- Restricted right projection on the elementary Halmos summand. -/
@@ -75,7 +75,7 @@ noncomputable def trivialRightProjection
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
     halmosTrivialPart U V →L[ℂ] halmosTrivialPart U V :=
-  restrictToInvariant (projection V) (halmosTrivialPart U V)
+  restrictToInvariant (V.starProjection) (halmosTrivialPart U V)
     (projection_right_invariant_halmosTrivialPart U V)
 
 /-- Restricted left projection on the generic Halmos summand. -/
@@ -83,7 +83,7 @@ noncomputable def genericLeftProjection
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
     halmosGenericPart U V →L[ℂ] halmosGenericPart U V :=
-  restrictToInvariant (projection U) (halmosGenericPart U V)
+  restrictToInvariant (U.starProjection) (halmosGenericPart U V)
     (projection_left_reduces_halmosGenericPart U V).1
 
 /-- Restricted right projection on the generic Halmos summand. -/
@@ -91,7 +91,7 @@ noncomputable def genericRightProjection
     (U V : Submodule ℂ H) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
     halmosGenericPart U V →L[ℂ] halmosGenericPart U V :=
-  restrictToInvariant (projection V) (halmosGenericPart U V)
+  restrictToInvariant (V.starProjection) (halmosGenericPart U V)
     (projection_right_reduces_halmosGenericPart U V).1
 
 /-- Complete operator-level invariant data for a pair of projections.
@@ -156,8 +156,8 @@ private theorem ambient_apply_generic
 /-- The assembled ambient unitary intertwines the left projections. -/
 theorem ambient_intertwines_left
     (D : TwoProjectionOperatorEquivalence U V U' V') :
-    (D.ambient : H →L[ℂ] H') ∘L projection U =
-      projection U' ∘L (D.ambient : H →L[ℂ] H') := by
+    (D.ambient : H →L[ℂ] H') ∘L U.starProjection =
+      U'.starProjection ∘L (D.ambient : H →L[ℂ] H') := by
   apply ContinuousLinearMap.ext
   intro x
   let T := halmosTrivialPart U V
@@ -169,15 +169,15 @@ theorem ambient_intertwines_left
     ContinuousLinearEquiv.coe_coe, LinearIsometryEquiv.coe_coe]
   have ht : T.starProjection x ∈ T := T.starProjection_apply_mem x
   have hg : G.starProjection x ∈ G := G.starProjection_apply_mem x
-  have hPt : projection U (T.starProjection x) ∈ T :=
+  have hPt : U.starProjection (T.starProjection x) ∈ T :=
     projection_left_invariant_halmosTrivialPart U V _ ht
-  have hPg : projection U (G.starProjection x) ∈ G :=
+  have hPg : U.starProjection (G.starProjection x) ∈ G :=
     (projection_left_reduces_halmosGenericPart U V).1 _ hg
-  have e1 : D.ambient (projection U (T.starProjection x))
-      = (D.trivialEquiv ⟨projection U (T.starProjection x), hPt⟩ : H') :=
+  have e1 : D.ambient (U.starProjection (T.starProjection x))
+      = (D.trivialEquiv ⟨U.starProjection (T.starProjection x), hPt⟩ : H') :=
     D.ambient_apply_trivial ⟨_, hPt⟩
-  have e2 : D.ambient (projection U (G.starProjection x))
-      = (D.genericEquiv ⟨projection U (G.starProjection x), hPg⟩ : H') :=
+  have e2 : D.ambient (U.starProjection (G.starProjection x))
+      = (D.genericEquiv ⟨U.starProjection (G.starProjection x), hPg⟩ : H') :=
     D.ambient_apply_generic ⟨_, hPg⟩
   have e3 : D.ambient (T.starProjection x)
       = (D.trivialEquiv ⟨T.starProjection x, ht⟩ : H') :=
@@ -196,8 +196,8 @@ theorem ambient_intertwines_left
 /-- The assembled ambient unitary intertwines the right projections. -/
 theorem ambient_intertwines_right
     (D : TwoProjectionOperatorEquivalence U V U' V') :
-    (D.ambient : H →L[ℂ] H') ∘L projection V =
-      projection V' ∘L (D.ambient : H →L[ℂ] H') := by
+    (D.ambient : H →L[ℂ] H') ∘L V.starProjection =
+      V'.starProjection ∘L (D.ambient : H →L[ℂ] H') := by
   apply ContinuousLinearMap.ext
   intro x
   let T := halmosTrivialPart U V
@@ -209,15 +209,15 @@ theorem ambient_intertwines_right
     ContinuousLinearEquiv.coe_coe, LinearIsometryEquiv.coe_coe]
   have ht : T.starProjection x ∈ T := T.starProjection_apply_mem x
   have hg : G.starProjection x ∈ G := G.starProjection_apply_mem x
-  have hPt : projection V (T.starProjection x) ∈ T :=
+  have hPt : V.starProjection (T.starProjection x) ∈ T :=
     projection_right_invariant_halmosTrivialPart U V _ ht
-  have hPg : projection V (G.starProjection x) ∈ G :=
+  have hPg : V.starProjection (G.starProjection x) ∈ G :=
     (projection_right_reduces_halmosGenericPart U V).1 _ hg
-  have e1 : D.ambient (projection V (T.starProjection x))
-      = (D.trivialEquiv ⟨projection V (T.starProjection x), hPt⟩ : H') :=
+  have e1 : D.ambient (V.starProjection (T.starProjection x))
+      = (D.trivialEquiv ⟨V.starProjection (T.starProjection x), hPt⟩ : H') :=
     D.ambient_apply_trivial ⟨_, hPt⟩
-  have e2 : D.ambient (projection V (G.starProjection x))
-      = (D.genericEquiv ⟨projection V (G.starProjection x), hPg⟩ : H') :=
+  have e2 : D.ambient (V.starProjection (G.starProjection x))
+      = (D.genericEquiv ⟨V.starProjection (G.starProjection x), hPg⟩ : H') :=
     D.ambient_apply_generic ⟨_, hPg⟩
   have e3 : D.ambient (T.starProjection x)
       = (D.trivialEquiv ⟨T.starProjection x, ht⟩ : H') :=
@@ -239,13 +239,13 @@ theorem map_left
     U.map D.ambient.toLinearMap = U' := by
   apply le_antisymm
   · rintro y ⟨x, hx, rfl⟩
-    have hpx : projection U x = x := U.starProjection_eq_self_iff.mpr hx
+    have hpx : U.starProjection x = x := U.starProjection_eq_self_iff.mpr hx
     have h := DFunLike.congr_fun D.ambient_intertwines_left x
     rw [ContinuousLinearMap.comp_apply, ContinuousLinearMap.comp_apply, hpx] at h
     exact U'.starProjection_eq_self_iff.mp h.symm
   · intro y hy
     refine ⟨D.ambient.symm y, ?_, D.ambient.apply_symm_apply y⟩
-    have hpy : projection U' y = y := U'.starProjection_eq_self_iff.mpr hy
+    have hpy : U'.starProjection y = y := U'.starProjection_eq_self_iff.mpr hy
     have h := DFunLike.congr_fun D.ambient_intertwines_left (D.ambient.symm y)
     simp only [ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
       LinearIsometryEquiv.coe_coe, LinearIsometryEquiv.apply_symm_apply, hpy] at h
@@ -260,13 +260,13 @@ theorem map_right
     V.map D.ambient.toLinearMap = V' := by
   apply le_antisymm
   · rintro y ⟨x, hx, rfl⟩
-    have hpx : projection V x = x := V.starProjection_eq_self_iff.mpr hx
+    have hpx : V.starProjection x = x := V.starProjection_eq_self_iff.mpr hx
     have h := DFunLike.congr_fun D.ambient_intertwines_right x
     rw [ContinuousLinearMap.comp_apply, ContinuousLinearMap.comp_apply, hpx] at h
     exact V'.starProjection_eq_self_iff.mp h.symm
   · intro y hy
     refine ⟨D.ambient.symm y, ?_, D.ambient.apply_symm_apply y⟩
-    have hpy : projection V' y = y := V'.starProjection_eq_self_iff.mpr hy
+    have hpy : V'.starProjection y = y := V'.starProjection_eq_self_iff.mpr hy
     have h := DFunLike.congr_fun D.ambient_intertwines_right (D.ambient.symm y)
     simp only [ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
       LinearIsometryEquiv.coe_coe, LinearIsometryEquiv.apply_symm_apply, hpy] at h

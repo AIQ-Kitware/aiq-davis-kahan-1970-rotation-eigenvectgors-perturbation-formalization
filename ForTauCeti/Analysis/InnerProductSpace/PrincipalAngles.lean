@@ -103,7 +103,8 @@ overlap operators are adjoint (`overlapOp_adjoint`) and adjoints share singular
 values (`singularValues_adjoint`, plan step W0.1(d)). -/
 theorem cosPrincipalAngles_comm {u v : Fin d → E} (hu : Orthonormal 𝕜 u)
     (hv : Orthonormal 𝕜 v) : cosPrincipalAngles hu hv = cosPrincipalAngles hv hu := by
-  rw [cosPrincipalAngles, cosPrincipalAngles, ← overlapOp_adjoint hu hv, singularValues_adjoint]
+  rw [cosPrincipalAngles, cosPrincipalAngles, ← overlapOp_adjoint hu hv,
+    LinearMap.singularValues_adjoint]
 
 /-- **The squared Frobenius sine** `‖sin Θ‖²_F = ∑ᵢ sin²θᵢ = ∑ᵢ (1 − cos²θᵢ)`
 between the subspaces spanned by two orthonormal families of the same size. -/

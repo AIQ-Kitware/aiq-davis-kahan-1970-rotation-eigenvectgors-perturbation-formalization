@@ -9,6 +9,8 @@ import DavisKahan.DoubleAngle.TanTwoThetaKyFan
 import ForTauCeti.Analysis.CStarAlgebra.SelfAdjointGapInverse
 import ForTauCeti.Analysis.Matrix.EntrywiseOpNorm
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Canonical double-angle tangent operator
 
@@ -46,13 +48,13 @@ variable {E1 : Type v} [NormedAddCommGroup E1] [InnerProductSpace ℂ E1]
 /-- The scalar double-angle tangent is increasing on the contractive interval. -/
 theorem doubleAngleTangent_mono {s t : ℝ}
     (hs0 : 0 ≤ s) (hst : s ≤ t) (ht1 : t < 1) :
-    DavisKahanTheory.doubleAngleTangent s ≤
-      DavisKahanTheory.doubleAngleTangent t := by
+    DavisKahan.TanTwoTheta.doubleAngleTangent s ≤
+      DavisKahan.TanTwoTheta.doubleAngleTangent t := by
   have ht0 : 0 ≤ t := hs0.trans hst
   have hs1 : s < 1 := hst.trans_lt ht1
   have hds : 0 < 1 - s ^ 2 := by nlinarith
   have hdt : 0 < 1 - t ^ 2 := by nlinarith
-  unfold DavisKahanTheory.doubleAngleTangent
+  unfold DavisKahan.TanTwoTheta.doubleAngleTangent
   apply (div_le_div_iff₀ hds hdt).2
   nlinarith [mul_nonneg (sub_nonneg.mpr hst) (by nlinarith : 0 ≤ 1 + s * t)]
 
@@ -61,12 +63,12 @@ theorem doubleAngleTangent_mono {s t : ℝ}
 The numerator factors through `s - t`, which is what makes the function
 Lipschitz on every contractive interval without any differentiation. -/
 theorem doubleAngleTangent_sub {s t : ℝ} (hs1 : s ^ 2 ≠ 1) (ht1 : t ^ 2 ≠ 1) :
-    DavisKahanTheory.doubleAngleTangent s -
-        DavisKahanTheory.doubleAngleTangent t =
+    DavisKahan.TanTwoTheta.doubleAngleTangent s -
+        DavisKahan.TanTwoTheta.doubleAngleTangent t =
       2 * (s - t) * (1 + s * t) / ((1 - s ^ 2) * (1 - t ^ 2)) := by
   have hs : (1 : ℝ) - s ^ 2 ≠ 0 := sub_ne_zero_of_ne (Ne.symm hs1)
   have ht : (1 : ℝ) - t ^ 2 ≠ 0 := sub_ne_zero_of_ne (Ne.symm ht1)
-  unfold DavisKahanTheory.doubleAngleTangent
+  unfold DavisKahan.TanTwoTheta.doubleAngleTangent
   field_simp
   ring
 
@@ -78,8 +80,8 @@ resulting slack in the Ky Fan sum is bounded-norm bookkeeping, with no
 appearance of the unbounded diagonal blocks. -/
 theorem abs_doubleAngleTangent_sub_le {r s t : ℝ}
     (hs0 : 0 ≤ s) (ht0 : 0 ≤ t) (hsr : s ≤ r) (htr : t ≤ r) (hr1 : r < 1) :
-    |DavisKahanTheory.doubleAngleTangent s -
-        DavisKahanTheory.doubleAngleTangent t| ≤
+    |DavisKahan.TanTwoTheta.doubleAngleTangent s -
+        DavisKahan.TanTwoTheta.doubleAngleTangent t| ≤
       2 * (1 + r ^ 2) / (1 - r ^ 2) ^ 2 * |s - t| := by
   have hr0 : 0 ≤ r := hs0.trans hsr
   have hs1 : s < 1 := hsr.trans_lt hr1
@@ -128,15 +130,15 @@ caller depends on the particular constant. -/
 theorem exists_gt_doubleAngleTangent_lt_add {a ε : ℝ}
     (ha0 : 0 ≤ a) (ha1 : a < 1) (hε : 0 < ε) :
     ∃ v : ℝ, a < v ∧ v < 1 ∧
-      DavisKahanTheory.doubleAngleTangent v <
-        DavisKahanTheory.doubleAngleTangent a + ε := by
+      DavisKahan.TanTwoTheta.doubleAngleTangent v <
+        DavisKahan.TanTwoTheta.doubleAngleTangent a + ε := by
   obtain ⟨r, har, hr1⟩ : ∃ r : ℝ, a < r ∧ r < 1 :=
     ⟨(a + 1) / 2, by linarith, by linarith⟩
   have hr0 : 0 ≤ r := ha0.trans har.le
   have hdr : 0 < 1 - r ^ 2 := by nlinarith
   obtain ⟨L, hL0, hLip⟩ : ∃ L : ℝ, 0 < L ∧ ∀ s t : ℝ, 0 ≤ s → 0 ≤ t → s ≤ r → t ≤ r →
-      |DavisKahanTheory.doubleAngleTangent s -
-        DavisKahanTheory.doubleAngleTangent t| ≤ L * |s - t| :=
+      |DavisKahan.TanTwoTheta.doubleAngleTangent s -
+        DavisKahan.TanTwoTheta.doubleAngleTangent t| ≤ L * |s - t| :=
     ⟨2 * (1 + r ^ 2) / (1 - r ^ 2) ^ 2, by positivity,
       fun s t hs ht hsr htr => abs_doubleAngleTangent_sub_le hs ht hsr htr hr1⟩
   set step : ℝ := min ((r - a) / 2) (ε / (2 * L)) with hstepdef
@@ -156,8 +158,8 @@ theorem exists_gt_doubleAngleTangent_lt_add {a ε : ℝ}
   have habs : |a + step - a| = step := by
     rw [show a + step - a = step by ring, abs_of_pos hstep0]
   rw [habs] at hkey
-  linarith [(le_abs_self (DavisKahanTheory.doubleAngleTangent (a + step) -
-    DavisKahanTheory.doubleAngleTangent a)).trans hkey]
+  linarith [(le_abs_self (DavisKahan.TanTwoTheta.doubleAngleTangent (a + step) -
+    DavisKahan.TanTwoTheta.doubleAngleTangent a)).trans hkey]
 
 /-- Positive denominator in graph coordinates. -/
 def doubleAngleDenominator (X : E0 →L[ℂ] E1) : E0 →L[ℂ] E0 :=
@@ -339,13 +341,13 @@ theorem doubleAngleTangentOperator_apply_of_singularPair
     (hXx : X x = (s : ℂ) • y)
     (hXay : X.adjoint y = (s : ℂ) • x) :
     doubleAngleTangentOperator X hcontractive x =
-      (DavisKahanTheory.doubleAngleTangent s : ℂ) • y := by
+      (DavisKahan.TanTwoTheta.doubleAngleTangent s : ℂ) • y := by
   unfold doubleAngleTangentOperator
   rw [smul_apply, ContinuousLinearMap.comp_apply,
     inverse_doubleAngleDenominator_apply_of_singularPair
       X hcontractive hs0 hsX hXx hXay,
     map_smul, hXx]
-  unfold DavisKahanTheory.doubleAngleTangent
+  unfold DavisKahan.TanTwoTheta.doubleAngleTangent
   simp only [smul_smul]
   congr 1
   norm_cast
@@ -361,7 +363,7 @@ theorem norm_doubleAngleTangentOperator_apply_sub_le
     (hXx : ‖X x - (s : ℂ) • y‖ ≤ ε)
     (hXay : ‖X.adjoint y - (s : ℂ) • x‖ ≤ ε) :
     ‖doubleAngleTangentOperator X (hXr.trans_lt hr1) x -
-        (DavisKahanTheory.doubleAngleTangent s : ℂ) • y‖ ≤
+        (DavisKahan.TanTwoTheta.doubleAngleTangent s : ℂ) • y‖ ≤
       (2 / (1 - r ^ 2) + 4 * r ^ 2 / (1 - r ^ 2) ^ 2) * ε := by
   let D := doubleAngleDenominator X
   let Q := Ring.inverse D
@@ -431,7 +433,7 @@ theorem norm_doubleAngleTangentOperator_apply_sub_le
               inv_anti₀ hdenr (by nlinarith)
             gcongr
       _ = (2 * r / (1 - r ^ 2) ^ 2) * ε := by field_simp
-  unfold doubleAngleTangentOperator DavisKahanTheory.doubleAngleTangent
+  unfold doubleAngleTangentOperator DavisKahan.TanTwoTheta.doubleAngleTangent
   have hdens : 0 < 1 - s ^ 2 := by nlinarith
   have hsplit :
       (2 : ℂ) • X (Q x) -
@@ -513,16 +515,16 @@ theorem norm_doubleAngleTangentOperator_comp_gramSpectralPVM_proj_Iic_le
     (hu0 : 0 ≤ u) (huv : u < v) (hv1 : v < 1) :
     ‖doubleAngleTangentOperator X hcontractive ∘L
         (gramSpectralPVM X).proj (Set.Iic (u ^ 2)) measurableSet_Iic‖ ≤
-      DavisKahanTheory.doubleAngleTangent v := by
+      DavisKahan.TanTwoTheta.doubleAngleTangent v := by
   classical
   have hv0 : 0 ≤ v := hu0.trans huv.le
   have hdenv : 0 < 1 - v ^ 2 := by nlinarith
-  have htanv0 : 0 ≤ DavisKahanTheory.doubleAngleTangent v :=
-    DavisKahanTheory.doubleAngleTangent_nonneg hv0 hv1
+  have htanv0 : 0 ≤ DavisKahan.TanTwoTheta.doubleAngleTangent v :=
+    DavisKahan.TanTwoTheta.doubleAngleTangent_nonneg hv0 hv1
   let PVM : ProjValMeasure E0 := gramSpectralPVM X
   let Q : E0 →L[ℂ] E0 := PVM.proj (Set.Iic (u ^ 2)) measurableSet_Iic
   let T := doubleAngleTangentOperator X hcontractive
-  show ‖T ∘L Q‖ ≤ DavisKahanTheory.doubleAngleTangent v
+  show ‖T ∘L Q‖ ≤ DavisKahan.TanTwoTheta.doubleAngleTangent v
   refine ContinuousLinearMap.opNorm_le_bound _ htanv0 fun x => ?_
   let q : E0 := Q x
   let D : E0 →L[ℂ] E0 := doubleAngleDenominator X
@@ -597,11 +599,11 @@ theorem norm_doubleAngleTangentOperator_comp_gramSpectralPVM_proj_Iic_le
   have hXw : ‖X w‖ ≤ v * ‖w‖ := by
     apply (sq_le_sq₀ (norm_nonneg _) (mul_nonneg hv0 (norm_nonneg _))).mp
     simpa only [mul_pow] using hXenergy
-  change ‖(2 : ℂ) • X w‖ ≤ DavisKahanTheory.doubleAngleTangent v * ‖x‖
+  change ‖(2 : ℂ) • X w‖ ≤ DavisKahan.TanTwoTheta.doubleAngleTangent v * ‖x‖
   rw [norm_smul]
   have hnormTwo : ‖(2 : ℂ)‖ = 2 := by norm_num
   rw [hnormTwo]
-  unfold DavisKahanTheory.doubleAngleTangent
+  unfold DavisKahan.TanTwoTheta.doubleAngleTangent
   calc
     2 * ‖X w‖ ≤ 2 * (v * ‖w‖) :=
       mul_le_mul_of_nonneg_left hXw (by norm_num)
@@ -631,7 +633,7 @@ theorem exists_rank_le_norm_doubleAngleTangent_sub_lt
     ∃ R : E0 →L[ℂ] E1,
       R.rank ≤ (n : Cardinal) ∧
       ‖doubleAngleTangentOperator X hcontractive - R‖ <
-        DavisKahanTheory.doubleAngleTangent (X.approximationNumber n) + ε := by
+        DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n) + ε := by
   classical
   let a := X.approximationNumber n
   have ha0 : 0 ≤ a := X.approximationNumber_nonneg n
@@ -660,7 +662,7 @@ theorem exists_rank_le_norm_doubleAngleTangent_sub_lt
     ext x
     change T x - T (P x) = T (Q x)
     rw [hQeq, sub_apply, ContinuousLinearMap.id_apply, map_sub]
-  have htail : ‖T ∘L Q‖ ≤ DavisKahanTheory.doubleAngleTangent v :=
+  have htail : ‖T ∘L Q‖ ≤ DavisKahan.TanTwoTheta.doubleAngleTangent v :=
     norm_doubleAngleTangentOperator_comp_gramSpectralPVM_proj_Iic_le
       X hcontractive hu0 huv hv1
   refine ⟨R, hRrank, ?_⟩
@@ -757,7 +759,7 @@ theorem norm_apply_sub_familyIsometry_le {d : ℕ} (T : E0 →L[ℂ] E1)
 /-- Lower min--max bound for the transformed approximation number. -/
 theorem doubleAngleTangent_approximationNumber_le
     (X : E0 →L[ℂ] E1) (hcontractive : ‖X‖ < 1) (n : ℕ) :
-    DavisKahanTheory.doubleAngleTangent (X.approximationNumber n) ≤
+    DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n) ≤
       (doubleAngleTangentOperator X hcontractive).approximationNumber n := by
   apply le_of_forall_pos_le_add
   intro η hη
@@ -774,7 +776,7 @@ theorem doubleAngleTangent_approximationNumber_le
   let ε : ℝ := min (X.approximationNumber n / 2)
     (η / (4 * Real.sqrt (n + 1) * (C + 1)))
   by_cases ha : X.approximationNumber n = 0
-  · rw [ha, DavisKahanTheory.doubleAngleTangent_zero]
+  · rw [ha, DavisKahan.TanTwoTheta.doubleAngleTangent_zero]
     exact add_nonneg
       ((doubleAngleTangentOperator X hcontractive).approximationNumber_nonneg n)
       hη.le
@@ -800,7 +802,7 @@ theorem doubleAngleTangent_approximationNumber_le
   have hlin : LinearIndependent ℂ right :=
     hrightOrtho.linearIndependent
   have hlower :
-      DavisKahanTheory.doubleAngleTangent (X.approximationNumber n) - η ≤
+      DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n) - η ≤
         (doubleAngleTangentOperator X hcontractive).approximationNumber n := by
     apply ContinuousLinearMap.le_approximationNumber_of_linearIndependent
       (doubleAngleTangentOperator X hcontractive) n right hlin
@@ -815,8 +817,8 @@ theorem doubleAngleTangent_approximationNumber_le
         (happlyResidual i) (hadjointResidual i)
     have hanti := X.approximationNumber_antitone
     have htanmono : ∀ i : Fin (n + 1),
-        DavisKahanTheory.doubleAngleTangent (X.approximationNumber n) ≤
-          DavisKahanTheory.doubleAngleTangent (X.approximationNumber i) := by
+        DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n) ≤
+          DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber i) := by
       intro i
       apply doubleAngleTangent_mono
       · exact X.approximationNumber_nonneg n
@@ -828,13 +830,13 @@ theorem doubleAngleTangent_approximationNumber_le
     have hcoeffNorm : ‖coeff‖ = 1 := by
       rw [← hznorm, ← hzCoord', (familyIsometry hrightOrtho).norm_map]
     let tau : Fin (n + 1) → ℝ := fun i =>
-      DavisKahanTheory.doubleAngleTangent (X.approximationNumber i)
+      DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber i)
     let tau0 : ℝ :=
-      DavisKahanTheory.doubleAngleTangent (X.approximationNumber n)
+      DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n)
     -- `doubleAngleTangent_nonneg` is imported from `DavisKahan.DoubleAngle`;
     -- this re-derived it by `unfold` and `div_nonneg`.
     have htau0 : 0 ≤ tau0 :=
-      DavisKahanTheory.doubleAngleTangent_nonneg (X.approximationNumber_nonneg n)
+      DavisKahan.TanTwoTheta.doubleAngleTangent_nonneg (X.approximationNumber_nonneg n)
         ((X.approximationNumber_le_norm n).trans_lt hcontractive)
     have htauLower : ∀ i : Fin (n + 1), tau0 ≤ tau i := by
       intro i
@@ -886,7 +888,7 @@ tangent operator. -/
 theorem approximationNumber_doubleAngleTangentOperator
     (X : E0 →L[ℂ] E1) (hcontractive : ‖X‖ < 1) (n : ℕ) :
     (doubleAngleTangentOperator X hcontractive).approximationNumber n =
-      DavisKahanTheory.doubleAngleTangent (X.approximationNumber n) := by
+      DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n) := by
   apply le_antisymm
   · apply le_of_forall_pos_le_add
     intro ε hε
@@ -902,7 +904,7 @@ theorem kyFanApproximationGauge_doubleAngleTangentOperator
     (X : E0 →L[ℂ] E1) (hcontractive : ‖X‖ < 1) (k : ℕ) :
     kyFanApproximationGauge k (doubleAngleTangentOperator X hcontractive) =
       ∑ n ∈ Finset.range k,
-        DavisKahanTheory.doubleAngleTangent (X.approximationNumber n) := by
+        DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n) := by
   unfold kyFanApproximationGauge
   apply Finset.sum_congr rfl
   intro n hn

@@ -7,6 +7,8 @@ module
 
 public import ForTauCeti.Analysis.InnerProductSpace.CourantFischer
 public import ForTauCeti.Analysis.InnerProductSpace.Projection.Gap
+public import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder
+public import Mathlib.Analysis.Normed.Operator.Banach
 
 /-!
 # Finite-dimensional spectral subspaces
@@ -14,18 +16,8 @@ public import ForTauCeti.Analysis.InnerProductSpace.Projection.Gap
 Restricted spectra, reducing subspaces, canonical spectral projectors, and the
 quadratic-form bridges used by finite Davis--Kahan theorems.
 
-## Provenance
-
-*Moved, not restated.*  This file was
-`DavisKahan/FiniteDimensional/Core/SpectralSubspace.lean`
-before the dependency-closed base of the sin-Θ core moved into the staging
-layer.  Statements, proofs, signatures and namespaces are
-unchanged; the declarations already lived in `TauCeti.DavisKahan*`, so the move
-was a path change and an import repoint and nothing else.
-
-The move became possible only once Y3(b2) took the `ForMathlib`
-inner-product-space component into `ForTauCeti`: before that this file's import
-closure crossed `ForMathlib`, which the `ForTauCeti` layer rule forbids.
+The point-spectrum predicates name eigenvalue data explicitly; the quadratic-form results
+reduce to the generic bounded spectral-order API after restricting to an invariant subspace.
 -/
 
 public section
@@ -73,39 +65,39 @@ coordinate space in theorem statements.
 Eigenvectors are Mathlib's `Module.End.HasEigenvector` rather than a local predicate; the
 only thing a local one added was to fix the eigenvalue as real, which is a property of the
 `lam : ℝ` binder here and not of the notion of eigenvector. -/
-def restrictedSpectrum (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E) : Set ℝ :=
+def restrictedPointSpectrum (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E) : Set ℝ :=
   {lam | ∃ x, x ∈ U ∧ Module.End.HasEigenvector A (lam : 𝕜) x}
 
 omit [FiniteDimensional 𝕜 E] in
 /-- **The membership characterization**, in the eigenvalue-equation form that consumers
 want.
 
-`restrictedSpectrum` is stated through `Module.End.HasEigenvector` so that Mathlib's
+`restrictedPointSpectrum` is stated through `Module.End.HasEigenvector` so that Mathlib's
 eigenspace API applies to it, but almost every proof needs the equation `A x = lam • x`
 rather than membership in an eigenspace.  This lemma is the only place the two are
 converted, so a proof never destructures the definition and the internal shape of
 `HasEigenvector` -- which orders its conjuncts `(mem_eigenspace, ne_zero)` -- stops being
 part of this definition's public interface. -/
-theorem mem_restrictedSpectrum_iff {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E} {lam : ℝ} :
-    lam ∈ restrictedSpectrum A U ↔ ∃ x ∈ U, x ≠ 0 ∧ A x = (lam : 𝕜) • x :=
+theorem mem_restrictedPointSpectrum_iff {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E} {lam : ℝ} :
+    lam ∈ restrictedPointSpectrum A U ↔ ∃ x ∈ U, x ≠ 0 ∧ A x = (lam : 𝕜) • x :=
   ⟨fun ⟨x, hxU, hxEig, hx0⟩ => ⟨x, hxU, hx0, Module.End.mem_eigenspace_iff.mp hxEig⟩,
     fun ⟨x, hxU, hx0, hxEig⟩ => ⟨x, hxU, Module.End.mem_eigenspace_iff.mpr hxEig, hx0⟩⟩
 
 omit [FiniteDimensional 𝕜 E] in
 /-- The introduction rule: a nonzero eigenvector in `U` witnesses its eigenvalue. -/
-theorem mem_restrictedSpectrum {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E} {lam : ℝ} {x : E}
+theorem mem_restrictedPointSpectrum {A : E →ₗ[𝕜] E} {U : Submodule 𝕜 E} {lam : ℝ} {x : E}
     (hxU : x ∈ U) (hx0 : x ≠ 0) (hxEig : A x = (lam : 𝕜) • x) :
-    lam ∈ restrictedSpectrum A U :=
-  mem_restrictedSpectrum_iff.mpr ⟨x, hxU, hx0, hxEig⟩
+    lam ∈ restrictedPointSpectrum A U :=
+  mem_restrictedPointSpectrum_iff.mpr ⟨x, hxU, hx0, hxEig⟩
 
 /-- Every eigenvalue of `A` carried by `U` lies in `Ω`. -/
 @[expose]
-def SpectrumIn (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E) (Ω : Set ℝ) : Prop :=
-  restrictedSpectrum A U ⊆ Ω
+def PointSpectrumIn (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E) (Ω : Set ℝ) : Prop :=
+  restrictedPointSpectrum A U ⊆ Ω
 
 /-- Canonical finite-dimensional spectral subspace selected by a real set. -/
 @[expose]
-noncomputable def spectralSubspace (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
+noncomputable def pointSpectralSubspace (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
     Submodule 𝕜 E :=
   Submodule.span 𝕜 {x | ∃ lam ∈ Ω, Module.End.HasEigenvector A (lam : 𝕜) x}
 
@@ -113,7 +105,7 @@ noncomputable def spectralSubspace (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
 @[expose]
 noncomputable def spectralProjection (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
     E →ₗ[𝕜] E :=
-  ((spectralSubspace A Ω).starProjection : E →L[𝕜] E)
+  ((pointSpectralSubspace A Ω).starProjection : E →L[𝕜] E)
 
 /-- The orthogonal projector onto a finite-dimensional subspace, as a linear
 map. -/
@@ -170,8 +162,8 @@ omit [FiniteDimensional 𝕜 E] in
 needed for this algebraic fact; it is needed later for orthogonal reduction and
 for completeness of the real eigenvector decomposition.
 -/
-theorem isInvariant_spectralSubspace (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
-    IsInvariant A (spectralSubspace A Ω) := by
+theorem isInvariant_pointSpectralSubspace (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
+    IsInvariant A (pointSpectralSubspace A Ω) := by
   intro x hx
   refine Submodule.span_induction ?_ ?_ ?_ ?_ hx
   · rintro y ⟨lam, hlam, hy⟩
@@ -179,9 +171,9 @@ theorem isInvariant_spectralSubspace (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
     exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨lam, hlam, hy⟩)
   · simp
   · intro x y _ _ hx hy
-    simpa only [map_add] using (spectralSubspace A Ω).add_mem hx hy
+    simpa only [map_add] using (pointSpectralSubspace A Ω).add_mem hx hy
   · intro c x _ hx
-    simpa only [map_smul] using (spectralSubspace A Ω).smul_mem c hx
+    simpa only [map_smul] using (pointSpectralSubspace A Ω).smul_mem c hx
 
 /-! ### Restriction to an invariant subspace and the restricted-spectrum bridge
 
@@ -191,33 +183,24 @@ point spectrum of `A`.  This is the bridge used to discharge the spectral
 hypotheses of the residual/perturbation `sin Θ` theorems on the subtype. -/
 
 omit [FiniteDimensional 𝕜 E] in
-/-- The restriction of a symmetric operator to an invariant subspace is
-symmetric (mathlib's `LinearMap.IsSymmetric.restrict_invariant`, restated for the
-`IsInvariant` predicate). -/
-theorem isSymmetric_restrict {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
-    {U : Submodule 𝕜 E} (hU : IsInvariant A U) :
-    (A.restrict hU).IsSymmetric :=
-  hA.restrict_invariant hU
-
-omit [FiniteDimensional 𝕜 E] in
 /-- **The restricted-spectrum bridge.**  The point spectrum of the restriction
 `A.restrict hU : U →ₗ[𝕜] U` (over the whole `⊤`) equals the `U`-carried point
 spectrum of `A`.  Eigenvectors transport across the subtype coercion. -/
-theorem restrictedSpectrum_restrict (A : E →ₗ[𝕜] E)
+theorem restrictedPointSpectrum_restrict (A : E →ₗ[𝕜] E)
     {U : Submodule 𝕜 E} (hU : IsInvariant A U) :
-    restrictedSpectrum (A.restrict hU) ⊤ = restrictedSpectrum A U := by
+    restrictedPointSpectrum (A.restrict hU) ⊤ = restrictedPointSpectrum A U := by
   ext lam
   constructor
   · intro hlam
-    obtain ⟨x, -, hx0, hxEig⟩ := mem_restrictedSpectrum_iff.mp hlam
-    refine mem_restrictedSpectrum x.2 (fun hx => hx0 (Subtype.ext hx)) ?_
+    obtain ⟨x, -, hx0, hxEig⟩ := mem_restrictedPointSpectrum_iff.mp hlam
+    refine mem_restrictedPointSpectrum x.2 (fun hx => hx0 (Subtype.ext hx)) ?_
     -- `LinearMap.coe_restrict_apply` and `Submodule.coe_smul` are both `rfl`, but `rw`
     -- cannot match them here: `hU : IsInvariant A U` is only definitionally the hypothesis
     -- `LinearMap.restrict` is stated with.  `exact` checks up to defeq.
     exact congrArg (Subtype.val) hxEig
   · intro hlam
-    obtain ⟨x, hxU, hx0, hxEig⟩ := mem_restrictedSpectrum_iff.mp hlam
-    refine mem_restrictedSpectrum (x := ⟨x, hxU⟩) Submodule.mem_top
+    obtain ⟨x, hxU, hx0, hxEig⟩ := mem_restrictedPointSpectrum_iff.mp hlam
+    refine mem_restrictedPointSpectrum (x := ⟨x, hxU⟩) Submodule.mem_top
       (fun hxu => hx0 (congrArg Subtype.val hxu)) ?_
     apply Subtype.ext
     exact hxEig
@@ -225,11 +208,11 @@ theorem restrictedSpectrum_restrict (A : E →ₗ[𝕜] E)
 omit [FiniteDimensional 𝕜 E] in
 /-- The containment form of the restricted-spectrum bridge: `A.restrict hU` has
 spectrum in `s` iff `A` carries spectrum in `s` on `U`. -/
-theorem spectrumIn_restrict_iff (A : E →ₗ[𝕜] E)
+theorem pointSpectrumIn_restrict_iff (A : E →ₗ[𝕜] E)
     {U : Submodule 𝕜 E} (hU : IsInvariant A U) (s : Set ℝ) :
-    SpectrumIn (A.restrict hU) ⊤ s ↔ SpectrumIn A U s := by
-  unfold SpectrumIn
-  rw [restrictedSpectrum_restrict]
+    PointSpectrumIn (A.restrict hU) ⊤ s ↔ PointSpectrumIn A U s := by
+  unfold PointSpectrumIn
+  rw [restrictedPointSpectrum_restrict]
 
 omit [FiniteDimensional 𝕜 E] in
 /-- **A symmetric operator commutes with the projection onto a reducing
@@ -262,95 +245,103 @@ theorem complementaryProjection_apply_comm_of_isInvariant {A : E →ₗ[𝕜] E}
 
 /-! ### Spectral gap ⟹ quadratic-form coercivity bridge
 
-These convert the abstract eigenvalue-set hypotheses (`SpectrumIn A U s`) into the
+These convert the abstract eigenvalue-set hypotheses (`PointSpectrumIn A U s`) into the
 quadratic-form bounds `re ⟪A x, x⟫ ≤ c ‖x‖²` (or `≥`) that the dimension-free
 operator-norm Sylvester/`sin Θ` machinery consumes.  This is the point where
-finite-dimensional spectral decomposition (an eigenbasis of the restriction) is
-genuinely used. -/
+finite-dimensional injectivity-surjectivity identifies point and algebra spectra.
+The ensuing coercivity estimate is supplied by the generic spectral-order theorem. -/
 
-/-- If every eigenvalue of a symmetric `T` is `≤ c`, the quadratic form is
-bounded above by `c ‖·‖²` (diagonalization: `∑ λᵢ ‖repr xᵢ‖² ≤ c ∑ ‖repr xᵢ‖²`). -/
-theorem re_inner_le_of_forall_eigenvalue_le {n : ℕ} {T : E →ₗ[𝕜] E}
-    (hT : T.IsSymmetric) (hn : finrank 𝕜 E = n) {c : ℝ}
-    (hc : ∀ i, hT.eigenvalues hn i ≤ c) (x : E) :
-    RCLike.re ⟪T x, x⟫_𝕜 ≤ c * ‖x‖ ^ 2 := by
-  refine LinearMap.IsSymmetric.re_inner_apply_self_le_of_mem_spanIndices hT hn (s := Set.univ)
-    (fun i _ => hc i) ?_
-  have htop : (hT.eigenvectorBasis hn).spanIndices (Set.univ : Set (Fin n)) = ⊤ := by
-    rw [OrthonormalBasis.spanIndices, eq_top_iff,
-      ← (hT.eigenvectorBasis hn).toBasis.span_eq]
-    exact Submodule.span_mono (by rintro y ⟨i, rfl⟩; exact ⟨i, trivial, rfl⟩)
-  rw [htop]; exact Submodule.mem_top
+section SpectralOrder
 
-/-- Dual: if every eigenvalue of a symmetric `T` is `≥ c`, the quadratic form is
-bounded below by `c ‖·‖²`. -/
-theorem le_re_inner_of_forall_le_eigenvalue {n : ℕ} {T : E →ₗ[𝕜] E}
-    (hT : T.IsSymmetric) (hn : finrank 𝕜 E = n) {c : ℝ}
-    (hc : ∀ i, c ≤ hT.eigenvalues hn i) (x : E) :
-    c * ‖x‖ ^ 2 ≤ RCLike.re ⟪T x, x⟫_𝕜 := by
-  refine LinearMap.IsSymmetric.le_re_inner_apply_self_of_mem_spanIndices hT hn (s := Set.univ)
-    (fun i _ => hc i) ?_
-  have htop : (hT.eigenvectorBasis hn).spanIndices (Set.univ : Set (Fin n)) = ⊤ := by
-    rw [OrthonormalBasis.spanIndices, eq_top_iff,
-      ← (hT.eigenvectorBasis hn).toBasis.span_eq]
-    exact Submodule.span_mono (by rintro y ⟨i, rfl⟩; exact ⟨i, trivial, rfl⟩)
-  rw [htop]; exact Submodule.mem_top
+-- These operator-algebra instances must not change scalar elaboration outside this section.
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower
 
-/-- **The spectral-gap coercivity bridge (upper).**  If `A` is symmetric, `U`
-reduces `A`, and the `U`-carried spectrum lies in `Set.Iic c`, then the quadratic
-form of `A` is bounded above by `c ‖·‖²` on `U`. -/
-theorem re_inner_le_of_spectrumIn {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
+/-- In finite dimension, the real algebra spectrum is exactly the real point spectrum.
+No symmetry is needed for this equality: a noninvertible square linear map has a kernel. -/
+theorem real_spectrum_toContinuousLinearMap_eq (A : E →ₗ[𝕜] E) :
+    spectrum ℝ A.toContinuousLinearMap = restrictedPointSpectrum A ⊤ := by
+  have := FiniteDimensional.complete 𝕜 E
+  ext r
+  let S : E →L[𝕜] E := algebraMap ℝ (E →L[𝕜] E) r - A.toContinuousLinearMap
+  have hc : algebraMap ℝ (E →L[𝕜] E) r =
+      (algebraMap ℝ 𝕜 r) • (1 : E →L[𝕜] E) := by
+    rw [Algebra.algebraMap_eq_smul_one, ← IsScalarTower.algebraMap_smul 𝕜]
+  have hS (x : E) : S x = (r : 𝕜) • x - A x := by
+    have happ : (algebraMap ℝ (E →L[𝕜] E) r) x = (r : 𝕜) • x := by
+      rw [hc, smul_apply, one_apply_eq_self, RCLike.algebraMap_eq_ofReal]
+    simp only [S, sub_apply, happ, LinearMap.coe_toContinuousLinearMap']
+  rw [spectrum.mem_iff, mem_restrictedPointSpectrum_iff]
+  change (¬ IsUnit S) ↔ _
+  constructor
+  · intro hnot
+    by_contra hnone
+    have hzero : ∀ x : E, S x = 0 → x = 0 := by
+      intro x hx
+      by_contra hx0
+      apply hnone
+      exact ⟨x, Submodule.mem_top, hx0, (sub_eq_zero.mp ((hS x).symm.trans hx)).symm⟩
+    have hinj : Function.Injective S := by
+      intro x y hxy
+      apply sub_eq_zero.mp
+      apply hzero
+      rw [map_sub, hxy, sub_self]
+    exact hnot (ContinuousLinearMap.isUnit_iff_bijective.mpr
+      ⟨hinj, LinearMap.injective_iff_surjective.mp hinj⟩)
+  · rintro ⟨x, -, hx0, hAx⟩ hunit
+    apply hx0
+    apply (ContinuousLinearMap.isUnit_iff_bijective.mp hunit).1
+    simp [hS, hAx]
+
+/-- Spectral containment gives an upper form bound on an invariant subspace. -/
+theorem upperFormBound_of_pointSpectrumIn {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} (hU : IsInvariant A U) {c : ℝ}
-    (hspec : SpectrumIn A U (Set.Iic c)) {x : E} (hx : x ∈ U) :
-    RCLike.re ⟪A x, x⟫_𝕜 ≤ c * ‖x‖ ^ 2 := by
-  have hA'sym : (A.restrict hU).IsSymmetric := isSymmetric_restrict hA hU
-  have hev : ∀ i, hA'sym.eigenvalues rfl i ≤ c := fun i => by
-    have hmem : hA'sym.eigenvalues rfl i ∈ restrictedSpectrum (A.restrict hU) ⊤ :=
-      mem_restrictedSpectrum Submodule.mem_top
-        ((hA'sym.eigenvectorBasis rfl).orthonormal.ne_zero i)
-        (hA'sym.apply_eigenvectorBasis rfl i)
-    rw [restrictedSpectrum_restrict] at hmem
-    exact hspec hmem
-  have hquad := re_inner_le_of_forall_eigenvalue_le hA'sym rfl hev ⟨x, hx⟩
-  exact hquad
+    (hSpec : PointSpectrumIn A U (Set.Iic c)) :
+    ∀ x ∈ U, RCLike.re ⟪A x, x⟫_𝕜 ≤ c * ‖x‖ ^ 2 := by
+  have := FiniteDimensional.complete 𝕜 U
+  have hsym : IsSelfAdjoint (A.restrict hU).toContinuousLinearMap :=
+    ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr (hA.restrict_invariant hU)
+  have hspec : spectrum ℝ (A.restrict hU).toContinuousLinearMap ⊆ Set.Iic c := by
+    rw [real_spectrum_toContinuousLinearMap_eq, restrictedPointSpectrum_restrict]
+    exact hSpec
+  intro x hx
+  exact SpectralOrder.re_inner_le_of_spectrum_subset_Iic _ hsym hspec ⟨x, hx⟩
 
-/-- **The spectral-gap coercivity bridge (lower).**  If `A` is symmetric, `U`
-reduces `A`, and the `U`-carried spectrum lies in `Set.Ici c`, then the quadratic
-form of `A` is bounded below by `c ‖·‖²` on `U`. -/
-theorem le_re_inner_of_spectrumIn {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
+/-- Spectral containment gives a lower form bound on an invariant subspace. -/
+theorem lowerFormBound_of_pointSpectrumIn {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} (hU : IsInvariant A U) {c : ℝ}
-    (hspec : SpectrumIn A U (Set.Ici c)) {x : E} (hx : x ∈ U) :
-    c * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_𝕜 := by
-  have hA'sym : (A.restrict hU).IsSymmetric := isSymmetric_restrict hA hU
-  have hev : ∀ i, c ≤ hA'sym.eigenvalues rfl i := fun i => by
-    have hmem : hA'sym.eigenvalues rfl i ∈ restrictedSpectrum (A.restrict hU) ⊤ :=
-      mem_restrictedSpectrum Submodule.mem_top
-        ((hA'sym.eigenvectorBasis rfl).orthonormal.ne_zero i)
-        (hA'sym.apply_eigenvectorBasis rfl i)
-    rw [restrictedSpectrum_restrict] at hmem
-    exact hspec hmem
-  have hquad := le_re_inner_of_forall_le_eigenvalue hA'sym rfl hev ⟨x, hx⟩
-  exact hquad
+    (hSpec : PointSpectrumIn A U (Set.Ici c)) :
+    ∀ x ∈ U, c * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_𝕜 := by
+  have := FiniteDimensional.complete 𝕜 U
+  have hsym : IsSelfAdjoint (A.restrict hU).toContinuousLinearMap :=
+    ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr (hA.restrict_invariant hU)
+  have hspec : spectrum ℝ (A.restrict hU).toContinuousLinearMap ⊆ Set.Ici c := by
+    rw [real_spectrum_toContinuousLinearMap_eq, restrictedPointSpectrum_restrict]
+    exact hSpec
+  intro x hx
+  exact SpectralOrder.le_re_inner_of_spectrum_subset_Ici _ hsym hspec ⟨x, hx⟩
+
+end SpectralOrder
 
 /-- The canonical projector has the expected range.
 -/
 theorem range_spectralProjection (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
-    LinearMap.range (spectralProjection A Ω) = spectralSubspace A Ω := by
-  exact Submodule.range_starProjection (spectralSubspace A Ω)
+    LinearMap.range (spectralProjection A Ω) = pointSpectralSubspace A Ω := by
+  exact Submodule.range_starProjection (pointSpectralSubspace A Ω)
 
 omit [FiniteDimensional 𝕜 E] in
 /-- Spectral selection is independent of the chosen eigenbasis.
 -/
-theorem spectralSubspace_eq_span_eigenvectors (A : E →ₗ[𝕜] E)
+theorem pointSpectralSubspace_eq_span_eigenvectors (A : E →ₗ[𝕜] E)
     (Ω : Set ℝ) :
-    spectralSubspace A Ω =
+    pointSpectralSubspace A Ω =
       Submodule.span 𝕜 {x | ∃ lam ∈ Ω, Module.End.HasEigenvector A (lam : 𝕜) x} :=
   rfl
 
 omit [FiniteDimensional 𝕜 E] in
 /-- **The spectral subspace selected by `Ω` carries only spectrum in `Ω`.**
 
-`spectralSubspace A Ω` is *defined* as a span of eigenvectors whose eigenvalues lie in
+`pointSpectralSubspace A Ω` is *defined* as a span of eigenvectors whose eigenvalues lie in
 `Ω`, but that does not immediately say the span contains no *other* eigenvector: a sum of
 eigenvectors could a priori be an eigenvector for a fresh eigenvalue.  It cannot, and this
 is the theorem saying so.
@@ -361,18 +352,18 @@ intersection of `eigenspace A lam` with the supremum of the *others*, which
 `Module.End.eigenspaces_iSupIndep` makes trivial.  So `A` needs no hypotheses at all.
 
 **This was a hypothesis, not a theorem.**  Production perturbation statements carried it as
-`hAselected : SpectrumIn A (spectralSubspace A (Set.Icc a b)) (Set.Icc a b)`, which is
+`hAselected : PointSpectrumIn A (pointSpectralSubspace A (Set.Icc a b)) (Set.Icc a b)`, which is
 exactly this conclusion at `Ω = Set.Icc a b`; a caller had to discharge, by hand, a fact
 that holds unconditionally. -/
-theorem spectrumIn_spectralSubspace (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
-    SpectrumIn A (spectralSubspace A Ω) Ω := by
+theorem pointSpectrumIn_pointSpectralSubspace (A : E →ₗ[𝕜] E) (Ω : Set ℝ) :
+    PointSpectrumIn A (pointSpectralSubspace A Ω) Ω := by
   intro lam hlam
-  obtain ⟨x, hxU, hx0, hxeq⟩ := mem_restrictedSpectrum_iff.mp hlam
+  obtain ⟨x, hxU, hx0, hxeq⟩ := mem_restrictedPointSpectrum_iff.mp hlam
   by_contra hlamΩ
   -- The span of the selected eigenvectors sits inside the supremum of their eigenspaces.
-  have hspan : spectralSubspace A Ω ≤
+  have hspan : pointSpectralSubspace A Ω ≤
       ⨆ μ ∈ ((↑) '' Ω : Set 𝕜), Module.End.eigenspace A μ := by
-    rw [spectralSubspace, Submodule.span_le]
+    rw [pointSpectralSubspace, Submodule.span_le]
     rintro y ⟨lam', hlam'Ω, hy⟩
     exact Submodule.mem_iSup_of_mem _
       (Submodule.mem_iSup_of_mem ⟨lam', hlam'Ω, rfl⟩ hy.1)

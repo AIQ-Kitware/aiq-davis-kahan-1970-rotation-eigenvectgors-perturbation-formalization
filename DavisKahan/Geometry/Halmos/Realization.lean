@@ -7,6 +7,11 @@ import DavisKahan.Geometry.Halmos.TwoProjections
 import ForTauCeti.Analysis.InnerProductSpace.SeparatedIntertwiner
 import Mathlib.Analysis.InnerProductSpace.ProdL2
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+import ForTauCeti.Analysis.RCLike.ScalarTransportFunctionalCalculus
+
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+  ContinuousLinearMap.instStarOrderedRingRCLike
 
 /-!
 # Davis--Kahan 1970, Theorem 3.1: the realization half
@@ -1096,10 +1101,6 @@ section OfIntertwinedAngles
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {E : Type u} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
 variable {F : Type v} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
-variable [Algebra ℝ (E →L[𝕜] E)] [IsScalarTower ℝ 𝕜 (E →L[𝕜] E)]
-  [ContinuousFunctionalCalculus ℝ (E →L[𝕜] E) IsSelfAdjoint]
-  [Algebra ℝ (F →L[𝕜] F)] [IsScalarTower ℝ 𝕜 (F →L[𝕜] F)]
-  [ContinuousFunctionalCalculus ℝ (F →L[𝕜] F) IsSelfAdjoint]
 
 /-- **The angle datum of a pair of intertwined self-adjoint angle operators.**
 
@@ -1109,9 +1110,8 @@ two is proved from the functional calculus; see the section preamble for which
 and why.  The two partial-isometry axioms are the caller's, because they are
 multiplicity statements that no functional calculus can supply.
 
-The functional-calculus hypothesis block is the one
-`ForTauCeti/Analysis/InnerProductSpace/OperatorModulus.lean` uses; it is
-discharged by typeclass inference at `𝕜 = ℝ` and at `𝕜 = ℂ` alike. -/
+The real functional calculi on `E` and `F` are supplied by the local `RCLike` operator
+instances. -/
 noncomputable def HalmosAngleDatum.ofIntertwinedAngles
     {Θ₀ : E →L[𝕜] E} {Θ₁ : F →L[𝕜] F}
     (hΘ₀ : IsSelfAdjoint Θ₀) (hΘ₁ : IsSelfAdjoint Θ₁)

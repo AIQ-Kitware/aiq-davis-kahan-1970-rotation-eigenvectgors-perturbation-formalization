@@ -5,6 +5,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.SinTheta.Real.Canonical
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Real bounded specialization of the generalized theorem
 
@@ -86,14 +88,14 @@ noncomputable def toGeneral
     data := D
     exactMap := P.F₀
     ambient_selfAdjoint :=
-      TauCeti.DavisKahanExt.ofBounded_isSelfAdjoint
-        P.A P.ambient_symmetric
+      TauCeti.LinearPMap.isSelfAdjoint_toPMap_top (T := P.A)
+        (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr P.ambient_symmetric)
     trial_selfAdjoint :=
-      TauCeti.DavisKahanExt.ofBounded_isSelfAdjoint
-        P.A₀ P.trial_symmetric
+      TauCeti.LinearPMap.isSelfAdjoint_toPMap_top (T := P.A₀)
+        (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr P.trial_symmetric)
     complement_selfAdjoint :=
-      TauCeti.DavisKahanExt.ofBounded_isSelfAdjoint
-        P.Λ₁ P.complement_symmetric
+      TauCeti.LinearPMap.isSelfAdjoint_toPMap_top (T := P.Λ₁)
+        (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr P.complement_symmetric)
     exact_decomposition := P.exact_decomposition
     gap := P.gap
     frameLowerBound := P.frameLowerBound

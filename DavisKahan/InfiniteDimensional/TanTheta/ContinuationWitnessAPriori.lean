@@ -6,6 +6,11 @@ Authors: Jon Crall, GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.WitnessOffDiagonal
 import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedRiccatiShift
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # A priori tangent control for a continuation-selected branch
 
@@ -23,6 +28,7 @@ supply the witness from sharp branch preservation.
 
 namespace TauCeti
 namespace DavisKahanExt
+
 
 open DavisKahan
 
@@ -118,7 +124,7 @@ theorem selectedEndpointAngularOperator_sharp_riccati_bound
     (C : SpectralContinuationWitness A V s)
     (hsmall : selectedBranchProjectionLipschitzConstant
       C.contour V C.margin < Real.sqrt 2 / 2)
-    (hoff : IsOffDiagonal C.sourceSelectedSpectralSubspace V)
+    (hoff : Submodule.IsOffDiagonal C.sourceSelectedSpectralSubspace V)
     {c d : ℝ} (hd0 : 0 ≤ d)
     (hA0 : ∀ z : C.sourceSelectedSpectralSubspace,
       RCLike.re
@@ -189,7 +195,7 @@ theorem norm_selectedEndpointAngularOperator_le_div
     (C : SpectralContinuationWitness A V s)
     (hsmall : selectedBranchProjectionLipschitzConstant
       C.contour V C.margin < Real.sqrt 2 / 2)
-    (hoff : IsOffDiagonal C.sourceSelectedSpectralSubspace V)
+    (hoff : Submodule.IsOffDiagonal C.sourceSelectedSpectralSubspace V)
     {c d : ℝ} (hd : 0 < d)
     (hA0 : ∀ z : C.sourceSelectedSpectralSubspace,
       RCLike.re
@@ -217,7 +223,7 @@ theorem tan_maximalAngle_selectedSpectralSubspaces_le_div
     (C : SpectralContinuationWitness A V s)
     (hsmall : selectedBranchProjectionLipschitzConstant
       C.contour V C.margin < Real.sqrt 2 / 2)
-    (hoff : IsOffDiagonal C.sourceSelectedSpectralSubspace V)
+    (hoff : Submodule.IsOffDiagonal C.sourceSelectedSpectralSubspace V)
     {c d : ℝ} (hd : 0 < d)
     (hA0 : ∀ z : C.sourceSelectedSpectralSubspace,
       RCLike.re

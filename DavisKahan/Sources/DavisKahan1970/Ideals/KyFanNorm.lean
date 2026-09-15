@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Sol
 -/
 import DavisKahan.Sources.DavisKahan1970.Ideals.StandardInstances
-import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm.Instances
+import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm.Instances
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Ky Fan norms inside the Davis--Kahan source norm class
@@ -69,10 +71,10 @@ theorem zeroPadRight_comp_zeroPadPerm {n : ℕ}
 /-- The finite square Ky Fan `k` seminorm used to build the coherent paper
 norm.  For `k` larger than the dimension the extra singular values are zero. -/
 noncomputable def kyFanFiniteNorm (k n : ℕ) :
-    TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n)) :=
-  (TauCeti.RectangularUnitarilyInvariantSeminorm.kyFan
+    TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n)) (EuclideanSpace ℂ (Fin n)) :=
+  (TauCeti.UnitarilyInvariantSeminorm.kyFan
       (𝕜 := ℂ) (E := EuclideanSpace ℂ (Fin n))
-      (F := EuclideanSpace ℂ (Fin n)) k).toSquare
+      (F := EuclideanSpace ℂ (Fin n)) k)
 
 /-- On an antitone nonnegative vector, the finite Ky Fan gauge is literally the
 corresponding prefix sum. -/
@@ -83,7 +85,7 @@ theorem kyFanFiniteNorm_gauge_of_antitone_nonneg
         (EuclideanSpace.basisFun (Fin n) ℂ) x =
       FiniteVector.prefixSum k x := by
   let b := EuclideanSpace.basisFun (Fin n) ℂ
-  change TauCeti.RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k
+  change TauCeti.kyFanSum k
       (TauCeti.diagOp b x) = FiniteVector.prefixSum k x
   rcases le_total k n with hkn | hnk
   · have hprefix :
@@ -105,7 +107,7 @@ theorem kyFanFiniteNorm_gauge_of_antitone_nonneg
           intro i hi
           simp [f, lt_of_lt_of_le i.isLt hkn]
     rw [hprefix]
-    unfold TauCeti.RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum
+    unfold TauCeti.kyFanSum
     apply Finset.sum_congr rfl
     intro i hi
     exact TauCeti.singularValues_diagOp
@@ -113,12 +115,11 @@ theorem kyFanFiniteNorm_gauge_of_antitone_nonneg
       finrank_euclideanSpace_fin b hxanti hx0
       ⟨i, lt_of_lt_of_le i.isLt hkn⟩
   · have hstab :=
-      TauCeti.RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum_eq_finrank_of_finrank_le
-        (TauCeti.diagOp b x) (k := k) (by simpa using hnk)
+      TauCeti.kyFanSum_eq_of_finrank_le (k := k) (by simpa using hnk) (TauCeti.diagOp b x)
     rw [hstab]
     rw [finrank_euclideanSpace_fin]
     rw [FiniteVector.prefixSum_eq_full_sum_of_le x hnk]
-    unfold TauCeti.RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum
+    unfold TauCeti.kyFanSum
     apply Finset.sum_congr rfl
     intro i hi
     exact TauCeti.singularValues_diagOp

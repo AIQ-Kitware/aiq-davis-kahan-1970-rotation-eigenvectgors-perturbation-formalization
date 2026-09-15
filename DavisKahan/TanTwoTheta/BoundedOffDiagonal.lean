@@ -4,7 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, GPT-5.6 Thinking
 -/
 import DavisKahan.Geometry.Angle.OperatorAngleComplex
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
+
+open TauCeti.DavisKahan.Angle
+
 
 /-!
 # Bounded double-angle tangent reduction
@@ -16,7 +21,7 @@ double-angle cosine controls its inverse. Consequently a weighted
 sharp tangent estimate.
 
 The operator in this file is the implemented complex operator-angle object
-`tanTwoAngleOperatorC`. The scalar-generic compatibility object is kept out
+`directedTanTwoAngleOperatorC`. The scalar-generic compatibility object is kept out
 of this leaf until it is connected to the complex and real constructions.
 -/
 
@@ -33,11 +38,11 @@ private theorem quarterAcute_doubleCosineConstant_pos
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : IsQuarterAcute U V) :
-    0 < 1 - 2 * directedGap U V ^ 2 := by
-  have hglt : directedGap U V < Real.sqrt 2 / 2 :=
-    lt_of_le_of_lt (directedProjectionGap_le_projectionGap U V) hquarter
-  have hg0 : 0 ≤ directedGap U V := by
-    rw [show directedGap U V =
+    0 < 1 - 2 * U.directedProjectionGap V ^ 2 := by
+  have hglt : U.directedProjectionGap V < Real.sqrt 2 / 2 :=
+    lt_of_le_of_lt (Submodule.directedProjectionGap_le_projectionGap U V) hquarter
+  have hg0 : 0 ≤ U.directedProjectionGap V := by
+    rw [show U.directedProjectionGap V =
       ‖Vᗮ.starProjection ∘L U.starProjection‖ from rfl]
     exact norm_nonneg _
   have h2 : (Real.sqrt 2) ^ 2 = 2 := Real.sq_sqrt (by norm_num)
@@ -51,12 +56,12 @@ theorem norm_cosTwoAngleExtendedCEquiv_symm_apply_le
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : IsQuarterAcute U V) (y : E) :
     ‖(cosTwoAngleExtendedCEquiv U V hquarter).symm y‖ ≤
-      (1 - 2 * directedGap U V ^ 2)⁻¹ * ‖y‖ := by
-  let c : ℝ := 1 - 2 * directedGap U V ^ 2
+      (1 - 2 * U.directedProjectionGap V ^ 2)⁻¹ * ‖y‖ := by
+  let c : ℝ := 1 - 2 * U.directedProjectionGap V ^ 2
   have hcpos : 0 < c := quarterAcute_doubleCosineConstant_pos U V hquarter
   have hc1 : c ≤ 1 := by
     dsimp [c]
-    nlinarith [sq_nonneg (directedGap U V)]
+    nlinarith [sq_nonneg (U.directedProjectionGap V)]
   have hcoerU : ∀ x ∈ U,
       c * ‖x‖ ≤ ‖cosTwoAngleOperatorC U V x‖ := by
     intro x hx
@@ -88,7 +93,7 @@ theorem norm_cosTwoAngleExtendedCEquiv_symm_le
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : IsQuarterAcute U V) :
     ‖(cosTwoAngleExtendedCEquiv U V hquarter).symm.toContinuousLinearMap‖ ≤
-      (1 - 2 * directedGap U V ^ 2)⁻¹ := by
+      (1 - 2 * U.directedProjectionGap V ^ 2)⁻¹ := by
   have hcpos := quarterAcute_doubleCosineConstant_pos U V hquarter
   refine ContinuousLinearMap.opNorm_le_bound _ (inv_nonneg.mpr hcpos.le) ?_
   intro y
@@ -96,44 +101,44 @@ theorem norm_cosTwoAngleExtendedCEquiv_symm_le
 
 /-- The double-angle tangent norm is controlled by the double-angle sine norm
 and the quarter-acute cosine denominator. -/
-theorem norm_tanTwoAngleOperatorC_le_sine_div_doubleCosine
+theorem norm_directedTanTwoAngleOperatorC_le_sine_div_doubleCosine
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : IsQuarterAcute U V) :
-    ‖tanTwoAngleOperatorC U V hquarter‖ ≤
-      ‖sinTwoAngleOperatorC U V‖ /
-        (1 - 2 * directedGap U V ^ 2) := by
+    ‖directedTanTwoAngleOperatorC U V hquarter‖ ≤
+      ‖directedSinTwoAngleOperatorC U V‖ /
+        (1 - 2 * U.directedProjectionGap V ^ 2) := by
   have hinv := norm_cosTwoAngleExtendedCEquiv_symm_le U V hquarter
   calc
-    ‖tanTwoAngleOperatorC U V hquarter‖ ≤
-        ‖sinTwoAngleOperatorC U V‖ *
+    ‖directedTanTwoAngleOperatorC U V hquarter‖ ≤
+        ‖directedSinTwoAngleOperatorC U V‖ *
           ‖(cosTwoAngleExtendedCEquiv U V hquarter).symm.toContinuousLinearMap‖ :=
       ContinuousLinearMap.opNorm_comp_le _ _
-    _ ≤ ‖sinTwoAngleOperatorC U V‖ *
-        (1 - 2 * directedGap U V ^ 2)⁻¹ :=
+    _ ≤ ‖directedSinTwoAngleOperatorC U V‖ *
+        (1 - 2 * U.directedProjectionGap V ^ 2)⁻¹ :=
       mul_le_mul_of_nonneg_left hinv (norm_nonneg _)
-    _ = ‖sinTwoAngleOperatorC U V‖ /
-        (1 - 2 * directedGap U V ^ 2) := by
+    _ = ‖directedSinTwoAngleOperatorC U V‖ /
+        (1 - 2 * U.directedProjectionGap V ^ 2) := by
       rw [div_eq_mul_inv]
 
 /-- A weighted double-angle sine estimate converts directly into the
 corresponding tangent estimate. This is the scalar endpoint consumed by the
 bounded off-diagonal theorem. -/
-theorem norm_tanTwoAngleOperatorC_le_of_weighted_sine
+theorem norm_directedTanTwoAngleOperatorC_le_of_weighted_sine
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : IsQuarterAcute U V)
     {d r : ℝ} (hd : 0 < d)
     (hweighted :
-      d * ‖sinTwoAngleOperatorC U V‖ ≤
-        r * (1 - 2 * directedGap U V ^ 2)) :
-    ‖tanTwoAngleOperatorC U V hquarter‖ ≤ r / d := by
+      d * ‖directedSinTwoAngleOperatorC U V‖ ≤
+        r * (1 - 2 * U.directedProjectionGap V ^ 2)) :
+    ‖directedTanTwoAngleOperatorC U V hquarter‖ ≤ r / d := by
   have hcpos := quarterAcute_doubleCosineConstant_pos U V hquarter
   calc
-    ‖tanTwoAngleOperatorC U V hquarter‖ ≤
-        ‖sinTwoAngleOperatorC U V‖ /
-          (1 - 2 * directedGap U V ^ 2) :=
-      norm_tanTwoAngleOperatorC_le_sine_div_doubleCosine U V hquarter
+    ‖directedTanTwoAngleOperatorC U V hquarter‖ ≤
+        ‖directedSinTwoAngleOperatorC U V‖ /
+          (1 - 2 * U.directedProjectionGap V ^ 2) :=
+      norm_directedTanTwoAngleOperatorC_le_sine_div_doubleCosine U V hquarter
     _ ≤ r / d := by
       rw [div_le_div_iff₀ hcpos hd]
       simpa [mul_comm, mul_left_comm, mul_assoc] using hweighted
@@ -146,10 +151,10 @@ theorem tanTwoTheta_offDiagonalC_of_weighted_sine
     (hquarter : IsQuarterAcute U V)
     {d : ℝ} (hd : 0 < d) (H : E →L[ℂ] E)
     (hweighted :
-      d * ‖sinTwoAngleOperatorC U V‖ ≤
-        (2 * ‖H‖) * (1 - 2 * directedGap U V ^ 2)) :
-    ‖tanTwoAngleOperatorC U V hquarter‖ ≤ 2 * ‖H‖ / d :=
-  norm_tanTwoAngleOperatorC_le_of_weighted_sine U V hquarter hd hweighted
+      d * ‖directedSinTwoAngleOperatorC U V‖ ≤
+        (2 * ‖H‖) * (1 - 2 * U.directedProjectionGap V ^ 2)) :
+    ‖directedTanTwoAngleOperatorC U V hquarter‖ ≤ 2 * ‖H‖ / d :=
+  norm_directedTanTwoAngleOperatorC_le_of_weighted_sine U V hquarter hd hweighted
 
 end DavisKahanExt
 end TauCeti

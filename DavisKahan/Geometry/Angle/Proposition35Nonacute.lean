@@ -6,6 +6,10 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 import DavisKahan.Geometry.Angle.Proposition35Infinite
 import DavisKahan.Geometry.Polar.Section3Nonacute
 
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+  ContinuousLinearMap.instStarOrderedRingRCLike
+
 /-!
 # Nonacute operator-angle commutation for Davis--Kahan Section 3
 
@@ -40,10 +44,7 @@ noncomputable section
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
   [CompleteSpace H]
-variable [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint]
 
-attribute [local instance] ContinuousLinearMap.instStarOrderedRingRCLike
 
 variable (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
   [V.HasOrthogonalProjection]

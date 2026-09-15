@@ -3,7 +3,7 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 5, OpenAI GPT-5.6 Sol
 -/
-import DavisKahan.Geometry.Angle.PaperOperatorAngleReal
+import DavisKahan.Geometry.Angle.AngleFunctionalCalculusReal
 import DavisKahan.Sources.DavisKahan1970.SinTwoThetaAmbient
 import DavisKahan.Sources.DavisKahan1970.TanThetaAmbient
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaReflectionAmbient
@@ -11,6 +11,11 @@ import DavisKahan.SpectralTheory.Complexification.FormTransport
 import DavisKahan.SpectralTheory.Complexification.SubmoduleEquiv
 import DavisKahan.SpectralTheory.Complexification.Spectrum
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.ComplexificationGauge
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Source-facing Section 2 angle bounds over a **real** Hilbert space
@@ -28,8 +33,8 @@ are proved over `ℂ` in the corresponding source modules.  This module states a
 proves their real-Hilbert-space counterparts with **no** loss:
 
 * the space, operators, and subspaces are real; ambient angle operators use
-  `DavisKahan/Geometry/Angle/PaperOperatorAngleReal.lean`, while the directed
-  `Θ₀` convention follows `paperSourceDirectedAngleR` and is represented on the
+  `DavisKahan/Geometry/Angle/AngleFunctionalCalculusReal.lean`, while the directed
+  `Θ₀` convention follows `sourceDirectedAngleR` and is represented on the
   canonical complexification, which preserves its complete singular data;
 * the constants `δ`, `1` and `2` are unchanged;
 * ideal membership is *concluded*, exactly as in the complex statements, not
@@ -78,6 +83,7 @@ open TauCeti.DavisKahan.Foundation
 open TauCeti.DavisKahan.Foundation.RealComplexification
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -85,15 +91,6 @@ universe v
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
-
-/-- A subspace admitting an orthogonal projection inside a complete ambient
-space is itself complete.  `local instance` does not propagate through imports,
-so it is reinstalled here, on both scalar fields. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionRealWholeSpace
-    {𝕜 : Type*} [RCLike 𝕜] {G : Type v} [NormedAddCommGroup G]
-    [InnerProductSpace 𝕜 G] [CompleteSpace G]
-    (Z : Submodule 𝕜 G) [Z.HasOrthogonalProjection] : CompleteSpace Z :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection Z).completeSpace_coe
 
 /-! ### Transporting the compression hypotheses -/
 
@@ -104,7 +101,7 @@ variable (Z : Submodule ℝ E) [Z.HasOrthogonalProjection]
 /-- The real orthogonal compression of an operator to a closed subspace.
 
 This is the real-scalar spelling of `compressOperator`, and it is that operator:
-`DavisKahanExt.compressOperator` is `RCLike`-generic, and at `𝕜 = ℝ` its body is
+`DavisKahan.Sylvester.compressOperator` is `RCLike`-generic, and at `𝕜 = ℝ` its body is
 this one, so `compressOperatorReal Z A = compressOperator Z A` holds by `rfl` and
 `compressOperator_eq_restrict_of_invariant` applies to it verbatim.  (`ℂ`-only
 spellings such as `theorem63Compression` are a separate matter; it is Mathlib's
@@ -167,29 +164,29 @@ end Compression
 /-- The canonical source-norm representative of the real directed
 `tan(2Θ₀)` corner.
 
-As with `paperSourceDirectedAngleR`, the real source geometry is represented on
+As with `sourceDirectedAngleR`, the real source geometry is represented on
 its canonical complexification.  This loses no source information: every
 `SymmetricNormingFunction` is defined from singular values and complexification
 preserves those values exactly.  Keeping the representative here avoids
 introducing a second real functional-calculus implementation solely for an
 operator whose only source use is through a unitarily invariant norm. -/
-noncomputable def paperTanTwoDirectedCornerR
+noncomputable def tanTwoDirectedCornerR
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     RealComplexification E →L[ℂ] RealComplexification E :=
-  paperProjectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
-    (2 * (paperProjectorDifference (complexifySubmodule U) (complexifySubmodule V) *
-      paperDoubleSecant (complexifySubmodule U) (complexifySubmodule V)))
+  projectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
+    (2 * (projectorDifference (complexifySubmodule U) (complexifySubmodule V) *
+      doubleSecant (complexifySubmodule U) (complexifySubmodule V)))
 
 omit [CompleteSpace E] in
 /-- The real directed residual projection block commutes with complexification.
 This is the square-ambient version needed to descend the exact source norm. -/
-theorem paperProjectionBlock_complexifySubmodule_real
+theorem projectionBlock_complexifySubmodule_real
     (U : Submodule ℝ E) [U.HasOrthogonalProjection] (K : E →L[ℝ] E) :
-    paperProjectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
+    projectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
         (complexify K) =
-      complexify (paperProjectionBlock Uᗮ U K) := by
-  rw [paperProjectionBlock, paperProjectionBlock,
+      complexify (projectionBlock Uᗮ U K) := by
+  rw [projectionBlock, projectionBlock,
     starProjection_complexifySubmodule_orthogonal, starProjection_complexifySubmodule,
     complexify_comp, complexify_comp]
 
@@ -215,13 +212,13 @@ theorem tanTheta_ambient_bounded_symmetricNorming_real_of_transversality
     (hCompressionUpper : ∀ z : U, ⟪compressOperatorReal U T z, z⟫_ℝ ≤
       alpha * ‖z‖ ^ 2)
     (hUnwantedLower : ∀ y ∈ Vᗮ, (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪T y, y⟫_ℝ)
-    (htr : ‖paperSinAngleOperatorR U V‖ < 1)
+    (htr : ‖sinAngleOperatorR U V‖ < 1)
     (hMem : N.Mem (T - A)) :
-    N.Mem (paperTanAngleOperatorR U V) ∧
-      delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge (T - A) := by
+    N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge (T - A) := by
   have htrC : ‖sinAngleOperatorC (complexifySubmodule U)
       (complexifySubmodule V)‖ < 1 := by
-    rwa [← complexify_paperSinAngleOperatorR U V, norm_complexify]
+    rwa [← complexify_sinAngleOperatorR U V, norm_complexify]
   have hMemC : N.Mem (complexify T - complexify A) := by
     rw [← complexify_sub]
     exact (SymmetricNormingFunction.mem_complexify_iff N (T - A)).2 hMem
@@ -240,7 +237,7 @@ theorem tanTheta_ambient_bounded_symmetricNorming_real_of_transversality
         rw [← complexifySubmodule_orthogonal V] at hy
         exact le_re_inner_of_mem_complexifySubmodule hUnwantedLower hy)
       htrC hMemC
-  rw [← complexify_paperTanAngleOperatorR U V] at hmemC hboundC
+  rw [← complexify_tanAngleOperatorR U V] at hmemC hboundC
   rw [← complexify_sub] at hboundC
   refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
   rwa [SymmetricNormingFunction.gauge_complexify,
@@ -258,8 +255,8 @@ theorem sinTwoTheta_ambient_bounded_symmetricNorming_real
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperatorReal Uᗮ A),
       x ≤ a - d ∨ b + d ≤ x)
     (hMem : N.Mem (B - A)) :
-    N.Mem (paperSinTwoAngleOperatorR U V) ∧
-      d * N.gauge (paperSinTwoAngleOperatorR U V) ≤ 2 * N.gauge (B - A) := by
+    N.Mem (sinTwoAngleOperatorR U V) ∧
+      d * N.gauge (sinTwoAngleOperatorR U V) ≤ 2 * N.gauge (B - A) := by
   have hMemC : N.Mem (complexify B - complexify A) := by
     rw [← complexify_sub]
     exact (SymmetricNormingFunction.mem_complexify_iff N (B - A)).2 hMem
@@ -288,7 +285,7 @@ theorem sinTwoTheta_ambient_bounded_symmetricNorming_real
           (complexifySubmodule_orthogonal U).symm] at hr'
         exact hUspec' r hr')
       hMemC
-  rw [← complexify_paperSinTwoAngleOperatorR U V] at hmemC hboundC
+  rw [← complexify_sinTwoAngleOperatorR U V] at hmemC hboundC
   rw [← complexify_sub] at hboundC
   refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
   rwa [SymmetricNormingFunction.gauge_complexify,
@@ -312,8 +309,8 @@ theorem tanTwoTheta_ambient_bounded_orderedForm_symmetricNorming_real
     (hVperpLow : ∀ x ∈ Vᗮ, ⟪(A + H) x, x⟫_ℝ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     (hHmem : N.Mem H) :
-    N.Mem (paperTanTwoAngleOperatorR U V) ∧
-      (b - a) * N.gauge (paperTanTwoAngleOperatorR U V) ≤ 2 * N.gauge H := by
+    N.Mem (tanTwoAngleOperatorR U V) ∧
+      (b - a) * N.gauge (tanTwoAngleOperatorR U V) ≤ 2 * N.gauge H := by
   have hsum : complexify A + complexify H = complexify (A + H) :=
     (complexify_add A H).symm
   obtain ⟨hmemC, hboundC⟩ :=
@@ -341,7 +338,7 @@ theorem tanTwoTheta_ambient_bounded_orderedForm_symmetricNorming_real
       (fun z hz => mapsTo_orthogonal_complexifySubmodule U hHU hz)
       (fun z hz => mapsTo_of_mem_orthogonal_complexifySubmodule U hHUperp hz)
       ((SymmetricNormingFunction.mem_complexify_iff N H).2 hHmem)
-  rw [← complexify_paperTanTwoAngleOperatorR U V] at hmemC hboundC
+  rw [← complexify_tanTwoAngleOperatorR U V] at hmemC hboundC
   refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
   rwa [SymmetricNormingFunction.gauge_complexify,
     SymmetricNormingFunction.gauge_complexify] at hboundC
@@ -356,7 +353,7 @@ paper's interval/half-line separation for the two blocks of `A`, positivity of
 There is no quarter-angle branch, no caller-supplied pole exclusion, and no
 spectral-placement hypothesis on the `A+H` blocks.
 
-The left side uses `paperTanTwoDirectedCornerR`, the same canonical
+The left side uses `tanTwoDirectedCornerR`, the same canonical
 complexification convention already used for the paper's real directed angle.
 The residual norm on the right is genuinely real. -/
 theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_symmetricNorming_real
@@ -370,19 +367,19 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_sym
     (hA0spec : spectrum ℝ (compressOperatorReal U A) ⊆ Set.Icc β α)
     (hA1spec : spectrum ℝ (compressOperatorReal Uᗮ A) ⊆ Set.Ici (α + δ))
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hRmem : N.Mem (paperProjectionBlock Uᗮ U H)) :
-    N.Mem (paperTanTwoDirectedCornerR U V) ∧
-      δ * N.gauge (paperTanTwoDirectedCornerR U V) ≤
-        2 * N.gauge (paperProjectionBlock Uᗮ U H) := by
+    (hRmem : N.Mem (projectionBlock Uᗮ U H)) :
+    N.Mem (tanTwoDirectedCornerR U V) ∧
+      δ * N.gauge (tanTwoDirectedCornerR U V) ≤
+        2 * N.gauge (projectionBlock Uᗮ U H) := by
   have hsum : complexify A + complexify H = complexify (A + H) :=
     (complexify_add A H).symm
   have hRblock :
-      paperProjectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
+      projectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
           (complexify H) =
-        complexify (paperProjectionBlock Uᗮ U H) :=
-    paperProjectionBlock_complexifySubmodule_real U H
+        complexify (projectionBlock Uᗮ U H) :=
+    projectionBlock_complexifySubmodule_real U H
   have hRmemC : N.Mem
-      (paperProjectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
+      (projectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
         (complexify H)) := by
     rw [hRblock]
     exact (SymmetricNormingFunction.mem_complexify_iff N _).2 hRmem
@@ -413,10 +410,10 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_sym
       (fun z hz => mapsTo_orthogonal_complexifySubmodule U hHU hz)
       (fun z hz => mapsTo_of_mem_orthogonal_complexifySubmodule U hHUperp hz)
       hRmemC
-  change N.Mem (paperTanTwoDirectedCornerR U V) at hmemC
-  change δ * N.gauge (paperTanTwoDirectedCornerR U V) ≤
+  change N.Mem (tanTwoDirectedCornerR U V) at hmemC
+  change δ * N.gauge (tanTwoDirectedCornerR U V) ≤
       2 * N.gauge
-        (paperProjectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
+        (projectionBlock (complexifySubmodule U)ᗮ (complexifySubmodule U)
           (complexify H)) at hboundC
   rw [hRblock, SymmetricNormingFunction.gauge_complexify] at hboundC
   exact ⟨hmemC, hboundC⟩
@@ -440,8 +437,8 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_real
     (hA1spec : spectrum ℝ (compressOperatorReal Uᗮ A) ⊆ Set.Ici (α + δ))
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     (hHmem : N.Mem H) :
-    N.Mem (paperTanTwoAngleOperatorR U V) ∧
-      δ * N.gauge (paperTanTwoAngleOperatorR U V) ≤ 2 * N.gauge H := by
+    N.Mem (tanTwoAngleOperatorR U V) ∧
+      δ * N.gauge (tanTwoAngleOperatorR U V) ≤ 2 * N.gauge H := by
   have hsum : complexify A + complexify H = complexify (A + H) :=
     (complexify_add A H).symm
   -- Keep these spectrum transports inline.  On a complex operator there are
@@ -474,7 +471,7 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_real
       (fun z hz => mapsTo_orthogonal_complexifySubmodule U hHU hz)
       (fun z hz => mapsTo_of_mem_orthogonal_complexifySubmodule U hHUperp hz)
       ((SymmetricNormingFunction.mem_complexify_iff N H).2 hHmem)
-  rw [← complexify_paperTanTwoAngleOperatorR U V] at hmemC hboundC
+  rw [← complexify_tanTwoAngleOperatorR U V] at hmemC hboundC
   refine ⟨(SymmetricNormingFunction.mem_complexify_iff N _).1 hmemC, ?_⟩
   rwa [SymmetricNormingFunction.gauge_complexify,
     SymmetricNormingFunction.gauge_complexify] at hboundC

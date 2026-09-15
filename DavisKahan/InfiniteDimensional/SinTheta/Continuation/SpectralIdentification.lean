@@ -62,7 +62,7 @@ theorem fixedContourRieszOperator_operatorPath_isOrthogonalProjection_of_identif
     (Γ : PiecewiseC1ClosedContour) (A V : H →L[ℂ] H)
     (parameterSet : Set ℝ) (s : Set ℝ) (hs : MeasurableSet s)
     (hself : ∀ t ∈ parameterSet,
-      IsSelfAdjointOperator (operatorPath A V t))
+      (operatorPath A V t).IsSymmetric)
     (hidentify : ∀ t (ht : t ∈ parameterSet),
       fixedContourRieszOperator Γ (operatorPath A V t) =
         boundedSelfAdjointSpectralProjection (operatorPath A V t)

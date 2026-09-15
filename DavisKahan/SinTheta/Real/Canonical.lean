@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.SinTheta.Canonical
 import DavisKahan.SinTheta.Real.Generalized
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Real source-shaped unbounded sine-theta problems
 

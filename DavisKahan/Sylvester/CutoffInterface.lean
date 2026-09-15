@@ -18,7 +18,7 @@ spectral calculus supplies it now.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace Topology
 open Filter
@@ -68,6 +68,6 @@ structure BoundedTruncationInterface
     truncation τ ∘L P.cutoff τ = truncation τ ∧
       P.cutoff τ ∘L truncation τ = truncation τ
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

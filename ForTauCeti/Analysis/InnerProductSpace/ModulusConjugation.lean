@@ -48,17 +48,6 @@ variable {E F G K : Type*}
   [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
   [NormedAddCommGroup K] [InnerProductSpace 𝕜 K] [CompleteSpace K]
 
-/-! Both results below compare a modulus on `E` with a modulus on `F`, so both
-source algebras need the continuous functional calculus.  As everywhere in this
-layer, typeclass inference discharges all six at `𝕜 = ℂ`. -/
-
-variable [Algebra ℝ (E →L[𝕜] E)] [IsScalarTower ℝ 𝕜 (E →L[𝕜] E)]
-  [ContinuousFunctionalCalculus ℝ (E →L[𝕜] E) IsSelfAdjoint]
-  [Algebra ℝ (F →L[𝕜] F)] [IsScalarTower ℝ 𝕜 (F →L[𝕜] F)]
-  [ContinuousFunctionalCalculus ℝ (F →L[𝕜] F) IsSelfAdjoint]
-
-attribute [local instance] ContinuousLinearMap.instStarOrderedRingRCLike
-
 /-- **A unitary that conjugates the Gram operators conjugates the moduli.**
 
 `T` and `S` may have unrelated targets: only their source spaces are related,

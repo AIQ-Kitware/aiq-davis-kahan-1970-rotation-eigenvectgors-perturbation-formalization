@@ -17,6 +17,13 @@ import ForTauCeti.Analysis.InnerProductSpace.SeparatedIntertwiner
 import ForTauCeti.Analysis.InnerProductSpace.PositiveSqrt
 import ForTauCeti.Analysis.CStarAlgebra.PositiveSquareRootCommute
 import ForTauCeti.Analysis.CStarAlgebra.SelfAdjointGapInverse
+import ForTauCeti.Analysis.RCLike.ScalarTransportFunctionalCalculus
+
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+  ContinuousLinearMap.instStarOrderedRingRCLike
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan Proposition 3.5 in arbitrary Hilbert dimension
@@ -41,22 +48,20 @@ namespace TauCeti
 namespace DavisKahan
 namespace Proposition35
 
+
 noncomputable section
 
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
   [CompleteSpace H]
-variable [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint]
 
-attribute [local instance] ContinuousLinearMap.instStarOrderedRingRCLike
 
 variable (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
   [V.HasOrthogonalProjection]
 
 /-- The positive ambient sine `sin Θ = |P_U-P_V|`. -/
 noncomputable def section3SinAngleOperator : H →L[𝕜] H :=
-  (projection U - projection V).modulus
+  (U.starProjection - V.starProjection).modulus
 
 /-- The literal bounded operator angle `Θ = arcsin |P_U-P_V|`. -/
 noncomputable def section3AngleOperator : H →L[𝕜] H :=
@@ -84,12 +89,12 @@ noncomputable def section3AngleEigenspace (θ : ℝ) : Submodule 𝕜 H :=
 /-- The sine operator is positive. -/
 theorem section3SinAngleOperator_nonneg :
     0 ≤ section3SinAngleOperator U V :=
-  (projection U - projection V).modulus_nonneg
+  (U.starProjection - V.starProjection).modulus_nonneg
 
 /-- The sine operator is self-adjoint. -/
 theorem section3SinAngleOperator_isSelfAdjoint :
     IsSelfAdjoint (section3SinAngleOperator U V) :=
-  (projection U - projection V).modulus_isSelfAdjoint
+  (U.starProjection - V.starProjection).modulus_isSelfAdjoint
 
 /-- The sine operator is a contraction. -/
 theorem norm_section3SinAngleOperator_le_one :
@@ -274,8 +279,8 @@ theorem section3SinAngleOperator_mul_self_eq_halmosSineSq :
     section3SinAngleOperator U V * section3SinAngleOperator U V =
       halmosSineSq U V := by
   rw [section3SinAngleOperator, ContinuousLinearMap.modulus_mul_self]
-  have hadj : (projection U - projection V : H →L[𝕜] H).adjoint =
-      projection U - projection V := by
+  have hadj : (U.starProjection - V.starProjection : H →L[𝕜] H).adjoint =
+      U.starProjection - V.starProjection := by
     rw [← ContinuousLinearMap.star_eq_adjoint, star_sub,
       (isSelfAdjoint_starProjection U).star_eq,
       (isSelfAdjoint_starProjection V).star_eq]
@@ -286,14 +291,14 @@ theorem section3SinAngleOperator_mul_self_eq_halmosSineSq :
 /-- The modulus of the canonical intertwiner squares to the Halmos cosine
 square, over either real or complex scalars. -/
 theorem section3CanonicalAbsoluteValue_mul_self_eq_halmosCosineSq :
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) *
-        spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) =
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) *
+        ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) =
       halmosCosineSq U V := by
-  rw [spectraOperatorAbsoluteValue_mul_self, star_spectraCanonicalIntertwiner]
-  let P : H →L[𝕜] H := projection U
-  let Pc : H →L[𝕜] H := complementaryProjection U
-  let Q : H →L[𝕜] H := projection V
-  let Qc : H →L[𝕜] H := complementaryProjection V
+  rw [ContinuousLinearMap.modulus_mul_self_eq_star_mul_self, star_spectraCanonicalIntertwiner]
+  let P : H →L[𝕜] H := U.starProjection
+  let Pc : H →L[𝕜] H := (Uᗮ).starProjection
+  let Q : H →L[𝕜] H := V.starProjection
+  let Qc : H →L[𝕜] H := (Vᗮ).starProjection
   change (P * Q + Pc * Qc) * (Q * P + Qc * Pc) =
     P * Q * P + Pc * Qc * Pc
   have hQ : Q * Q = Q := by simp [Q]
@@ -329,8 +334,8 @@ theorem section3CosAngleOperator_mul_self_eq_halmosCosineSq :
 the canonical intertwiner. -/
 theorem section3CosAngleOperator_eq_canonicalAbsoluteValue :
     section3CosAngleOperator U V =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := by
-  have habs0 := spectraOperatorAbsoluteValue_nonneg (spectraCanonicalIntertwiner U V)
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := by
+  have habs0 := ContinuousLinearMap.modulus_nonneg (spectraCanonicalIntertwiner U V)
   have hcos0 := section3CosAngleOperator_nonneg U V
   have hsquare := section3CosAngleOperator_mul_self_eq_halmosCosineSq U V
   have habssquare := section3CanonicalAbsoluteValue_mul_self_eq_halmosCosineSq U V
@@ -338,7 +343,7 @@ theorem section3CosAngleOperator_eq_canonicalAbsoluteValue :
     section3CosAngleOperator U V
         = CFC.sqrt (halmosCosineSq U V) :=
           (CFC.sqrt_unique hsquare hcos0).symm
-    _ = spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) :=
+    _ = ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) :=
           CFC.sqrt_unique habssquare habs0
 
 /-! ## Symmetry under interchange of the subspaces -/
@@ -347,7 +352,7 @@ theorem section3CosAngleOperator_eq_canonicalAbsoluteValue :
 theorem section3SinAngleOperator_symm :
     section3SinAngleOperator V U = section3SinAngleOperator U V := by
   rw [section3SinAngleOperator, section3SinAngleOperator]
-  have hneg : projection V - projection U = -(projection U - projection V) := by
+  have hneg : V.starProjection - U.starProjection = -(U.starProjection - V.starProjection) := by
     abel
   rw [hneg, ContinuousLinearMap.modulus_neg]
 
@@ -371,7 +376,7 @@ theorem section3DirectRotation_swap :
 
 /-- `sin Θ` commutes with the source projection. -/
 theorem section3SinAngleOperator_comm_projection :
-    Commute (section3SinAngleOperator U V) (projection U) := by
+    Commute (section3SinAngleOperator U V) (U.starProjection) := by
   exact TauCeti.commute_of_commute_mul_self
     (section3SinAngleOperator_nonneg U V)
     (by
@@ -380,32 +385,30 @@ theorem section3SinAngleOperator_comm_projection :
 
 /-- `sin Θ` commutes with the target projection. -/
 theorem section3SinAngleOperator_comm_projection_right :
-    Commute (section3SinAngleOperator U V) (projection V) := by
-  have hsinQ : Commute (halmosSineSq U V) (projection V) := by
+    Commute (section3SinAngleOperator U V) (V.starProjection) := by
+  have hsinQ : Commute (halmosSineSq U V) (V.starProjection) := by
     have hcosQ := halmosCosineSq_commute_projection_right U V
     have hs : halmosSineSq U V = 1 - halmosCosineSq U V :=
       eq_sub_of_add_eq' (halmosCosineSq_add_sineSq U V)
     rw [hs]
-    exact (Commute.one_left (projection V)).sub_left hcosQ
+    exact (Commute.one_left (V.starProjection)).sub_left hcosQ
   exact TauCeti.commute_of_commute_mul_self
     (section3SinAngleOperator_nonneg U V)
     (by rwa [section3SinAngleOperator_mul_self_eq_halmosSineSq])
 
 /-- Proposition 3.5: `Θ` commutes with `P`. -/
 theorem section3AngleOperator_comm_projection :
-    Commute (section3AngleOperator U V) (projection U) := by
+    Commute (section3AngleOperator U V) (U.starProjection) := by
   rw [section3AngleOperator]
   exact Commute.cfc_real (section3SinAngleOperator_comm_projection U V) Real.arcsin
 
 /-- Proposition 3.5: `Θ` commutes with `Q`. -/
 theorem section3AngleOperator_comm_projection_right :
-    Commute (section3AngleOperator U V) (projection V) := by
+    Commute (section3AngleOperator U V) (V.starProjection) := by
   rw [section3AngleOperator]
   exact Commute.cfc_real (section3SinAngleOperator_comm_projection_right U V) Real.arcsin
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)]
-    [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-    [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
+omit [CompleteSpace H] in
 private theorem add_self_cancel {a b : H →L[𝕜] H} (h : a + a = b + b) : a = b := by
   let twoUnit : 𝕜ˣ := Units.mk0 2 (by norm_num)
   apply smul_left_cancel twoUnit
@@ -576,9 +579,7 @@ theorem section3AngleOperator_comm_quarterTurn (hacute : TauCeti.IsAcute U V) :
 
 /-! ## Eigenvectors -/
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)]
-    [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-    [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
+omit [CompleteSpace H] in
 private theorem eq_of_smul_eq_smul_right {α β : 𝕜} {x : H} (hx : x ≠ 0)
     (h : α • x = β • x) : α = β := by
   have hz : (α - β) • x = 0 := by rw [sub_smul, h, sub_self]
@@ -674,9 +675,7 @@ theorem vectorAngle_section3DirectRotation_eq_of_angleOperator_apply
 
 /-! ## The printed maximal eigenspace -/
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)]
-  [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
+omit [CompleteSpace H] in
 private theorem positive_square_eigenvector
     {A : H →L[𝕜] H} (hA : 0 ≤ A) {x : H} {c : ℝ} (hc : 0 ≤ c)
     (hsq : A (A x) = ((c ^ 2 : ℝ) : 𝕜) • x) :
@@ -709,7 +708,7 @@ theorem section3AngleEigenspace_eq_fixedCosineSubspace
     have hCx := section3CosAngleOperator_apply_of_angleOperator_apply U V hx0 hx
     have hCeq := section3CosAngleOperator_eq_canonicalAbsoluteValue U V
     have hk : x ∈ LinearMap.ker
-        (spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)).toLinearMap := by
+        (ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)).toLinearMap := by
       rw [LinearMap.mem_ker, ← hCeq]
       change section3CosAngleOperator U V x = 0
       rw [hCx, ← hzero]
@@ -803,7 +802,7 @@ theorem proposition3_5_angleEigenspace_maximal
     have hCx := section3CosAngleOperator_apply_of_angleOperator_apply U V hx0 hx
     have hCeq := section3CosAngleOperator_eq_canonicalAbsoluteValue U V
     have hk : x ∈ LinearMap.ker
-        (spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)).toLinearMap := by
+        (ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)).toLinearMap := by
       rw [LinearMap.mem_ker, ← hCeq]
       change section3CosAngleOperator U V x = 0
       rw [hCx, ← hzero]

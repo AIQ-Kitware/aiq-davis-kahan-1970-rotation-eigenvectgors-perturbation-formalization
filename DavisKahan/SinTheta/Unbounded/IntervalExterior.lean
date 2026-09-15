@@ -8,6 +8,8 @@ import DavisKahan.OperatorIdeal.CanonicalRealView
 import DavisKahan.Sylvester.Unbounded.IntervalExterior
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Source-shaped finite-interval unbounded sine-theta theorem
 

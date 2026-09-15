@@ -147,24 +147,12 @@ theorem gram_intertwine_of_cosineBlock (m : genericLeftHalf U₁ V₁) :
   rw [adjoint_comp_genericCrossBlock, adjoint_comp_genericCrossBlock]
   simp [hW]
 
-/-! ### The functional-calculus hypotheses
+/-! ### Functional calculus on the generic halves
 
-Everything from `modulus_intertwine_of_cosineBlock` onwards factors through the
-operator modulus of the cross block, whose source algebra is the `U`-half.  As
-in `ForTauCeti/Analysis/InnerProductSpace/OperatorModulus.lean`, the calculus is
-carried as a hypothesis rather than assumed globally: typeclass inference
-discharges it at `𝕜 = ℂ` from Mathlib and at `𝕜 = ℝ` from
-`ForTauCeti/Analysis/InnerProductSpace/RealContinuousFunctionalCalculus.lean`.
-Two copies are needed because two different `U`-halves are compared. -/
+Everything from `modulus_intertwine_of_cosineBlock` onwards factors through the operator
+modulus of the cross block.  Each generic left half is complete, so the local `RCLike`
+operator instances supply the real functional calculus on both source algebras. -/
 
-variable [Algebra ℝ (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)]
-  [IsScalarTower ℝ 𝕜 (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)]
-  [ContinuousFunctionalCalculus ℝ (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)
-    IsSelfAdjoint]
-variable [Algebra ℝ (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)]
-  [IsScalarTower ℝ 𝕜 (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)]
-  [ContinuousFunctionalCalculus ℝ (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)
-    IsSelfAdjoint]
 
 include hW in
 /-- **Step 1.**  The intertwiner passes to the moduli of the cross blocks, by
@@ -431,7 +419,7 @@ theorem exists_cosineBlockEquiv_of_pairEquiv
     rw [genericLeftHalf, Submodule.map_inf _ hinj, hU, hGen]
   refine ⟨summandEquiv e _ hM, fun m => ?_⟩
   apply Subtype.ext
-  simp only [coe_summandEquiv, genericCosineBlock, DavisKahanExt.compressOperator,
+  simp only [coe_summandEquiv, genericCosineBlock, DavisKahan.Sylvester.compressOperator,
     ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply,
     Submodule.coe_orthogonalProjectionOnto_apply]
   calc e ((genericLeftHalf U₁ V₁).starProjection (V₁.starProjection (m : H₁)))
@@ -520,14 +508,6 @@ structure SameHalmosCosineBlockInvariant : Prop where
   cosineBlock : ∃ W : genericLeftHalf U₁ V₁ ≃ₗᵢ[𝕜] genericLeftHalf U₂ V₂,
     ∀ m, W (genericCosineBlock U₁ V₁ m) = genericCosineBlock U₂ V₂ (W m)
 
-variable [Algebra ℝ (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)]
-  [IsScalarTower ℝ 𝕜 (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)]
-  [ContinuousFunctionalCalculus ℝ (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)
-    IsSelfAdjoint]
-variable [Algebra ℝ (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)]
-  [IsScalarTower ℝ 𝕜 (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)]
-  [ContinuousFunctionalCalculus ℝ (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)
-    IsSelfAdjoint]
 
 /-- **Davis--Kahan 1970, Theorem 3.1: the operator-level classification, both
 directions.**

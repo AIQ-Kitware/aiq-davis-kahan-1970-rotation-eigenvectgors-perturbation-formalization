@@ -8,6 +8,9 @@ import DavisKahan.DoubleAngle.UnboundedIdeal
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.SameSequence
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Angle doubling at the operator level, and the ideal transport it gives
 
@@ -21,7 +24,7 @@ other unitarily invariant norm.
 
 This module proves the bridge at full strength:
 
-`sinAngleOperatorDirectedC U (U.map V.reflection) = sinTwoAngleOperatorC U V`
+`directedSinAngleOperatorC U (U.map V.reflection) = directedSinTwoAngleOperatorC U V`
 
 -- the directed sine of the angle between `U` and its `V`-reflection **is** the
 sine of twice the angle between `U` and `V`, as operators.  Everything a
@@ -49,7 +52,8 @@ Both are nonnegative, so the positive square root is unique and they are equal.
 namespace TauCeti
 namespace DavisKahan
 
-open TauCeti.DavisKahanExt
+open TauCeti.DavisKahan.ExactSinTheta
+
 
 universe v
 
@@ -112,19 +116,19 @@ private theorem gram_cross (U W : Submodule ℂ E)
     _ = U.starProjection * W.starProjection * U.starProjection := by rw [h]
 
 /-- The square of the directed sine operator is `P_U P_{Vᗮ} P_U`. -/
-theorem sinAngleOperatorDirectedC_mul_self (U V : Submodule ℂ E)
+theorem directedSinAngleOperatorC_mul_self (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    sinAngleOperatorDirectedC U V * sinAngleOperatorDirectedC U V
+    directedSinAngleOperatorC U V * directedSinAngleOperatorC U V
       = U.starProjection * Vᗮ.starProjection * U.starProjection := by
-  rw [sinAngleOperatorDirectedC, ContinuousLinearMap.modulus_mul_self]
+  rw [directedSinAngleOperatorC, ContinuousLinearMap.modulus_mul_self]
   exact gram_cross U Vᗮ
 
 /-- The square of the cosine operator is `P_U P_V P_U`. -/
-theorem cosAngleOperatorC_mul_self (U V : Submodule ℂ E)
+theorem directedCosAngleOperatorC_mul_self (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    cosAngleOperatorC U V * cosAngleOperatorC U V
+    directedCosAngleOperatorC U V * directedCosAngleOperatorC U V
       = U.starProjection * V.starProjection * U.starProjection := by
-  rw [cosAngleOperatorC, ContinuousLinearMap.modulus_mul_self]
+  rw [directedCosAngleOperatorC, ContinuousLinearMap.modulus_mul_self]
   exact gram_cross U V
 
 omit [CompleteSpace E] in
@@ -133,7 +137,7 @@ theorem starProjection_orthogonal_eq (U : Submodule ℂ E)
     [U.HasOrthogonalProjection] :
     Uᗮ.starProjection = (1 : E →L[ℂ] E) - U.starProjection := by
   ext x
-  simp [Submodule.starProjection_orthogonal_apply]
+  simp
 
 
 
@@ -147,48 +151,49 @@ spectrum carries the squared principal cosines. -/
 private noncomputable def crossT : E →L[ℂ] E :=
   U.starProjection * V.starProjection * U.starProjection
 
+omit [CompleteSpace E] in
 private theorem starProjection_mul_crossT :
     U.starProjection * crossT U V = crossT U V := by
   rw [crossT, ← mul_assoc, ← mul_assoc, starProjection_mul_self]
 
 /-- **The paper's `sin 2Θ` squares to `4(t - t²)`.** -/
-theorem sinTwoAngleOperatorC_mul_self :
-    sinTwoAngleOperatorC U V * sinTwoAngleOperatorC U V
+theorem directedSinTwoAngleOperatorC_mul_self :
+    directedSinTwoAngleOperatorC U V * directedSinTwoAngleOperatorC U V
       = (4 : ℝ) • (crossT U V - crossT U V * crossT U V) := by
-  have hcomm := commute_sinAngleOperatorDirectedC_cosAngleOperatorC U V
-  have hsin : sinAngleOperatorDirectedC U V * sinAngleOperatorDirectedC U V
+  have hcomm := commute_directedSinAngleOperatorC_directedCosAngleOperatorC U V
+  have hsin : directedSinAngleOperatorC U V * directedSinAngleOperatorC U V
       = U.starProjection - crossT U V := by
-    rw [sinAngleOperatorDirectedC_mul_self, starProjection_orthogonal_eq, crossT]
+    rw [directedSinAngleOperatorC_mul_self, starProjection_orthogonal_eq, crossT]
     noncomm_ring [starProjection_mul_self U]
-  have hcos : cosAngleOperatorC U V * cosAngleOperatorC U V = crossT U V :=
-    cosAngleOperatorC_mul_self U V
-  rw [sinTwoAngleOperatorC, smul_mul_smul_comm]
+  have hcos : directedCosAngleOperatorC U V * directedCosAngleOperatorC U V = crossT U V :=
+    directedCosAngleOperatorC_mul_self U V
+  rw [directedSinTwoAngleOperatorC, smul_mul_smul_comm]
   have hrearrange :
-      sinAngleOperatorDirectedC U V * cosAngleOperatorC U V *
-          (sinAngleOperatorDirectedC U V * cosAngleOperatorC U V)
-        = (sinAngleOperatorDirectedC U V * sinAngleOperatorDirectedC U V) *
-            (cosAngleOperatorC U V * cosAngleOperatorC U V) := by
-    calc sinAngleOperatorDirectedC U V * cosAngleOperatorC U V *
-            (sinAngleOperatorDirectedC U V * cosAngleOperatorC U V)
-        = sinAngleOperatorDirectedC U V *
-            (cosAngleOperatorC U V * sinAngleOperatorDirectedC U V) *
-              cosAngleOperatorC U V := by noncomm_ring
-      _ = sinAngleOperatorDirectedC U V *
-            (sinAngleOperatorDirectedC U V * cosAngleOperatorC U V) *
-              cosAngleOperatorC U V := by rw [hcomm.symm.eq]
-      _ = (sinAngleOperatorDirectedC U V * sinAngleOperatorDirectedC U V) *
-            (cosAngleOperatorC U V * cosAngleOperatorC U V) := by noncomm_ring
+      directedSinAngleOperatorC U V * directedCosAngleOperatorC U V *
+          (directedSinAngleOperatorC U V * directedCosAngleOperatorC U V)
+        = (directedSinAngleOperatorC U V * directedSinAngleOperatorC U V) *
+            (directedCosAngleOperatorC U V * directedCosAngleOperatorC U V) := by
+    calc directedSinAngleOperatorC U V * directedCosAngleOperatorC U V *
+            (directedSinAngleOperatorC U V * directedCosAngleOperatorC U V)
+        = directedSinAngleOperatorC U V *
+            (directedCosAngleOperatorC U V * directedSinAngleOperatorC U V) *
+              directedCosAngleOperatorC U V := by noncomm_ring
+      _ = directedSinAngleOperatorC U V *
+            (directedSinAngleOperatorC U V * directedCosAngleOperatorC U V) *
+              directedCosAngleOperatorC U V := by rw [hcomm.symm.eq]
+      _ = (directedSinAngleOperatorC U V * directedSinAngleOperatorC U V) *
+            (directedCosAngleOperatorC U V * directedCosAngleOperatorC U V) := by noncomm_ring
   rw [hrearrange, hsin, hcos, sub_mul, starProjection_mul_crossT]
   norm_num
 
 /-- The paper's `sin 2Θ` operator is nonnegative: it is twice a product of two
 commuting nonnegative operators. -/
-theorem sinTwoAngleOperatorC_nonneg : 0 ≤ sinTwoAngleOperatorC U V := by
-  rw [sinTwoAngleOperatorC]
+theorem directedSinTwoAngleOperatorC_nonneg : 0 ≤ directedSinTwoAngleOperatorC U V := by
+  rw [directedSinTwoAngleOperatorC]
   refine smul_nonneg (by norm_num) ?_
-  exact (commute_iff_mul_nonneg (sinAngleOperatorDirectedC_nonneg U V)
-    (cosAngleOperatorC_nonneg U V)).mp
-      (commute_sinAngleOperatorDirectedC_cosAngleOperatorC U V)
+  exact (commute_iff_mul_nonneg (directedSinAngleOperatorC_nonneg U V)
+    (directedCosAngleOperatorC_nonneg U V)).mp
+      (commute_directedSinAngleOperatorC_directedCosAngleOperatorC U V)
 
 end Doubling
 
@@ -205,6 +210,7 @@ subspace whose angle with `U` is twice the angle between `U` and `V`. -/
 noncomputable abbrev reflectedU : Submodule ℂ E :=
   U.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)
 
+omit [CompleteSpace E] in
 /-- The projection onto the reflected subspace is the reflection conjugate of the
 projection, written out as `R P_U R`. -/
 theorem starProjection_reflectedU :
@@ -217,9 +223,9 @@ theorem starProjection_reflectedU :
   rfl
 
 /-- **The reflected directed sine squares to `4(t - t²)` as well.** -/
-theorem sinAngleOperatorDirectedC_reflected_mul_self :
-    sinAngleOperatorDirectedC U (reflectedU U V) *
-        sinAngleOperatorDirectedC U (reflectedU U V)
+theorem directedSinAngleOperatorC_reflected_mul_self :
+    directedSinAngleOperatorC U (reflectedU U V) *
+        directedSinAngleOperatorC U (reflectedU U V)
       = (4 : ℝ) • (crossT U V - crossT U V * crossT U V) := by
   have hfour : ∀ z : E →L[ℂ] E, (4 : ℝ) • z = 4 * z := by
     intro z; ext y; simp; module
@@ -227,7 +233,7 @@ theorem sinAngleOperatorDirectedC_reflected_mul_self :
     starProjection_mul_self U
   have hsandwich := proj_reflect_sandwich (p := U.starProjection)
     (q := V.starProjection) hp
-  rw [sinAngleOperatorDirectedC_mul_self, starProjection_orthogonal_eq,
+  rw [directedSinAngleOperatorC_mul_self, starProjection_orthogonal_eq,
     starProjection_reflectedU]
   have hgoal :
       U.starProjection *
@@ -259,19 +265,20 @@ of twice the angle between `U` and `V`.  The previously available bridge,
 `norm_starProjection_reflectedComplementary_eq_sinTwoAngle`, is the norm of this
 equation and therefore says nothing about any other unitarily invariant norm;
 this says everything, because the two operators are equal. -/
-theorem sinAngleOperatorDirectedC_reflected_eq_sinTwoAngleOperatorC :
-    sinAngleOperatorDirectedC U (reflectedU U V) = sinTwoAngleOperatorC U V := by
-  have hsq : sinAngleOperatorDirectedC U (reflectedU U V) ^ 2
-      = sinTwoAngleOperatorC U V ^ 2 := by
-    rw [pow_two, pow_two, sinAngleOperatorDirectedC_reflected_mul_self,
-      sinTwoAngleOperatorC_mul_self]
-  calc sinAngleOperatorDirectedC U (reflectedU U V)
-      = CFC.sqrt (sinAngleOperatorDirectedC U (reflectedU U V) ^ 2) :=
-        (CFC.sqrt_sq _ (sinAngleOperatorDirectedC_nonneg _ _)).symm
-    _ = CFC.sqrt (sinTwoAngleOperatorC U V ^ 2) := by rw [hsq]
-    _ = sinTwoAngleOperatorC U V :=
-        CFC.sqrt_sq _ (sinTwoAngleOperatorC_nonneg U V)
+theorem directedSinAngleOperatorC_reflected_eq_directedSinTwoAngleOperatorC :
+    directedSinAngleOperatorC U (reflectedU U V) = directedSinTwoAngleOperatorC U V := by
+  have hsq : directedSinAngleOperatorC U (reflectedU U V) ^ 2
+      = directedSinTwoAngleOperatorC U V ^ 2 := by
+    rw [pow_two, pow_two, directedSinAngleOperatorC_reflected_mul_self,
+      directedSinTwoAngleOperatorC_mul_self]
+  calc directedSinAngleOperatorC U (reflectedU U V)
+      = CFC.sqrt (directedSinAngleOperatorC U (reflectedU U V) ^ 2) :=
+        (CFC.sqrt_sq _ (directedSinAngleOperatorC_nonneg _ _)).symm
+    _ = CFC.sqrt (directedSinTwoAngleOperatorC U V ^ 2) := by rw [hsq]
+    _ = directedSinTwoAngleOperatorC U V :=
+        CFC.sqrt_sq _ (directedSinTwoAngleOperatorC_nonneg U V)
 
+omit [CompleteSpace E] in
 /-- The reflected complement of `U` is the orthogonal complement of the reflected
 `U`, at the level of their projections. -/
 theorem starProjection_map_orthogonal_reflection :
@@ -294,7 +301,7 @@ proved for `sinTwoThetaIdealBlock U V` is a bound for the paper's object in ever
 unitarily invariant norm, not only at the operator norm. -/
 theorem sinTwoThetaIdealBlock_hasSameApproximationNumbers :
     (sinTwoThetaIdealBlock U V).HasSameApproximationNumbers
-      (sinTwoAngleOperatorC U V) := by
+      (directedSinTwoAngleOperatorC U V) := by
   intro n
   have hblock : sinTwoThetaIdealBlock U V
       = U.starProjection ∘L (reflectedU U V)ᗮ.starProjection := by
@@ -308,9 +315,9 @@ theorem sinTwoThetaIdealBlock_hasSameApproximationNumbers :
   have hmod := ContinuousLinearMap.modulus_hasSameApproximationNumbers
     ((reflectedU U V)ᗮ.starProjection ∘L U.starProjection) n
   rw [show ((reflectedU U V)ᗮ.starProjection ∘L U.starProjection).modulus
-      = sinTwoAngleOperatorC U V from by
-        rw [← sinAngleOperatorDirectedC,
-          sinAngleOperatorDirectedC_reflected_eq_sinTwoAngleOperatorC]] at hmod
+      = directedSinTwoAngleOperatorC U V from by
+        rw [← directedSinAngleOperatorC,
+          directedSinAngleOperatorC_reflected_eq_directedSinTwoAngleOperatorC]] at hmod
   rw [hmod, ← hadj, ContinuousLinearMap.approximationNumber_adjoint]
 
 end Transport
@@ -319,7 +326,6 @@ end Transport
 
 section NormTransport
 
-open TauCeti.DavisKahan.ExactSinTheta
 
 variable (U V : Submodule ℂ E)
   [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
@@ -334,19 +340,19 @@ because a paper norm's extended gauge is determined by the approximation
 singular-value sequence and the two sequences are equal. -/
 theorem extendedGauge_sinTwoThetaIdealBlock_complex (N : SymmetricNormingFunction) :
     N.extendedGauge (sinTwoThetaIdealBlock U V)
-      = N.extendedGauge (sinTwoAngleOperatorC U V) :=
+      = N.extendedGauge (directedSinTwoAngleOperatorC U V) :=
   N.gauge_eq_of_sameApproximationSingularValues
     (sinTwoThetaIdealBlock_hasSameApproximationNumbers U V)
 
 /-- Ideal membership transfers between the block and the paper's operator. -/
-theorem mem_sinTwoAngleOperatorC_iff (N : SymmetricNormingFunction) :
-    N.Mem (sinTwoAngleOperatorC U V) ↔ N.Mem (sinTwoThetaIdealBlock U V) := by
+theorem mem_directedSinTwoAngleOperatorC_iff (N : SymmetricNormingFunction) :
+    N.Mem (directedSinTwoAngleOperatorC U V) ↔ N.Mem (sinTwoThetaIdealBlock U V) := by
   unfold SymmetricNormingFunction.Mem
   rw [extendedGauge_sinTwoThetaIdealBlock_complex U V N]
 
 /-- The gauge transfers between the block and the paper's operator. -/
-theorem gauge_sinTwoAngleOperatorC (N : SymmetricNormingFunction) :
-    N.gauge (sinTwoAngleOperatorC U V) = N.gauge (sinTwoThetaIdealBlock U V) := by
+theorem gauge_directedSinTwoAngleOperatorC (N : SymmetricNormingFunction) :
+    N.gauge (directedSinTwoAngleOperatorC U V) = N.gauge (sinTwoThetaIdealBlock U V) := by
   unfold SymmetricNormingFunction.gauge
   rw [extendedGauge_sinTwoThetaIdealBlock_complex U V N]
 

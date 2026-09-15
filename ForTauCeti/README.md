@@ -140,3 +140,24 @@ Long migration plans under `dev/tauceti/` can explain earlier ForMathlib, Spectr
 namespace, or submission decisions, but they are not current execution contracts.
 Use the source tree, `AGENTS.md`, this package contract, and the maintained
 manifest/checkers when an old record disagrees with the present repository.
+
+## Finite-dimensional unitarily invariant seminorms
+
+`TauCeti.UnitarilyInvariantSeminorm 𝕜 E F` extends
+`Seminorm 𝕜 (E →ₗ[𝕜] F)`. Endomorphisms use `E = F`; there is no
+separate square structure or conversion to one. The canonical modules are:
+
+- `Analysis.InnerProductSpace.KyFan`: rectangular singular-value prefix sums,
+  their triangle inequality, scaling, and variational witnesses.
+- `Analysis.InnerProductSpace.UnitarilyInvariantSeminorm.Basic` and `.Majorization`:
+  the seminorm structure, two-sided orbits, and rectangular Fan dominance.
+- `.Gauge`: diagonal gauge representation, adjoint invariance, and `apply_operatorAbs`
+  for the square specialization. `.Instances`: one operator norm, Frobenius norm,
+  Ky Fan family, and nuclear norm for rectangular maps.
+
+`kyFanSum_le_iff_forall_seminorm` states the comparison in both directions.
+The forward implication uses the convex hull of the two-sided unitary orbit;
+the reverse implication tests the concrete Ky Fan seminorms. Constructors use
+`Seminorm.of`, which supplies the inherited zero and negation laws as well as
+subadditivity and absolute homogeneity. The local real-module infrastructure
+is not registered as a global instance.

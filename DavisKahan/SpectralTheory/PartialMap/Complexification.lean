@@ -8,6 +8,8 @@ import DavisKahan.SpectralTheory.Complexification.Subspace
 import DavisKahan.Sylvester.Gap
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Complexification of real closed operators
 
@@ -317,7 +319,7 @@ def ofRealDomainPMap
     (A : E →ₗ.[ℝ] E)
     (x : A.domain) : (complexify A).domain :=
   -- `x.2` lands in `A.domain`, which is only definitionally `A.domain`.
-  ⟨ofReal (x : E), by simpa using x.2⟩
+  ⟨ofReal (x : E), by simp⟩
 
 omit [CompleteSpace E] in
 /-- The real-vector agreement, through the underlying partial map. -/
@@ -386,6 +388,7 @@ theorem partialMap_ext
       cases hf
       rfl
 
+omit [CompleteSpace E] in
 /-- Complexification commutes with embedding a bounded operator as a closed
 operator. -/
 theorem complexify_ofBounded
@@ -406,7 +409,7 @@ theorem complexify_ofBounded
         im (RealComplexification.complexify T (y : Eℂ))
       rw [im_complexify, hxy]
 
-omit [CompleteSpace E] in
+omit [CompleteSpace E] [CompleteSpace F] in
 /-- A real domain map complexifies to a complex domain map. -/
 theorem mapsDomainTo_complexify
     {A : E →ₗ.[ℝ] E}
@@ -423,7 +426,7 @@ theorem mapsDomainTo_complexify
   · rw [im_complexify]
     exact hX (domainImPMap B z)
 
-omit [CompleteSpace E] in
+omit [CompleteSpace E] [CompleteSpace F] in
 /-- The domain-aware Sylvester equation complexifies coordinatewise. -/
 theorem closedSylvesterEquation_complexify
     {A : E →ₗ.[ℝ] E}
@@ -571,7 +574,6 @@ theorem mem_complexify_adjoint_domain_iff
         hz.comp hofReal
       have hre := Complex.continuous_re.comp hrestrict
       simp only [Function.comp_def,
-        LinearPMap.mk_apply,
         complexify_apply_ofReal, inner_ofReal_right_re] at hre
       exact hre
     · rw [LinearPMap.mem_adjoint_domain_iff]
@@ -581,7 +583,6 @@ theorem mem_complexify_adjoint_domain_iff
         hz.comp hofImaginary
       have hre := Complex.continuous_re.comp hrestrict
       simp only [Function.comp_def,
-        LinearPMap.mk_apply,
         complexify_apply_ofImaginary, inner_I_ofReal_right_re] at hre
       exact hre
   · rintro ⟨hr, hi⟩

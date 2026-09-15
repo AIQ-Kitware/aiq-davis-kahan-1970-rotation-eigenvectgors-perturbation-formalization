@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalOrderedSets
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Restricted spectra and orthogonal compressions
 
@@ -23,6 +25,7 @@ for nontrivial subspaces.
 
 namespace TauCeti
 namespace DavisKahanExt
+
 
 open DavisKahan.Foundation
 

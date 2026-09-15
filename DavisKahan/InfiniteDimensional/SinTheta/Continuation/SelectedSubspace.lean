@@ -48,7 +48,7 @@ theorem exists_unitary_transport_selectedSpectralProjections_of_identification
     (delta : ℝ) (hdelta : 0 < delta)
     (s : Set ℝ) (hs : MeasurableSet s)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A V t))
+      (operatorPath A V t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A V t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)
@@ -57,7 +57,7 @@ theorem exists_unitary_transport_selectedSpectralProjections_of_identification
         boundedSelfAdjointSpectralProjection (operatorPath A V t)
           (hself t ht) s hs) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧
       W ∘L boundedSelfAdjointSpectralProjection (operatorPath A V 0)
           (hself 0 (by exact ⟨le_rfl, zero_le_one⟩)) s hs =
         boundedSelfAdjointSpectralProjection (operatorPath A V 1)
@@ -85,7 +85,7 @@ theorem exists_unitary_transport_selectedSpectralSubspaces_of_identification
     (delta : ℝ) (hdelta : 0 < delta)
     (s : Set ℝ) (hs : MeasurableSet s)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A V t))
+      (operatorPath A V t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A V t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)
@@ -94,7 +94,7 @@ theorem exists_unitary_transport_selectedSpectralSubspaces_of_identification
         boundedSelfAdjointSpectralProjection (operatorPath A V t)
           (hself t ht) s hs) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧
       W ∘L
           (boundedSelfAdjointSpectralSubspace (operatorPath A V 0)
             (hself 0 (by exact ⟨le_rfl, zero_le_one⟩)) s hs).starProjection =

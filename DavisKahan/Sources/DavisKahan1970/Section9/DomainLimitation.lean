@@ -48,29 +48,29 @@ namespace DavisKahan1970
 namespace Section9
 
 /-- The geometric trial sequence. -/
-def rawTrialSequence (μ : ℝ) (n : ℕ) : ℝ := μ ^ n
+def geometricTrialSequence (μ : ℝ) (n : ℕ) : ℝ := μ ^ n
 
 /-- The diagonal multiplier used in the source example. -/
 noncomputable def diagonalMultiplier (μ : ℝ) (n : ℕ) : ℝ := (μ ^ n)⁻¹
 
 /-- The pointwise image of the geometric trial sequence. -/
-noncomputable def rawDiagonalImage (μ : ℝ) (n : ℕ) : ℝ :=
-  diagonalMultiplier μ n * rawTrialSequence μ n
+noncomputable def geometricDiagonalImage (μ : ℝ) (n : ℕ) : ℝ :=
+  diagonalMultiplier μ n * geometricTrialSequence μ n
 
 /-- The diagonal multiplier exactly cancels the geometric trial sequence, so every entry of the
 image is `1`.  This is why the partial energies grow like `N` and the raw sequence is outside the
 domain. -/
-lemma rawDiagonalImage_eq_one {μ : ℝ} (hμ : μ ≠ 0) (n : ℕ) :
-    rawDiagonalImage μ n = 1 := by
-  unfold rawDiagonalImage diagonalMultiplier rawTrialSequence
+lemma geometricDiagonalImage_eq_one {μ : ℝ} (hμ : μ ≠ 0) (n : ℕ) :
+    geometricDiagonalImage μ n = 1 := by
+  unfold geometricDiagonalImage diagonalMultiplier geometricTrialSequence
   exact inv_mul_cancel₀ (pow_ne_zero n hμ)
 
 /-- Every length-`N` partial square energy of the raw image equals `N`; this is
 the finite certificate of divergence used by the domain counterexample. -/
-theorem rawDiagonalImage_partial_energy
+theorem geometricDiagonalImage_partial_energy
     {μ : ℝ} (hμ : μ ≠ 0) (N : ℕ) :
-    ∑ n ∈ Finset.range N, rawDiagonalImage μ n ^ 2 = N := by
-  simp [rawDiagonalImage_eq_one hμ]
+    ∑ n ∈ Finset.range N, geometricDiagonalImage μ n ^ 2 = N := by
+  simp [geometricDiagonalImage_eq_one hμ]
 
 /-- Finite truncation gives a concrete nearby sequence in the diagonal
 operator's domain. -/
@@ -82,9 +82,9 @@ noncomputable def truncatedDiagonalImage (μ : ℝ) (N n : ℕ) : ℝ :=
   diagonalMultiplier μ n * truncatedTrialSequence μ N n
 
 /-- Below the cut the truncation agrees with the raw sequence. -/
-lemma truncatedTrialSequence_eq_raw {μ : ℝ} {N n : ℕ} (hn : n < N) :
-    truncatedTrialSequence μ N n = rawTrialSequence μ n := by
-  simp [truncatedTrialSequence, rawTrialSequence, hn]
+lemma truncatedTrialSequence_eq_geometric {μ : ℝ} {N n : ℕ} (hn : n < N) :
+    truncatedTrialSequence μ N n = geometricTrialSequence μ n := by
+  simp [truncatedTrialSequence, geometricTrialSequence, hn]
 
 /-- Above the cut the truncation vanishes, which is what puts it in the domain. -/
 lemma truncatedTrialSequence_eq_zero {μ : ℝ} {N n : ℕ} (hn : N ≤ n) :
@@ -125,21 +125,21 @@ theorem truncatedDiagonalImage_support
   truncatedDiagonalImage_eq_zero hn
 
 /-- Truncation changes only the geometric tail. -/
-theorem raw_sub_truncated
+theorem geometricTrialSequence_sub_truncated
     (μ : ℝ) (N n : ℕ) :
-    rawTrialSequence μ n - truncatedTrialSequence μ N n =
+    geometricTrialSequence μ n - truncatedTrialSequence μ N n =
       if n < N then 0 else μ ^ n := by
   by_cases hn : n < N
-  · simp [rawTrialSequence, truncatedTrialSequence, hn]
-  · simp [rawTrialSequence, truncatedTrialSequence, hn]
+  · simp [geometricTrialSequence, truncatedTrialSequence, hn]
+  · simp [geometricTrialSequence, truncatedTrialSequence, hn]
 
 /-- On every fixed initial segment, sufficiently long truncations agree exactly
 with the original trial sequence. -/
 theorem truncation_eventually_agrees_on_prefix
     (μ : ℝ) (K N : ℕ) (hKN : K ≤ N) :
-    ∀ n < K, truncatedTrialSequence μ N n = rawTrialSequence μ n := by
+    ∀ n < K, truncatedTrialSequence μ N n = geometricTrialSequence μ n := by
   intro n hn
-  exact truncatedTrialSequence_eq_raw (lt_of_lt_of_le hn hKN)
+  exact truncatedTrialSequence_eq_geometric (lt_of_lt_of_le hn hKN)
 
 /-! ## The example as an operator on `ℓ²`
 
@@ -240,11 +240,11 @@ theorem summable_sq_of_memℓp_two {f : ℕ → ℝ} (hf : Memℓp f 2) :
 /-- The geometric trial vector of the source example. -/
 noncomputable def geometricTrial {μ : ℝ} (hμ0 : 0 ≤ μ) (hμ1 : μ < 1) :
     DomainLimitationSpace :=
-  ⟨fun n => rawTrialSequence μ n, by
+  ⟨fun n => geometricTrialSequence μ n, by
     refine memℓp_two_of_summable_sq ?_
-    have h : (fun n : ℕ => rawTrialSequence μ n ^ 2) = fun n : ℕ => (μ ^ 2) ^ n := by
+    have h : (fun n : ℕ => geometricTrialSequence μ n ^ 2) = fun n : ℕ => (μ ^ 2) ^ n := by
       funext n
-      rw [rawTrialSequence, ← pow_mul, ← pow_mul, mul_comm]
+      rw [geometricTrialSequence, ← pow_mul, ← pow_mul, mul_comm]
     rw [h]
     exact summable_geometric_of_lt_one (by positivity) (by nlinarith)⟩
 
@@ -265,7 +265,7 @@ theorem geometricTrial_notMem_diagonalDomain
       = fun _ : ℕ => (1 : ℝ) := by
     funext n
     rw [geometricTrial_apply]
-    exact rawDiagonalImage_eq_one (ne_of_gt hμ0) n
+    exact geometricDiagonalImage_eq_one (ne_of_gt hμ0) n
   rw [himage] at hmem
   have hsum : Summable fun _ : ℕ => (1 : ℝ) ^ 2 := summable_sq_of_memℓp_two hmem
   simp only [one_pow] at hsum
@@ -324,7 +324,7 @@ theorem truncatedTrial_eq_geometricTrial_of_lt
     ((truncatedTrial μ N : DomainLimitationSpace) : ℕ → ℝ) n
       = ((geometricTrial hμ0 hμ1 : DomainLimitationSpace) : ℕ → ℝ) n := by
   rw [truncatedTrial_apply, geometricTrial_apply,
-    truncatedTrialSequence_eq_raw (lt_of_lt_of_le hn hKN), rawTrialSequence]
+    truncatedTrialSequence_eq_geometric (lt_of_lt_of_le hn hKN), geometricTrialSequence]
 
 /-! ## The Rayleigh quotient of the trial vector
 
@@ -360,8 +360,7 @@ theorem truncatedTrial_sub_geometricTrial_apply {μ : ℝ} (hμ0 : 0 ≤ μ) (h�
       = if n < N then 0 else -(μ ^ n) := by
   rw [lp.coeFn_sub]
   by_cases hn : n < N <;>
-    simp [hn, truncatedTrial_apply, geometricTrial_apply, truncatedTrialSequence,
-      rawTrialSequence]
+    simp [hn, truncatedTrial_apply, geometricTrial_apply, truncatedTrialSequence]
 
 /-- The truncation error has squared norm the geometric tail `μ^{2N}/(1-μ²)`. -/
 theorem truncatedTrial_sub_geometricTrial_hasSum_sq {μ : ℝ} (hμ0 : 0 ≤ μ) (hμ1 : μ < 1)
@@ -379,13 +378,13 @@ theorem truncatedTrial_sub_geometricTrial_hasSum_sq {μ : ℝ} (hμ0 : 0 ≤ μ)
     rw [truncatedTrial_sub_geometricTrial_apply hμ0 hμ1 N n, hd]
     by_cases hn : n < N
     · simp [hn]
-    · simp [hn, neg_pow, ← pow_mul, ← pow_mul, mul_comm]
+    · simp [hn, ← pow_mul, ← pow_mul, mul_comm]
   rw [hcoord]
   have hshift : HasSum (fun n => d (n + N)) ((μ ^ 2) ^ N * (1 - μ ^ 2)⁻¹) := by
     have hgeo := (hasSum_geometric_of_lt_one hnn hlt).mul_left ((μ ^ 2) ^ N)
     refine hgeo.congr_fun fun n => ?_
     rw [hd]
-    simp only [add_lt_iff_neg_left, not_lt, Nat.not_lt, if_neg (by omega : ¬ n + N < N)]
+    simp only [ite_eq_right (by omega : ¬ n + N < N)]
     rw [pow_add, mul_comm]
   have hzero : ∑ i ∈ Finset.range N, d i = 0 := by
     refine Finset.sum_eq_zero fun i hi => ?_

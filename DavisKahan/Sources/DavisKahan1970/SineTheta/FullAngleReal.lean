@@ -28,16 +28,16 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
 
 /-- Literal full real operator angle on complexified coordinates. -/
-noncomputable def paperSourceFullAngleR
+noncomputable def sourceFullAngleR
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :=
-  paperSourceFullAngleC (complexifySubmodule U) (complexifySubmodule V)
+  fullAngleBlockC (complexifySubmodule U) (complexifySubmodule V)
 
 /-- Literal sine of the full real operator angle. -/
-noncomputable def paperSourceFullSinR
+noncomputable def sourceFullSinR
     (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :=
-  paperSourceFullSinC (complexifySubmodule U) (complexifySubmodule V)
+  fullSinAngleBlockC (complexifySubmodule U) (complexifySubmodule V)
 
 end
 

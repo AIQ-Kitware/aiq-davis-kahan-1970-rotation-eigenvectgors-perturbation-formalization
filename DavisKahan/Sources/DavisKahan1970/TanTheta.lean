@@ -24,7 +24,7 @@ not a hypothesis.
 
 ## What is compiled, at which scope
 
-* `Theorem6_3` — the finite-dimensional theorem in the source's literal
+* `theorem6_3` — the finite-dimensional theorem in the source's literal
   orientation (Ritz spectrum in `[β, α]`, unwanted exact spectrum in
   `[α + δ, ∞)`, strict-lower-rank trial space), for **every rectangular
   unitarily invariant norm**, with the paper's freedom in the choice of the
@@ -54,11 +54,11 @@ coordinate datum from the spectral placement alone. Both were discharged and
 the note went stale; it is corrected here, 2026-08-09, after re-elaborating the
 endpoints.
 
-* `TauCeti.DavisKahan.ExactTanTheta.theorem6_3_generalizedTanTheta_source_ideal`
+* `TauCeti.DavisKahan.TanTheta.theorem6_3_generalizedTanTheta_ideal`
   — arbitrary complete complex Hilbert space, arbitrary `KyFanDominantIdealFamily`,
   the source's one-sided spectral placement, with ideal membership of the tangent
   *concluded* rather than assumed.
-* `…ExactTanTheta.theorem6_3_infiniteTrial_of_formBounds` and
+* `…TanTheta.theorem6_3_infiniteTrial_of_formBounds` and
   `…theorem6_3_infiniteTrial_spectral_exists` — the same conclusion at arbitrary
   trial dimension, needing only `[CompleteSpace ↥Z]`, and dropping the printed
   rank comparison entirely.
@@ -76,28 +76,28 @@ namespace DavisKahan1970
 
 /-- The source's one-sided interval hypothesis: Ritz spectrum in `[β, α]`,
 unwanted exact spectrum at least `α + δ`. -/
-alias Theorem6_3_intervalGap := DavisKahanTheory.TanThetaIntervalGap
+alias Theorem6_3_intervalGap := DavisKahan.FiniteDimensional.TanThetaIntervalGap
 
 /-- Transversality is a conclusion of the source placement, not a
 hypothesis. -/
 alias Theorem6_3_transversality :=
-  DavisKahanTheory.isTransverse_of_tanThetaIntervalGap
+  DavisKahan.FiniteDimensional.isTransverse_of_tanThetaIntervalGap
 
 /-- **Davis--Kahan 1970, Theorem 6.3, finite form.**  Strict-lower-rank trial
 space, Rayleigh--Ritz residual, one-sided spectral gap; the bound holds for
 every rectangular unitarily invariant norm and any `tan Θ₀` representative
 with the principal-tangent singular values. -/
-alias Theorem6_3 :=
-  DavisKahanTheory.davisKahan1970_generalizedTanTheta0_ritzResidual_le
+alias theorem6_3 :=
+  DavisKahan.FiniteDimensional.davisKahan1970_generalizedTanTheta0_ritzResidual_le
 
-/-- Equal-rank companion of `Theorem6_3`; this is the Section 2 `tan Θ`
+/-- Equal-rank companion of `theorem6_3`; this is the Section 2 `tan Θ`
 statement in Ritz-residual form. -/
 alias Theorem6_3_equalRank :=
-  DavisKahanTheory.davisKahan1970_tanTheta0_ritzResidual_le
+  DavisKahan.FiniteDimensional.davisKahan1970_tanTheta0_ritzResidual_le
 
 /-- Ky Fan root of the finite theorem, equation (6.6): the prefix sums of the
 tangent singular values are controlled by those of the residual. -/
-alias Theorem6_3_kyFan := DavisKahanTheory.kyFan_tanTheta0_ritzResidual_le
+alias Theorem6_3_kyFan := DavisKahan.FiniteDimensional.kyFan_tanTheta0_ritzResidual_le
 
 /-! ## The general Hilbert-space theorem, graph-angle operator form
 
@@ -110,7 +110,7 @@ the paper's objects with the domain bookkeeping made explicit. -/
 /-- Bundled Rayleigh--Ritz trial block for an unbounded operator: domain
 inclusion, self-adjoint compression, and bounded residual. -/
 alias TanThetaTrialBlock :=
-  DavisKahan.TanTheta.UnboundedTrialBlock
+  DavisKahan.TanTheta.BoundedCompressionTrialBlock
 
 /-- Proof-carrying transversality: the orthogonal projection restricts to a
 bounded linear equivalence from the trial subspace onto the exact subspace. -/

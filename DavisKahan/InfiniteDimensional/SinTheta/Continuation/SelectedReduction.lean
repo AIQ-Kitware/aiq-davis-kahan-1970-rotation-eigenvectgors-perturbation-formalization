@@ -6,6 +6,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.SelectedGraph
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Reduction of the selected continuation graph
 
@@ -47,7 +50,7 @@ the generator of `genToGroup`, and the commutation came from
 projection is the Borel calculus of an indicator symbol, the operator is the
 Borel calculus of the coordinate symbol, and the calculus is commutative. -/
 theorem boundedSelfAdjointSpectralProjection_apply_comm
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) (x : H) :
     A (boundedSelfAdjointSpectralProjection A hA s hs x) =
       boundedSelfAdjointSpectralProjection A hA s hs (A x) := by
@@ -58,10 +61,10 @@ theorem boundedSelfAdjointSpectralProjection_apply_comm
 /-- Every genuine bounded spectral subspace reduces its self-adjoint
 operator. -/
 theorem boundedSelfAdjointSpectralSubspace_reduces
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) :
-    Reduces A (boundedSelfAdjointSpectralSubspace A hA s hs) := by
-  apply reduces_orthogonalComplement hA
+    A.Reduces (boundedSelfAdjointSpectralSubspace A hA s hs) := by
+  apply ContinuousLinearMap.IsSymmetric.reduces_of_invariant hA
   intro x hx
   change x ∈ (boundedSelfAdjointSpectralProjection A hA s hs).range at hx
   rcases hx with ⟨y, rfl⟩
@@ -84,10 +87,10 @@ theorem selectedEndpointAngularOperator_graph_reduces_of_contour_bound
     (Γ : PiecewiseC1ClosedContour) (A K : H →L[ℂ] H)
     (delta : ℝ) (hdelta : 0 < delta)
     (s : Set ℝ) (hs : MeasurableSet s)
-    (hA : IsSelfAdjointOperator A)
-    (hAK : IsSelfAdjointOperator (A + K))
+    (hA : A.IsSymmetric)
+    (hAK : (A + K).IsSymmetric)
     (hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A K t))
+      (operatorPath A K t).IsSymmetric)
     (hsep : ∀ t ∈ Set.Icc (0 : ℝ) 1, ∀ x : unitInterval,
       ∀ lam ∈ realSpectrum (operatorPath A K t),
         delta ≤ ‖Γ.path x - (lam : ℂ)‖)
@@ -97,7 +100,7 @@ theorem selectedEndpointAngularOperator_graph_reduces_of_contour_bound
           (hself t ht) s hs)
     (hsmall : selectedBranchProjectionLipschitzConstant Γ K delta <
       Real.sqrt 2 / 2) :
-    Reduces (A + K)
+    ContinuousLinearMap.Reduces (A + K)
       (graphSubspace (boundedSelfAdjointSpectralSubspace A hA s hs)
         (selectedEndpointAngularOperator Γ A K delta hdelta s hs hA hAK
           hself hsep hidentify hsmall)) := by

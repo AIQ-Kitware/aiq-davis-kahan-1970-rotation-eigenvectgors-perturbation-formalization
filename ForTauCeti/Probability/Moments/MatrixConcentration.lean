@@ -135,7 +135,7 @@ theorem measure_forall_abs_eigenvalues₀_sub_le_ge
             |(hSherm ω).eigenvalues₀ k - hAherm.eigenvalues₀ k| ≤ (n : ℝ) * η} := by
     intro ω hω k
     exact Matrix.abs_eigenvalues₀_sub_le_of_entry_le hAherm (hSherm ω)
-      (fun i j => hω i j) k
+      (fun i j => by simpa only [Real.norm_eq_abs] using hω i j) k
   -- the bad (some-entry-far) event, bounded above
   have hbad : P {ω | ∃ k l, η < |Shat ω k l - A k l|}
       ≤ ENNReal.ofReal ((n : ℝ) ^ 2 * v / η ^ 2) :=

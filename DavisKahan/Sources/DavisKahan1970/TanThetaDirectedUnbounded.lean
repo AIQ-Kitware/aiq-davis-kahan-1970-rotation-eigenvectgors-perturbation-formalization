@@ -8,6 +8,12 @@ import DavisKahan.TanTheta.RitzPair
 import DavisKahan.Sources.DavisKahan1970.DirectedUnboundedReal
 import DavisKahan.Sources.DavisKahan1970.UnboundedCompressionReal
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
+import DavisKahan.Sources.DavisKahan1970.SymmetricNormingFanDominance
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, the Section 2 `tan Θ` DIRECTED clause, at the source norm
@@ -34,7 +40,7 @@ right.  What did not exist was the promotion to the paper's universal norm
 quantifier, and the result inventory had registered in its place two declarations
 that do not carry the scope they were credited with:
 
-* `Section2.theorem6_3_perturbation_infiniteTrial` -- a **bounded** ambient
+* `theorem6_3_perturbation_infiniteTrial` -- a **bounded** ambient
   operator (`T E : H →L[ℂ] H`) at a Ky Fan family;
 * `partIII_tanTheta_ritzResidual_uiNorm` -- **finite-dimensional**
   (`[FiniteDimensional 𝕜 E]`, `[FiniteDimensional 𝕜 F]`) at a rectangular
@@ -68,7 +74,7 @@ namespace DavisKahan1970
 
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
-open TauCeti.DavisKahan.ExactTanTheta
+open TauCeti.DavisKahan.TanTheta
 
 noncomputable section
 
@@ -95,7 +101,7 @@ theorem tanTheta_directed_unboundedTrial_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : TanTheta.UnboundedTrialBlock A Z)
+    (D : TanTheta.BoundedCompressionTrialBlock A Z)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hgap : TauCeti.LinearPMap.specProjection hA (Set.Ioo alpha (alpha + delta))
       measurableSet_Ioo = 0)
@@ -138,7 +144,7 @@ theorem tanTheta_directed_unboundedTrial_symmetricNorming_real
     (N : SymmetricNormingFunction)
     (A : E →ₗ.[ℝ] E) (hA : IsSelfAdjoint A)
     {Z : Submodule ℝ E} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : TanTheta.UnboundedTrialBlock A Z)
+    (D : TanTheta.BoundedCompressionTrialBlock A Z)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hgap : realSelfAdjointSpectralProjection A hA (Set.Ioo alpha (alpha + delta))
       measurableSet_Ioo = 0)
@@ -167,7 +173,7 @@ end Real
 
 /-! ## The Appendix scope: the Ritz compression may itself be unbounded
 
-The two endpoints above take a `TanTheta.UnboundedTrialBlock`, whose Ritz
+The two endpoints above take a `TanTheta.BoundedCompressionTrialBlock`, whose Ritz
 compression `operator : Z →L[𝕜] Z` is **bounded and everywhere defined on the
 trial space**.  Its name records only that the *ambient* operator is unbounded.
 
@@ -328,7 +334,16 @@ every principal angle is strictly acute, a bounded operator with exactly the pap
 approximation numbers `tan θⱼ` exists, and it satisfies `δ N(tan Θ₀) ≤ N(R)` in every
 source unitarily invariant norm.  The Ritz compression is a densely defined self-adjoint
 partial operator, the ambient operator is an unbounded self-adjoint partial map, and only
-the residual is bounded. -/
+the residual is bounded.
+
+`R` is the paper's own residual of (1.8), named as an explicit bounded operator and tied
+to the Ritz data by `hR`; the source's `‖R‖` on the right of the estimate is then literally
+what the conclusion bounds against.
+
+This is the source-facing endpoint to cite for the directed clause.  The parameterized
+`tanTheta_directed_unboundedRitz_symmetricNorming_complex` asks the caller to supply the
+representative *and* a proof that its approximation numbers are the `tan θⱼ`; the source
+asks for no such thing, and here both are produced from the form bounds. -/
 theorem tanTheta_directed_unboundedRitz_symmetricNorming_exists_complex
     (N : SymmetricNormingFunction)
     {A : H →ₗ.[ℂ] H}
@@ -340,18 +355,57 @@ theorem tanTheta_directed_unboundedRitz_symmetricNorming_exists_complex
     (hupper : TauCeti.LinearPMap.SemiboundedAbove D.trial.compression alpha)
     (hUnwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪A ⟨y, hy⟩, y⟫_ℂ)
-    (hResidual : N.Mem D.trial.residual) :
+    (R : Z →L[ℂ] H) (hR : D.trial.residual = R)
+    (hResidual : N.Mem R) :
     (∀ n, approximationSingularValue n (theorem63DirectedSineBlock Z V) < 1) ∧
       ∃ tanTheta0 : Z →L[ℂ] H,
         HasTheorem63DirectedTangentApproximationNumbersInfinite Z V tanTheta0 ∧
         N.Mem tanTheta0 ∧
-        delta * N.gauge tanTheta0 ≤ N.gauge D.trial.residual := by
+        delta * N.gauge tanTheta0 ≤ N.gauge R := by
+  subst hR
   have hlt := approximationSingularValue_directedSineBlock_lt_one_unboundedRitz_complex
     D hV hdelta hupper hUnwanted
   obtain ⟨tanTheta0, htan⟩ :=
     exists_hasTheorem63DirectedTangentApproximationNumbersInfinite Z V hlt
   obtain ⟨hmem, hbound⟩ := tanTheta_directed_unboundedRitz_symmetricNorming_complex N D hV
     hdelta hupper hUnwanted tanTheta0 htan hResidual
+  exact ⟨hlt, tanTheta0, htan, hmem, hbound⟩
+
+/-- **Davis--Kahan 1970, the directed `tan Θ₀` theorem at the printed source scope
+over `ℂ`.**
+
+Separable ambient Hilbert space and normalized unitarily invariant norm.  The
+pole-exclusion conjunct and the tangent representative are both produced from the
+source data and do not mention the norm, so they are constructed once; only the
+estimate goes through the Fan-dominance bridge. -/
+theorem tanTheta_directed_unboundedRitz_normalizedUIN_complex
+    [TopologicalSpace.SeparableSpace H]
+    (N : NormalizedUnitaryInvariantNorm.{0, v} ℂ)
+    {A : H →ₗ.[ℂ] H}
+    {Z V : Submodule ℂ H}
+    [Z.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace Z]
+    (D : DavisKahan.UnboundedRitzPair A Z)
+    (hV : DavisKahan.ReducingComplement A V)
+    {alpha delta : ℝ} (hdelta : 0 < delta)
+    (hupper : TauCeti.LinearPMap.SemiboundedAbove D.trial.compression alpha)
+    (hUnwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
+      (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪A ⟨y, hy⟩, y⟫_ℂ)
+    (R : Z →L[ℂ] H) (hR : D.trial.residual = R)
+    (hResidual : N.Mem R) :
+    (∀ n, approximationSingularValue n (theorem63DirectedSineBlock Z V) < 1) ∧
+      ∃ tanTheta0 : Z →L[ℂ] H,
+        HasTheorem63DirectedTangentApproximationNumbersInfinite Z V tanTheta0 ∧
+        N.Mem tanTheta0 ∧
+        delta * N.gauge tanTheta0 ≤ N.gauge R := by
+  subst hR
+  have hlt := approximationSingularValue_directedSineBlock_lt_one_unboundedRitz_complex
+    D hV hdelta hupper hUnwanted
+  obtain ⟨tanTheta0, htan⟩ :=
+    exists_hasTheorem63DirectedTangentApproximationNumbersInfinite Z V hlt
+  obtain ⟨hmem, hbound⟩ :=
+    normalizedUnitaryInvariant_of_symmetricNorming N hdelta hResidual fun M hM =>
+      tanTheta_directed_unboundedRitz_symmetricNorming_complex M D hV
+        hdelta hupper hUnwanted tanTheta0 htan hM
   exact ⟨hlt, tanTheta0, htan, hmem, hbound⟩
 
 end AppendixExistsComplex
@@ -380,7 +434,11 @@ theorem approximationSingularValue_directedSineBlock_lt_one_unboundedRitz_real
       hV.mapsDomain hV.commutes hUnwanted) n
 
 /-- **The Section 2 `tan Θ` directed clause at the Appendix's scope, over `ℝ`, with the
-tangent representative exhibited and the pole excluded.** -/
+tangent representative exhibited and the pole excluded.**
+
+The real sibling of `tanTheta_directed_unboundedRitz_symmetricNorming_exists_complex`, and
+the source-facing endpoint to cite for the directed clause over `ℝ`.  `R` is the paper's
+residual of (1.8) as an explicit bounded operator. -/
 theorem tanTheta_directed_unboundedRitz_symmetricNorming_exists_real
     (N : SymmetricNormingFunction)
     {A : E →ₗ.[ℝ] E}
@@ -392,12 +450,14 @@ theorem tanTheta_directed_unboundedRitz_symmetricNorming_exists_real
     (hupper : TauCeti.LinearPMap.SemiboundedAbove D.trial.compression alpha)
     (hUnwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
       (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪A ⟨y, hy⟩, y⟫_ℝ)
-    (hResidual : N.Mem D.trial.residual) :
+    (R : Z →L[ℝ] E) (hR : D.trial.residual = R)
+    (hResidual : N.Mem R) :
     (∀ n, approximationSingularValue n (theorem63DirectedSineBlockReal Z V) < 1) ∧
       ∃ tanTheta0 : Z →L[ℝ] E,
         HasTheorem63DirectedTangentApproximationNumbersInfiniteReal Z V tanTheta0 ∧
         N.Mem tanTheta0 ∧
-        delta * N.gauge tanTheta0 ≤ N.gauge D.trial.residual := by
+        delta * N.gauge tanTheta0 ≤ N.gauge R := by
+  subst hR
   have hlt := approximationSingularValue_directedSineBlock_lt_one_unboundedRitz_real
     D hV hdelta hupper hUnwanted
   obtain ⟨tanTheta0, htan⟩ :=
@@ -406,9 +466,63 @@ theorem tanTheta_directed_unboundedRitz_symmetricNorming_exists_real
     hdelta hupper hUnwanted tanTheta0 htan hResidual
   exact ⟨hlt, tanTheta0, htan, hmem, hbound⟩
 
+/-- **Davis--Kahan 1970, the directed `tan Θ₀` theorem at the printed source scope
+over `ℝ`.** -/
+theorem tanTheta_directed_unboundedRitz_normalizedUIN_real
+    [TopologicalSpace.SeparableSpace E]
+    (N : NormalizedUnitaryInvariantNorm.{0, v} ℝ)
+    {A : E →ₗ.[ℝ] E}
+    {Z V : Submodule ℝ E}
+    [Z.HasOrthogonalProjection] [V.HasOrthogonalProjection] [CompleteSpace Z]
+    (D : DavisKahan.UnboundedRitzPair A Z)
+    (hV : DavisKahan.ReducingComplement A V)
+    {alpha delta : ℝ} (hdelta : 0 < delta)
+    (hupper : TauCeti.LinearPMap.SemiboundedAbove D.trial.compression alpha)
+    (hUnwanted : ∀ y ∈ Vᗮ, ∀ hy : y ∈ A.domain,
+      (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪A ⟨y, hy⟩, y⟫_ℝ)
+    (R : Z →L[ℝ] E) (hR : D.trial.residual = R)
+    (hResidual : N.Mem R) :
+    (∀ n, approximationSingularValue n (theorem63DirectedSineBlockReal Z V) < 1) ∧
+      ∃ tanTheta0 : Z →L[ℝ] E,
+        HasTheorem63DirectedTangentApproximationNumbersInfiniteReal Z V tanTheta0 ∧
+        N.Mem tanTheta0 ∧
+        delta * N.gauge tanTheta0 ≤ N.gauge R := by
+  subst hR
+  have hlt := approximationSingularValue_directedSineBlock_lt_one_unboundedRitz_real
+    D hV hdelta hupper hUnwanted
+  obtain ⟨tanTheta0, htan⟩ :=
+    exists_hasTheorem63DirectedTangentApproximationNumbersReal Z V hlt
+  obtain ⟨hmem, hbound⟩ :=
+    normalizedUnitaryInvariant_of_symmetricNorming N hdelta hResidual fun M hM =>
+      tanTheta_directed_unboundedRitz_symmetricNorming_real M D hV
+        hdelta hupper hUnwanted tanTheta0 htan hM
+  exact ⟨hlt, tanTheta0, htan, hmem, hbound⟩
+
 end AppendixExistsReal
 
 end
+
+
+/-! ## Source-facing names for the ideal-gauge forms
+
+The two Ky-Fan-dominant ideal-gauge endpoints behind the directed clause are declared in
+`DavisKahan/TanTheta/`, their natural reusable home, but they carry *source numbering* in
+their names.  A source-numbered declaration that a census row registers should be reachable
+under `TauCeti.DavisKahan1970`, so these aliases give them that name; the reusable
+declarations are unchanged.  Finding F6.4 of the 2026-09-04 hostile review. -/
+
+/-- **Theorem 6.3 at an arbitrary Fan-dominant ideal gauge**, with the tangent representative
+supplied by the caller.  The source-facing name for
+`TauCeti.DavisKahan.TanTheta.theorem6_3_unbounded_infiniteTrial_ideal`. -/
+alias theorem6_3_unbounded_infiniteTrial_ideal :=
+  DavisKahan.TanTheta.theorem6_3_unbounded_infiniteTrial_ideal
+
+/-- **Theorem 6.3 at an arbitrary Fan-dominant ideal gauge**, with the representative
+existentially quantified.  The source-facing name for
+`TauCeti.DavisKahan.TanTheta.theorem6_3_unbounded_infiniteTrial_ideal_exists`, and the complex
+partner of `theorem6_3_unbounded_infiniteTrial_ideal_exists_real`. -/
+alias theorem6_3_unbounded_infiniteTrial_ideal_exists :=
+  DavisKahan.TanTheta.theorem6_3_unbounded_infiniteTrial_ideal_exists
 
 end DavisKahan1970
 end TauCeti

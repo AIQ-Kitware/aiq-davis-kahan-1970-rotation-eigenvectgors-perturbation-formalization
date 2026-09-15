@@ -6,6 +6,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Geometry.Halmos.Classification
 import ForTauCeti.Analysis.InnerProductSpace.OrthogonalGluing
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Assembling a pair-equivalence from matched Halmos summands
 
@@ -63,6 +65,7 @@ open scoped InnerProductSpace
 
 namespace TauCeti
 namespace DavisKahan
+
 
 
 universe u v

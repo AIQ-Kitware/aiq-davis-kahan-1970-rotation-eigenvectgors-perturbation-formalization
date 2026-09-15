@@ -29,6 +29,8 @@ Born-rule module was reached anyway, transitively, through
 made this file look like an independent Spectra consumer when it is not.
 -/
 
+open TauCeti.DavisKahan.Sylvester
+
 namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
@@ -36,8 +38,8 @@ namespace ExactSinTheta
 #check nuclearNormingFunction
 #check symmetricNormingFunction_nonempty
 #check TauCeti.HilbertSchmidt.ofLp
-#check isPaperHilbertSchmidt_iff_existsUnique_tensor
-#check paperHilbertSchmidtNorm_toOperator
+#check approximationNumberEnergy_ne_top_iff_existsUnique_tensor
+#check hilbertSchmidtNorm_toOperator
 #check TauCeti.HilbertSchmidt.sylvesterGroup
 #check TauCeti.HilbertSchmidt.generator_sylvesterGroup_apply
 #check TauCeti.OneParameterUnitaryGroup.isSelfAdjoint_generator
@@ -47,14 +49,14 @@ namespace ExactSinTheta
 #check TauCeti.LinearPMap.eq_zero_of_intertwines_of_disjoint_spectrum
 #check closedSylvester_homogeneous_eq_zero_of_pairwiseSpectrumGap
 #check TauCeti.HilbertSchmidt.hasVectorSpectralGap_sylvesterGroup
-#check paperHilbertSchmidtTensor_hasVectorSpectralGap
-#check paperHilbertSchmidt_sylvester_defectFirst
-#check paperHilbertSchmidt_sylvester_le_of_pairwiseSpectrumGap_direct
-#check paperHilbertSchmidt_sylvester_real_le_of_pairwiseSpectrumGap_direct
+#check hilbertSchmidtTensor_hasVectorSpectralGap
+#check hilbertSchmidt_sylvester_defectFirst
+#check hilbertSchmidt_sylvester_le_of_pairwiseSpectrumGap_direct
+#check hilbertSchmidt_sylvester_real_le_of_pairwiseSpectrumGap_direct
 
 #print axioms symmetricNormingFunction_nonempty
-#print axioms isPaperHilbertSchmidt_iff_existsUnique_tensor
-#print axioms paperHilbertSchmidtNorm_toOperator
+#print axioms approximationNumberEnergy_ne_top_iff_existsUnique_tensor
+#print axioms hilbertSchmidtNorm_toOperator
 #print axioms TauCeti.HilbertSchmidt.generator_sylvesterGroup_apply
 #print axioms TauCeti.OneParameterUnitaryGroup.isSelfAdjoint_generator
 #print axioms TauCeti.LinearPMap.generator_genToGroup
@@ -63,10 +65,10 @@ namespace ExactSinTheta
 #print axioms TauCeti.LinearPMap.eq_zero_of_intertwines_of_disjoint_spectrum
 #print axioms closedSylvester_homogeneous_eq_zero_of_pairwiseSpectrumGap
 #print axioms TauCeti.HilbertSchmidt.hasVectorSpectralGap_sylvesterGroup
-#print axioms paperHilbertSchmidtTensor_hasVectorSpectralGap
-#print axioms paperHilbertSchmidt_sylvester_defectFirst
-#print axioms paperHilbertSchmidt_sylvester_le_of_pairwiseSpectrumGap_direct
-#print axioms paperHilbertSchmidt_sylvester_real_le_of_pairwiseSpectrumGap_direct
+#print axioms hilbertSchmidtTensor_hasVectorSpectralGap
+#print axioms hilbertSchmidt_sylvester_defectFirst
+#print axioms hilbertSchmidt_sylvester_le_of_pairwiseSpectrumGap_direct
+#print axioms hilbertSchmidt_sylvester_real_le_of_pairwiseSpectrumGap_direct
 
 end ExactSinTheta
 end DavisKahan

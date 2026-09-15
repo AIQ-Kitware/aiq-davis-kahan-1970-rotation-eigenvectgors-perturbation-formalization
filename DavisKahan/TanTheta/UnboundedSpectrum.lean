@@ -41,7 +41,7 @@ operator to the trial subspace, and the residual is the complementary column.
 The bundle is *bounded data*: nothing in it mentions the ambient operator except
 through the two identities `operator_apply` and `residual_apply`.  It is
 therefore scalar-generic, over a real or a complex Hilbert space alike. -/
-structure UnboundedTrialBlock
+structure BoundedCompressionTrialBlock
     (A : H →ₗ.[𝕜] H) (Z : Submodule 𝕜 H)
     [Z.HasOrthogonalProjection] [CompleteSpace Z] where
   domain_le : Z ≤ A.domain
@@ -57,7 +57,7 @@ structure UnboundedTrialBlock
       A ⟨(x : H), domain_le x.property⟩ -
         (operator x : H)
 
-namespace UnboundedTrialBlock
+namespace BoundedCompressionTrialBlock
 
 variable {A : H →ₗ.[𝕜] H}
   {Z : Submodule 𝕜 H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
@@ -65,7 +65,7 @@ variable {A : H →ₗ.[𝕜] H}
 /-- The bundled residual is the part of the unbounded action orthogonal to the
 trial subspace. -/
 theorem residual_eq_sub_starProjection
-    (D : UnboundedTrialBlock A Z) (x : Z) :
+    (D : BoundedCompressionTrialBlock A Z) (x : Z) :
     D.residual x =
       A ⟨(x : H), D.domain_le x.property⟩ -
         Z.starProjection
@@ -74,7 +74,7 @@ theorem residual_eq_sub_starProjection
 
 /-- The bundled trial residual is orthogonal to the trial subspace. -/
 theorem residual_mem_orthogonal
-    (D : UnboundedTrialBlock A Z) (x : Z) :
+    (D : BoundedCompressionTrialBlock A Z) (x : Z) :
     D.residual x ∈ Zᗮ := by
   rw [D.residual_eq_sub_starProjection]
   exact Z.sub_starProjection_mem_orthogonal _
@@ -82,7 +82,7 @@ theorem residual_mem_orthogonal
 /-- The operator norm of the bundled residual supplies the columnwise bound
 used by the vector tangent theorem. -/
 theorem norm_sub_starProjection_le
-    (D : UnboundedTrialBlock A Z) (x : Z) :
+    (D : BoundedCompressionTrialBlock A Z) (x : Z) :
     ‖A ⟨(x : H), D.domain_le x.property⟩ -
         Z.starProjection
           (A ⟨(x : H), D.domain_le x.property⟩)‖ ≤
@@ -90,7 +90,7 @@ theorem norm_sub_starProjection_le
   rw [← D.residual_eq_sub_starProjection]
   exact D.residual.le_opNorm x
 
-end UnboundedTrialBlock
+end BoundedCompressionTrialBlock
 
 end ScalarGeneric
 
@@ -160,7 +160,7 @@ controlled directly by the operator norm of the bundled residual. -/
 theorem tanTheta_unbounded_exactSpectralIcc_trialBlock
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {α β δ : ℝ} (hαβ : α ≤ β) (hδ : 0 < δ)
     (hZspec : ∀ x ∈ spectrum ℝ D.operator,
       x ≤ α - δ ∨ β + δ ≤ x) :

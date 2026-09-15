@@ -53,8 +53,11 @@ theorem reflection_of (S : Submodule 𝕜 E) [S.HasOrthogonalProjection] (x : E)
   rw [Submodule.reflection_apply, Submodule.reflection_apply, starProjection_of]
   rfl
 
-/-- The image of a subspace under a reflection transports. -/
-theorem submodule_map_reflection (S T : Submodule 𝕜 E)
+/-- The image of a subspace under a reflection transports.
+
+`@[simp]` because the transported reflection image is the normal form: every
+consumer wants the two transports pushed inside, not a reflection of a transport. -/
+@[simp] theorem submodule_map_reflection (S T : Submodule 𝕜 E)
     [S.HasOrthogonalProjection] [T.HasOrthogonalProjection] :
     submodule (e := e) (S.map (T.reflection.toLinearEquiv : E →ₗ[𝕜] E)) =
       (submodule (e := e) S).map

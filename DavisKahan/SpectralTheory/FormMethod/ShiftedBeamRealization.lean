@@ -10,6 +10,8 @@ import DavisKahan.SpectralTheory.FormMethod.BoundedGraphCompactness
 import DavisKahan.SinTheta.BoundedPerturbation
 import Mathlib.Tactic
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Shifted coercive realization of the free beam
 
@@ -33,6 +35,7 @@ namespace TauCeti
 namespace DavisKahan
 namespace FreeBeam
 namespace Analytic
+
 
 noncomputable section
 
@@ -163,7 +166,7 @@ theorem shiftedOperator_isSelfAdjoint
 omit [CompleteSpace H] in
 /-- The identity perturbation is symmetric. -/
 theorem negIdentity_isSelfAdjointOperator :
-    IsSelfAdjointOperator (-(1 : H →L[𝕜] H)) := by
+    (-(1 : H →L[𝕜] H)).IsSymmetric := by
   intro x y
   simp
 

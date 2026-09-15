@@ -33,13 +33,13 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
 /-- Frobenius sine distance in canonical subspace notation. -/
 noncomputable def sinThetaFrobenius (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : ℝ :=
-  UnitarilyInvariantSeminorm.frobenius 𝕜 E (sinThetaMap U V)
+  UnitarilyInvariantSeminorm.frobenius (𝕜 := 𝕜) (E := E) (F := E) (sinThetaMap U V)
 
 /-- `sinThetaFrobenius` is the Frobenius norm of the sine cross-projection. -/
 theorem sinThetaFrobenius_eq (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     sinThetaFrobenius U V =
-      UnitarilyInvariantSeminorm.frobenius 𝕜 E (sinThetaMap U V) := by
+      UnitarilyInvariantSeminorm.frobenius (𝕜 := 𝕜) (E := E) (F := E) (sinThetaMap U V) := by
   rw [sinThetaFrobenius]
 
 /-- The Frobenius sine distance is nonnegative.
@@ -51,6 +51,6 @@ theorem sinThetaFrobenius_nonneg (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     0 ≤ sinThetaFrobenius U V := by
   rw [sinThetaFrobenius_eq]
-  exact (UnitarilyInvariantSeminorm.frobenius 𝕜 E).nonneg _
+  exact (UnitarilyInvariantSeminorm.frobenius (𝕜 := 𝕜) (E := E) (F := E)).nonneg _
 
 end TauCeti

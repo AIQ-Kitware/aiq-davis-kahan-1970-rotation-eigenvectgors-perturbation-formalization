@@ -3,9 +3,12 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, GPT 5.6 High
 -/
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Closed
 import Mathlib.Analysis.InnerProductSpace.Spectrum
+import ForTauCeti.Analysis.Normed.Operator.Restriction
 
 /-!
 # Restricted-operator spectra and provisional embedding interfaces
@@ -20,7 +23,7 @@ and should eventually be built from the closed range of an isometric embedding.
 
 /-! ## Construction plan
 
-* Route inequalities derived from real spectra through `TauCeti.SpectralOrder.Real`;
+* Route inequalities derived from real spectra through `TauCeti.SpectralOrder`;
   the set definitions here are exact, but the real spectral-order theorem is a
   separate analytic obligation.
 * Keep spectral separation hypotheses tied to invariant subspaces.  For a
@@ -42,28 +45,6 @@ open scoped InnerProductSpace
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
 variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
-
-/-- A norm-preserving onto operator.
-
-This is a reducible spelling of the canonical `TauCeti.LinearPMap.IsUnitaryOperator`,
-kept because the experimental spectral development reaches the predicate through
-this namespace.  It is deliberately **not** a second definition: the two used to
-be independent `def`s with byte-identical bodies, which meant the predicate that
-`TauCeti.LinearPMap.UnitaryEquivalent` is stated over was not the one the
-downstream call sites named. -/
-abbrev IsUnitaryOperator (W : E →L[𝕜] E) : Prop :=
-  TauCeti.LinearPMap.IsUnitaryOperator W
-
-/-- **The reflection in a subspace is unitary.**
-
-Both halves are already proved in `ForTauCeti` on `Submodule`; this pairs them against the
-`IsUnitaryOperator` spelling that the spectral development names.  It is stated here rather
-than beside `reflectionOperator` because `IsUnitaryOperator` is defined in the `LinearPMap`
-tower, which the projection-block module does not import; moving it upstream is a layering
-change, not a mathematical one. -/
-theorem reflectionOperator_isUnitary (U : Submodule 𝕜 E)
-    [U.HasOrthogonalProjection] : IsUnitaryOperator (DavisKahan.reflectionOperator U) :=
-  ⟨U.reflectionOperator_norm_map, U.reflectionOperator_surjective⟩
 
 /-- A bounded operator represented as an orthogonal projection. -/
 def IsOrthogonalProjection (P : E →L[𝕜] E) : Prop :=
@@ -127,56 +108,13 @@ theorem restrictedSpectrum_eq_restrictionSpectrum
   · intro hr
     exact ⟨hU, hr⟩
 
-/-- `⊤` as a *continuous* linear equivalence.
-
-`Submodule.topEquiv` is linear only.  Both directions are continuous — inclusion is
-`Submodule.subtypeL` and the inverse is a `codRestrict` of the identity — so the upgrade costs
-nothing, but nothing in Mathlib performs it. -/
-def topContinuousLinearEquiv : (⊤ : Submodule 𝕜 E) ≃L[𝕜] E where
-  toLinearEquiv := Submodule.topEquiv
-  continuous_toFun := continuous_subtype_val
-  continuous_invFun := by
-    exact Continuous.subtype_mk continuous_id _
-
-/-- Conjugation by a continuous linear equivalence is an **algebra** isomorphism of the two
-continuous endomorphism algebras.
-
-Mathlib has `ContinuousLinearEquiv.arrowCongrSL`, which is an equivalence of the hom *space* and
-knows nothing about composition; and it has the conjugation algebra equivalence only for plain
-`Module.End`.  This is the continuous endomorphism version, which is what a spectrum argument
-needs, since `spectrum` is an algebra notion. -/
-def conjAlgEquiv (e : E ≃L[𝕜] F) : (E →L[𝕜] E) ≃ₐ[𝕜] (F →L[𝕜] F) where
-  toFun T := (e : E →L[𝕜] F) ∘L T ∘L (e.symm : F →L[𝕜] E)
-  invFun T := (e.symm : F →L[𝕜] E) ∘L T ∘L (e : E →L[𝕜] F)
-  left_inv T := by ext x; simp
-  right_inv T := by ext x; simp
-  map_mul' S T := by ext x; simp
-  map_add' S T := by ext x; simp
-  commutes' r := by
-    ext x
-    simp [Algebra.algebraMap_eq_smul_one]
-
-/-- Conjugation acts by transporting the argument, applying, and transporting back. -/
-@[simp] theorem conjAlgEquiv_apply (e : E ≃L[𝕜] F) (T : E →L[𝕜] E) (y : F) :
-    conjAlgEquiv e T y = e (T (e.symm y)) := rfl
-
-/-- **The restriction to `⊤` has the spectrum of the operator itself.**
-
-`restrictedSpectrum` is stated through `A.restrict`, whose codomain is `↥(⊤ : Submodule 𝕜 E)` and
-not `E`, so a fact about `realSpectrum A` cannot be used against a `SpectraSeparated _ ⊤ _ ⊤`
-hypothesis until this is available. -/
+/-- The restriction to the full subspace has the original real spectrum. -/
 theorem restrictedSpectrum_top (A : E →L[𝕜] E) :
     restrictedSpectrum A (⊤ : Submodule 𝕜 E) = realSpectrum A := by
   have hU : InvariantFor A (⊤ : Submodule 𝕜 E) := fun x _ => Submodule.mem_top
   rw [restrictedSpectrum_eq_restrictionSpectrum A ⊤ hU]
-  have hconj : conjAlgEquiv (topContinuousLinearEquiv (𝕜 := 𝕜) (E := E)) (A.restrict hU) = A := by
-    ext x
-    rfl
-  have hspec : spectrum 𝕜 A = spectrum 𝕜 (A.restrict hU) := by
-    conv_lhs => rw [← hconj]
-    exact AlgEquiv.spectrum_eq _ _
   ext r
-  simp [realSpectrum, hspec]
+  simp only [realSpectrum, Set.mem_ofPred_eq, ContinuousLinearMap.spectrum_restrict_top]
 
 /-- The spectrum of the actual restriction to `U` is contained in `s`.
 

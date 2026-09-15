@@ -45,7 +45,7 @@ theorem and is not this one.
 
 The remaining scope difference from the printed statement is the
 finite-dimensional trial subspace; the selected-branch endpoints
-`sharp_symmetricNormingFunction` and `paperFaithful_tanTwoTheta_uiNorm`
+`sharp_symmetricNormingFunction` and `tanTwoTheta_selectedBranch_symmetricNorming`
 remove that restriction, at the cost of selecting the branch.
 
 ## Representative freedom
@@ -99,7 +99,7 @@ theorem tanTwoTheta_branchFree_bounded_finiteSubspace_symmetricNorming_rclike
     (hinv : ∀ x ∈ U, ∃ y ∈ U, (A + H) (x + T x) = y + T y)
     (tanTwoTheta : E →L[𝕜] E) (π : ℕ ≃ ℕ)
     (htan : ∀ n, approximationSingularValue (π n) tanTwoTheta =
-      DavisKahanTheory.absDoubleAngleTangent (approximationSingularValue n T))
+      DavisKahan.TanTwoTheta.absDoubleAngleTangent (approximationSingularValue n T))
     (hHmem : N.Mem H) :
     N.Mem tanTwoTheta ∧
       (b - a) * N.gauge tanTwoTheta ≤ 2 * N.gauge H := by
@@ -108,7 +108,7 @@ theorem tanTwoTheta_branchFree_bounded_finiteSubspace_symmetricNorming_rclike
       (b - a) / 2 * kyFanApproximationGauge k tanTwoTheta ≤
         kyFanApproximationGauge k H := by
     intro k
-    have h := DavisKahanTheory.kyFan_absTanTwoTheta_le_of_finiteDimensional_invariantSubspace
+    have h := DavisKahan.TanTwoTheta.kyFan_absTanTwoTheta_le_of_finiteDimensional_invariantSubspace
       hA hH hAU hHU hHUperp hTmem hTzero hUb hUa hinv hab tanTwoTheta π htan k
     linarith
   obtain ⟨hmem, hgauge⟩ :=
@@ -134,9 +134,9 @@ arbitrary invariant graph over the trial subspace and may make angles
 arbitrarily close to `π/2` with it.
 
 **No uniform separation from the `π/4` pole is assumed either.**  It is derived
-from the ordered gap by `DavisKahanTheory.penalty_le_of_paired_approximate` and
+from the ordered gap by `DavisKahan.TanTwoTheta.penalty_le_of_paired_approximate` and
 removed by the `ε → 0` passage in
-`DavisKahanTheory.sum_absDoubleAngleTangent_le_of_invariantSubspace`. -/
+`DavisKahan.TanTwoTheta.sum_absDoubleAngleTangent_le_of_invariantSubspace`. -/
 theorem tanTwoTheta_branchFree_bounded_symmetricNorming_complex
     {E : Type v} [NormedAddCommGroup E]
     [InnerProductSpace ℂ E] [CompleteSpace E]
@@ -153,7 +153,7 @@ theorem tanTwoTheta_branchFree_bounded_symmetricNorming_complex
     (hinv : ∀ x ∈ U, ∃ y ∈ U, (A + H) (x + T x) = y + T y)
     (tanTwoTheta : E →L[ℂ] E) (π : ℕ ≃ ℕ)
     (htan : ∀ n, approximationSingularValue (π n) tanTwoTheta =
-      DavisKahanTheory.absDoubleAngleTangent (approximationSingularValue n T))
+      DavisKahan.TanTwoTheta.absDoubleAngleTangent (approximationSingularValue n T))
     (hHmem : N.Mem H) :
     N.Mem tanTwoTheta ∧
       (b - a) * N.gauge tanTwoTheta ≤ 2 * N.gauge H := by
@@ -162,7 +162,7 @@ theorem tanTwoTheta_branchFree_bounded_symmetricNorming_complex
       (b - a) / 2 * kyFanApproximationGauge k tanTwoTheta ≤
         kyFanApproximationGauge k H := by
     intro k
-    have h := DavisKahanTheory.kyFan_absTanTwoTheta_le_of_invariantSubspace
+    have h := DavisKahan.TanTwoTheta.kyFan_absTanTwoTheta_le_of_invariantSubspace
       hA hH hAU hHU hHUperp hTmem hTzero hUb hUa hinv hab tanTwoTheta π htan k
     linarith
   obtain ⟨hmem, hgauge⟩ :=
@@ -172,36 +172,36 @@ theorem tanTwoTheta_branchFree_bounded_symmetricNorming_complex
 /-- The branch-free double-angle tangent scalar function
 `t ↦ 2t/|1 - t²|`, meaningful on both sides of the quarter turn. -/
 alias tanTwoTheta_absDoubleAngleTangent :=
-  DavisKahanTheory.absDoubleAngleTangent
+  DavisKahan.TanTwoTheta.absDoubleAngleTangent
 
 /-- **`cos 2θⱼ ≠ 0` from the spectral gap**: the first of the two moves the
 printed Section 7 proof makes after equation (7.6). -/
-alias tanTwoTheta_cos_ne_zero := DavisKahanTheory.singularValue_ne_one
+alias tanTwoTheta_cos_ne_zero := DavisKahan.FiniteDimensional.singularValue_ne_one
 
 /-- **Equation (7.6) in cleared, branch-free form.**  Multiplied through by
 `1 - tan² θⱼ` rather than divided by it, so no branch is chosen. -/
 alias tanTwoTheta_equation_7_6 :=
-  DavisKahanTheory.paired_singularVector_gap_inequality
+  DavisKahan.FiniteDimensional.paired_singularVector_gap_inequality
 
 /-- The branch-free paired-singular-vector inequality: the printed sign
 choice, giving `(b - a)|tan 2θⱼ| ≤ 2 |Re ⟪vⱼ, H uⱼ⟫|`. -/
 alias tanTwoTheta_branchFree_scalar :=
-  DavisKahanTheory.absDoubleAngleTangent_scalar
+  DavisKahan.FiniteDimensional.absDoubleAngleTangent_scalar
 
 /-- The branch-free Ky Fan root over an arbitrary finite index set,
 finite-dimensional form. -/
 alias tanTwoTheta_branchFree_finiteDimensional_kyFan_rclike :=
-  DavisKahanTheory.sum_absDoubleAngleTangent_le
+  DavisKahan.FiniteDimensional.sum_absDoubleAngleTangent_le
 
 /-- **The unrestricted `tan 2Θ` theorem, every rectangular unitarily
 invariant norm**, finite-dimensional graph-coordinate form. -/
 alias tanTwoTheta_branchFree_finiteDimensional_uiNorm_rclike :=
-  DavisKahanTheory.absTanTwoTheta0_offDiagonal_le
+  DavisKahan.FiniteDimensional.absTanTwoTheta0_offDiagonal_le
 
 /-- **The unrestricted `tan 2Θ` theorem, every Fan-dominant unitary-invariant
 ideal, arbitrary Hilbert space** with a finite-dimensional trial subspace. -/
 alias tanTwoTheta_branchFree_finiteSubspace_idealFamily_rclike :=
-  DavisKahanTheory.absTanTwoTheta_offDiagonal_mem_and_gauge_le_of_finiteDimensional_invariantSubspace
+  DavisKahan.TanTwoTheta.absTanTwoTheta_offDiagonal_mem_and_gauge_le_of_finiteDimensional_invariantSubspace
 
 /-! ## The arbitrary-trial-subspace layer
 
@@ -214,31 +214,31 @@ equation (7.6) plus an `ε → 0` passage; see
 /-- **Equation (7.6) in cleared form for an approximate singular pair** -- the
 dimension-free replacement for the matched-singular-pair computation. -/
 alias tanTwoTheta_equation_7_6_approximate :=
-  DavisKahanTheory.paired_approximate_gap_inequality
+  DavisKahan.TanTwoTheta.paired_approximate_gap_inequality
 
 /-- **`cos 2θⱼ ≠ 0` for an approximate pair**, division-free. -/
 alias tanTwoTheta_cos_ne_zero_approximate :=
-  DavisKahanTheory.abs_one_sub_sq_pos_of_paired_approximate
+  DavisKahan.TanTwoTheta.abs_one_sub_sq_pos_of_paired_approximate
 
 /-- **The quantitative `π/4` pole separation**, derived from the ordered gap
 rather than assumed. -/
 alias tanTwoTheta_pole_separation :=
-  DavisKahanTheory.penalty_le_of_paired_approximate
+  DavisKahan.TanTwoTheta.penalty_le_of_paired_approximate
 
 /-- **The branch-free Ky Fan root over an arbitrary finite index set, arbitrary
 trial subspace.** -/
 alias tanTwoTheta_branchFree_kyFan_complex :=
-  DavisKahanTheory.sum_absDoubleAngleTangent_le_of_invariantSubspace
+  DavisKahan.TanTwoTheta.sum_absDoubleAngleTangent_le_of_invariantSubspace
 
 /-- **The branch-free `tan 2Θ` prefix bound for any representative, arbitrary
 trial subspace.** -/
 alias tanTwoTheta_branchFree_prefix_arbitrarySubspace :=
-  DavisKahanTheory.kyFan_absTanTwoTheta_le_of_invariantSubspace
+  DavisKahan.TanTwoTheta.kyFan_absTanTwoTheta_le_of_invariantSubspace
 
 /-- **The unrestricted `tan 2Θ` theorem, every Fan-dominant unitary-invariant
 ideal, arbitrary Hilbert space and arbitrary trial subspace.** -/
 alias tanTwoTheta_branchFree_idealFamily_complex :=
-  DavisKahanTheory.absTanTwoTheta_offDiagonal_mem_and_gauge_le_of_invariantSubspace
+  DavisKahan.TanTwoTheta.absTanTwoTheta_offDiagonal_mem_and_gauge_le_of_invariantSubspace
 
 end
 

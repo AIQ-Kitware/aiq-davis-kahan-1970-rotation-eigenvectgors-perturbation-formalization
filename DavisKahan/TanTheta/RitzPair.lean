@@ -6,6 +6,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.TanTheta.Theorem63UnboundedCompression
 import DavisKahan.TanTheta.UnboundedSpectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The unbounded Ritz pair, and the reducing complement
 
@@ -29,7 +31,7 @@ properties of ordinary mathematical objects and belong in the objects.
 * `ReducingComplement A V` is the domain-aware statement that `Vᗮ` reduces `A`.
 
 `UnboundedRitzPair.ofTrialBlock` builds the first from an
-`UnboundedTrialBlock`, so a caller who already has the bounded-compression
+`BoundedCompressionTrialBlock`, so a caller who already has the bounded-compression
 bundle -- the common case -- constructs nothing by hand.
 
 What deliberately does *not* move into these objects is the mathematics: the
@@ -41,7 +43,7 @@ are what the theorem is about.
 namespace TauCeti
 namespace DavisKahan
 
-open TauCeti.DavisKahan.ExactSinTheta TauCeti.DavisKahan.ExactTanTheta
+open TauCeti.DavisKahan.ExactSinTheta TauCeti.DavisKahan.TanTheta
   TauCeti.DavisKahan.TanTheta
 
 universe u v
@@ -85,18 +87,16 @@ variable {A : H →ₗ.[𝕜] H} {Z : Submodule 𝕜 H}
 
 /-- **Every bounded trial block is an unbounded Ritz pair.**
 
-The common case: the caller holds an `UnboundedTrialBlock`, whose compression is
+The common case: the caller holds an `BoundedCompressionTrialBlock`, whose compression is
 a bounded self-adjoint operator on the trial subspace and whose residual is the
 ambient action's orthogonal part.  Nothing is assumed beyond what that bundle
 already carries. -/
-noncomputable def ofTrialBlock (D : UnboundedTrialBlock A Z) :
+noncomputable def ofTrialBlock (D : BoundedCompressionTrialBlock A Z) :
     UnboundedRitzPair A Z where
   trial :=
     { compression := D.operator.toLinearMap.toPMap ⊤
       compression_isSelfAdjoint :=
-        TauCeti.DavisKahanExt.ofBounded_isSelfAdjoint _
-          ((ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric).mp
-            D.operator_selfAdjoint)
+        TauCeti.LinearPMap.isSelfAdjoint_toPMap_top D.operator_selfAdjoint
       residual := D.residual
       residual_orthogonal := fun z z' =>
         (Submodule.mem_orthogonal' _ _).mp (D.residual_mem_orthogonal z) _ z'.2 }
@@ -106,9 +106,10 @@ noncomputable def ofTrialBlock (D : UnboundedTrialBlock A Z) :
     rw [D.residual_apply]
     abel
 
+omit [CompleteSpace H] in
 /-- The Ritz pair built from a trial block keeps the block's residual. -/
 @[simp]
-theorem ofTrialBlock_residual (D : UnboundedTrialBlock A Z) :
+theorem ofTrialBlock_residual (D : BoundedCompressionTrialBlock A Z) :
     (ofTrialBlock D).trial.residual = D.residual := rfl
 
 end UnboundedRitzPair
@@ -117,6 +118,7 @@ namespace ReducingComplement
 
 variable {A : H →ₗ.[𝕜] H} {V : Submodule 𝕜 H} [V.HasOrthogonalProjection]
 
+omit [CompleteSpace H] in
 /-- **A reducing subspace gives a reducing complement.**
 
 `TauCeti.LinearPMap.ReducesSubspace A V` is the repository's generic vocabulary
@@ -168,6 +170,7 @@ reflection in the chosen subspace, and self-adjointness and involutivity are the
 theorems rather than hypotheses.  What genuinely remains is that reflecting
 preserves the domain and commutes with `A + B` there. -/
 
+omit [CompleteSpace H] in
 /-- **A reducing subspace commutes with its own reflection.**
 
 If `V` reduces the partial map `T`, then `J_V = 2 P_V - 1` preserves `T`'s domain
@@ -263,6 +266,7 @@ namespace ReflectionIntertwines
 variable {A : H →ₗ.[𝕜] H} {B : H →L[𝕜] H} {V : Submodule 𝕜 H}
   [V.HasOrthogonalProjection]
 
+omit [CompleteSpace H] in
 /-- **A subspace that reduces the perturbed operator gives a reflection
 intertwiner.**
 

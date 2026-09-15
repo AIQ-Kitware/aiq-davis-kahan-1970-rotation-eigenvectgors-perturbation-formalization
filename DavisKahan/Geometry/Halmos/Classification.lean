@@ -46,7 +46,7 @@ theorem isometryEquiv_intertwines_projection (e : H₁ ≃ₗᵢ[𝕜] H₂)
     {K : Submodule 𝕜 H₁} {K' : Submodule 𝕜 H₂} [K.HasOrthogonalProjection]
     [K'.HasOrthogonalProjection]
     (hmap : K.map (e.toLinearEquiv : H₁ →ₗ[𝕜] H₂) = K') (x : H₁) :
-    e (projection K x) = projection K' (e x) := by
+    e (K.starProjection x) = K'.starProjection (e x) := by
   subst hmap
   have h := Submodule.starProjection_map_apply e K (e x)
   rw [e.symm_apply_apply] at h
@@ -190,7 +190,7 @@ theorem sameHalmosInvariant_of_pairEquiv
     ⟨summandEquiv e _ hTarget⟩, ⟨summandEquiv e _ hExterior⟩, summandEquiv e _ hGen, ?_⟩
   intro x
   apply Subtype.ext
-  simp only [coe_summandEquiv, genericHalmosCosineSq, DavisKahanExt.compressOperator,
+  simp only [coe_summandEquiv, genericHalmosCosineSq, DavisKahan.Sylvester.compressOperator,
     ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply,
     Submodule.coe_orthogonalProjectionOnto_apply]
   calc e ((halmosGenericPart U₁ V₁).starProjection (halmosCosineSq U₁ V₁ (x : H₁)))

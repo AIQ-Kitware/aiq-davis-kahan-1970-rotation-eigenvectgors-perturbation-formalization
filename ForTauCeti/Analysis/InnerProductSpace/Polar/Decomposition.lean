@@ -42,15 +42,14 @@ mathlib can follow, since HJ's SVD proof route is unavailable: mathlib has no SV
 
 Documented here because none of the three named the others, so a reviewer could
 not tell a designed hierarchy from three independent
-attempts. The separating hypotheses are the carrier, the field, and whether the
-modulus is invertible:
+attempts. The separating hypotheses are the carrier and whether the modulus is invertible:
 
-* `TauCeti.polarFactor`, in `PolarDecomposition.lean` — square `E →ₗ[𝕜] E`,
+* `TauCeti.polarFactor`, in `Polar/Decomposition.lean` — square `E →ₗ[𝕜] E`,
   `RCLike`, finite dimension; a genuine **unitary** factor.
-* `TauCeti.polarPartial`, in `PolarPartialIsometry.lean` — rectangular
-  `E →L[ℂ] F` over `ℂ`, no invertibility assumed; a **partial isometry**.
-* `TauCeti.polarIsometryOfIsUnitModulus`, in `PolarIsometry.lean` — rectangular
-  `E →L[ℂ] F` over `ℂ` **and** the modulus a unit; then the factor is an
+* `TauCeti.polarPartial`, in `Polar/PartialIsometry.lean` — rectangular
+  `E →L[𝕜] F` over `RCLike`, no invertibility assumed; a **partial isometry**.
+* `TauCeti.polarIsometryOfIsUnitModulus`, in `Polar/Isometry.lean` — rectangular
+  `E →L[𝕜] F` over `RCLike` **and** the modulus a unit; then the factor is an
   **isometry**.
 
 Read down the list: dropping finite dimension costs the unitary and leaves a
@@ -70,68 +69,61 @@ variable {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpac
 
 /-! ### The modulus `|A|` (RCLike, LinearMap)
 
-**There are two moduli in this library and they are not duplicates:**
+There are two canonical realizations of the same rectangular source modulus:
 
-* `TauCeti.operatorAbs`, below, is **square, `RCLike`-generic and finite-dimensional** —
-  `(E →ₗ[𝕜] E) → (E →ₗ[𝕜] E)`, built from the spectral square root of `A⋆A`;
-* `ContinuousLinearMap.modulus` in
-  `ForTauCeti/Analysis/InnerProductSpace/OperatorModulus.lean` is **rectangular
-  and complex** — `(E →L[ℂ] F) → (E →L[ℂ] E)`, built from Mathlib's continuous
-  functional calculus, which registers its C⋆-instances only over `ℂ`.
+* `TauCeti.operatorAbs`, below, is `RCLike`-generic and finite-dimensional, built from the
+  spectral square root of `A⋆A`;
+* `ContinuousLinearMap.modulus` is dimension-free, built from the real continuous functional
+  calculus on bounded operators.
 
-They agree exactly where both are defined, and the library proves it:
-`operatorAbs_toContinuousLinearMap_eq_cfcAbs` in `Polar.CFCBridge`. Neither can
-be deleted in favour of the other — one is more general in the field, the other
-in the shape.
+Both accept a rectangular map `E → F` and return an endomorphism of the source `E`.
+`Polar.CFCBridge` proves that converting the finite-dimensional construction to a bounded
+operator gives `ContinuousLinearMap.modulus`.
 
-The name is `operatorAbs`, not `abs`: a bare `abs` collides with the lattice
-absolute value that `|·|` denotes in Lean, and `modulus` already names the
-rectangular construction. This is the spelling the submitted roadmap states.
-
-A third spelling, `operatorAbsoluteValue`, exists in
-`DavisKahan/InfiniteDimensional/SinTheta/General.lean`. It is the square
-dimension-free modulus carried over a hypothesised functional calculus, it has **no
-consumer outside `DavisKahan/InfiniteDimensional/**`**, and it is not a third canonical
-modulus:
-where its calculus instance actually exists the scalars are `ℂ` and it is `CFC.abs`, which
-is what `modulus` computes. Promote `operatorAbs` or `modulus`, never that name.
+The name is `operatorAbs`, not `abs`: a bare `abs` collides with the lattice absolute value
+that `|·|` denotes in Lean, while `modulus` is the bounded-operator spelling.
 -/
+
+section RectangularModulus
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
+  [FiniteDimensional 𝕜 F]
 
 /-- The **modulus** `|A| = (A⋆A)^{1/2}` of an operator, via the spectral square root of the
 positive operator `A⋆A`. HJ 7.3.1 (`Q = (A⋆A)^{1/2}`). -/
 @[expose]
-noncomputable def operatorAbs (A : E →ₗ[𝕜] E) : E →ₗ[𝕜] E :=
+noncomputable def operatorAbs (A : E →ₗ[𝕜] F) : E →ₗ[𝕜] E :=
   (LinearMap.isPositive_adjoint_comp_self A).sqrt
 
 /-- The modulus is a positive operator, being a positive square root. -/
-@[simp] theorem isPositive_operatorAbs (A : E →ₗ[𝕜] E) : (operatorAbs A).IsPositive :=
+@[simp] theorem isPositive_operatorAbs (A : E →ₗ[𝕜] F) : (operatorAbs A).IsPositive :=
   (LinearMap.isPositive_adjoint_comp_self A).sqrt_isPositive
 
 /-- `|A|² = A⋆A`. -/
-theorem operatorAbs_mul_self (A : E →ₗ[𝕜] E) : operatorAbs A ∘ₗ operatorAbs A = A.adjoint ∘ₗ A :=
+theorem operatorAbs_mul_self (A : E →ₗ[𝕜] F) : operatorAbs A ∘ₗ operatorAbs A = A.adjoint ∘ₗ A :=
   (LinearMap.isPositive_adjoint_comp_self A).sqrt_mul_self
 
 /-- **The polar norm identity** `‖|A| x‖ = ‖A x‖`. Not in HJ (SVD route); this is the seed of the
 isometry route (Conway VI.3.9). -/
 @[simp]
-theorem norm_operatorAbs_apply (A : E →ₗ[𝕜] E) (x : E) : ‖operatorAbs A x‖ = ‖A x‖ := by
+theorem norm_operatorAbs_apply (A : E →ₗ[𝕜] F) (x : E) : ‖operatorAbs A x‖ = ‖A x‖ := by
   have hsq : ‖operatorAbs A x‖ ^ 2 = ‖A x‖ ^ 2 :=
     ((LinearMap.isPositive_adjoint_comp_self A).sq_norm_sqrt_apply x).trans <| by
       rw [LinearMap.comp_apply, LinearMap.adjoint_inner_left, ← norm_sq_eq_re_inner (𝕜 := 𝕜)]
   rw [← Real.sqrt_sq (norm_nonneg (operatorAbs A x)), ← Real.sqrt_sq (norm_nonneg (A x)), hsq]
 
 /-- `ker |A| = ker A`. -/
-theorem ker_operatorAbs (A : E →ₗ[𝕜] E) : ker (operatorAbs A) = ker A :=
+theorem ker_operatorAbs (A : E →ₗ[𝕜] F) : ker (operatorAbs A) = ker A :=
   ((LinearMap.isPositive_adjoint_comp_self A).ker_sqrt).trans
     (LinearMap.ker_adjoint_comp_self A)
 
 /-- `range |A| = (ker A)ᗮ` — the initial space of the polar factor. -/
-theorem range_operatorAbs (A : E →ₗ[𝕜] E) : range (operatorAbs A) = (ker A)ᗮ := by
+theorem range_operatorAbs (A : E →ₗ[𝕜] F) : range (operatorAbs A) = (ker A)ᗮ := by
   rw [← ker_operatorAbs A, LinearMap.orthogonal_ker, (isPositive_operatorAbs A).adjoint_eq]
 
 /-- Elementwise form of `range_operatorAbs`: every value of the modulus lies in the initial
 space. -/
-theorem operatorAbs_apply_mem_orthogonal_ker (A : E →ₗ[𝕜] E) (x : E) :
+theorem operatorAbs_apply_mem_orthogonal_ker (A : E →ₗ[𝕜] F) (x : E) :
     operatorAbs A x ∈ (ker A)ᗮ := by
   rw [← range_operatorAbs A]
   exact LinearMap.mem_range_self (operatorAbs A) x
@@ -139,10 +131,12 @@ theorem operatorAbs_apply_mem_orthogonal_ker (A : E →ₗ[𝕜] E) (x : E) :
 /-- **The modulus does not see a sign.**  `|-A| = |A|`, because the two Gram operators
 `(-A)⋆(-A)` and `A⋆A` are literally the same operator and the positive square root of a
 positive operator is unique. -/
-theorem operatorAbs_neg (A : E →ₗ[𝕜] E) : operatorAbs (-A) = operatorAbs A := by
+theorem operatorAbs_neg (A : E →ₗ[𝕜] F) : operatorAbs (-A) = operatorAbs A := by
   refine (LinearMap.IsPositive.sqrt_unique (LinearMap.isPositive_adjoint_comp_self (-A))
     (isPositive_operatorAbs A) ?_).symm
   rw [operatorAbs_mul_self, map_neg, LinearMap.neg_comp, LinearMap.comp_neg, neg_neg]
+
+end RectangularModulus
 
 /-- **A normal operator and its adjoint have the same modulus.**  Normality says the two Gram
 operators `A⋆A` and `AA⋆` agree, and `|A⋆|` is by definition the positive square root of the

@@ -9,6 +9,8 @@ import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.Pinching
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.GramSquare
 import DavisKahan.Geometry.Polar.DirectRotationSquare
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Squared-displacement extremality by pinching and block sums
 
@@ -130,8 +132,8 @@ omit [CompleteSpace H] in
 `W P_U = P_V W` from `W = W`. -/
 theorem competitor_admissible_orthogonal_complex (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (W : H →L[ℂ] H)
-    (hWmap : W * projection U = projection V * W) :
-    W * projection Uᗮ = projection Vᗮ * W := by
+    (hWmap : W * U.starProjection = V.starProjection * W) :
+    W * Uᗮ.starProjection = Vᗮ.starProjection * W := by
   show W * Uᗮ.starProjection = Vᗮ.starProjection * W
   rw [Submodule.starProjection_orthogonal' U, Submodule.starProjection_orthogonal' V,
     mul_sub, sub_mul, mul_one, one_mul, hWmap]
@@ -143,13 +145,13 @@ theorem directRotation_displacementSquare_eq (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) :
     (1 - star (spectraDirectRotation U V hacute)) *
         (1 - spectraDirectRotation U V hacute) =
-      2 - (2 : ℂ) • spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := by
+      2 - (2 : ℂ) • ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := by
   have h1 : star (spectraDirectRotation U V hacute) *
       spectraDirectRotation U V hacute = 1 :=
     star_spectraDirectRotation_mul_self U V hacute
   have h2 : spectraDirectRotation U V hacute +
       star (spectraDirectRotation U V hacute) =
-      (2 : ℂ) • spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) :=
+      (2 : ℂ) • ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) :=
     spectraDirectRotation_add_star_eq_two_smul_absoluteValue U V hacute
   have hexp : (1 - star (spectraDirectRotation U V hacute)) *
       (1 - spectraDirectRotation U V hacute) =
@@ -172,7 +174,7 @@ theorem diagonalPart_directRotation_displacementSquare (U V : Submodule ℂ H)
       (1 - star (spectraDirectRotation U V hacute)) *
         (1 - spectraDirectRotation U V hacute) := by
   set C : H →L[ℂ] H :=
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) with hC
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) with hC
   set A : H →L[ℂ] H := (1 - star (spectraDirectRotation U V hacute)) *
     (1 - spectraDirectRotation U V hacute) with hA
   have hAeq : A = 2 - (2 : ℂ) • C := directRotation_displacementSquare_eq U V hacute
@@ -201,7 +203,7 @@ theorem nonacuteDirectRotation_displacementSquare_eq (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (J : halmosSourceDefect U V ≃ₗᵢ[ℂ] halmosTargetDefect U V) :
     (1 - star (nonacuteDirectRotation U V J)) * (1 - nonacuteDirectRotation U V J) =
-      2 - (2 : ℂ) • spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := by
+      2 - (2 : ℂ) • ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := by
   have hunit := star_nonacuteDirectRotation_mul_self U V J
   have hsum := nonacuteDirectRotation_add_star_eq_two_absoluteValue U V J
   have hexp : (1 - star (nonacuteDirectRotation U V J)) *
@@ -221,7 +223,7 @@ theorem diagonalPart_nonacuteDirectRotation_displacementSquare_complex (U V : Su
       (1 - star (nonacuteDirectRotation U V J)) *
         (1 - nonacuteDirectRotation U V J) := by
   set C : H →L[ℂ] H :=
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   set A : H →L[ℂ] H := (1 - star (nonacuteDirectRotation U V J)) *
     (1 - nonacuteDirectRotation U V J)
   have hAeq : A = 2 - (2 : ℂ) • C := nonacuteDirectRotation_displacementSquare_eq U V J
@@ -254,7 +256,7 @@ theorem proposition4_3_squaredDisplacement_kyFan (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) (W : H →L[ℂ] H)
     (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * projection U = projection V * W) (k : ℕ) :
+    (hWmap : W * U.starProjection = V.starProjection * W) (k : ℕ) :
     kyFanApproximationGauge k
         ((1 - star (spectraDirectRotation U V hacute)) *
           (1 - spectraDirectRotation U V hacute)) ≤
@@ -293,12 +295,12 @@ theorem proposition4_3_squaredDisplacement_kyFan (U V : Submodule ℂ H)
   have hU : ∀ n,
       ((1 - spectraDirectRotation U V hacute) ∘L U.subtypeL).approximationNumber n ≤
         ((1 - W) ∘L U.subtypeL).approximationNumber n :=
-    proposition4_1_source_approximationNumbers U V hacute W hWunitary hWmap
+    proposition4_1_approximationNumbers U V hacute W hWunitary hWmap
   have hUperp : ∀ n,
       ((1 - spectraDirectRotation U V hacute) ∘L Uᗮ.subtypeL).approximationNumber n ≤
         ((1 - W) ∘L Uᗮ.subtypeL).approximationNumber n := by
     intro n
-    have h := proposition4_1_source_approximationNumbers Uᗮ Vᗮ
+    have h := proposition4_1_approximationNumbers Uᗮ Vᗮ
       (isUniformlyAcute_orthogonal hacute) W hWunitary
       (competitor_admissible_orthogonal_complex U V W hWmap) n
     rwa [spectraDirectRotation_orthogonal U V hacute] at h
@@ -329,7 +331,7 @@ theorem proposition4_3_nonacute_squaredDisplacement_kyFan (U V : Submodule ℂ H
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (J : halmosSourceDefect U V ≃ₗᵢ[ℂ] halmosTargetDefect U V)
     (W : H →L[ℂ] H) (hWunitary : W ∈ unitary (H →L[ℂ] H))
-    (hWmap : W * projection U = projection V * W) (k : ℕ) :
+    (hWmap : W * U.starProjection = V.starProjection * W) (k : ℕ) :
     kyFanApproximationGauge k
         ((1 - star (nonacuteDirectRotation U V J)) *
           (1 - nonacuteDirectRotation U V J)) ≤
@@ -368,12 +370,12 @@ theorem proposition4_3_nonacute_squaredDisplacement_kyFan (U V : Submodule ℂ H
   have hU : ∀ n,
       ((1 - nonacuteDirectRotation U V J) ∘L U.subtypeL).approximationNumber n ≤
         ((1 - W) ∘L U.subtypeL).approximationNumber n :=
-    proposition4_1_nonacute_source_approximationNumbers U V J W hWunitary hWmap
+    proposition4_1_nonacute_approximationNumbers U V J W hWunitary hWmap
   have hUperp : ∀ n,
       ((1 - nonacuteDirectRotation U V J) ∘L U.orthogonal.subtypeL).approximationNumber n ≤
         ((1 - W) ∘L U.orthogonal.subtypeL).approximationNumber n := by
     intro n
-    have h := proposition4_1_nonacute_source_approximationNumbers U.orthogonal V.orthogonal
+    have h := proposition4_1_nonacute_approximationNumbers U.orthogonal V.orthogonal
       (orthogonalCrossedDefectEquiv U V J) W hWunitary
       (competitor_admissible_orthogonal_complex U V W hWmap) n
     rwa [nonacuteDirectRotation_orthogonal U V J] at h

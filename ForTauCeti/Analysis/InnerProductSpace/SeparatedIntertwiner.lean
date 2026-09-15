@@ -6,6 +6,7 @@ Authors: Jon Crall
 module
 
 public import Mathlib.Analysis.InnerProductSpace.Adjoint
+public import ForTauCeti.Analysis.RCLike.ScalarTransportFunctionalCalculus
 public import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 public import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.SelfAdjointResolvent
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Basic
@@ -32,14 +33,21 @@ functional calculus:
 2. `cayley_intertwines` — immediate at `z = -i`;
 3. `cfcHom_intertwines` / `cfcHom_cayley_intertwines` — Stone--Weierstrass.
 
-What remains is the **Borel** step: upgrading `cfcHom_cayley_intertwines` to
-`BorelCalculus.borelCalculus`, and from there to `specProjection`.  That is a
-monotone-class argument on the sesquilinear `pair` form defining
-`borelCalculus`, i.e. it must be run through the diagonal measures rather than
-the operators.  It is the one genuinely open piece.
+What remains for a **general bounded** intertwiner is the **Borel** step:
+upgrading `cfcHom_cayley_intertwines` to `BorelCalculus.borelCalculus`, and from
+there to `specProjection`.  That is a monotone-class argument on the sesquilinear
+`pair` form defining `borelCalculus`, i.e. it must be run through the diagonal
+measures rather than the operators.
 
-Once `specProjection` intertwining exists the endgame is short: for disjoint
-closed spectra pick a Borel `B ⊇ σ(A)` missing `σ(B)`, and
+For a **unitary** intertwiner the Borel step is done, because the diagonal
+measures themselves transport: see
+`LinearPMap.specProjection_apply_of_unitary_intertwines`, built on
+`BorelCalculus.borelCalculus_comp_val_of_intertwines`.  That covers the
+reducing-subspace case, a subspace reducing `A` being exactly a subspace whose
+reflection is a unitary commuting with `A`.
+
+Once `specProjection` intertwining exists for a general bounded `X` the endgame
+is short: for disjoint closed spectra pick a Borel `B ⊇ σ(A)` missing `σ(B)`, and
 `X = E_A(B) X = X E_B(B) = 0` by
 `specProjection_eq_zero_of_subset_resolventSet`.
 
@@ -119,26 +127,17 @@ theorem continuous_symbolRestrict {K s : Set 𝕜} (h : s ⊆ K) :
 
 /-! ## The self-adjoint calculus, at `RCLike` scalars
 
-Below, the *operator-algebra* scalar is a general `RCLike` field `𝕜` while the
-functional calculus itself is over `ℝ`.  Mathlib derives
-`ContinuousFunctionalCalculus ℝ (E →L[𝕜] E) IsSelfAdjoint` by spectrum
-restriction only at `𝕜 = ℂ`, and
-`ContinuousLinearMap.instContinuousFunctionalCalculusRealIsSelfAdjoint` (in
-`ForTauCeti/Analysis/InnerProductSpace/RealContinuousFunctionalCalculus.lean`)
-supplies it at `𝕜 = ℝ`.  The calculus is therefore carried as a hypothesis, in
-the same shape `ForTauCeti/Analysis/InnerProductSpace/OperatorModulus.lean`
-uses: the two scalar-action assumptions plus the calculus itself, once for each
-of the two spaces.  Every one of them is found by typeclass inference at
-`𝕜 = ℝ` and at `𝕜 = ℂ` alike, so no consumer at either field has to supply
-anything. -/
+The operator algebra uses `𝕜`, while the self-adjoint functional calculus uses real symbols.
+The real algebra, scalar tower, and calculus are canonical for every complete Hilbert space over
+an `RCLike` field and are activated locally below. -/
 
 section SelfAdjoint
 
 variable [CompleteSpace E] [CompleteSpace F]
-variable [Algebra ℝ (E →L[𝕜] E)] [IsScalarTower ℝ 𝕜 (E →L[𝕜] E)]
-  [ContinuousFunctionalCalculus ℝ (E →L[𝕜] E) IsSelfAdjoint]
-  [Algebra ℝ (F →L[𝕜] F)] [IsScalarTower ℝ 𝕜 (F →L[𝕜] F)]
-  [ContinuousFunctionalCalculus ℝ (F →L[𝕜] F) IsSelfAdjoint]
+
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+  ContinuousLinearMap.instStarOrderedRingRCLike
 
 /-- **A rectangular intertwiner of self-adjoint operators intertwines their real
 continuous functional calculi.**

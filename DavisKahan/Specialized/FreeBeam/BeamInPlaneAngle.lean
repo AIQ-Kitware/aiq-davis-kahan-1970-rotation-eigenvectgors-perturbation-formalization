@@ -7,6 +7,9 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Specialized.FreeBeam.BeamEigenbasis
 import DavisKahan.Sources.DavisKahan1970.Section9.IndividualAngles
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Section 9, equations (9.9)--(9.11): the in-plane angle
 

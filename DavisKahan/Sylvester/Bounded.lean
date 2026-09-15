@@ -17,7 +17,7 @@ analytic difficulty is visible in the dependency graph.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
 
@@ -531,6 +531,6 @@ theorem sylvester_mem_and_gauge_le_of_bound_inverse_swapped
     N.gaugeReal_adjoint hC] at hbound
   exact hbound
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

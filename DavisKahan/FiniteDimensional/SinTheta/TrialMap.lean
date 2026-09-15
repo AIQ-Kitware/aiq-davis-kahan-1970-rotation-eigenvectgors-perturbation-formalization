@@ -33,7 +33,7 @@ so their conditioning losses are visible in theorem statements.
 /-! ## Construction status
 
 The shared injective-trial-map coordinate layer now lives in
-`DavisKahanTheory.FrameFactorization`.  It provides the canonical rectangular
+`DavisKahan.FiniteDimensional.FrameFactorization`.  It provides the canonical rectangular
 polar factorization `X = Q T`, proves that `Q` is isometric with
 `range Q = range X`, and packages the positive Gram square root `T` as a
 linear equivalence.  It also proves `‖T⁻¹‖ ≤ ε⁻¹`, the corresponding
@@ -51,7 +51,7 @@ singular-value sequence.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators Topology
 open Module (finrank)
@@ -76,7 +76,7 @@ theorem complementaryTrialBlock_comp_trialGramSqrtEquiv_symm
 /-- Lower-frame transport from the raw complementary block to the canonical
 sine-angle map in every rectangular unitarily invariant norm. -/
 theorem lowerFrame_mul_uiNorm_sinTheta_le_complementaryTrialBlock
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (X : F →ₗ[𝕜] E) (hX : Function.Injective X)
     {ε : ℝ} (hframe : LowerFrameBound X ε) (hε : 0 < ε) :
@@ -120,10 +120,10 @@ unwanted exact spectrum of `A` on `Vᗮ` outside the enlarged interval.  The
 second branch reverses those roles, as allowed in Davis--Kahan Theorem 6.1. -/
 def TrialComplementIntervalGap (M : F →ₗ[𝕜] F) (A : E →ₗ[𝕜] E)
     (V : Submodule 𝕜 E) (a b δ : ℝ) : Prop :=
-  (SpectrumIn M ⊤ (Set.Icc a b) ∧
-      SpectrumIn A Vᗮ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}) ∨
-    (SpectrumIn A Vᗮ (Set.Icc a b) ∧
-      SpectrumIn M ⊤ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)})
+  (PointSpectrumIn M ⊤ (Set.Icc a b) ∧
+      PointSpectrumIn A Vᗮ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}) ∨
+    (PointSpectrumIn A Vᗮ (Set.Icc a b) ∧
+      PointSpectrumIn M ⊤ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)})
 
 /-- **Raw generalized sine-block residual estimate, every UI norm.**
 
@@ -131,7 +131,7 @@ For an arbitrary trial map `X`, the complementary block `P_{Vᗮ} X` satisfies
 the sharp interval/exterior Sylvester estimate in either spectral orientation.
 No injectivity or lower frame bound is needed at this stage. -/
 theorem complementaryTrialBlock_residual_le_of_intervalGap
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : IsInvariant A V)
     (X : F →ₗ[𝕜] E) {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
@@ -144,15 +144,15 @@ theorem complementaryTrialBlock_residual_le_of_intervalGap
     Vᗮ.orthogonalProjectionOnto.toLinearMap ∘ₗ X
   let C : F →ₗ[𝕜] Vᗮ :=
     Vᗮ.orthogonalProjectionOnto.toLinearMap ∘ₗ generalResidual A X M
-  let NV : RectangularUnitarilyInvariantSeminorm 𝕜 F Vᗮ :=
+  let NV : UnitarilyInvariantSeminorm 𝕜 F Vᗮ :=
     N.codomainIsometryTransport Vᗮ.subtypeₗᵢ
-  have hAV : AV.IsSymmetric := isSymmetric_restrict hA hVperp
+  have hAV : AV.IsSymmetric := hA.restrict_invariant hVperp
   have hgap' : UnorderedIntervalSylvesterGap AV M a b δ := by
     rcases hgap with hforward | hreverse
     · exact Or.inl ⟨hforward.1,
-        (spectrumIn_restrict_iff A hVperp _).2 hforward.2⟩
+        (pointSpectrumIn_restrict_iff A hVperp _).2 hforward.2⟩
     · exact Or.inr ⟨
-        (spectrumIn_restrict_iff A hVperp _).2 hreverse.1,
+        (pointSpectrumIn_restrict_iff A hVperp _).2 hreverse.1,
         hreverse.2⟩
   have hEq : AV ∘ₗ Y - Y ∘ₗ M = C := by
     ext x
@@ -195,7 +195,7 @@ A positive lower frame bound supplies injectivity automatically.  The theorem
 allows either interval/exterior orientation and compares subspaces of unequal
 dimension through the directed sine block. -/
 theorem generalizedSinTheta_residual_le_of_intervalGap
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : IsInvariant A V)
     (X : F →ₗ[𝕜] E)
@@ -225,7 +225,7 @@ This source-facing wrapper accepts the operator inequality
 `X⋆ X ≥ ε² I` through `GramLowerBound`, rather than requiring callers to
 translate it into a pointwise norm bound. -/
 theorem generalizedSinTheta_residual_le_of_gramLowerBound
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : IsInvariant A V)
     (X : F →ₗ[𝕜] E)
@@ -246,7 +246,7 @@ singular-value sequence as the canonical directed sine block.  Since every
 rectangular unitarily invariant norm depends only on that sequence, the
 canonical Gram-bound theorem transfers without loss. -/
 theorem generalizedSinTheta0_residual_le_of_gramLowerBound
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : IsInvariant A V)
     (X : F →ₗ[𝕜] E)
@@ -263,7 +263,7 @@ theorem generalizedSinTheta0_residual_le_of_gramLowerBound
     N hA hV X hM hδ hε hgram hgap
   have hnorm : N sinTheta0 = N (sinThetaEmbedding V
       (orthonormalizedEmbedding X (hgram.injective hε))) :=
-    N.apply_eq_of_singularValues_eq hsin
+    N.eq_of_same_singularValues hsin
   rw [hnorm]
   exact hcanonical
 
@@ -274,15 +274,15 @@ The explicit injectivity argument is retained for callers of the earlier API;
 the source-complete theorem above derives it from the positive lower frame
 bound. -/
 theorem generalizedSinTheta_residual_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : IsInvariant A V)
     (X : F →ₗ[𝕜] E) (hX : Function.Injective X)
     {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
     {a b δ ε : ℝ} (hδ : 0 < δ) (hε : 0 < ε)
     (hframe : LowerFrameBound X ε)
-    (hMspec : SpectrumIn M ⊤ (Set.Icc a b))
-    (hAspec : SpectrumIn A Vᗮ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}) :
+    (hMspec : PointSpectrumIn M ⊤ (Set.Icc a b))
+    (hAspec : PointSpectrumIn A Vᗮ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}) :
     δ * ε * N (sinThetaEmbedding V (orthonormalizedEmbedding X hX)) ≤
       N (generalResidual A X M) := by
   have htransport := lowerFrame_mul_uiNorm_sinTheta_le_complementaryTrialBlock
@@ -296,5 +296,5 @@ theorem generalizedSinTheta_residual_le
       mul_le_mul_of_nonneg_left htransport hδ.le
     _ ≤ N (generalResidual A X M) := hraw
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

@@ -244,9 +244,10 @@ approximation of rank at most `n`, so `aₙ(T) = 0`.
 
 This is the first of the four statements roadmap topic T09 §A4 asks for.  It holds
 over any normed pair — no inner product, no completeness, no finite dimension —
-because `R := T` is admissible in the defining infimum.  The converse needs a
-Hilbert structure and is
-`ContinuousLinearMap.approximationNumber_eq_zero_iff_finrank_range_le`. -/
+because `R := T` is admissible in the defining infimum.  The converse for a finite-dimensional
+source over a complete field is proved in
+`ApproximationNumber.Rank` as `approximationNumber_eq_zero_iff_rank_le`;
+it does not require an inner product. -/
 theorem approximationNumber_eq_zero_of_rank_le (T : E →L[𝕜] F) {n : ℕ}
     (hT : T.rank ≤ (n : Cardinal)) :
     T.approximationNumber n = 0 := by

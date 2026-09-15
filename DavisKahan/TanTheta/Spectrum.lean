@@ -7,6 +7,8 @@ import DavisKahan.TanTheta.Vector
 import DavisKahan.Sylvester.Spectrum
 import ForTauCeti.Analysis.CStarAlgebra.SelfAdjointGapInverse
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The `tan Θ` theorem with genuine spectra
 
@@ -32,6 +34,7 @@ namespace DavisKahanExt
 open DavisKahan
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
   [CompleteSpace E]
@@ -251,12 +254,6 @@ compression `C : ↥W →L[ℂ] ↥W` sends `isDefEq` into a deterministic
 heartbeat blow-up (pending instance syntheses fail, so definitional
 unfolding of the `Submodule` algebra structures takes over).  With them in
 scope the same statements elaborate at ordinary heartbeats. -/
-
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionGenuineTanTheta
-    {G : Type*} [NormedAddCommGroup G] [InnerProductSpace ℂ G]
-    [CompleteSpace G]
-    (U : Submodule ℂ G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 noncomputable local instance instCStarAlgebraSubspaceCoordinateGenuineTanTheta
     {G : Type*} [NormedAddCommGroup G] [InnerProductSpace ℂ G]

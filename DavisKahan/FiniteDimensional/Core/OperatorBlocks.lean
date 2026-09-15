@@ -13,7 +13,7 @@ finite double-angle and tangent theories.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 open Module (finrank)
@@ -108,5 +108,5 @@ theorem inner_blocks_eq_zero_of_isOffDiagonal
       (hasZeroCompression_of_isOffDiagonal Uᗮ H
         (isOffDiagonal_orthogonal U H hoff)) hw hw'
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

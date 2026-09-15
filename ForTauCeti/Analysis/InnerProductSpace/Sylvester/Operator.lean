@@ -76,5 +76,47 @@ theorem coe_sylvesterOperatorL (A : F →L[𝕜] F) (B : E →L[𝕜] E) :
     ⇑(sylvesterOperatorL A B) = sylvesterOperator A B :=
   rfl
 
+/-- The Sylvester operator sends `0` to `0`. -/
+@[simp] theorem sylvesterOperator_zero
+    (A : F →L[𝕜] F) (B : E →L[𝕜] E) :
+    sylvesterOperator A B (0 : E →L[𝕜] F) = 0 := by
+  simp [sylvesterOperator]
+
+/-- The Sylvester operator is additive. -/
+theorem sylvesterOperator_add
+    (A : F →L[𝕜] F) (B : E →L[𝕜] E) (X Y : E →L[𝕜] F) :
+    sylvesterOperator A B (X + Y) =
+      sylvesterOperator A B X + sylvesterOperator A B Y := by
+  simp only [sylvesterOperator, ContinuousLinearMap.comp_add,
+    ContinuousLinearMap.add_comp]
+  abel
+
+/-- The Sylvester operator commutes with subtraction. -/
+theorem sylvesterOperator_sub
+    (A : F →L[𝕜] F) (B : E →L[𝕜] E) (X Y : E →L[𝕜] F) :
+    sylvesterOperator A B (X - Y) =
+      sylvesterOperator A B X - sylvesterOperator A B Y := by
+  simp only [sylvesterOperator, ContinuousLinearMap.comp_sub,
+    ContinuousLinearMap.sub_comp]
+  abel
+
+/-- The Sylvester operator is homogeneous. -/
+theorem sylvesterOperator_smul
+    (A : F →L[𝕜] F) (B : E →L[𝕜] E) (c : 𝕜) (X : E →L[𝕜] F) :
+    sylvesterOperator A B (c • X) = c • sylvesterOperator A B X := by
+  ext x
+  simp [sylvesterOperator, smul_sub]
+
+/-- Elementary operator-norm bound. -/
+theorem norm_sylvesterOperator_le
+    (A : F →L[𝕜] F) (B : E →L[𝕜] E) (X : E →L[𝕜] F) :
+    ‖sylvesterOperator A B X‖ ≤ (‖A‖ + ‖B‖) * ‖X‖ := by
+  calc
+    ‖sylvesterOperator A B X‖ ≤ ‖A ∘L X‖ + ‖X ∘L B‖ := norm_sub_le _ _
+    _ ≤ ‖A‖ * ‖X‖ + ‖X‖ * ‖B‖ :=
+      add_le_add (ContinuousLinearMap.opNorm_comp_le A X)
+        (ContinuousLinearMap.opNorm_comp_le X B)
+    _ = (‖A‖ + ‖B‖) * ‖X‖ := by ring
+
 end ContinuousLinearMap
 

@@ -7,6 +7,8 @@ import DavisKahan.SpectralTheory.Real.BoundedAlmostInvariant
 import ForTauCeti.Analysis.InnerProductSpace.BorelCalculus.SeparableCyclic
 import ForTauCeti.MeasureTheory.LpStar
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The conjugation-equivariant cyclic decomposition
 
@@ -76,6 +78,7 @@ open MeasureTheory
 namespace TauCeti
 namespace DavisKahan
 namespace RealSpectralRestriction
+
 
 open TauCeti.RealComplexification
 open TauCeti.DavisKahan.Foundation.RealComplexification

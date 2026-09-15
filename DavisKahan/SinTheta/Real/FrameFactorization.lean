@@ -11,6 +11,8 @@ import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Instances
 import Mathlib.Analysis.InnerProductSpace.StarOrder
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Basic
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Real infinite-dimensional lower-frame polar factorization
 

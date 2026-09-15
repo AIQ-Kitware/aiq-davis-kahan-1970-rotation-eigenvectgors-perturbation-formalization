@@ -30,9 +30,9 @@ namespace of its conclusion's head symbol.
 and `norm_starProjection_sub_eq_max` were one-line re-exports of
 `ContinuousLinearMap.norm_add_eq_max_of_block` and
 `Submodule.norm_starProjection_sub_eq_max`, which already exist in
-`ProjectionBlocks.lean` and `ProjectionGap.lean`; the second would in fact have
+`Projection/Blocks.lean` and `Projection/Gap.lean`; the second would in fact have
 collided with its own target once this file moved into `Submodule`.
-`DavisKahan/BoundedOperator/Compat.lean` keeps both names for the paper library.
+Consumers use the canonical declarations directly.
 -/
 
 public section

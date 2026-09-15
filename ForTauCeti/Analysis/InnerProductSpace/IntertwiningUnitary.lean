@@ -58,7 +58,7 @@ orthogonal projector onto
 projection is `TauCeti.spectralProjection A Ω`, the projector
 onto the spectral subspace of an *operator* over a real set.  The two used to
 share the base name `spectralProjection` and differ only by namespace, so
-dropping `DavisKahanTheory` — which `RUB-NS-PAPER` slice 2c has to do — made
+dropping `DavisKahan.FiniteDimensional` — which `RUB-NS-PAPER` slice 2c has to do — made
 Lean reject the import with *"environment already contains
 `TauCeti.spectralProjection`"*.
 

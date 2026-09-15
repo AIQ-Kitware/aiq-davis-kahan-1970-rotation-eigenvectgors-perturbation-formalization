@@ -11,6 +11,9 @@ import DavisKahan.InfiniteDimensional.SinTheta.Continuation.SharpDiagonalResolve
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.SharpSchurComplement
 import DavisKahan.InfiniteDimensional.Riccati.ContinuationWitnessOrientedBlocks
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # A separating circle as a spectral continuation witness
 
@@ -62,9 +65,9 @@ omit [CompleteSpace H] in
 /-- Every point of the affine self-adjoint path is self-adjoint: the real
 parameter is conjugation-fixed. -/
 theorem operatorPath_isSelfAdjointOperator
-    {A E : H →L[ℂ] H} (hA : IsSelfAdjointOperator A)
-    (hE : IsSelfAdjointOperator E) (t : ℝ) :
-    IsSelfAdjointOperator (operatorPath A E t) :=
+    {A E : H →L[ℂ] H} (hA : A.IsSymmetric)
+    (hE : E.IsSymmetric) (t : ℝ) :
+    (operatorPath A E t).IsSymmetric :=
   hA.add (hE.smul (Complex.conj_ofReal t))
 
 /-- Circle data sufficient to construct the continuation witness used by the
@@ -72,8 +75,8 @@ existing Section 8 development.  The pencil inverse is taken through the total
 `Ring.inverse`, matching the RieszCircle surface. -/
 structure CircleContinuationData
     (A E : H →L[ℂ] H) (s : Set ℝ) where
-  hA : IsSelfAdjointOperator A
-  hE : IsSelfAdjointOperator E
+  hA : A.IsSymmetric
+  hE : E.IsSymmetric
   hs : MeasurableSet s
   center : ℝ
   radius : ℝ
@@ -248,12 +251,12 @@ theorem canonicalGapCircle_inside_iff
 /-- The Schur criterion excludes any real point that remains closer than the
 chosen margin to the canonical finite-gap circle. -/
 theorem canonicalGapCircle_margin_le_realSpectrum
-    (hA : IsSelfAdjointOperator A) (hE : IsSelfAdjointOperator E)
+    (hA : A.IsSymmetric) (hE : E.IsSymmetric)
     {U : Submodule ℂ H} [U.HasOrthogonalProjection]
-    (_hU : Reduces A U) (_hoff : IsOffDiagonal U E)
+    (_hU : A.Reduces U) (_hoff : Submodule.IsOffDiagonal U E)
     {d left right : ℝ} (hd : 0 < d) (hlr : left ≤ right)
     (hdiag : ∀ t : ℝ, t ∈ Set.Icc (0 : ℝ) 1 →
-      ∀ hpath : IsSelfAdjointOperator (operatorPath A E t),
+      ∀ hpath : (operatorPath A E t).IsSymmetric,
       ∀ z : ℂ, ∀ delta0 delta1 : ℝ,
         0 < delta0 → 0 < delta1 →
         (∀ lam ∈ Set.Icc left right,
@@ -395,9 +398,9 @@ theorem canonicalGapCircle_margin_le_realSpectrum
 circle, a uniform spectral margin, and hence the continuation datum used by
 Section 8. -/
 theorem exists_circleContinuationData_of_offDiagonal_halfGap
-    (hA : IsSelfAdjointOperator A) (hE : IsSelfAdjointOperator E)
+    (hA : A.IsSymmetric) (hE : E.IsSymmetric)
     {U : Submodule ℂ H} [U.HasOrthogonalProjection]
-    (hU : Reduces A U) (hoff : IsOffDiagonal U E)
+    (hU : A.Reduces U) (hoff : Submodule.IsOffDiagonal U E)
     {d : ℝ} (hd : 0 < d)
     (hfinite : FiniteGapConfiguration A U d)
     (hsmall : ‖E‖ < d / 2) :
@@ -468,9 +471,9 @@ theorem exists_circleContinuationData_of_offDiagonal_halfGap
 /-- Source-facing continuation witness obtained directly from the finite-gap,
 off-diagonal, and perturbation half-gap hypotheses. -/
 theorem exists_spectralContinuationWitness_of_offDiagonal_halfGap
-    (hA : IsSelfAdjointOperator A) (hE : IsSelfAdjointOperator E)
+    (hA : A.IsSymmetric) (hE : E.IsSymmetric)
     {U : Submodule ℂ H} [U.HasOrthogonalProjection]
-    (hU : Reduces A U) (hoff : IsOffDiagonal U E)
+    (hU : A.Reduces U) (hoff : Submodule.IsOffDiagonal U E)
     {d : ℝ} (hd : 0 < d)
     (hfinite : FiniteGapConfiguration A U d)
     (hsmall : ‖E‖ < d / 2) :
@@ -507,8 +510,8 @@ variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
 /-- The real spectrum of a self-adjoint operator splits over a reducing
 decomposition. -/
 theorem realSpectrum_subset_union_of_reduces
-    {T : H →L[ℂ] H} (hT : IsSelfAdjointOperator T) {U : Submodule ℂ H}
-    [U.HasOrthogonalProjection] (hU : Reduces T U) {p q : Set ℝ}
+    {T : H →L[ℂ] H} (hT : T.IsSymmetric) {U : Submodule ℂ H}
+    [U.HasOrthogonalProjection] (hU : T.Reduces U) {p q : Set ℝ}
     (h0 : SpectrumIn T U p) (h1 : SpectrumIn T Uᗮ q) :
     realSpectrum T ⊆ p ∪ q := by
   let : CompleteSpace U :=
@@ -533,8 +536,8 @@ theorem real_smul_eq_complex_smul (t : ℝ) (E : H →L[ℂ] H) :
 omit [CompleteSpace H] in
 /-- Every point of the affine path `A + t E` with real `t` is self-adjoint. -/
 theorem isSelfAdjointOperator_path {A E : H →L[ℂ] H}
-    (hA : IsSelfAdjointOperator A) (hE : IsSelfAdjointOperator E) (t : ℝ) :
-    IsSelfAdjointOperator (A + t • E) := by
+    (hA : A.IsSymmetric) (hE : E.IsSymmetric) (t : ℝ) :
+    (A + t • E).IsSymmetric := by
   rw [real_smul_eq_complex_smul]
   exact operatorPath_isSelfAdjointOperator hA hE t
 
@@ -544,7 +547,7 @@ shrink by `gam` on each side, and they stay nonempty precisely because
 "`A(σ)`, being a perturbation of bound norm at most `γ`, has spectrum disjoint
 from `(β - δ + γ, β - γ)`", proved by the Neumann series. -/
 theorem realSpectrum_add_subset_of_gap
-    {T K : H →L[ℂ] H} (hT : IsSelfAdjointOperator T)
+    {T K : H →L[ℂ] H} (hT : T.IsSymmetric)
     {alpha beta delta gam : ℝ} (hab : beta ≤ alpha) (_hdelta : 0 < delta)
     (hgam : 0 ≤ gam) (_hgamlt : gam < delta / 2) (hK : ‖K‖ ≤ gam)
     (hgap : realSpectrum T ⊆ Set.Icc beta alpha ∪ gapExterior beta alpha delta) :
@@ -625,7 +628,7 @@ theorem margin_le_dist_of_gap
 /-- The canonical gap circle separates the real spectrum, selecting exactly the
 central band. -/
 theorem circleSeparates_of_gap
-    {T : H →L[ℂ] H} (hT : IsSelfAdjointOperator T) {l r d : ℝ}
+    {T : H →L[ℂ] H} (hT : T.IsSymmetric) {l r d : ℝ}
     (hlr : l ≤ r) (hd : 0 < d)
     (hgap : realSpectrum T ⊆ Set.Icc l r ∪ gapExterior l r d) :
     CircleSeparatesRealSpectrum T hT (centralBand l r d) (gapCenter l r)

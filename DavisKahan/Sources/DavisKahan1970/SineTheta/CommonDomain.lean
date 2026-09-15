@@ -5,6 +5,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Theorem61Universal
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The common-domain formulation used in the unbounded appendix
 
@@ -52,20 +54,20 @@ theorem mem_boundedPullbackDomain
   Iff.rfl
 
 /-- Exact source-paper domain condition for the trial map. -/
-def HasPaperCommonDomain
+def HasCommonDomain
     (A : E →ₗ.[𝕜] E)
     (A₀ : F →ₗ.[𝕜] F)
     (X : F →L[𝕜] E) : Prop :=
   boundedPullbackDomain A X = A₀.domain
 
-namespace HasPaperCommonDomain
+namespace HasCommonDomain
 
 omit [CompleteSpace E] [CompleteSpace F] in
 /-- Pointwise form of the common-domain equality. -/
 theorem mem_iff
     {A : E →ₗ.[𝕜] E}
     {A₀ : F →ₗ.[𝕜] F}
-    {X : F →L[𝕜] E} (h : HasPaperCommonDomain A A₀ X) (x : F) :
+    {X : F →L[𝕜] E} (h : HasCommonDomain A A₀ X) (x : F) :
     X x ∈ A.domain ↔ x ∈ A₀.domain := by
   change x ∈ boundedPullbackDomain A X ↔ x ∈ A₀.domain
   rw [h]
@@ -77,7 +79,7 @@ by the accepted theorem. -/
 theorem maps_domain
     {A : E →ₗ.[𝕜] E}
     {A₀ : F →ₗ.[𝕜] F}
-    {X : F →L[𝕜] E} (h : HasPaperCommonDomain A A₀ X) :
+    {X : F →L[𝕜] E} (h : HasCommonDomain A A₀ X) :
     ∀ x : A₀.domain, X (x : F) ∈ A.domain := by
   intro x
   exact (h.mem_iff (x : F)).2 x.property
@@ -88,23 +90,23 @@ trial operator. -/
 theorem dense
     {A : E →ₗ.[𝕜] E}
     {A₀ : F →ₗ.[𝕜] F}
-    {X : F →L[𝕜] E} (h : HasPaperCommonDomain A A₀ X)
+    {X : F →L[𝕜] E} (h : HasCommonDomain A A₀ X)
     (hA₀ : Dense ((A₀.domain : Submodule 𝕜 F) : Set F)) :
     Dense (boundedPullbackDomain A X) := by
   rw [h]
   exact hA₀
 
-end HasPaperCommonDomain
+end HasCommonDomain
 
 /-- Construct the accepted bookkeeping package from the exact appendix
 hypotheses.  The residual identity is stated on the common domain, identified
 with `dom A₀` by `hcommon`. -/
-noncomputable def unboundedSinThetaDataOfPaperCommonDomain
+noncomputable def unboundedSinThetaDataOfCommonDomain
     (A : E →ₗ.[𝕜] E)
     (A₀ : F →ₗ.[𝕜] F)
     (Λ₁ : G →ₗ.[𝕜] G)
     (X : F →L[𝕜] E) (F₁ : G →L[𝕜] E) (R : F →L[𝕜] E)
-    (hcommon : HasPaperCommonDomain A A₀ X)
+    (hcommon : HasCommonDomain A A₀ X)
     (hF₁ : ∀ y : Λ₁.domain, F₁ (y : G) ∈ A.domain)
     (hR : ∀ x : F, (hx : X x ∈ A.domain) → (hx₀ : x ∈ A₀.domain) →
       A ⟨X x, hx⟩ - X (A₀ ⟨x, hx₀⟩) = R x)
@@ -131,39 +133,39 @@ Downstream statements quote the source residual `R`, while the accepted engine
 returns the residual field of the constructed package; without this projection
 the two do not match syntactically. -/
 @[simp]
-theorem unboundedSinThetaDataOfPaperCommonDomain_residual
+theorem unboundedSinThetaDataOfCommonDomain_residual
     (A : E →ₗ.[𝕜] E)
     (A₀ : F →ₗ.[𝕜] F)
     (Λ₁ : G →ₗ.[𝕜] G)
     (X : F →L[𝕜] E) (F₁ : G →L[𝕜] E) (R : F →L[𝕜] E)
-    (hcommon : HasPaperCommonDomain A A₀ X)
+    (hcommon : HasCommonDomain A A₀ X)
     (hF₁ : ∀ y : Λ₁.domain, F₁ (y : G) ∈ A.domain)
     (hR : ∀ x : F, (hx : X x ∈ A.domain) → (hx₀ : x ∈ A₀.domain) →
       A ⟨X x, hx⟩ - X (A₀ ⟨x, hx₀⟩) = R x)
     (hintertwines : ∀ y : Λ₁.domain,
       A ⟨F₁ (y : G), hF₁ y⟩ = F₁ (Λ₁ y)) :
-    (unboundedSinThetaDataOfPaperCommonDomain A A₀ Λ₁ X F₁ R
+    (unboundedSinThetaDataOfCommonDomain A A₀ Λ₁ X F₁ R
       hcommon hF₁ hR hintertwines).residual = R := rfl
 
 omit [CompleteSpace E] [CompleteSpace F] [CompleteSpace G] in
 /-- The constructed data remembers the exact paper common-domain equality. -/
-theorem unboundedSinThetaDataOfPaperCommonDomain_hasCommonDomain
+theorem unboundedSinThetaDataOfCommonDomain_hasCommonDomain
     (A : E →ₗ.[𝕜] E)
     (A₀ : F →ₗ.[𝕜] F)
     (Λ₁ : G →ₗ.[𝕜] G)
     (X : F →L[𝕜] E) (F₁ : G →L[𝕜] E) (R : F →L[𝕜] E)
-    (hcommon : HasPaperCommonDomain A A₀ X)
+    (hcommon : HasCommonDomain A A₀ X)
     (hF₁ : ∀ y : Λ₁.domain, F₁ (y : G) ∈ A.domain)
     (hR : ∀ x : F, (hx : X x ∈ A.domain) → (hx₀ : x ∈ A₀.domain) →
       A ⟨X x, hx⟩ - X (A₀ ⟨x, hx₀⟩) = R x)
     (hintertwines : ∀ y : Λ₁.domain,
       A ⟨F₁ (y : G), hF₁ y⟩ = F₁ (Λ₁ y)) :
-    HasPaperCommonDomain
-      (unboundedSinThetaDataOfPaperCommonDomain A A₀ Λ₁ X F₁ R
+    HasCommonDomain
+      (unboundedSinThetaDataOfCommonDomain A A₀ Λ₁ X F₁ R
         hcommon hF₁ hR hintertwines).A
-      (unboundedSinThetaDataOfPaperCommonDomain A A₀ Λ₁ X F₁ R
+      (unboundedSinThetaDataOfCommonDomain A A₀ Λ₁ X F₁ R
         hcommon hF₁ hR hintertwines).A₀
-      (unboundedSinThetaDataOfPaperCommonDomain A A₀ Λ₁ X F₁ R
+      (unboundedSinThetaDataOfCommonDomain A A₀ Λ₁ X F₁ R
         hcommon hF₁ hR hintertwines).X :=
   hcommon
 

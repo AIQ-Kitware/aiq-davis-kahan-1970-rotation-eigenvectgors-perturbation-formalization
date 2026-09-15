@@ -361,7 +361,7 @@ from the real spectrum.
 Derived identically in `resolventOperator_eq_cfc_resolventSymbol` and in
 `complex_inResolventSet_and_norm_resolvent_le_inv_distance`. -/
 theorem sub_ne_zero_of_realSpectrum_separated (A : H →L[ℂ] H)
-    (hA : IsSelfAdjointOperator A) {z : ℂ} {delta : ℝ} (hdelta : 0 < delta)
+    (hA : A.IsSymmetric) {z : ℂ} {delta : ℝ} (hdelta : 0 < delta)
     (hsep : ∀ lam ∈ realSpectrum A, delta ≤ ‖z - (lam : ℂ)‖) :
     ∀ w ∈ spectrum ℂ A, w - z ≠ 0 := by
   have hAsa : IsSelfAdjoint A :=
@@ -387,7 +387,7 @@ calculus using the symbol `w ↦ (w - z)⁻¹`.  Self-adjointness restricts the
 complex spectrum to the embedded real spectrum, so the supplied distance
 hypothesis controls the symbol on the whole spectrum. -/
 theorem complex_inResolventSet_and_norm_resolvent_le_inv_distance
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (z : ℂ) (delta : ℝ) (hdelta : 0 < delta)
     (hsep : ∀ lam ∈ realSpectrum A, delta ≤ ‖z - (lam : ℂ)‖) :
     InResolventSet A z ∧ ‖resolventOperator A z‖ ≤ delta⁻¹ := by
@@ -450,7 +450,7 @@ theorem complex_inResolventSet_and_norm_resolvent_le_inv_distance
 
 /-- Resolvent-set membership from a positive complex spectral-distance bound. -/
 theorem complex_inResolventSet_of_distance
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (z : ℂ) (delta : ℝ) (hdelta : 0 < delta)
     (hsep : ∀ lam ∈ realSpectrum A, delta ≤ ‖z - (lam : ℂ)‖) :
     InResolventSet A z :=
@@ -459,7 +459,7 @@ theorem complex_inResolventSet_of_distance
 
 /-- Sharp resolvent norm bound for a complex self-adjoint operator. -/
 theorem complex_norm_resolvent_le_inv_distance
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (z : ℂ) (delta : ℝ) (hdelta : 0 < delta)
     (hsep : ∀ lam ∈ realSpectrum A, delta ≤ ‖z - (lam : ℂ)‖) :
     ‖resolventOperator A z‖ ≤ delta⁻¹ :=
@@ -470,7 +470,7 @@ theorem complex_norm_resolvent_le_inv_distance
 distance from the real spectrum of a complex self-adjoint operator, the
 resolvent is Lipschitz with the sharp distance-squared constant. -/
 theorem complex_lipschitzOnWith_resolventOperator_of_distance
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (S : Set ℂ) (delta : ℝ) (hdelta : 0 < delta)
     (hsep : ∀ z ∈ S, ∀ lam ∈ realSpectrum A,
       delta ≤ ‖z - (lam : ℂ)‖) :
@@ -488,7 +488,7 @@ theorem complex_lipschitzOnWith_resolventOperator_of_distance
 spectral-parameter set.  This is the continuity input for a Riesz contour
 integrand. -/
 theorem complex_continuousOn_resolventOperator_of_distance
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (S : Set ℂ) (delta : ℝ) (hdelta : 0 < delta)
     (hsep : ∀ z ∈ S, ∀ lam ∈ realSpectrum A,
       delta ≤ ‖z - (lam : ℂ)‖) :
@@ -554,7 +554,7 @@ spectrum of a self-adjoint `T` is at distance at least `m` from `z`, then `z`
 survives in the resolvent set of `T + K` for every perturbation of norm below
 `m`.  No self-adjointness of `K` is needed. -/
 theorem notMem_spectrum_add_of_realSpectrum_dist
-    {T K : H →L[ℂ] H} (hT : IsSelfAdjointOperator T) {z : ℂ} {m : ℝ} (hm : 0 < m)
+    {T K : H →L[ℂ] H} (hT : T.IsSymmetric) {z : ℂ} {m : ℝ} (hm : 0 < m)
     (hsep : ∀ lam ∈ realSpectrum T, m ≤ ‖z - (lam : ℂ)‖) (hK : ‖K‖ < m) :
     z ∉ spectrum ℂ (T + K) := by
   obtain ⟨hres, hbound⟩ :=

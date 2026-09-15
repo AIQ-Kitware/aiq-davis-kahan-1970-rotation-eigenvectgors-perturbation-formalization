@@ -7,6 +7,11 @@ import DavisKahan.InfiniteDimensional.SinTheta.Continuation.WitnessGraph
 import DavisKahan.Riccati.BoundedReduction
 import DavisKahan.Sylvester.Spectrum
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Riccati coordinates of the continuation-selected graph
 
@@ -25,6 +30,7 @@ result onto the two orthogonal coordinates.
 namespace TauCeti
 namespace DavisKahanExt
 
+
 open DavisKahan
 
 open scoped InnerProductSpace
@@ -40,7 +46,7 @@ variable {H : Type v} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
 relative to `U ⊕ Uᗮ`. -/
 noncomputable def subspaceBlockOperatorData
     (T : H →L[ℂ] H) (U : Submodule ℂ H) [U.HasOrthogonalProjection]
-    (hT : IsSelfAdjointOperator T) :
+    (hT : T.IsSymmetric) :
     BlockOperatorData (𝕜 := ℂ) (E0 := U) (E1 := Uᗮ) := by
   letI : CompleteSpace U :=
     (U.isComplete_coe_of_hasOrthogonalProjection).completeSpace_coe
@@ -125,9 +131,9 @@ its compressed coordinate operator solves the bounded Riccati equation for the
 corresponding subspace block data. -/
 theorem subspaceAngularCoordinate_solvesRiccati_of_graph_reduces
     (T : H →L[ℂ] H) (U : Submodule ℂ H) [U.HasOrthogonalProjection]
-    (hT : IsSelfAdjointOperator T)
+    (hT : T.IsSymmetric)
     (X : H →L[ℂ] H) (hX : IsAngularOperator U X)
-    (hred : Reduces T (graphSubspace U X)) :
+    (hred : T.Reduces (graphSubspace U X)) :
     SolvesRiccati (subspaceBlockOperatorData T U hT)
       (subspaceAngularCoordinate U X) := by
   let : CompleteSpace U :=

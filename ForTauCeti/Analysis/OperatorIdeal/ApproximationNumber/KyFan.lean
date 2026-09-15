@@ -5,7 +5,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking, Claude Opus 5
 -/
 module
 
-public import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+public import ForTauCeti.Analysis.InnerProductSpace.KyFan
 public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.Adjoint
 public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.FiniteDimensional
 public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.FiniteRestriction
@@ -37,7 +37,7 @@ approximation numbers.  The exception, and the reason this module exists, is
 which is *false* term by term — `aₙ` is not subadditive — and is proved in three steps:
 
 1. in finite dimensions it is the Ky Fan norm inequality of
-   `ForTauCeti/Analysis/InnerProductSpace/RectangularUnitarilyInvariantSeminorm`, transported
+   `ForTauCeti/Analysis/InnerProductSpace/KyFan`, transported
    along `ContinuousLinearMap.approximationNumber_eq_singularValues`;
 2. for a finite-dimensional *source* and arbitrary codomain, compress the codomain to the
    (finite-dimensional) range of `S ⊕ T`, which changes no approximation number;
@@ -63,8 +63,8 @@ min--max theorem lives.
   `kyFanApproximationGauge_smul, kyFanApproximationGauge_nonneg,`
   `kyFanApproximationGauge_adjoint, kyFanApproximationGauge_comp_le,`
   `opNorm_le_kyFanApproximationGauge, kyFanApproximationGauge_le_nat_mul_opNorm,`
-  `rectangularKyFanSum_le_kyFanApproximationGauge,`
-  `rectangularKyFanSum_eq_kyFanApproximationGauge,`
+  `kyFanSum_le_kyFanApproximationGauge,`
+  `kyFanSum_eq_kyFanApproximationGauge,`
   `kyFanApproximationGauge_add_le_finiteDimensional,`
   `approximationSingularValue_restrict_mono,`
   `approximationSingularValue_orthogonalProjectionOnto_comp_eq,`
@@ -202,10 +202,10 @@ variable {E : Type v} {F : Type w}
   [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [FiniteDimensional 𝕜 F]
 
 /-- In finite dimensions the Ky Fan gauge is the rectangular Ky Fan singular-value sum. -/
-theorem rectangularKyFanSum_eq_kyFanGauge (k : ℕ) (A : E →ₗ[𝕜] F) :
-    TauCeti.RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k A =
+theorem kyFanSum_eq_kyFanGauge (k : ℕ) (A : E →ₗ[𝕜] F) :
+    TauCeti.kyFanSum k A =
       A.toContinuousLinearMap.kyFanGauge k := by
-  unfold TauCeti.RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum
+  unfold TauCeti.kyFanSum
     kyFanGauge
   rw [Fin.sum_univ_eq_sum_range]
   exact Finset.sum_congr rfl fun n _ =>
@@ -216,10 +216,9 @@ rectangular Ky Fan norm. -/
 theorem kyFanGauge_add_le_of_finiteDimensional (k : ℕ) (A B : E →ₗ[𝕜] F) :
     (A + B).toContinuousLinearMap.kyFanGauge k ≤
       A.toContinuousLinearMap.kyFanGauge k + B.toContinuousLinearMap.kyFanGauge k := by
-  rw [← rectangularKyFanSum_eq_kyFanGauge k (A + B),
-    ← rectangularKyFanSum_eq_kyFanGauge k A, ← rectangularKyFanSum_eq_kyFanGauge k B]
-  exact (TauCeti.RectangularUnitarilyInvariantSeminorm.kyFan
-    (𝕜 := 𝕜) (E := E) (F := F) k).add_le A B
+  rw [← kyFanSum_eq_kyFanGauge k (A + B),
+    ← kyFanSum_eq_kyFanGauge k A, ← kyFanSum_eq_kyFanGauge k B]
+  exact TauCeti.kyFanSum_add_le k A B
 
 end FiniteDimensional
 

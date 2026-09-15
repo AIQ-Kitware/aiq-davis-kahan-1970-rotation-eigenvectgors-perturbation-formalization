@@ -5,6 +5,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.SinTheta.Natural.SpectralSubspace
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Generalized complex sine-theta theorem from natural spectral inputs
 
@@ -18,6 +20,7 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
+
 
 
 universe v

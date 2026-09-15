@@ -98,7 +98,8 @@ theorem sinThetaFrobenius_span_singleton {v : E} (hv : ‖v‖ = 1) :
     sinThetaFrobenius (𝕜 ∙ v) W = ‖projection Wᗮ v‖ := by
   classical
   rw [sinThetaFrobenius_eq,
-    UnitarilyInvariantSeminorm.frobenius_apply 𝕜 E _ rfl (stdOrthonormalBasis 𝕜 E)]
+    UnitarilyInvariantSeminorm.frobenius_apply_basis (𝕜 := 𝕜) (E := E) _ rfl
+      (stdOrthonormalBasis 𝕜 E)]
   have hcol : ∀ i, ‖sinThetaMap (𝕜 ∙ v) W (stdOrthonormalBasis 𝕜 E i)‖ ^ 2 =
       ‖⟪v, stdOrthonormalBasis 𝕜 E i⟫_𝕜‖ ^ 2 * ‖projection Wᗮ v‖ ^ 2 := by
     intro i

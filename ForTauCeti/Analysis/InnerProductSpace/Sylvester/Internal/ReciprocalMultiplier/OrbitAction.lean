@@ -5,7 +5,7 @@ Authors: Jon Crall, GPT 5.6 High
 -/
 module
 
-public import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+public import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm
 public import Mathlib.Analysis.SpecialFunctions.Complex.Arg
 public import Mathlib.Analysis.Complex.Circle
 
@@ -620,12 +620,12 @@ theorem doubledComplexScalarMapAction_ofReal
     (r : ℝ) (T : E' →ₗ[𝕜] F') :
     doubledComplexScalarMapAction (r : ℂ) T =
       ((r : ℝ) : 𝕜) •
-        RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum T T := by
+        UnitarilyInvariantSeminorm.orthogonalBlockSum T T := by
   ext x
   apply WithLp.ofLp_injective 2
   apply Prod.ext <;>
     simp [doubledComplexScalarMapAction_apply,
-      RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum_apply]
+      UnitarilyInvariantSeminorm.orthogonalBlockSum_apply]
 
 /-- A finite sum of complex-scalar block actions is the action of the scalar
 sum. -/
@@ -791,12 +791,12 @@ theorem doubledComplexScalarAction_ofReal
     [NormedAddCommGroup FR] [InnerProductSpace ℝ FR]
     (r : ℝ) (T : ER →ₗ[ℝ] FR) :
     doubledComplexScalarAction (r : ℂ) T =
-      r • RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum T T := by
+      r • UnitarilyInvariantSeminorm.orthogonalBlockSum T T := by
   ext x
   apply WithLp.ofLp_injective 2
   apply Prod.ext <;>
     simp [doubledComplexScalarAction_apply,
-      RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum_apply]
+      UnitarilyInvariantSeminorm.orthogonalBlockSum_apply]
 
 /-- A finite sum of complex-scalar block actions is the action of the scalar
 sum. -/
@@ -857,7 +857,7 @@ theorem basisDoubledRealRotation_comp_basisMatrixUnit
     (i : Fin (Module.finrank ℝ FR))
     (j : Fin (Module.finrank ℝ ER)) :
     (basisDoubledRealRotation eF thetaF).toLinearMap ∘ₗ
-        RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum
+        UnitarilyInvariantSeminorm.orthogonalBlockSum
           (basisMatrixUnit eF eE i j) (basisMatrixUnit eF eE i j) ∘ₗ
         (basisDoubledRealRotation eE thetaE).toLinearMap =
       doubledPhaseAction (thetaF i + thetaE j)
@@ -870,26 +870,26 @@ theorem basisDoubledRealRotation_comp_basisMatrixUnit
       apply WithLp.ofLp_injective 2
       apply Prod.ext <;>
         simp [basisDoubledRealRotation_apply,
-          RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum_apply,
+          UnitarilyInvariantSeminorm.orthogonalBlockSum_apply,
           doubledPhaseAction_apply, basisMatrixUnit_apply,
           Real.cos_add, Real.sin_add] <;> module
     · apply WithLp.ofLp_injective 2
       apply Prod.ext <;>
         simp [basisDoubledRealRotation_apply,
-          RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum_apply,
+          UnitarilyInvariantSeminorm.orthogonalBlockSum_apply,
           doubledPhaseAction_apply, basisMatrixUnit_apply, eE.inner_eq_ite, hq]
   · by_cases hq : j = q
     · subst q
       apply WithLp.ofLp_injective 2
       apply Prod.ext <;>
         simp [basisDoubledRealRotation_apply,
-          RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum_apply,
+          UnitarilyInvariantSeminorm.orthogonalBlockSum_apply,
           doubledPhaseAction_apply, basisMatrixUnit_apply,
           real_inner_smul_right, Real.cos_add, Real.sin_add] <;> module
     · apply WithLp.ofLp_injective 2
       apply Prod.ext <;>
         simp [basisDoubledRealRotation_apply,
-          RectangularUnitarilyInvariantSeminorm.orthogonalBlockSum_apply,
+          UnitarilyInvariantSeminorm.orthogonalBlockSum_apply,
           doubledPhaseAction_apply, basisMatrixUnit_apply, eE.inner_eq_ite,
           real_inner_smul_right, hq]
 

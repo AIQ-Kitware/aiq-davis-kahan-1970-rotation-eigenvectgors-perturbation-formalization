@@ -32,8 +32,8 @@ structure BlockOperatorData where
   A1 : E1 →L[𝕜] E1
   B01 : E1 →L[𝕜] E0
   B10 : E0 →L[𝕜] E1
-  selfAdjoint0 : IsSelfAdjointOperator A0
-  selfAdjoint1 : IsSelfAdjointOperator A1
+  selfAdjoint0 : A0.IsSymmetric
+  selfAdjoint1 : A1.IsSymmetric
   offDiagonalAdjoint : ∀ x y, ⟪B01 y, x⟫_𝕜 = ⟪y, B10 x⟫_𝕜
 
 /-- Bounded block operator on the Hilbert direct sum. -/

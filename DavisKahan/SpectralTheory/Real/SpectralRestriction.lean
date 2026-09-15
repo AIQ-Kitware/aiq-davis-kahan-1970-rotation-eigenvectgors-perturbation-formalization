@@ -9,6 +9,8 @@ import DavisKahan.SpectralTheory.Complexification.Subspace
 import DavisKahan.SpectralTheory.ReducingSubspace.Restriction
 import DavisKahan.SpectralTheory.SpectralRestrictionOperator
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Real spectral projections and restrictions by complexification
 
@@ -30,6 +32,7 @@ open scoped InnerProductSpace ComplexConjugate
 namespace TauCeti
 namespace DavisKahan
 namespace RealSpectralRestriction
+
 
 open ExactSinTheta
 open ExactSinTheta.PartialMapComplexification

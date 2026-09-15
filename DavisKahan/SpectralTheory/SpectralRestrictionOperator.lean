@@ -10,8 +10,9 @@ import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.YosidaApproximation
 # Self-adjoint operators on spectral ranges
 
 For a self-adjoint operator `A` and a measurable spectral set `B`, this file
-packages the restriction of `A` to the range of `E_A(B)` as a self-adjoint DK
-closed operator, whose subtype inclusion maps the restricted domain into
+packages the restriction of `A` to the range of `E_A(B)` as a partial map,
+self-adjoint by a separate theorem, whose subtype inclusion maps the restricted
+domain into
 `A.domain` and intertwines the two operators.
 
 ## Provenance

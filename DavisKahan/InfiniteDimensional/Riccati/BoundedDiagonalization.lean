@@ -212,7 +212,8 @@ theorem blockDiagonalization_of_graph_transport
     (H : BlockOperatorData (𝕜 := 𝕜) (E0 := E0) (E1 := E1))
     {X : E0 →L[𝕜] E1} (hX : SolvesRiccati H X)
     (W Winv : WithLp 2 (E0 × E1) →L[𝕜] WithLp 2 (E0 × E1))
-    (hWunit : IsUnitaryOperator W) (hWinvunit : IsUnitaryOperator Winv)
+    (hWunit : TauCeti.LinearPMap.IsUnitaryOperator W) (hWinvunit :
+      TauCeti.LinearPMap.IsUnitaryOperator Winv)
     (hleft : Winv ∘L W = ContinuousLinearMap.id 𝕜 _)
     (hright : W ∘L Winv = ContinuousLinearMap.id 𝕜 _)
     (hW0 : ∀ u : E0, W (blockCoordinate0 (𝕜 := 𝕜) (E0 := E0) (E1 := E1) u) ∈ blockGraph X)
@@ -222,12 +223,12 @@ theorem blockDiagonalization_of_graph_transport
     (hWinv1 : ∀ z ∈ (blockGraph X)ᗮ,
       Winv z ∈ (blockGraph (0 : E0 →L[𝕜] E1))ᗮ) :
     ∃ D0 : E0 →L[𝕜] E0, ∃ D1 : E1 →L[𝕜] E1,
-      IsUnitaryOperator W ∧ IsUnitaryOperator Winv ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ TauCeti.LinearPMap.IsUnitaryOperator Winv ∧
       Winv ∘L W = ContinuousLinearMap.id 𝕜 _ ∧
       W ∘L Winv = ContinuousLinearMap.id 𝕜 _ ∧
       Winv ∘L blockOperator H ∘L W = blockDiagonalOperator D0 D1 := by
   let T := Winv ∘L blockOperator H ∘L W
-  have hred : Reduces (blockOperator H) (blockGraph X) :=
+  have hred : ContinuousLinearMap.Reduces (blockOperator H) (blockGraph X) :=
     (blockGraph_reduces_iff_solvesRiccati H X).2 hX
   have hT0 : ∀ u : E0,
       WithLp.snd (T (blockCoordinate0 (𝕜 := 𝕜) (E0 := E0) (E1 := E1) u)) = 0 := by
@@ -263,7 +264,7 @@ theorem complex_blockDiagonalization_of_riccati_of_acute
       (blockGraph (0 : E0c →L[ℂ] E1c)) (blockGraph X)) :
     ∃ W Winv : WithLp 2 (E0c × E1c) →L[ℂ] WithLp 2 (E0c × E1c),
       ∃ D0 : E0c →L[ℂ] E0c, ∃ D1 : E1c →L[ℂ] E1c,
-      IsUnitaryOperator W ∧ IsUnitaryOperator Winv ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ TauCeti.LinearPMap.IsUnitaryOperator Winv ∧
       Winv ∘L W = ContinuousLinearMap.id ℂ _ ∧
       W ∘L Winv = ContinuousLinearMap.id ℂ _ ∧
       Winv ∘L blockOperator H ∘L W = blockDiagonalOperator D0 D1 := by
@@ -279,9 +280,9 @@ theorem complex_blockDiagonalization_of_riccati_of_acute
         V U hacute.symm
     exact (_root_.TauCeti.DavisKahan.spectraDirectRotation_reversal
       U V hacute).symm
-  have hWunit : IsUnitaryOperator W :=
+  have hWunit : TauCeti.LinearPMap.IsUnitaryOperator W :=
     complexDirectRotation_unitary U V hacute
-  have hWinvunit : IsUnitaryOperator Winv := by
+  have hWinvunit : TauCeti.LinearPMap.IsUnitaryOperator Winv := by
     rw [hWinvEq]
     exact complexDirectRotation_unitary V U hacute.symm
   have hleft : Winv ∘L W = ContinuousLinearMap.id ℂ _ := by

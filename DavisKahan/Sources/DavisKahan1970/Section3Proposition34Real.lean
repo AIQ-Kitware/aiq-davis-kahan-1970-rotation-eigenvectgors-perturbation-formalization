@@ -6,11 +6,14 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 import DavisKahan.Sources.DavisKahan1970.Section3Proposition34
 import DavisKahan.Geometry.Polar.DirectRotationReal
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Davis--Kahan 1970, Proposition 3.4 over real Hilbert spaces
 
 The full nonacute complex theorem with the genuine Definition 3.1 conclusion is
-`TauCeti.DavisKahan1970.proposition3_4_source_full_complex`, in the companion
+`TauCeti.DavisKahan1970.proposition3_4_full_complex`, in the companion
 module `Section3Proposition34.lean`, which also owns the positivity upgrade
 `positiveDiagonalBlocks_of_sq` that both scalar fields use.
 This file transports that theorem to the real scalar field without identifying
@@ -105,6 +108,36 @@ private theorem halfAngle_complexify
   simp only [norm_sq, re_complexify, im_complexify]
   linarith
 
+/-- **Proposition 3.4's explicit direct rotation discharges the Section 3
+standing assumption, over `ℝ`.**
+
+The real analogue of `proposition3_4_crossedDefectsEquivalent_complex`:
+the printed hypotheses exhibit a direct rotation, and by Proposition 3.2 that is
+equivalent to the inherited crossed-defect condition (3.5), so the standing
+assumption is a consequence of this result's own hypotheses rather than an extra
+one it silently relies on. -/
+theorem proposition3_4_crossedDefectsEquivalent_real
+    (W : E →L[ℝ] E)
+    (hunitary : W ∈ unitary (E →L[ℝ] E))
+    (hintertwines : W * U.starProjection = V.starProjection * W)
+    (hcrossed : Uᗮ.starProjection * W * U.starProjection =
+      -star (U.starProjection * W * Uᗮ.starProjection))
+    (hsource_pos : (U.starProjection * W * U.starProjection).IsPositive)
+    (hcomplement_pos : (Uᗮ.starProjection * W * Uᗮ.starProjection).IsPositive) :
+    CrossedDefectsEquivalent U V :=
+  (proposition3_2_exists_iff_crossedDefectsEquivalent U V).mp
+    ⟨W,
+      { unitary_mem := hunitary
+        intertwines := hintertwines
+        source_compression_nonnegative := fun x => by
+          have h := (ContinuousLinearMap.isPositive_def'.mp hsource_pos).2 x
+          rwa [ContinuousLinearMap.reApplyInnerSelf_apply, inner_re_symm (𝕜 := ℝ)] at h
+        complement_compression_nonnegative := fun x => by
+          have h := (ContinuousLinearMap.isPositive_def'.mp hcomplement_pos).2 x
+          rwa [ContinuousLinearMap.reApplyInnerSelf_apply, inner_re_symm (𝕜 := ℝ)] at h
+        crossed_blocks := hcrossed }⟩
+
+
 /-- **Davis--Kahan 1970, Proposition 3.4, full nonacute real source scope.**
 
 If `W` is an arbitrary real direct rotation from `U` to `V` in the printed
@@ -113,8 +146,8 @@ Definition 3.1 sense and its source cosine square satisfies `C₀² ≥ 1/2`, th
 
 The conclusion spells out the exact real Definition 3.1 clauses.  In particular
 the two diagonal compressions are `IsPositive`, which is stronger than the
-real numerical-range fields of the generic `IsPaperDirectRotation` structure. -/
-theorem proposition3_4_source_full_real
+real numerical-range fields of the generic `IsDirectRotation` structure. -/
+theorem proposition3_4_full_real
     (W : E →L[ℝ] E)
     (hunitary : W ∈ unitary (E →L[ℝ] E))
     (hintertwines : W * U.starProjection = V.starProjection * W)
@@ -188,9 +221,9 @@ theorem proposition3_4_source_full_real
     intro z hz
     exact halfAngle_complexify U V hcos z hz
 
-  have hC : IsPaperDirectRotation CR CV (WC * WC) := by
+  have hC : IsDirectRotation CR CV (WC * WC) := by
     dsimp only [CR]
-    exact proposition3_4_source_full_bundled_complex
+    exact proposition3_4_isDirectRotation_complex
       CU CV WC hunitaryC hintertwinesC hcrossedC
         hsource_nonnegC hcomplement_nonnegC hcosC
 

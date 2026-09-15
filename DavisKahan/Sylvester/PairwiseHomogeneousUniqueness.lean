@@ -27,7 +27,7 @@ directly.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
 
@@ -163,6 +163,6 @@ theorem closedSylvester_solution_unique_of_pairwiseSpectrumGap
 
 end
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

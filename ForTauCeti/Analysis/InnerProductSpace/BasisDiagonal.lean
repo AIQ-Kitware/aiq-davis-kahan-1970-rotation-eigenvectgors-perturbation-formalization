@@ -72,6 +72,22 @@ theorem basisDiagonal_apply_basis (b : OrthonormalBasis ι 𝕜 E) (c : ι → �
   have := b.toBasis.constr_basis 𝕜 (fun j => (c j : 𝕜) • b j) i
   rwa [OrthonormalBasis.coe_toBasis] at this
 
+/-- Every coordinate subspace is invariant under the diagonal operator. -/
+theorem isInvariant_basisDiagonal_spanIndices (b : OrthonormalBasis ι 𝕜 E)
+    (c : ι → ℝ) (S : Set ι) : IsInvariant (basisDiagonal b c) (b.spanIndices S) := by
+  intro x hx
+  change basisDiagonal b c x ∈ Submodule.span 𝕜 (b '' S)
+  change x ∈ Submodule.span 𝕜 (b '' S) at hx
+  refine Submodule.span_induction ?_ ?_ ?_ ?_ hx
+  · rintro y ⟨i, hi, rfl⟩
+    rw [basisDiagonal_apply_basis]
+    exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨i, hi, rfl⟩)
+  · simp
+  · intro x y _ _ hx hy
+    simpa only [map_add] using Submodule.add_mem _ hx hy
+  · intro a x _ hx
+    simpa only [map_smul] using Submodule.smul_mem _ a hx
+
 /-- The basis coordinates of a diagonal operator's value are scaled pointwise. -/
 theorem repr_basisDiagonal (b : OrthonormalBasis ι 𝕜 E) (c : ι → ℝ) (x : E)
     (i : ι) : b.repr (basisDiagonal b c x) i = (c i : 𝕜) * b.repr x i := by
@@ -183,12 +199,12 @@ eigenvalue of a diagonal operator witnessed inside `b.spanIndices s` is the
 coefficient at some index of `s`.
 
 This is what turns a spectral-gap hypothesis into arithmetic on `c`. -/
-theorem restrictedSpectrum_basisDiagonal_subset (b : OrthonormalBasis ι 𝕜 E)
+theorem restrictedPointSpectrum_basisDiagonal_subset (b : OrthonormalBasis ι 𝕜 E)
     (c : ι → ℝ) (s : Set ι) :
-    restrictedSpectrum (basisDiagonal b c) (b.spanIndices s) ⊆ c '' s := by
+    restrictedPointSpectrum (basisDiagonal b c) (b.spanIndices s) ⊆ c '' s := by
   classical
   intro lam hlam
-  obtain ⟨x, hxs, hx0, hxeq⟩ := mem_restrictedSpectrum_iff.mp hlam
+  obtain ⟨x, hxs, hx0, hxeq⟩ := mem_restrictedPointSpectrum_iff.mp hlam
   -- `x` also lies in the eigenspace, which is the level set block.
   have hxlevel : x ∈ b.spanIndices {i | (c i : 𝕜) = (lam : 𝕜)} := by
     rw [← eigenspace_basisDiagonal]

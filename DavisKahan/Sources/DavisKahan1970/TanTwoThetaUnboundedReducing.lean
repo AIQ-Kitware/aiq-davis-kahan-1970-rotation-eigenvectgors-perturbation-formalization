@@ -9,6 +9,11 @@ import DavisKahan.InfiniteDimensional.DoubleAngle
 import DavisKahan.Geometry.Polar.DirectRotation
 import ForTauCeti.Analysis.InnerProductSpace.DoubleAngle.ReducingCutoff
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # `tan 2Θ` at an arbitrary reducing subspace
 
@@ -54,6 +59,7 @@ open scoped InnerProductSpace
 open Filter
 open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.ApproximationNumber
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -61,13 +67,6 @@ universe u
 
 variable {G : Type u} [NormedAddCommGroup G] [InnerProductSpace ℂ G]
   [CompleteSpace G]
-
-/-- A subspace admitting an orthogonal projection inside a complete ambient space
-is itself complete.  `local instance` does not propagate through imports, so it
-is reinstalled here. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionTanTwoReducing
-    (W : Submodule ℂ G) [W.HasOrthogonalProjection] : CompleteSpace W :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection W).completeSpace_coe
 
 /-- The cutoffs of a reducing subspace, compressed to that subspace, converge
 strongly to its identity. -/
@@ -141,11 +140,11 @@ This is `tanTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNor
 with the spectral selection of `U` removed. -/
 theorem tanTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_complex
     (N : SymmetricNormingFunction)
-    (hRmem : N.Mem (paperBlockCompression Uᗮ U B)) :
+    (hRmem : N.Mem (blockCompression Uᗮ U B)) :
     IsUnit (U.diagonalPart Z * U.diagonalPart Z) ∧
       N.Mem (reflectionTangentCorner U Z) ∧
       (b - a) * N.gauge (reflectionTangentCorner U Z) ≤
-        2 * N.gauge (paperBlockCompression Uᗮ U B) := by
+        2 * N.gauge (blockCompression Uᗮ U B) := by
   have hCC := isUnit_diagonalPart_sq_reducing_exact hA hred hB hZsa hZ2 hZdom
     hZcomm hUa hUb hab
   have hhalf : 0 < (b - a) / 2 := by linarith
@@ -196,7 +195,7 @@ theorem tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_symmet
       RCLike.re ⟪A x, (x : G)⟫_ℂ ≤ a * ‖(x : G)‖ ^ 2)
     (hUb : ∀ x : A.domain, (x : G) ∈ Uᗮ →
       b * ‖(x : G)‖ ^ 2 ≤ RCLike.re ⟪A x, (x : G)⟫_ℂ)
-    (hab : a < b) (hRmem : N.Mem (paperBlockCompression Uᗮ U B)) :
+    (hab : a < b) (hRmem : N.Mem (blockCompression Uᗮ U B)) :
     (∀ n : ℕ, (DavisKahan.sinTwoThetaIdealBlock U V).approximationNumber n < 1) ∧
       (∀ n : ℕ,
         (reflectionTangentCorner U V.reflectionOperator).approximationNumber n =
@@ -204,7 +203,7 @@ theorem tanTwoTheta_directed_unboundedResidual_reducing_derivedReflection_symmet
             ((DavisKahan.sinTwoThetaIdealBlock U V).approximationNumber n))) ∧
       N.Mem (reflectionTangentCorner U V.reflectionOperator) ∧
       (b - a) * N.gauge (reflectionTangentCorner U V.reflectionOperator) ≤
-        2 * N.gauge (paperBlockCompression Uᗮ U B) := by
+        2 * N.gauge (blockCompression Uᗮ U B) := by
   have hZsa := TauCeti.DavisKahanExt.isSelfAdjoint_reflectionOperator V
   have hZ2 := TauCeti.DavisKahan.reflectionOperator_mul_self_complex V
   have hS1 : ‖U.offDiagonalPart V.reflectionOperator‖ < 1 :=

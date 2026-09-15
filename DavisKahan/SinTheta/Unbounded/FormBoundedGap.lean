@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.SinTheta.Unbounded.Core
 import DavisKahan.Sylvester.Unbounded.FormBoundedGap
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Sine-theta endpoints over the form-bounded gap
 
@@ -109,7 +111,7 @@ theorem sinTheta_unbounded_exact_complex
   have hAngle := isometricComplementaryBlock_mem_and_gauge_eq_directed
     N.toSymmetricOperatorIdealFamily D.X F₀ D.F₁ hX hdecomp hBlock.1
   refine ⟨hAngle.1, ?_⟩
-  rw [KyFanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
+  rw [FanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
   rw [hAngle.2]
   exact hBlock.2
 
@@ -172,7 +174,7 @@ theorem generalizedSinTheta_unbounded_exact_complex
   have hAngle := sinThetaBlock_mem_and_gauge_eq_directedSinThetaOperator
     N.toSymmetricOperatorIdealFamily D.X F₀ D.F₁ hframe hε hdecomp hBlock.1
   refine ⟨hAngle.1, ?_⟩
-  rw [KyFanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
+  rw [FanDominantIdealFamily.toSymmetric_gaugeReal] at hAngle
   rw [hAngle.2]
   exact hBlock.2
 

@@ -237,9 +237,16 @@ theorem le_extend_of_dominated (a : ℕ → ℝ≥0∞) (b : ℕ →₀ ℝ≥0)
     (hb : ∀ i, (b i : ℝ≥0∞) ≤ a i) : (Φ b : ℝ≥0∞) ≤ Φ.extend a :=
   le_iSup (f := fun b : Dominated a => (Φ b.1 : ℝ≥0∞)) ⟨b, hb⟩
 
+/-- The extension is the *least* bound over dominated finitely supported sequences: this is
+the eliminator for the supremum, stated without exposing `extend`'s body. -/
+theorem extend_le {a : ℕ → ℝ≥0∞} {c : ℝ≥0∞}
+    (h : ∀ b : ℕ →₀ ℝ≥0, (∀ i, (b i : ℝ≥0∞) ≤ a i) → (Φ b : ℝ≥0∞) ≤ c) :
+    Φ.extend a ≤ c :=
+  iSup_le fun b => h b.1 b.2
+
 /-- The truncation of `a` to its first `k` entries, capped at `m`.
 
-Distinct from `truncate` below, which has no cap and requires every entry finite; this one
+Distinct from `truncate` below, whose input is already finite-valued; this one
 is total, which is what the extension's supremum needs.
 
 The cap is applied in `ℝ≥0∞`, **before** the conversion to `ℝ≥0`: `ENNReal.toNNReal ∞ = 0`,
@@ -258,16 +265,9 @@ noncomputable def cappedTruncate (a : ℕ → ℝ≥0∞) (k : ℕ) (m : ℝ≥0
 @[simp] theorem cappedTruncate_apply (a : ℕ → ℝ≥0∞) (k : ℕ) (m : ℝ≥0) (n : ℕ) :
     cappedTruncate a k m n = if n < k then (min (a n) (m : ℝ≥0∞)).toNNReal else 0 := rfl
 
-/-- **`extend` is also the supremum over capped truncations.**
-
-`extend` is defined here as a supremum over *all* dominated finitely supported sequences.
-This says the two-parameter family `cappedTruncate a k m` already realises that supremum.
-
-**Recorded because `ForTauCeti` currently contains a second `SymmetricGauge` whose `extend`
-is defined by the right-hand side here** (`Analysis/OperatorIdeal/SymmetricGauge.lean`).
-The two are different constructions that agree, and reconciling them is a proof obligation
-rather than a renaming; this is that obligation from this side, so a proof written against
-either definition can be transported to the other.  See `{lane:FTC-SYMGAUGE-COLLIDE}`. -/
+/-- Capped initial truncations are cofinal among the finitely supported sequences
+used to define the extension. The cap handles infinite coordinates before conversion
+to `NNReal`; finite-valued sequences instead use `extend_eq_iSup_truncate`. -/
 theorem extend_eq_iSup_cappedTruncate (Φ : SymmetricGauge) (a : ℕ → ℝ≥0∞) :
     Φ.extend a = ⨆ k : ℕ, ⨆ m : ℝ≥0, (Φ (cappedTruncate a k m) : ℝ≥0∞) := by
   refine le_antisymm (iSup_le fun b => ?_) (iSup_le fun k => iSup_le fun m => ?_)
@@ -480,8 +480,8 @@ theorem ofFin_le_extend (Φ : SymmetricGauge) {a : ℕ → ℝ} (ha : ∀ n, 0 �
 
 /-- **The extension of a nonnegative real sequence collapses to one index.**
 
-`extend`'s supremum ranges over a length and a cap; on a sequence that is already
-real-valued the cap is never active, so the `Fin k` views alone realise it. -/
+The dominated-sequence supremum is exhausted by initial finite views. No
+antitonicity assumption is needed. -/
 theorem extend_eq_iSup_ofFin (Φ : SymmetricGauge) {a : ℕ → ℝ} (ha : ∀ n, 0 ≤ a n) :
     Φ.extend (fun n => ENNReal.ofReal (a n))
       = ⨆ k : ℕ, ((Φ (ofFin (fun i : Fin k => a i)) : ℝ≥0) : ℝ≥0∞) := by
@@ -599,29 +599,45 @@ theorem extend_eq_top_of_eq_top {a : ℕ → ℝ≥0∞} {n : ℕ} (h : a n = �
     Φ.extend a = ⊤ :=
   top_unique (h ▸ le_extend Φ a n)
 
-/-- Truncation of a finite-valued sequence to the first `N` coordinates, as a
-finitely supported nonnegative sequence.
+/-- Initial truncation of a finite-valued nonnegative sequence.
 
-Stated for `a : ℕ → ℝ≥0∞` together with a proof that every coordinate is finite,
-because that is the shape the majorization argument produces after its infinite
-cases are discharged. -/
+Finiteness belongs to the input type, not to a separate hypothesis. Capped truncations
+remain the approximation tool for genuinely extended-real sequences. -/
 @[expose]
-noncomputable def truncate (a : ℕ → ℝ≥0∞) (_ha : ∀ n, a n ≠ ⊤) (N : ℕ) : ℕ →₀ ℝ≥0 :=
+noncomputable def truncate (a : ℕ → NNReal) (N : ℕ) : ℕ →₀ NNReal :=
   Finsupp.onFinset (Finset.range N)
-    (fun i => if i < N then (a i).toNNReal else 0)
+    (fun i => if i < N then a i else 0)
     (by
       intro i hi
       by_cases h : i < N
       · exact Finset.mem_range.mpr h
       · simp [h] at hi)
 
-/-- The truncation is dominated by the sequence it truncates. -/
-theorem truncate_le (a : ℕ → ℝ≥0∞) (ha : ∀ n, a n ≠ ⊤) (N : ℕ) (i : ℕ) :
-    ((truncate a ha N) i : ℝ≥0∞) ≤ a i := by
-  by_cases h : i < N
-  · simp only [truncate, Finsupp.onFinset_apply, h, ite_eq_left]
-    rw [ENNReal.coe_toNNReal (ha i)]
-  · simp [truncate, h]
+/-- An initial truncation is dominated by its sequence. -/
+theorem truncate_le (a : ℕ → NNReal) (N i : ℕ) : truncate a N i ≤ a i := by
+  by_cases hi : i < N <;> simp [truncate, hi]
+
+/-- A finite-valued sequence is exhausted by initial truncations, without an order assumption.
+
+Every finitely supported dominated sequence fits inside one initial segment. This is why
+no antitonicity hypothesis, and no second supremum over caps, belongs in this statement. -/
+theorem extend_eq_iSup_truncate (a : ℕ → NNReal) :
+    Φ.extend (fun n => (a n : ENNReal)) =
+      ⨆ N : ℕ, (Φ (truncate a N) : ENNReal) := by
+  classical
+  refine le_antisymm (iSup_le fun b => ?_) (iSup_le fun N => ?_)
+  · obtain ⟨N, hN⟩ := b.1.support.exists_nat_subset_range
+    refine le_iSup_of_le N ?_
+    exact_mod_cast Φ.mono (show b.1 ≤ truncate a N from fun i => by
+      by_cases hi : i < N
+      · simpa [truncate, hi] using (ENNReal.coe_le_coe.mp (b.2 i))
+      · have hb : b.1 i = 0 := by
+          apply Finsupp.notMem_support_iff.mp
+          intro hbi
+          exact hi (Finset.mem_range.mp (hN hbi))
+        simp [truncate, hi, hb])
+  · exact le_extend_of_dominated Φ _ (truncate a N)
+      (fun i => ENNReal.coe_le_coe.mpr (truncate_le a N i))
 
 /-- **Finiteness transfers backwards along prefix-sum domination.**
 
@@ -685,8 +701,8 @@ theorem finView_antitone {a : ℕ → ℝ≥0∞} (ha : Antitone a) (hfin : ∀ 
 
 Both send `i < N` to `(a i).toNNReal` and everything else to `0`; the only
 content is that `Real.nnabs` is the identity on a nonnegative coordinate. -/
-theorem ofFin_finView (a : ℕ → ℝ≥0∞) (ha : ∀ n, a n ≠ ⊤) (N : ℕ) :
-    ofFin (finView a N) = truncate a ha N := by
+theorem ofFin_finView (a : ℕ → ℝ≥0∞) (N : ℕ) :
+    ofFin (finView a N) = truncate (fun n => (a n).toNNReal) N := by
   ext i
   by_cases hi : i < N
   · rw [ofFin_apply _ hi]
@@ -742,7 +758,7 @@ theorem prefixSum_finView_le {a b : ℕ → ℝ≥0∞}
 
 /-- **Weak majorization implies domination, for the extension.**
 
-If `a` and `b` are antitone and every prefix sum of `a` is dominated by the
+If `a` is antitone and every prefix sum of `a` is dominated by the
 corresponding prefix sum of `b`, then `Φ.extend a ≤ Φ.extend b`.
 
 Three cases, and only the last is the transfer descent:
@@ -753,7 +769,7 @@ Three cases, and only the last is the transfer descent:
   of `a`, which *is* antitone, and `le_of_prefixSum_le` compares it to the
   matching truncation of `b`. -/
 theorem extend_le_extend_of_forall_sum_le {a b : ℕ → ℝ≥0∞}
-    (ha : Antitone a) (_hb : Antitone b)
+    (ha : Antitone a)
     (h : ∀ k, ∑ n ∈ Finset.range k, a n ≤ ∑ n ∈ Finset.range k, b n) :
     Φ.extend a ≤ Φ.extend b := by
   classical
@@ -768,11 +784,11 @@ theorem extend_le_extend_of_forall_sum_le {a b : ℕ → ℝ≥0∞}
   -- Pick `N` past the support of `c`.
   obtain ⟨N, hN⟩ := c.1.support.exists_nat_subset_range
   -- `c ≤ truncate a N`, so `mono` bounds `Φ c`.
-  have hct : c.1 ≤ truncate a hafin N := by
+  have hct : c.1 ≤ truncate (fun n => (a n).toNNReal) N := by
     intro i
     by_cases hi : i < N
     · have hle : (c.1 i : ℝ≥0∞) ≤ a i := c.2 i
-      have : (c.1 i : ℝ≥0∞) ≤ ((truncate a hafin N) i : ℝ≥0∞) := by
+      have : (c.1 i : ℝ≥0∞) ≤ ((truncate (fun n => (a n).toNNReal) N) i : ℝ≥0∞) := by
         simpa [truncate, hi, ENNReal.coe_toNNReal (hafin i)] using hle
       exact_mod_cast this
     · have : c.1 i = 0 := by
@@ -780,16 +796,20 @@ theorem extend_le_extend_of_forall_sum_le {a b : ℕ → ℝ≥0∞}
         exact hi (Finset.mem_range.mp (hN (Finsupp.mem_support_iff.mpr hne)))
       simp [this]
   -- The two truncations are the `ofFin` images of the `Fin N` views.
-  have hAt : Φ (truncate a hafin N) ≤ Φ (truncate b hbfin N) := by
-    rw [← ofFin_finView a hafin N, ← ofFin_finView b hbfin N]
+  have hAt : Φ (truncate (fun n => (a n).toNNReal) N)
+      ≤ Φ (truncate (fun n => (b n).toNNReal) N) := by
+    rw [← ofFin_finView a N, ← ofFin_finView b N]
     exact Φ.le_of_prefixSum_le (finView_antitone ha hafin N)
       (finView_nonneg a N) (finView_nonneg b N)
       (fun k => prefixSum_finView_le hafin hbfin h N k)
   calc (Φ c.1 : ℝ≥0∞)
-      ≤ (Φ (truncate a hafin N) : ℝ≥0∞) := by exact_mod_cast Φ.mono hct
-    _ ≤ (Φ (truncate b hbfin N) : ℝ≥0∞) := by exact_mod_cast hAt
+      ≤ (Φ (truncate (fun n => (a n).toNNReal) N) : ℝ≥0∞) := by exact_mod_cast Φ.mono hct
+    _ ≤ (Φ (truncate (fun n => (b n).toNNReal) N) : ℝ≥0∞) := by exact_mod_cast hAt
     _ ≤ Φ.extend b :=
-        le_extend_of_dominated Φ b (truncate b hbfin N) (truncate_le b hbfin N)
+        le_extend_of_dominated Φ b (truncate (fun n => (b n).toNNReal) N)
+          (fun i => (ENNReal.coe_le_coe.mpr
+            (truncate_le (fun n => (b n).toNNReal) N i)).trans_eq
+              (ENNReal.coe_toNNReal (hbfin i)))
 
 /-! ### Algebraic laws of the extension -/
 

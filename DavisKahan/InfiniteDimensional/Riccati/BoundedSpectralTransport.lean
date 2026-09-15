@@ -45,14 +45,14 @@ theorem spectrum_eq_of_inverse_conjugation
     spectrum ℂ T = spectrum ℂ S := by
   let e : E ≃L[ℂ] E :=
     ContinuousLinearEquiv.equivOfInverse' Winv W hleft hright
-  have heconj : e.conjAlgEquiv T = S := by
+  have heconj : e.conjContinuousAlgEquiv.toAlgEquiv T = S := by
     ext x
     have hx := congrArg (fun R : E →L[ℂ] E => R x) hconj
     change Winv (T (W x)) = S x
     simpa only [ContinuousLinearMap.comp_apply] using hx
   calc
-    spectrum ℂ T = spectrum ℂ (e.conjAlgEquiv T) :=
-      (AlgEquiv.spectrum_eq e.conjAlgEquiv T).symm
+    spectrum ℂ T = spectrum ℂ (e.conjContinuousAlgEquiv.toAlgEquiv T) :=
+      (AlgEquiv.spectrum_eq e.conjContinuousAlgEquiv.toAlgEquiv T).symm
     _ = spectrum ℂ S := congrArg (spectrum ℂ) heconj
 
 section ComplexRiccati
@@ -69,7 +69,7 @@ theorem complex_blockDiagonalization_with_spectrum_of_riccati
     {X : E0 →L[ℂ] E1} (hX : SolvesRiccati H X) :
     ∃ W Winv : WithLp 2 (E0 × E1) →L[ℂ] WithLp 2 (E0 × E1),
       ∃ D0 : E0 →L[ℂ] E0, ∃ D1 : E1 →L[ℂ] E1,
-      IsUnitaryOperator W ∧ IsUnitaryOperator Winv ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ TauCeti.LinearPMap.IsUnitaryOperator Winv ∧
       Winv ∘L W = ContinuousLinearMap.id ℂ _ ∧
       W ∘L Winv = ContinuousLinearMap.id ℂ _ ∧
       Winv ∘L blockOperator H ∘L W = blockDiagonalOperator D0 D1 ∧

@@ -26,10 +26,11 @@ selection developments.
 -/
 
 open scoped InnerProductSpace
+open TauCeti.DavisKahan.ExactSinTheta
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 universe v
 
@@ -99,6 +100,6 @@ theorem davisKahan1970_sylvester_of_spectrumGap
           (semiboundedBelow_of_spectrum_subset_Ici B hB hBspec)
           hEq hC
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

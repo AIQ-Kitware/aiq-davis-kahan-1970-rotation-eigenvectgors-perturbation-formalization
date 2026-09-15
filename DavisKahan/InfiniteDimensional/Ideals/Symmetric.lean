@@ -10,8 +10,11 @@ import ForTauCeti.Analysis.OperatorIdeal.Family.CompactOperator
 import ForTauCeti.Analysis.OperatorIdeal.Family.HilbertSchmidt
 import ForTauCeti.Analysis.OperatorIdeal.Family.KyFan
 import ForTauCeti.Analysis.OperatorIdeal.Family.Schatten
+import ForTauCeti.Analysis.OperatorIdeal.Family.SymmetricGauge
 import ForTauCeti.Analysis.OperatorIdeal.Family.TraceClass
 import DavisKahan.SpectralTheory.AbstractSpectrum
+import DavisKahan.Sylvester.ScalarTransport
+import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.ScalarTransport
 
 /-!
 # Symmetric norm ideals
@@ -102,7 +105,7 @@ structure SymmetricNormIdeal where
     gauge (c • A) = ‖c‖ * gauge A
   gauge_adjoint : ∀ {A}, mem A → gauge A.adjoint = gauge A
   unitary_invariant : ∀ (U Uinv A : E →L[𝕜] E),
-    IsUnitaryOperator U → IsUnitaryOperator Uinv →
+    TauCeti.LinearPMap.IsUnitaryOperator U → TauCeti.LinearPMap.IsUnitaryOperator Uinv →
     Uinv ∘L U = ContinuousLinearMap.id 𝕜 E →
     U ∘L Uinv = ContinuousLinearMap.id 𝕜 E →
     mem A → gauge (U ∘L A ∘L Uinv) = gauge A
@@ -215,15 +218,14 @@ noncomputable def compactOperator :
     SymmetricNormIdeal (𝕜 := 𝕜) (E := E) :=
   ofCanonical (TauCeti.compactOperatorFamily 𝕜)
 
-/-- Schatten `p` ideal.  Carries the min--max hypothesis `schattenIdealFamily`
-needs. -/
-noncomputable def schatten [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere 𝕜]
+/-- Schatten `p` ideal induced by the canonical symmetric gauge. -/
+noncomputable def schatten
     {p : ℝ} (hp : 1 ≤ p) :
     SymmetricNormIdeal (𝕜 := 𝕜) (E := E) :=
-  ofCanonical (TauCeti.schattenIdealFamily 𝕜 hp)
+  ofCanonical (TauCeti.schattenFamilySymmetric 𝕜 p hp)
 
 /-- Trace-class ideal. -/
-noncomputable def traceClass [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere 𝕜] :
+noncomputable def traceClass :
     SymmetricNormIdeal (𝕜 := 𝕜) (E := E) :=
   ofCanonical (TauCeti.traceClassIdealFamily 𝕜)
 
@@ -232,7 +234,7 @@ noncomputable def hilbertSchmidt : SymmetricNormIdeal (𝕜 := 𝕜) (E := E) :=
   ofCanonical (TauCeti.hilbertSchmidtIdealFamily 𝕜)
 
 /-- Ky Fan `k` gauge for positive `k`. -/
-noncomputable def kyFan [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere 𝕜]
+noncomputable def kyFan
     (k : ℕ) (hk : 0 < k) :
     SymmetricNormIdeal (𝕜 := 𝕜) (E := E) :=
   ofCanonical (TauCeti.kyFanIdealFamily 𝕜 k hk)
@@ -247,7 +249,8 @@ bundled ideal norm should make the equality a norm-isometry theorem.
 theorem gauge_unitary_conjugation
     (I : SymmetricNormIdeal (𝕜 := 𝕜) (E := E))
     (U Uinv A : E →L[𝕜] E) (hA : I.mem A)
-    (hU : IsUnitaryOperator U) (hUinv : IsUnitaryOperator Uinv)
+    (hU : TauCeti.LinearPMap.IsUnitaryOperator U)
+    (hUinv : TauCeti.LinearPMap.IsUnitaryOperator Uinv)
     (hleft : Uinv ∘L U = ContinuousLinearMap.id 𝕜 E)
     (hright : U ∘L Uinv = ContinuousLinearMap.id 𝕜 E) :
     I.mem (U ∘L A ∘L Uinv) ∧
@@ -261,7 +264,7 @@ Stated as `≤ 1` rather than `= 1` on purpose: that is all the two-sided
 invariance argument needs, and it avoids the nonzero-space side condition the
 equality would carry. -/
 theorem norm_le_one_of_isUnitaryOperator {W : E →L[𝕜] E}
-    (hW : IsUnitaryOperator W) : ‖W‖ ≤ 1 :=
+    (hW : TauCeti.LinearPMap.IsUnitaryOperator W) : ‖W‖ ≤ 1 :=
   ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => by
     rw [hW.1 x, one_mul]
 
@@ -278,8 +281,10 @@ norm at most one, and applying it again to `A = U⁻¹ (U A V) V⁻¹` gives `�
 theorem gauge_two_sided_unitary
     (I : SymmetricNormIdeal (𝕜 := 𝕜) (E := E))
     (U Uinv V Vinv A : E →L[𝕜] E) (hA : I.mem A)
-    (hU : IsUnitaryOperator U) (hUinv : IsUnitaryOperator Uinv)
-    (hV : IsUnitaryOperator V) (hVinv : IsUnitaryOperator Vinv)
+    (hU : TauCeti.LinearPMap.IsUnitaryOperator U)
+    (hUinv : TauCeti.LinearPMap.IsUnitaryOperator Uinv)
+    (hV : TauCeti.LinearPMap.IsUnitaryOperator V)
+    (hVinv : TauCeti.LinearPMap.IsUnitaryOperator Vinv)
     (hUl : Uinv ∘L U = ContinuousLinearMap.id 𝕜 E)
     (hVr : V ∘L Vinv = ContinuousLinearMap.id 𝕜 E) :
     I.mem (U ∘L A ∘L V) ∧ I.gauge (U ∘L A ∘L V) = I.gauge A := by
@@ -347,21 +352,22 @@ theorem gauge_diagonalPart_le
     (I : SymmetricNormIdeal (𝕜 := 𝕜) (E := E))
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (A : E →L[𝕜] E) (hA : I.mem A) :
-    I.mem (diagonalPart U A) ∧
-      I.gauge (diagonalPart U A) ≤ I.gauge A := by
-  let J := reflectionOperator U
-  have hJ : IsUnitaryOperator J := reflectionOperator_isUnitary U
+    I.mem (U.diagonalPart A) ∧
+      I.gauge (U.diagonalPart A) ≤ I.gauge A := by
+  let J := U.reflectionOperator
+  have hJ : TauCeti.LinearPMap.IsUnitaryOperator J :=
+    ⟨U.reflectionOperator_norm_map, U.reflectionOperator_surjective⟩
   have hJinv : J ∘L J = ContinuousLinearMap.id 𝕜 E :=
-    reflectionOperator_involutive U
+    Submodule.reflectionOperator_involutive U
   have hconjMem : I.mem (J ∘L A ∘L J) := I.ideal_mem J J hA
   have hconjGauge : I.gauge (J ∘L A ∘L J) = I.gauge A :=
     I.unitary_invariant J J A hJ hJ hJinv hJinv hA
-  have hformula : (2 : 𝕜) • diagonalPart U A = A + J ∘L A ∘L J :=
-    two_smul_diagonalPart_eq_add_reflectionConjugate U A
+  have hformula : (2 : 𝕜) • U.diagonalPart A = A + J ∘L A ∘L J :=
+    Submodule.two_smul_diagonalPart_eq_add_reflectionConjugate U A
   have hsumMem : I.mem (A + J ∘L A ∘L J) := I.add_mem hA hconjMem
-  have hhalf : ((2 : 𝕜)⁻¹) • ((2 : 𝕜) • diagonalPart U A) =
-      diagonalPart U A := by module
-  have hdiagMem : I.mem (diagonalPart U A) := by
+  have hhalf : ((2 : 𝕜)⁻¹) • ((2 : 𝕜) • U.diagonalPart A) =
+      U.diagonalPart A := by module
+  have hdiagMem : I.mem (U.diagonalPart A) := by
     rw [← hhalf, hformula]
     exact I.smul_mem _ hsumMem
   refine ⟨hdiagMem, ?_⟩
@@ -391,24 +397,25 @@ theorem gauge_offDiagonalPart_le
     (I : SymmetricNormIdeal (𝕜 := 𝕜) (E := E))
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (A : E →L[𝕜] E) (hA : I.mem A) :
-    I.mem (offDiagonalPart U A) ∧
-      I.gauge (offDiagonalPart U A) ≤ I.gauge A := by
-  let J := reflectionOperator U
-  have hJ : IsUnitaryOperator J := reflectionOperator_isUnitary U
+    I.mem (U.offDiagonalPart A) ∧
+      I.gauge (U.offDiagonalPart A) ≤ I.gauge A := by
+  let J := U.reflectionOperator
+  have hJ : TauCeti.LinearPMap.IsUnitaryOperator J :=
+    ⟨U.reflectionOperator_norm_map, U.reflectionOperator_surjective⟩
   have hJinv : J ∘L J = ContinuousLinearMap.id 𝕜 E :=
-    reflectionOperator_involutive U
+    Submodule.reflectionOperator_involutive U
   have hconjMem : I.mem (J ∘L A ∘L J) := I.ideal_mem J J hA
   have hnegConjMem : I.mem (-(J ∘L A ∘L J)) := by
     simpa using I.smul_mem (-1 : 𝕜) hconjMem
   have hconjGauge : I.gauge (J ∘L A ∘L J) = I.gauge A :=
     I.unitary_invariant J J A hJ hJ hJinv hJinv hA
-  have hformula : (2 : 𝕜) • offDiagonalPart U A = A - J ∘L A ∘L J :=
-    two_smul_offDiagonalPart_eq_sub_reflectionConjugate U A
+  have hformula : (2 : 𝕜) • U.offDiagonalPart A = A - J ∘L A ∘L J :=
+    Submodule.two_smul_offDiagonalPart_eq_sub_reflectionConjugate U A
   have hdiffMem : I.mem (A - J ∘L A ∘L J) := by
     simpa [sub_eq_add_neg] using I.add_mem hA hnegConjMem
-  have hhalf : ((2 : 𝕜)⁻¹) • ((2 : 𝕜) • offDiagonalPart U A) =
-      offDiagonalPart U A := by module
-  have hoffMem : I.mem (offDiagonalPart U A) := by
+  have hhalf : ((2 : 𝕜)⁻¹) • ((2 : 𝕜) • U.offDiagonalPart A) =
+      U.offDiagonalPart A := by module
+  have hoffMem : I.mem (U.offDiagonalPart A) := by
     rw [← hhalf, hformula]
     exact I.smul_mem _ hdiffMem
   refine ⟨hoffMem, ?_⟩

@@ -6,12 +6,14 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.TanTheta.Theorem63InfiniteTrial
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan 1970, Theorem 6.3 at the paper's unitarily invariant norms, over `ℂ`
 
 Theorem 6.3 is printed "for every unitarily invariant norm".  The repository's
 complex directed endpoints
-(`…ExactTanTheta.theorem6_3_infiniteTrial_source_ideal` and its finite-trial
+(`…TanTheta.theorem6_3_infiniteTrial_ideal` and its finite-trial
 siblings) are stated at `KyFanDominantIdealFamily (𝕜 := ℂ)`, while the real
 endpoint `tanTheta_directed_bounded_symmetricNorming_real` is stated at the paper's own
 `SymmetricNormingFunction`.  This module supplies the missing complex half, so
@@ -44,10 +46,9 @@ namespace TauCeti
 namespace DavisKahan1970
 
 open scoped InnerProductSpace BigOperators
-open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
-open TauCeti.DavisKahan.ExactTanTheta
+open TauCeti.DavisKahan.TanTheta
 
 noncomputable section
 
@@ -117,8 +118,8 @@ to the unwanted exact subspace lies in `[α + δ, ∞)`, and the conclusion is
 exhibited and its membership concluded.
 
 Grounded on `tanTheta_directed_bounded_symmetricNorming_complex`; the spectral placement is converted
-to the form bounds by the same two `SpectralOrder.Complex` lemmas the ideal-family
-endpoint `theorem6_3_infiniteTrial_source_ideal` uses. -/
+to the form bounds by the same two `SpectralOrder` lemmas the ideal-family
+endpoint `theorem6_3_infiniteTrial_ideal` uses. -/
 theorem tanTheta_directed_bounded_spectralGap_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
@@ -139,18 +140,18 @@ theorem tanTheta_directed_bounded_spectralGap_symmetricNorming_complex
   have hTsa : IsSelfAdjoint T :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hT
   have hMsa : IsSelfAdjoint (theorem63Compression T Z) := by
-    simpa [theorem63Compression, DavisKahanExt.compressOperator] using
-      DavisKahanExt.isSelfAdjoint_compressOperator hTsa Z
+    simpa [theorem63Compression, DavisKahan.Sylvester.compressOperator] using
+      DavisKahan.Sylvester.isSelfAdjoint_compressOperator hTsa Z
   have hCompressionUpper : ∀ z : Z,
       RCLike.re ⟪theorem63Compression T Z z, z⟫_ℂ ≤ alpha * ‖z‖ ^ 2 := by
     intro z
-    refine SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+    refine SpectralOrder.re_inner_le_of_spectrum_subset_Iic
       (theorem63Compression T Z) hMsa ?_ z
     intro r hr
     exact (hCompressionSpectrum hr).2
   have hUnwantedLower : ∀ y ∈ Vᗮ,
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ := fun y hy =>
-    SpectralOrder.Complex.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
+    SpectralOrder.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
       hT (hV.orthogonalComplement).1 hUnwantedSpectrum hy
   exact tanTheta_directed_bounded_symmetricNorming_complex N T hT V Z hV hdelta hCompressionUpper
     hUnwantedLower hResidual

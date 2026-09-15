@@ -53,7 +53,7 @@ theorem stableSingularPair_doubleAngleTangent_le
     (hxnorm : ‖x‖ = 1) (hynorm : ‖y‖ = 1)
     (hXx : ‖X x - (s : ℂ) • y‖ ≤ ε)
     (hXay : ‖X.adjoint y - (s : ℂ) • x‖ ≤ ε) :
-    d * DavisKahanTheory.doubleAngleTangent s ≤
+    d * DavisKahan.TanTwoTheta.doubleAngleTangent s ≤
       2 * (-RCLike.re ⟪x, B.B01 y⟫_ℂ) + stablePairError B s ε := by
   set e0 : E1 := X x - (s : ℂ) • y with he0
   set e1 : E0 := X.adjoint y - (s : ℂ) • x with he1
@@ -240,7 +240,7 @@ theorem stableSingularPair_doubleAngleTangent_le
   have hre : RCLike.re ⟪B.B01 y, x⟫_ℂ =
       RCLike.re ⟪x, B.B01 y⟫_ℂ := inner_re_symm _ _
   rw [hre] at hraw
-  unfold DavisKahanTheory.doubleAngleTangent stablePairError
+  unfold DavisKahan.TanTwoTheta.doubleAngleTangent stablePairError
   rw [show d * (2 * s / (1 - s ^ 2)) =
       (2 * (d * s)) / (1 - s ^ 2) by ring]
   rw [div_le_iff₀ hden]

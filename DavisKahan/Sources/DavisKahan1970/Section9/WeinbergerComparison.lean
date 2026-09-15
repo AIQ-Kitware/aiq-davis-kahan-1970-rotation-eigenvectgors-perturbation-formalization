@@ -15,7 +15,8 @@ Weinberger sine-square estimate to the tangent-square bounds printed in (9.8).
 It does not derive the Weinberger angle estimate from independent scalar
 eigenvalue lower bounds: for the second vector in a cluster that implication is
 false without the coupled variational information retained by Weinberger's
-argument.  See `WeinbergerAngle.lean` for the executable boundary and tripwire.
+argument.  See `WeinbergerAngle.lean` for the executable boundary and the
+counterexample that fixes it.
 
 The exact comparison roots are certified directly below.  The source's
 pre-(9.8) asymptotic display is not accepted on faith: the theorem

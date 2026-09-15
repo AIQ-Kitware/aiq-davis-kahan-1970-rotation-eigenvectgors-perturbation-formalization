@@ -7,9 +7,8 @@ Authors: Jon Crall, GPT-5.6 Thinking
 
 * Original repository: Davis--Kahan/DKPS formalization (Kitware, Inc.).
 * Original module: `DavisKahan/SpectralTheory/Complexification/Basic.lean`.
-* Extraction class: **moved**, not restated.  Its only non-Mathlib import is
-  `ForTauCeti`'s own `SpectralOrder/Real.lean`, so it depended on nothing in the paper
-  library; the enclosing namespace
+* Extraction class: **moved**, not restated.  It depends only on Mathlib and `ForTauCeti`;
+  the enclosing namespace
   `TauCeti.DavisKahan.Experimental.Foundation.RealComplexification` became
   `TauCeti.RealComplexification`, dropping a paper's name and a staging word.
 * **The namespace is now split across the two libraries**, deliberately and visibly:
@@ -22,9 +21,9 @@ Authors: Jon Crall, GPT-5.6 Thinking
 -/
 module
 
-public import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder.Real
 public import Mathlib.Algebra.Module.MinimalAxioms
 public import Mathlib.Analysis.InnerProductSpace.ProdL2
+public import Mathlib.Analysis.InnerProductSpace.Adjoint
 public import Mathlib.Analysis.Normed.Operator.Banach
 
 /-!

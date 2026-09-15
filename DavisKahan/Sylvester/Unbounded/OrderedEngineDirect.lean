@@ -14,10 +14,11 @@ direct vendored-Spectra cutoff and bounded truncation implementations.
 -/
 
 open scoped InnerProductSpace
+open TauCeti.DavisKahan.ExactSinTheta
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 universe v
 
@@ -26,7 +27,7 @@ theorem directOrderedSylvesterEngine_lowerUpper
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
-    (N : KyFanDominantIdealFamily (𝕜 := ℂ))
+    (N : FanDominantIdealFamily (𝕜 := ℂ))
     {A : E →ₗ.[ℂ] E}
     {B : F →ₗ.[ℂ] F}
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
@@ -53,7 +54,7 @@ theorem directOrderedSylvesterEngine_upperLower
     {E F : Type v}
     [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
     [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
-    (N : KyFanDominantIdealFamily (𝕜 := ℂ))
+    (N : FanDominantIdealFamily (𝕜 := ℂ))
     {A : E →ₗ.[ℂ] E}
     {B : F →ₗ.[ℂ] F}
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
@@ -86,6 +87,6 @@ theorem canonicalOrderedSylvesterEngine :
     OrderedSylvesterEngine :=
   directOrderedSylvesterEngine
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

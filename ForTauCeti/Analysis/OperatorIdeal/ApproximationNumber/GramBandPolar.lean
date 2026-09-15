@@ -181,7 +181,7 @@ theorem gram_residual_le_of_mem_band
 /-- The polar partial isometry is norm non-increasing on the whole source. -/
 theorem norm_polarPartial_apply_le (X : E0 →L[ℂ] E1) (x : E0) :
     ‖X.polarPartial x‖ ≤ ‖x‖ := by
-  rw [X.polarPartial_apply, X.norm_polarPartialAux_apply]
+  rw [X.polarPartial_apply, X.norm_polarInitialMap_apply]
   exact X.polarInitial.norm_orthogonalProjectionOnto_apply_le x
 
 /-- A positive Gram residual bounds the corresponding modulus residual. -/

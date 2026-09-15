@@ -7,6 +7,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Sharpness
 import DavisKahan.Sources.DavisKahan1970.Ideals.RankOneNormalization
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Davis--Kahan 1970, Section 7 residual swap asymmetry
 
@@ -36,11 +39,11 @@ noncomputable section
 
 /-- The two-dimensional model space in which the Section 7 swap asymmetry is
 exhibited. -/
-abbrev Plane := PaperPlane ℂ
+abbrev Plane := PlanarModelSpace ℂ
 
 /-- The source unperturbed operator `diag(0, delta)`. -/
 def section7SwapA (delta : ℝ) : Plane →L[ℂ] Plane :=
-  paperPlanarAmbient delta
+  planarAmbient delta
 
 /-- The source perturbation `!![0, 1; 1, -delta]`. -/
 def section7SwapH (delta : ℝ) : Plane →L[ℂ] Plane :=
@@ -58,76 +61,76 @@ theorem section7SwapPerturbed_eq_A_add_H (delta : ℝ) :
   ext x i
   fin_cases i
   · simp [section7SwapPerturbed, section7SwapA, section7SwapH,
-      paperPlanarAmbient, Matrix.toLpLin_apply]
+      planarAmbient, Matrix.toLpLin_apply]
   · simp [section7SwapPerturbed, section7SwapA, section7SwapH,
-      paperPlanarAmbient, Matrix.toLpLin_apply]
+      planarAmbient, Matrix.toLpLin_apply]
 
 /-- The coordinate line is the zero spectral block of `A`. -/
 theorem section7SwapA_exact_block (delta : ℝ) :
-    section7SwapA delta ∘L paperPlanarExactMap = 0 := by
+    section7SwapA delta ∘L planarExactMap = 0 := by
   ext i
   fin_cases i
-  · simp [section7SwapA, paperPlanarAmbient, paperPlaneE0,
+  · simp [section7SwapA, planarAmbient, planarModelE0,
       Matrix.toLpLin_apply]
-  · simp [section7SwapA, paperPlanarAmbient, paperPlaneE0,
+  · simp [section7SwapA, planarAmbient, planarModelE0,
       Matrix.toLpLin_apply]
 
 /-- The complementary coordinate line is the `delta` spectral block of `A`. -/
 theorem section7SwapA_complement_block (delta : ℝ) :
-    section7SwapA delta ∘L paperPlanarComplementMap =
-      ((delta : ℝ) : ℂ) • paperPlanarComplementMap := by
+    section7SwapA delta ∘L planarComplementMap =
+      ((delta : ℝ) : ℂ) • planarComplementMap := by
   ext i
   fin_cases i
-  · simp [section7SwapA, paperPlanarAmbient, paperPlaneE1,
+  · simp [section7SwapA, planarAmbient, planarModelE1,
       Matrix.toLpLin_apply]
-  · simp [section7SwapA, paperPlanarAmbient, paperPlaneE1,
+  · simp [section7SwapA, planarAmbient, planarModelE1,
       Matrix.toLpLin_apply]
 
 /-- The perturbed operator fixes the line at angle `pi / 4`; hence that line is
 a reducing eigenspace of the Hermitian coordinate flip. -/
 theorem section7SwapPerturbed_trial_eigenline :
-    section7SwapPerturbed ∘L paperPlanarTrialMap (Real.pi / 4) =
-      paperPlanarTrialMap (Real.pi / 4) := by
+    section7SwapPerturbed ∘L planarTrialMap (Real.pi / 4) =
+      planarTrialMap (Real.pi / 4) := by
   ext i
   fin_cases i
-  · simp [section7SwapPerturbed, paperPlanarTrialMap, paperScalarColumn,
-      paperPlaneE0, paperPlaneE1, Matrix.toLpLin_apply,
+  · simp [section7SwapPerturbed, planarTrialMap, scalarColumn,
+      planarModelE0, planarModelE1, Matrix.toLpLin_apply,
       Real.sin_pi_div_four, Real.cos_pi_div_four]
-  · simp [section7SwapPerturbed, paperPlanarTrialMap, paperScalarColumn,
-      paperPlaneE0, paperPlaneE1, Matrix.toLpLin_apply,
+  · simp [section7SwapPerturbed, planarTrialMap, scalarColumn,
+      planarModelE0, planarModelE1, Matrix.toLpLin_apply,
       Real.sin_pi_div_four, Real.cos_pi_div_four]
 
 /-- The residual row for the coordinate trial line is the unit complementary
 column. -/
 def section7SwapResidual : ℂ →L[ℂ] Plane :=
-  paperPlanarComplementMap
+  planarComplementMap
 
 /-- The residual is exactly `(A + H) E0 - E0 A0` with `A0 = 0`. -/
 theorem section7SwapResidual_identity :
-    section7SwapPerturbed ∘L paperPlanarExactMap -
-        paperPlanarExactMap ∘L paperPlanarTrialOperator =
+    section7SwapPerturbed ∘L planarExactMap -
+        planarExactMap ∘L planarTrialOperator =
       section7SwapResidual := by
   ext i
   fin_cases i
   · simp [section7SwapPerturbed, section7SwapResidual,
-      paperPlanarExactMap, paperPlanarComplementMap, paperScalarColumn,
-      paperPlanarTrialOperator, paperPlaneE0, paperPlaneE1,
+      planarExactMap, planarComplementMap, scalarColumn,
+      planarTrialOperator, planarModelE0, planarModelE1,
       Matrix.toLpLin_apply]
   · simp [section7SwapPerturbed, section7SwapResidual,
-      paperPlanarExactMap, paperPlanarComplementMap, paperScalarColumn,
-      paperPlanarTrialOperator, paperPlaneE0, paperPlaneE1,
+      planarExactMap, planarComplementMap, scalarColumn,
+      planarTrialOperator, planarModelE0, planarModelE1,
       Matrix.toLpLin_apply]
 
 /-- A singular-value representative of the directed `sin 2 Theta_0` block.
 The selected eigenspace is at angle `pi / 4`, so its doubled sine is one. -/
 def section7SwapSinTwoTheta0 : ℂ →L[ℂ] Plane :=
-  paperPlanarSineBlock (2 * (Real.pi / 4))
+  planarSineBlock (2 * (Real.pi / 4))
 
 /-- The doubled directed sine representative is the unit complementary
 column. -/
 theorem section7SwapSinTwoTheta0_eq_complement :
-    section7SwapSinTwoTheta0 = paperPlanarComplementMap := by
-  rw [section7SwapSinTwoTheta0, paperPlanarSineBlock]
+    section7SwapSinTwoTheta0 = planarComplementMap := by
+  rw [section7SwapSinTwoTheta0, planarSineBlock]
   have hangle : 2 * (Real.pi / 4) = Real.pi / 2 := by ring
   rw [hangle, Real.sin_pi_div_two]
   simp
@@ -135,7 +138,7 @@ theorem section7SwapSinTwoTheta0_eq_complement :
 /-- Every normalized source unitary-invariant norm gives residual norm one. -/
 theorem section7SwapResidual_gauge (N : SymmetricNormingFunction) :
     N.gauge section7SwapResidual = 1 := by
-  have hV := paperPlanarComplementMap_norm_rank (𝕜 := ℂ)
+  have hV := planarComplementMap_norm_rank (𝕜 := ℂ)
   exact N.gauge_rankOne hV.1 hV.2
 
 /-- Every normalized source unitary-invariant norm gives the doubled directed
@@ -143,11 +146,11 @@ sine block norm one. -/
 theorem section7SwapSinTwoTheta0_gauge (N : SymmetricNormingFunction) :
     N.gauge section7SwapSinTwoTheta0 = 1 := by
   rw [section7SwapSinTwoTheta0_eq_complement]
-  have hV := paperPlanarComplementMap_norm_rank (𝕜 := ℂ)
+  have hV := planarComplementMap_norm_rank (𝕜 := ℂ)
   exact N.gauge_rankOne hV.1 hV.2
 
 /-- The two sides highlighted by Davis--Kahan are exactly `2` and `delta`. -/
-theorem section7Swap_source_quantities (N : SymmetricNormingFunction) (delta : ℝ) :
+theorem section7Swap_quantities (N : SymmetricNormingFunction) (delta : ℝ) :
     2 * N.gauge section7SwapResidual = 2 ∧
       delta * N.gauge section7SwapSinTwoTheta0 = delta := by
   rw [section7SwapResidual_gauge, section7SwapSinTwoTheta0_gauge]

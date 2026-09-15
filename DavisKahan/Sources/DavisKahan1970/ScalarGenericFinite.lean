@@ -37,7 +37,7 @@ universe u v
 
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
-open TauCeti.DavisKahanTheory
+open TauCeti.DavisKahan.FiniteDimensional
 
 section FiniteGeneric
 
@@ -79,8 +79,8 @@ theorem tanTheta_directed_finiteDimensional_symmetricNorming_rclike
     (_hrank : Module.finrank 𝕜 F = Module.finrank 𝕜 U)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hCompressionSpectrum :
-      SpectrumIn (compression A X) ⊤ (Set.Icc β α))
-    (hUnwantedSpectrum : SpectrumIn A Uᗮ (Set.Ici (α + δ)))
+      PointSpectrumIn (compression A X) ⊤ (Set.Icc β α))
+    (hUnwantedSpectrum : PointSpectrumIn A Uᗮ (Set.Ici (α + δ)))
     (tanTheta0 : F →ₗ[𝕜] E)
     (htan : tanTheta0.singularValues =
       principalTangents (approximateSubspace X) U)
@@ -92,8 +92,8 @@ theorem tanTheta_directed_finiteDimensional_symmetricNorming_rclike
     ⟨hCompressionSpectrum, hUnwantedSpectrum⟩
   apply N.mul_gauge_le_of_all_mul_kyFan_le hδ hR
   intro k
-  rw [← rectangularKyFanSum_eq_kyFanApproximationGauge k tanTheta0,
-    ← rectangularKyFanSum_eq_kyFanApproximationGauge k (ritzResidual A X)]
+  rw [← kyFanSum_eq_kyFanApproximationGauge k tanTheta0,
+    ← kyFanSum_eq_kyFanApproximationGauge k (ritzResidual A X)]
   exact kyFan_tanTheta0_ritzResidual_le hA hU X hβα hδ hgap tanTheta0 htan k
 
 /-- **Davis--Kahan 1970, Section 2 `sin (2 Theta0)`, scalar-generic directed
@@ -116,9 +116,9 @@ theorem sinTwoTheta_directed_finiteDimensional_symmetricNorming_rclike
     (X : F →ₗᵢ[𝕜] E)
     {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
     {β α δ : ℝ} (_hβα : β ≤ α) (hδ : 0 < δ)
-    (hCompressionSpectrum : SpectrumIn M ⊤ (Set.Icc β α))
+    (hCompressionSpectrum : PointSpectrumIn M ⊤ (Set.Icc β α))
     (hUnwantedSpectrum :
-      SpectrumIn A Uᗮ {lam : ℝ | lam ≤ β - δ ∨ α + δ ≤ lam})
+      PointSpectrumIn A Uᗮ {lam : ℝ | lam ≤ β - δ ∨ α + δ ≤ lam})
     (hR : N.Mem (residual A X M).toContinuousLinearMap) :
     N.Mem (sinTwoThetaEmbedding U X).toContinuousLinearMap ∧
       δ * N.gauge (sinTwoThetaEmbedding U X).toContinuousLinearMap ≤
@@ -136,10 +136,10 @@ theorem sinTwoTheta_directed_finiteDimensional_symmetricNorming_rclike
     change δ * kyFanApproximationGauge k
         (sinTwoThetaEmbedding U X).toContinuousLinearMap ≤
       2 * kyFanApproximationGauge k (residual A X M).toContinuousLinearMap
-    rw [← rectangularKyFanSum_eq_kyFanApproximationGauge k (sinTwoThetaEmbedding U X),
-      ← rectangularKyFanSum_eq_kyFanApproximationGauge k (residual A X M)]
+    rw [← kyFanSum_eq_kyFanApproximationGauge k (sinTwoThetaEmbedding U X),
+      ← kyFanSum_eq_kyFanApproximationGauge k (residual A X M)]
     have hOutside :
-        SpectrumIn A Uᗮ {lam : ℝ | lam ∉ Set.Ioo (β - δ) (α + δ)} := by
+        PointSpectrumIn A Uᗮ {lam : ℝ | lam ∉ Set.Ioo (β - δ) (α + δ)} := by
       intro lam hlam
       have hout := hUnwantedSpectrum hlam
       change lam ≤ β - δ ∨ α + δ ≤ lam at hout
@@ -150,10 +150,10 @@ theorem sinTwoTheta_directed_finiteDimensional_symmetricNorming_rclike
       · intro hinside
         exact (not_lt_of_ge hhigh) hinside.2
     have hk := sinTwoTheta_residual_le
-      (RectangularUnitarilyInvariantSeminorm.kyFan
+      (UnitarilyInvariantSeminorm.kyFan
         (𝕜 := 𝕜) (E := F) (F := E) k)
       hA hU X hM hδ hCompressionSpectrum hOutside
-    simpa only [RectangularUnitarilyInvariantSeminorm.kyFan_apply] using hk
+    simpa only [UnitarilyInvariantSeminorm.kyFan_apply] using hk
   have hMem2 : N.Mem (((2 : ℝ) : 𝕜) • R) := by
     intro htop
     rw [N.extendedGauge_smul, htwo] at htop

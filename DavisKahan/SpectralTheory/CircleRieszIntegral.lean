@@ -59,7 +59,7 @@ theorem circleRieszProjection_eq_integral
 
 /-- The resolvent integrand is continuous around a separating circle. -/
 theorem continuous_circleResolventIntegrand
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (B : Set ℝ) (center radius : ℝ)
     (hsep : CircleSeparatesRealSpectrum A hA B center radius) :
     Continuous (circleResolventIntegrand A center radius) := by
@@ -123,7 +123,7 @@ theorem scalar_circleIntegral_resolvent_indicator
 /-- Off the spectrum, the total `Ring.inverse` of the pencil is the continuous
 functional calculus of the scalar resolvent symbol `(z - ·)⁻¹`. -/
 private theorem ringInverse_eq_cfc_of_notMem_spectrum
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A) {z : ℂ}
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric) {z : ℂ}
     (hz : z ∉ spectrum ℂ A) :
     Ring.inverse (z • (1 : H →L[ℂ] H) - A) =
       cfc (fun w : ℂ => (z - w)⁻¹) A := by
@@ -169,7 +169,7 @@ private noncomputable def circleSpectrumSymbol
 omit [CompleteSpace H] in
 /-- On a separating circle, every contour point avoids the spectrum. -/
 private theorem circleMap_notMem_spectrum
-    {A : H →L[ℂ] H} {hA : IsSelfAdjointOperator A}
+    {A : H →L[ℂ] H} {hA : A.IsSymmetric}
     {B : Set ℝ} {center radius : ℝ}
     (hsep : CircleSeparatesRealSpectrum A hA B center radius) (θ : ℝ) :
     circleMap (center : ℂ) radius θ ∉ spectrum ℂ A :=
@@ -180,7 +180,7 @@ private theorem circleMap_notMem_spectrum
 /-- Applying the bounded continuous functional calculus to the circle symbol
 recovers the operator-valued circle integrand. -/
 private theorem cfcL_circleSpectrumSymbol
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {B : Set ℝ} {center radius : ℝ}
     (hsep : CircleSeparatesRealSpectrum A hA B center radius) (θ : ℝ) :
     cfcL (a := A)
@@ -210,7 +210,7 @@ private theorem cfcL_circleSpectrumSymbol
 /-- The circle symbol is interval integrable, by pulling integrability of the
 already-continuous operator integrand back through the isometric calculus. -/
 private theorem intervalIntegrable_circleSpectrumSymbol
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {B : Set ℝ} {center radius : ℝ}
     (hsep : CircleSeparatesRealSpectrum A hA B center radius) :
     IntervalIntegrable (circleSpectrumSymbol A center radius)
@@ -246,7 +246,7 @@ private theorem intervalIntegrable_circleSpectrumSymbol
 /-- The circle Riesz projection equals the genuine measurable spectral
 projection selected by the inside of the circle. -/
 theorem circleRieszProjection_eq_boundedSelfAdjointSpectralProjection
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B) (center radius : ℝ)
     (hsep : CircleSeparatesRealSpectrum A hA B center radius) :
     circleRieszProjection A center radius =

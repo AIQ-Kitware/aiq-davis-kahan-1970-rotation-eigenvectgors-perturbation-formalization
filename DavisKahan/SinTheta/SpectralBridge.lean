@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.Sylvester.Bounded
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Closed
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Bounded spectral bridge: definitions
 

@@ -33,7 +33,7 @@ universe u v
 def l1Gauge (n : ℕ) (x : Fin n → ℝ) : ℝ :=
   ∑ i, |x i|
 
-namespace PaperL1Gauge
+namespace L1Gauge
 
 /-- The `l1` gauge of the zero list is `0`. -/
 @[simp]
@@ -120,21 +120,21 @@ theorem weak_majorization {n : ℕ} {x y : Fin n → ℝ}
   rw [hall] at hfull
   simpa [l1Gauge, abs_of_nonneg, h0x, h0y] using hfull
 
-end PaperL1Gauge
+end L1Gauge
 
 /-- The normalized `l1` symmetric norming function from the source definition. -/
 noncomputable def nuclearAxiomatic :
     SymmetricNormingFunction.Axiomatic where
   gauge := l1Gauge
-  nonneg := PaperL1Gauge.nonneg
-  definite := PaperL1Gauge.definite
-  add_le := PaperL1Gauge.add_le
-  smul := PaperL1Gauge.smul
-  perm := PaperL1Gauge.perm
-  abs := PaperL1Gauge.abs
-  zero_pad := PaperL1Gauge.zero_pad
-  normalized := PaperL1Gauge.normalized
-  weak_majorization := PaperL1Gauge.weak_majorization
+  nonneg := L1Gauge.nonneg
+  definite := L1Gauge.definite
+  add_le := L1Gauge.add_le
+  smul := L1Gauge.smul
+  perm := L1Gauge.perm
+  abs := L1Gauge.abs
+  zero_pad := L1Gauge.zero_pad
+  normalized := L1Gauge.normalized
+  weak_majorization := L1Gauge.weak_majorization
 
 /-- A concrete member of the exact Davis--Kahan norm class: the nuclear norm. -/
 noncomputable def nuclearNormingFunction : SymmetricNormingFunction :=

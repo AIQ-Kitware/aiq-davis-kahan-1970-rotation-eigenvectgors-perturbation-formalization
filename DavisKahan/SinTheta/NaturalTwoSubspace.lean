@@ -3,7 +3,9 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 
 /-!
 # Symmetric subspace gap from two directed sine estimates
@@ -31,11 +33,11 @@ theorem mul_subspaceGap_le_of_two_directedGap_le
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {δ r : ℝ} (hδ : 0 ≤ δ)
-    (hUV : δ * directedGap U V ≤ r)
-    (hVU : δ * directedGap V U ≤ r) :
-    δ * subspaceGap U V ≤ r := by
-  have hmax : subspaceGap U V =
-      max (directedGap U V) (directedGap V U) :=
+    (hUV : δ * U.directedProjectionGap V ≤ r)
+    (hVU : δ * V.directedProjectionGap U ≤ r) :
+    δ * U.projectionGap V ≤ r := by
+  have hmax : U.projectionGap V =
+      max (U.directedProjectionGap V) (V.directedProjectionGap U) :=
     U.projectionGap_eq_max_directedProjectionGap V
   rw [hmax, mul_max_of_nonneg _ _ hδ]
   exact max_le hUV hVU
@@ -46,9 +48,9 @@ theorem mul_subspaceGap_le_max_of_two_directedGap_le
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {δ r s : ℝ} (hδ : 0 ≤ δ)
-    (hUV : δ * directedGap U V ≤ r)
-    (hVU : δ * directedGap V U ≤ s) :
-    δ * subspaceGap U V ≤ max r s := by
+    (hUV : δ * U.directedProjectionGap V ≤ r)
+    (hVU : δ * V.directedProjectionGap U ≤ s) :
+    δ * U.projectionGap V ≤ max r s := by
   apply mul_subspaceGap_le_of_two_directedGap_le U V hδ
   · exact hUV.trans (le_max_left _ _)
   · exact hVU.trans (le_max_right _ _)

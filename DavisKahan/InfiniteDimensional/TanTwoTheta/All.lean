@@ -15,8 +15,10 @@ import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalSpectrumNone
 import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedRiccatiShift
 import DavisKahan.InfiniteDimensional.TanTwoTheta.CanonicalTangentBridge
 import DavisKahan.InfiniteDimensional.TanTwoTheta.OffDiagonalSpectralRepulsion
-import DavisKahan.InfiniteDimensional.TanTwoTheta.PaperFaithfulUINorm
+import DavisKahan.InfiniteDimensional.TanTwoTheta.OffDiagonalSpectralRepulsionUnbounded
 import DavisKahan.InfiniteDimensional.TanTwoTheta.QuarterAcuteFormGap
-import DavisKahan.InfiniteDimensional.TanTwoTheta.RealPaperFaithful
+import DavisKahan.InfiniteDimensional.TanTwoTheta.QuarterAngleUnbounded
+import DavisKahan.InfiniteDimensional.TanTwoTheta.SelectedBranchSymmetricNorming
+import DavisKahan.InfiniteDimensional.TanTwoTheta.SelectedBranchSymmetricNormingReal
 
 /-! # `DavisKahan/InfiniteDimensional/TanTwoTheta` -/

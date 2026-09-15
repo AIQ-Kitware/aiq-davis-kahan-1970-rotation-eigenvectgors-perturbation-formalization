@@ -91,8 +91,8 @@ theorem unbounded_blockDiagonalization
       TauCeti.LinearPMap.UnitaryEquivalent
         (unboundedBlockDiagonalOperator H X)
         (unboundedBlockOperator H) W Winv ∧
-      W ∘L projection (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) =
-        projection (unboundedBlockGraph X) ∘L W ∧
+      W ∘L Submodule.starProjection (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) =
+        Submodule.starProjection (unboundedBlockGraph X) ∘L W ∧
       TauCeti.LinearPMap.ReducesSubspace
         (unboundedBlockDiagonalOperator H X)
         (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) ∧

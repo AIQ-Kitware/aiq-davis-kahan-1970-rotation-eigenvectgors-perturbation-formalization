@@ -9,6 +9,8 @@ import DavisKahan.TanTheta.UnboundedSpectrum
 import DavisKahan.SpectralTheory.ReflectionRestriction
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.GramSpectralRank
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Theorem 6.3 for unbounded self-adjoint operators
 
@@ -18,13 +20,13 @@ For the single-angle tangent family that claim is at **arbitrary unitarily invar
 norm**, and the compiled unbounded coverage was an operator-norm graph-angle companion.
 
 This module closes the gap by instantiating the abstract chain of
-`DavisKahan/TanTheta/Theorem63TrialData.lean` at an `UnboundedTrialBlock`.
+`DavisKahan/TanTheta/Theorem63TrialData.lean` at an `BoundedCompressionTrialBlock`.
 
 ## Why the abstract chain applies
 
 The tangent argument never evaluates the ambient operator anywhere except
 
-* on the trial subspace, where an `UnboundedTrialBlock` bundles the action, its
+* on the trial subspace, where an `BoundedCompressionTrialBlock` bundles the action, its
   compression and its residual as *bounded* maps, and
 * at vectors `P_{Vᗮ} z` with `z` in the trial subspace, through the crossed quadratic
   form.
@@ -50,7 +52,7 @@ open scoped InnerProductSpace BigOperators
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactTanTheta
+namespace TanTheta
 
 open ExactSinTheta
 open TanTheta
@@ -72,7 +74,7 @@ scalar-generic. -/
 noncomputable def Theorem63TrialData.ofUnbounded
     {A : H →ₗ.[𝕜] H} {Z : Submodule 𝕜 H}
     [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z) (V : Submodule 𝕜 H) [V.HasOrthogonalProjection] :
+    (D : BoundedCompressionTrialBlock A Z) (V : Submodule 𝕜 H) [V.HasOrthogonalProjection] :
     Theorem63TrialData Z V where
   action := Z.subtypeL ∘L D.operator + D.residual
   compression := D.operator
@@ -90,7 +92,7 @@ noncomputable def Theorem63TrialData.ofUnbounded
 theorem Theorem63TrialData.ofUnbounded_action
     {A : H →ₗ.[𝕜] H} {Z : Submodule 𝕜 H}
     [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z) (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
+    (D : BoundedCompressionTrialBlock A Z) (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
     (z : Z) :
     (Theorem63TrialData.ofUnbounded D V).action z =
       A ⟨(z : H), D.domain_le z.property⟩ := by
@@ -119,7 +121,7 @@ property of the scalars used is that the real part of an inner product is symmet
 theorem crossed_lower_of_reducing
     (A : H →ₗ.[𝕜] H)
     {Z : Submodule 𝕜 H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     (V : Submodule 𝕜 H) [V.HasOrthogonalProjection]
     {α δ : ℝ}
     (hVdom : ∀ x : A.domain, Vᗮ.starProjection ((x : H)) ∈ A.domain)
@@ -336,7 +338,7 @@ projected trial vectors. -/
 theorem crossed_lower_of_spectralGap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {α δ : ℝ}
     (hgap : TauCeti.LinearPMap.specProjection hA (Set.Ioo α (α + δ))
       measurableSet_Ioo = 0)
@@ -377,7 +379,7 @@ theorem theorem6_3_unbounded_ideal
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
     [FiniteDimensional ℂ Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {α δ : ℝ} (hδ : 0 < δ)
     (hgap : TauCeti.LinearPMap.specProjection hA (Set.Ioo α (α + δ))
       measurableSet_Ioo = 0)
@@ -404,7 +406,7 @@ theorem theorem6_3_unbounded_ideal_directedTangent
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
     [FiniteDimensional ℂ Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {α δ : ℝ} (hδ : 0 < δ)
     (hgap : TauCeti.LinearPMap.specProjection hA (Set.Ioo α (α + δ))
       measurableSet_Ioo = 0)
@@ -460,7 +462,7 @@ theorem theorem6_3_unbounded_ideal_of_reducing
     (A : H →ₗ.[ℂ] H)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
     [FiniteDimensional ℂ Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {α δ : ℝ} (hδ : 0 < δ)
     (hVdom : ∀ x : A.domain, Vᗮ.starProjection ((x : H)) ∈ A.domain)
@@ -489,7 +491,7 @@ theorem theorem6_3_unbounded_ideal_directedTangent_of_reducing
     (A : H →ₗ.[ℂ] H)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
     [FiniteDimensional ℂ Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {α δ : ℝ} (hδ : 0 < δ)
     (hVdom : ∀ x : A.domain, Vᗮ.starProjection ((x : H)) ∈ A.domain)
@@ -509,6 +511,6 @@ theorem theorem6_3_unbounded_ideal_directedTangent_of_reducing
       (Theorem63TrialData.ofUnbounded D V) hδ hCompression
       (crossed_lower_of_reducing A D V hVdom hVcomm hUnwanted) i)
 
-end ExactTanTheta
+end TanTheta
 end DavisKahan
 end TauCeti

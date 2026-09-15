@@ -5,9 +5,14 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.Geometry.Angle.OperatorAngleComplex
 import DavisKahan.Geometry.Angle.OperatorAngleReal
-import DavisKahan.Geometry.Angle.PaperOperatorAngle
+import DavisKahan.Geometry.Angle.AngleFunctionalCalculus
 import ForTauCeti.Analysis.InnerProductSpace.Projection.Gap
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
+
+open TauCeti.DavisKahan.Angle
+
 
 /-!
 # Canonical operator-angle compatibility surface
@@ -35,13 +40,13 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
 complement and vanishes on that complement. -/
 def IsAngularOperator (U : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] (X : E →L[𝕜] E) : Prop :=
-  X ∘L projection U = X ∧ projection U ∘L X = 0
+  X ∘L U.starProjection = X ∧ U.starProjection ∘L X = 0
 
 /-- Maximal angle represented by the projection gap.  This scalar definition
 is valid over every `RCLike` field and needs no operator functional calculus. -/
 noncomputable def maximalAngle (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : ℝ :=
-  Real.arcsin (subspaceGap U V)
+  Real.arcsin (U.projectionGap V)
 
 end DavisKahanExt
 end TauCeti

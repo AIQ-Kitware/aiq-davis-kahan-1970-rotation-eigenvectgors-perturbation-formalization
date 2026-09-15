@@ -9,6 +9,9 @@ import DavisKahan.Geometry.Polar.DirectRotationSquare
 import DavisKahan.Geometry.Polar.PrincipalSquareRoot
 import ForTauCeti.Analysis.InnerProductSpace.AngleGeometry
 import ForTauCeti.Analysis.InnerProductSpace.RealContinuousFunctionalCalculus
+import ForTauCeti.Analysis.RCLike.ScalarTransportFunctionalCalculus
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, Proposition 3.1, at the paper's own acuteness hypothesis
@@ -41,6 +44,7 @@ open scoped InnerProductSpace ComplexOrder
 namespace TauCeti
 namespace DavisKahan1970
 
+
 open DavisKahan
 
 /-! ## Definition 3.1's direct rotation, over any `RCLike` field -/
@@ -55,8 +59,16 @@ section Generic
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
   [CompleteSpace H]
-variable [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint]
+/-! The real functional calculus on `H →L[𝕜] H`, and the two scalar-action facts Mathlib
+pairs it with, are theorems at every `RCLike` field
+(`ContinuousLinearMap.continuousFunctionalCalculusReal`), so they are activated here rather
+than quantified over.  Until 2026-09-04 they were section `variable`s, and every theorem in
+this section therefore asked its caller for three instances that instance search finds.  They
+are `local instance 100` rather than global because a global `Algebra ℝ (E →L[𝕜] E)` makes
+Lean's `•` elaborator drop an author-written `((r : ℝ) : 𝕜) •` coercion. -/
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+
 variable (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
   [V.HasOrthogonalProjection]
 
@@ -87,7 +99,7 @@ theorem acute_directRotation_maps_subspace (hacute : TauCeti.IsAcute U V) :
 positive Halmos cosine `|S| P_U`. -/
 theorem acute_directRotation_diagonalBlock (hacute : TauCeti.IsAcute U V) :
     U.starProjection * acute_directRotation U V * U.starProjection =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) * U.starProjection :=
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) * U.starProjection :=
   projection_mul_spectraCanonicalPolarFactor_mul_projection U V
     (TauCeti.isAcute_iff_inf_orthogonal_eq_bot.mp hacute).1
     (TauCeti.isAcute_iff_inf_orthogonal_eq_bot.mp hacute).2
@@ -95,7 +107,7 @@ theorem acute_directRotation_diagonalBlock (hacute : TauCeti.IsAcute U V) :
 /-- The complementary diagonal block of the direct rotation of an acute pair. -/
 theorem acute_directRotation_complementaryDiagonalBlock (hacute : TauCeti.IsAcute U V) :
     Uᗮ.starProjection * acute_directRotation U V * Uᗮ.starProjection =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) * Uᗮ.starProjection :=
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) * Uᗮ.starProjection :=
   complementaryProjection_mul_spectraCanonicalPolarFactor_mul_complementaryProjection U V
     (TauCeti.isAcute_iff_inf_orthogonal_eq_bot.mp hacute).1
     (TauCeti.isAcute_iff_inf_orthogonal_eq_bot.mp hacute).2
@@ -167,7 +179,7 @@ direct-rotation crossed-block identity from Definition 3.1(ii), and property
 hypothesis, equation (3.8), standing dimension assumption (1.5), finite-
 dimensional hypothesis, or scalar-field specialization is present in the
 statement. -/
-theorem proposition3_1_source (hacute : TauCeti.IsAcute U V) :
+theorem proposition3_1 (hacute : TauCeti.IsAcute U V) :
     acute_directRotation U V ∈ unitary (H →L[𝕜] H) ∧
       acute_directRotation U V * U.starProjection =
         V.starProjection * acute_directRotation U V ∧
@@ -262,7 +274,7 @@ canonical direct rotation.**
 In the acute case the direct rotation is the unique unitary intertwiner whose
 diagonal `U`-compressions are positive.
 
-The predicate `IsPaperDirectRotation` records the diagonal compressions only
+The predicate `IsDirectRotation` records the diagonal compressions only
 through their numerical range (`0 ≤ re ⟪x, (P T P) x⟫`), which is strictly
 weaker than operator positivity and does not pin the phase on the common part:
 on `U = V` every scalar `exp (I * θ)` with `|θ| < π / 2` satisfies all five
@@ -274,18 +286,18 @@ hypotheses are the minimal strengthening; with them the operator squares to the
 reflection product and the square-root branch is fixed by accretivity.
 
 The printed proposition at its own hypothesis, `TauCeti.IsAcute` rather than the
-strictly stronger uniform gap, is `proposition3_1_source` above; this is the
+strictly stronger uniform gap, is `proposition3_1` above; this is the
 `IsUniformlyAcute` form stated against `spectraDirectRotation`. -/
 theorem proposition3_1_positivity_characterization
     (hacute : DavisKahan.IsUniformlyAcute U V) (T : H →L[ℂ] H)
     (hunitary : T ∈ unitary (H →L[ℂ] H))
-    (hintertwines : T * DavisKahan.projection U = DavisKahan.projection V * T)
+    (hintertwines : T * U.starProjection = V.starProjection * T)
     (hsource_sa : IsSelfAdjoint
-      (DavisKahan.projection U * T * DavisKahan.projection U))
+      (U.starProjection * T * U.starProjection))
     (hcomplement_sa : IsSelfAdjoint
-      (DavisKahan.complementaryProjection U * T *
-        DavisKahan.complementaryProjection U)) :
-    DavisKahan.IsPaperDirectRotation U V T ↔
+      ((Uᗮ).starProjection * T *
+        (Uᗮ).starProjection)) :
+    DavisKahan.IsDirectRotation U V T ↔
       T = DavisKahan.spectraDirectRotation U V hacute := by
   constructor
   · intro hT
@@ -295,11 +307,11 @@ theorem proposition3_1_positivity_characterization
     -- Accretivity fixes the square-root branch.
     have hre : ∀ x, 0 ≤ Complex.re ⟪T x, x⟫_ℂ := by
       intro x
-      have h := DavisKahan.re_inner_paperDirectRotation_nonneg U V T hT x
+      have h := DavisKahan.re_inner_directRotation_nonneg U V T hT x
       rwa [← inner_re_symm (𝕜 := ℂ) (T x) x, RCLike.re_eq_complex_re] at h
     exact DavisKahan.spectraDirectRotation_unique_of_sq U V hacute T hunitary hsq hre
   · rintro rfl
-    exact DavisKahan.spectraDirectRotation_isPaperDirectRotation U V hacute
+    exact DavisKahan.spectraDirectRotation_isDirectRotation U V hacute
 
 end Complex
 

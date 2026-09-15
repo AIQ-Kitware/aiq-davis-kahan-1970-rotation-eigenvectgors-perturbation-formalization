@@ -3,7 +3,9 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 -- supplies `IsUniformlyAcute`, carried only by the archival
 -- `proposition3_5_fixedAngle_maximal_uniformlyAcute_form` below.  It is a leaf module
 -- over `ForTauCeti`, and `TwoProjections` already reaches it, so the import is explicit
@@ -78,40 +80,40 @@ to it and already yields `‖Pᗮ_V x‖ = ‖x‖ = c * ‖x‖`, which exclude
 (`isFixedCosineReducingSubspace_of_printed`). -/
 def IsFixedCosineReducingSubspace
     (M : Submodule 𝕜 H) (c : ℝ) : Prop :=
-  (projection U).Reduces M ∧
-  (projection V).Reduces M ∧
-  (∀ x : H, x ∈ M → x ∈ U → ‖projection V x‖ = c * ‖x‖) ∧
-  (∀ x : H, x ∈ M → x ∈ V → ‖projection U x‖ = c * ‖x‖) ∧
-  (∀ x : H, x ∈ M → x ∈ Uᗮ → ‖complementaryProjection V x‖ = c * ‖x‖) ∧
-  (∀ x : H, x ∈ M → x ∈ Vᗮ → ‖complementaryProjection U x‖ = c * ‖x‖)
+  (U.starProjection).Reduces M ∧
+  (V.starProjection).Reduces M ∧
+  (∀ x : H, x ∈ M → x ∈ U → ‖V.starProjection x‖ = c * ‖x‖) ∧
+  (∀ x : H, x ∈ M → x ∈ V → ‖U.starProjection x‖ = c * ‖x‖) ∧
+  (∀ x : H, x ∈ M → x ∈ Uᗮ → ‖(Vᗮ).starProjection x‖ = c * ‖x‖) ∧
+  (∀ x : H, x ∈ M → x ∈ Vᗮ → ‖(Uᗮ).starProjection x‖ = c * ‖x‖)
 
 /-- The Halmos cosine square is a symmetric operator. -/
 theorem halmosCosineSq_isSymmetric : (halmosCosineSq U V).IsSymmetric := by
   intro x y
-  show ⟪(projection U * projection V * projection U +
-      complementaryProjection U * complementaryProjection V *
-        complementaryProjection U) x, y⟫_𝕜 = _
-  show ⟪_, _⟫_𝕜 = ⟪x, (projection U * projection V * projection U +
-      complementaryProjection U * complementaryProjection V *
-        complementaryProjection U) y⟫_𝕜
+  show ⟪(U.starProjection * V.starProjection * U.starProjection +
+      (Uᗮ).starProjection * (Vᗮ).starProjection *
+        (Uᗮ).starProjection) x, y⟫_𝕜 = _
+  show ⟪_, _⟫_𝕜 = ⟪x, (U.starProjection * V.starProjection * U.starProjection +
+      (Uᗮ).starProjection * (Vᗮ).starProjection *
+        (Uᗮ).starProjection) y⟫_𝕜
   simp only [add_apply, mul_apply_eq_comp, inner_add_left, inner_add_right]
   congr 1
-  · calc ⟪projection U (projection V (projection U x)), y⟫_𝕜
-        = ⟪projection V (projection U x), projection U y⟫_𝕜 :=
+  · calc ⟪U.starProjection (V.starProjection (U.starProjection x)), y⟫_𝕜
+        = ⟪V.starProjection (U.starProjection x), U.starProjection y⟫_𝕜 :=
           U.starProjection_isSymmetric _ _
-      _ = ⟪projection U x, projection V (projection U y)⟫_𝕜 :=
+      _ = ⟪U.starProjection x, V.starProjection (U.starProjection y)⟫_𝕜 :=
           V.starProjection_isSymmetric _ _
-      _ = ⟪x, projection U (projection V (projection U y))⟫_𝕜 :=
+      _ = ⟪x, U.starProjection (V.starProjection (U.starProjection y))⟫_𝕜 :=
           U.starProjection_isSymmetric _ _
-  · calc ⟪complementaryProjection U (complementaryProjection V
-            (complementaryProjection U x)), y⟫_𝕜
-        = ⟪complementaryProjection V (complementaryProjection U x),
-            complementaryProjection U y⟫_𝕜 := Uᗮ.starProjection_isSymmetric _ _
-      _ = ⟪complementaryProjection U x,
-            complementaryProjection V (complementaryProjection U y)⟫_𝕜 :=
+  · calc ⟪(Uᗮ).starProjection ((Vᗮ).starProjection
+            ((Uᗮ).starProjection x)), y⟫_𝕜
+        = ⟪(Vᗮ).starProjection ((Uᗮ).starProjection x),
+            (Uᗮ).starProjection y⟫_𝕜 := Uᗮ.starProjection_isSymmetric _ _
+      _ = ⟪(Uᗮ).starProjection x,
+            (Vᗮ).starProjection ((Uᗮ).starProjection y)⟫_𝕜 :=
           Vᗮ.starProjection_isSymmetric _ _
-      _ = ⟪x, complementaryProjection U (complementaryProjection V
-            (complementaryProjection U y))⟫_𝕜 := Uᗮ.starProjection_isSymmetric _ _
+      _ = ⟪x, (Uᗮ).starProjection ((Vᗮ).starProjection
+            ((Uᗮ).starProjection y))⟫_𝕜 := Uᗮ.starProjection_isSymmetric _ _
 
 /-- The shifted cosine square `cos²Θ - c ^ 2` is a symmetric operator. -/
 theorem halmosCosineSq_sub_smul_isSymmetric (c : ℝ) :
@@ -180,49 +182,49 @@ theorem inner_starProjection_self_eq (K : Submodule 𝕜 H)
 
 /-- On the source subspace, the cosine-square quadratic form is `‖P_V x‖ ^ 2`. -/
 theorem inner_halmosCosineSq_source (x : H) (hx : x ∈ U) :
-    ⟪halmosCosineSq U V x, x⟫_𝕜 = (‖projection V x‖ : 𝕜) ^ 2 := by
-  have hPU : projection U x = x := Submodule.starProjection_eq_self_iff.mpr hx
-  have hPUc : complementaryProjection U x = 0 := by
+    ⟪halmosCosineSq U V x, x⟫_𝕜 = (‖V.starProjection x‖ : 𝕜) ^ 2 := by
+  have hPU : U.starProjection x = x := Submodule.starProjection_eq_self_iff.mpr hx
+  have hPUc : (Uᗮ).starProjection x = 0 := by
     have hx' : Uᗮ.starProjection x = x - U.starProjection x :=
       congrArg (fun T : H →L[𝕜] H => T x) (Submodule.starProjection_orthogonal' U)
-    rw [show complementaryProjection U x = Uᗮ.starProjection x from rfl, hx', hPU, sub_self]
-  have hval : halmosCosineSq U V x = projection U (projection V x) := by
-    show (projection U * projection V * projection U
-      + complementaryProjection U * complementaryProjection V
-        * complementaryProjection U) x = _
+    rw [show (Uᗮ).starProjection x = Uᗮ.starProjection x from rfl, hx', hPU, sub_self]
+  have hval : halmosCosineSq U V x = U.starProjection (V.starProjection x) := by
+    show (U.starProjection * V.starProjection * U.starProjection
+      + (Uᗮ).starProjection * (Vᗮ).starProjection
+        * (Uᗮ).starProjection) x = _
     simp only [add_apply, mul_apply_eq_comp, hPU,
       hPUc, map_zero, add_zero]
   rw [hval]
-  calc ⟪projection U (projection V x), x⟫_𝕜
-      = ⟪projection V x, projection U x⟫_𝕜 := U.starProjection_isSymmetric _ _
-    _ = ⟪projection V x, x⟫_𝕜 := by rw [hPU]
-    _ = (‖projection V x‖ : 𝕜) ^ 2 := inner_starProjection_self_eq V x
+  calc ⟪U.starProjection (V.starProjection x), x⟫_𝕜
+      = ⟪V.starProjection x, U.starProjection x⟫_𝕜 := U.starProjection_isSymmetric _ _
+    _ = ⟪V.starProjection x, x⟫_𝕜 := by rw [hPU]
+    _ = (‖V.starProjection x‖ : 𝕜) ^ 2 := inner_starProjection_self_eq V x
 
 /-- On the source complement, the cosine-square quadratic form is
 `‖Pᗮ_V x‖ ^ 2`. -/
 theorem inner_halmosCosineSq_source_compl (x : H) (hx : x ∈ Uᗮ) :
-    ⟪halmosCosineSq U V x, x⟫_𝕜 = (‖complementaryProjection V x‖ : 𝕜) ^ 2 := by
-  have hPUc : complementaryProjection U x = x :=
+    ⟪halmosCosineSq U V x, x⟫_𝕜 = (‖(Vᗮ).starProjection x‖ : 𝕜) ^ 2 := by
+  have hPUc : (Uᗮ).starProjection x = x :=
     Submodule.starProjection_eq_self_iff.mpr hx
-  have hPU : projection U x = 0 := by
+  have hPU : U.starProjection x = 0 := by
     have hx' : Uᗮ.starProjection x = x - U.starProjection x :=
       congrArg (fun T : H →L[𝕜] H => T x) (Submodule.starProjection_orthogonal' U)
-    rw [show complementaryProjection U x = Uᗮ.starProjection x from rfl] at hPUc
+    rw [show (Uᗮ).starProjection x = Uᗮ.starProjection x from rfl] at hPUc
     have hUeq : U.starProjection x = x - Uᗮ.starProjection x := by rw [hx']; abel
-    rw [show projection U x = U.starProjection x from rfl, hUeq, hPUc, sub_self]
+    rw [show U.starProjection x = U.starProjection x from rfl, hUeq, hPUc, sub_self]
   have hval : halmosCosineSq U V x
-      = complementaryProjection U (complementaryProjection V x) := by
-    show (projection U * projection V * projection U
-      + complementaryProjection U * complementaryProjection V
-        * complementaryProjection U) x = _
+      = (Uᗮ).starProjection ((Vᗮ).starProjection x) := by
+    show (U.starProjection * V.starProjection * U.starProjection
+      + (Uᗮ).starProjection * (Vᗮ).starProjection
+        * (Uᗮ).starProjection) x = _
     simp only [add_apply, mul_apply_eq_comp, hPU,
       hPUc, map_zero, zero_add]
   rw [hval]
-  calc ⟪complementaryProjection U (complementaryProjection V x), x⟫_𝕜
-      = ⟪complementaryProjection V x, complementaryProjection U x⟫_𝕜 :=
+  calc ⟪(Uᗮ).starProjection ((Vᗮ).starProjection x), x⟫_𝕜
+      = ⟪(Vᗮ).starProjection x, (Uᗮ).starProjection x⟫_𝕜 :=
         Uᗮ.starProjection_isSymmetric _ _
-    _ = ⟪complementaryProjection V x, x⟫_𝕜 := by rw [hPUc]
-    _ = (‖complementaryProjection V x‖ : 𝕜) ^ 2 := inner_starProjection_self_eq Vᗮ x
+    _ = ⟪(Vᗮ).starProjection x, x⟫_𝕜 := by rw [hPUc]
+    _ = (‖(Vᗮ).starProjection x‖ : 𝕜) ^ 2 := inner_starProjection_self_eq Vᗮ x
 
 /-- The fixed-cosine subspace: the `c ^ 2`-eigenspace of the Halmos cosine
 square `cos²Θ`.  For a singleton this eigenspace coincides with the
@@ -243,9 +245,9 @@ theorem mem_fixedCosineSubspace (c : ℝ) (w : H) :
 /-- A projection commuting with the cosine square reduces the eigenspace. -/
 theorem reduces_projection_of_commute (c : ℝ) (W : Submodule 𝕜 H)
     [W.HasOrthogonalProjection]
-    (hcomm : Commute (halmosCosineSq U V) (projection W)) :
-    (projection W).Reduces (fixedCosineSubspace U V c) := by
-  refine reduces_orthogonalComplement W.starProjection_isSymmetric ?_
+    (hcomm : Commute (halmosCosineSq U V) (W.starProjection)) :
+    (W.starProjection).Reduces (fixedCosineSubspace U V c) := by
+  refine ContinuousLinearMap.IsSymmetric.reduces_of_invariant W.starProjection_isSymmetric ?_
   intro x hx
   rw [mem_fixedCosineSubspace] at hx ⊢
   have hcm := congrArg (fun T : H →L[𝕜] H => T x) hcomm.eq
@@ -266,62 +268,62 @@ theorem norm_eq_from_ofReal_sq {p q c : ℝ} (hp : 0 ≤ p) (hq : 0 ≤ q) (hc :
 
 /-- The cosine square commutes with the target projection too. -/
 theorem halmosCosineSq_commute_projection_right :
-    Commute (halmosCosineSq U V) (projection V) := by
+    Commute (halmosCosineSq U V) (V.starProjection) := by
   rw [halmosCosineSq_symm U V]
   exact halmosCosineSq_commute_projection V U
 
 /-- Vector form of the cosine square on the source subspace. -/
 theorem halmosCosineSq_source_apply (x : H) (hx : x ∈ U) :
-    halmosCosineSq U V x = projection U (projection V x) := by
-  have hPU : projection U x = x := Submodule.starProjection_eq_self_iff.mpr hx
-  have hPUc : complementaryProjection U x = 0 := by
+    halmosCosineSq U V x = U.starProjection (V.starProjection x) := by
+  have hPU : U.starProjection x = x := Submodule.starProjection_eq_self_iff.mpr hx
+  have hPUc : (Uᗮ).starProjection x = 0 := by
     have hx' : Uᗮ.starProjection x = x - U.starProjection x :=
       congrArg (fun T : H →L[𝕜] H => T x) (Submodule.starProjection_orthogonal' U)
-    rw [show complementaryProjection U x = Uᗮ.starProjection x from rfl, hx', hPU, sub_self]
-  show (projection U * projection V * projection U
-    + complementaryProjection U * complementaryProjection V
-      * complementaryProjection U) x = _
+    rw [show (Uᗮ).starProjection x = Uᗮ.starProjection x from rfl, hx', hPU, sub_self]
+  show (U.starProjection * V.starProjection * U.starProjection
+    + (Uᗮ).starProjection * (Vᗮ).starProjection
+      * (Uᗮ).starProjection) x = _
   simp only [add_apply, mul_apply_eq_comp, hPU,
     hPUc, map_zero, add_zero]
 
 /-- Vector form of the cosine square on the source complement. -/
 theorem halmosCosineSq_source_compl_apply (x : H) (hx : x ∈ Uᗮ) :
     halmosCosineSq U V x
-      = complementaryProjection U (complementaryProjection V x) := by
-  have hPUc : complementaryProjection U x = x :=
+      = (Uᗮ).starProjection ((Vᗮ).starProjection x) := by
+  have hPUc : (Uᗮ).starProjection x = x :=
     Submodule.starProjection_eq_self_iff.mpr hx
-  have hPU : projection U x = 0 := by
+  have hPU : U.starProjection x = 0 := by
     have hx' : Uᗮ.starProjection x = x - U.starProjection x :=
       congrArg (fun T : H →L[𝕜] H => T x) (Submodule.starProjection_orthogonal' U)
-    rw [show complementaryProjection U x = Uᗮ.starProjection x from rfl] at hPUc
+    rw [show (Uᗮ).starProjection x = Uᗮ.starProjection x from rfl] at hPUc
     have hUeq : U.starProjection x = x - Uᗮ.starProjection x := by rw [hx']; abel
-    rw [show projection U x = U.starProjection x from rfl, hUeq, hPUc, sub_self]
-  show (projection U * projection V * projection U
-    + complementaryProjection U * complementaryProjection V
-      * complementaryProjection U) x = _
+    rw [show U.starProjection x = U.starProjection x from rfl, hUeq, hPUc, sub_self]
+  show (U.starProjection * V.starProjection * U.starProjection
+    + (Uᗮ).starProjection * (Vᗮ).starProjection
+      * (Uᗮ).starProjection) x = _
   simp only [add_apply, mul_apply_eq_comp, hPU,
     hPUc, map_zero, zero_add]
 
 /-- Complementary projections preserve a subspace reducing the projection. -/
 theorem complementaryProjection_mem_of_reduces {W M : Submodule 𝕜 H}
-    [W.HasOrthogonalProjection] (hR : (projection W).Reduces M) {w : H}
-    (hw : w ∈ M) : complementaryProjection W w ∈ M := by
-  have hcompl : complementaryProjection W w = w - projection W w :=
+    [W.HasOrthogonalProjection] (hR : (W.starProjection).Reduces M) {w : H}
+    (hw : w ∈ M) : (Wᗮ).starProjection w ∈ M := by
+  have hcompl : (Wᗮ).starProjection w = w - W.starProjection w :=
     congrArg (fun T : H →L[𝕜] H => T w) (Submodule.starProjection_orthogonal' W)
   rw [hcompl]
   exact M.sub_mem hw (hR.1 w hw)
 
 /-- The cosine square preserves a subspace reducing both projections. -/
 theorem halmosCosineSq_mem_of_reduces {M : Submodule 𝕜 H}
-    (hRU : (projection U).Reduces M) (hRV : (projection V).Reduces M)
+    (hRU : (U.starProjection).Reduces M) (hRV : (V.starProjection).Reduces M)
     {w : H} (hw : w ∈ M) : halmosCosineSq U V w ∈ M := by
   have hval : halmosCosineSq U V w
-      = projection U (projection V (projection U w))
-        + complementaryProjection U (complementaryProjection V
-            (complementaryProjection U w)) := by
-    show (projection U * projection V * projection U
-      + complementaryProjection U * complementaryProjection V
-        * complementaryProjection U) w = _
+      = U.starProjection (V.starProjection (U.starProjection w))
+        + (Uᗮ).starProjection ((Vᗮ).starProjection
+            ((Uᗮ).starProjection w)) := by
+    show (U.starProjection * V.starProjection * U.starProjection
+      + (Uᗮ).starProjection * (Vᗮ).starProjection
+        * (Uᗮ).starProjection) w = _
     simp only [add_apply, mul_apply_eq_comp]
   rw [hval]
   refine M.add_mem (hRU.1 _ (hRV.1 _ (hRU.1 _ hw))) ?_
@@ -359,9 +361,9 @@ theorem fixedCosineSubspace_isFixedCosineReducing (c : ℝ) (hc0 : 0 < c) :
 /-- Maximality direction of Proposition 3.5: any subspace with constant
 source-side cosine `c` lies in the fixed-cosine eigenspace. -/
 theorem fixedCosineSubspace_maximal (c : ℝ) {M : Submodule 𝕜 H}
-    (hRU : (projection U).Reduces M) (hRV : (projection V).Reduces M)
-    (hU : ∀ x : H, x ∈ M → x ∈ U → ‖projection V x‖ = c * ‖x‖)
-    (hUc : ∀ x : H, x ∈ M → x ∈ Uᗮ → ‖complementaryProjection V x‖ = c * ‖x‖) :
+    (hRU : (U.starProjection).Reduces M) (hRV : (V.starProjection).Reduces M)
+    (hU : ∀ x : H, x ∈ M → x ∈ U → ‖V.starProjection x‖ = c * ‖x‖)
+    (hUc : ∀ x : H, x ∈ M → x ∈ Uᗮ → ‖(Vᗮ).starProjection x‖ = c * ‖x‖) :
     M ≤ fixedCosineSubspace U V c := by
   have hEU : ∀ w ∈ M, w ∈ U → halmosCosineSq U V w = (c : 𝕜) ^ 2 • w := by
     intro w hwM hwU
@@ -415,12 +417,12 @@ theorem fixedCosineSubspace_maximal (c : ℝ) {M : Submodule 𝕜 H}
     exact sub_eq_zero.mp heq
   intro w hw
   rw [mem_fixedCosineSubspace]
-  have hdecomp : w = projection U w + complementaryProjection U w := by
-    have hcompl : complementaryProjection U w = w - projection U w :=
+  have hdecomp : w = U.starProjection w + (Uᗮ).starProjection w := by
+    have hcompl : (Uᗮ).starProjection w = w - U.starProjection w :=
       congrArg (fun T : H →L[𝕜] H => T w) (Submodule.starProjection_orthogonal' U)
     rw [hcompl]; abel
-  have e1 := hEU (projection U w) (hRU.1 w hw) (U.starProjection_apply_mem w)
-  have e2 := hEUc (complementaryProjection U w)
+  have e1 := hEU (U.starProjection w) (hRU.1 w hw) (U.starProjection_apply_mem w)
+  have e2 := hEUc ((Uᗮ).starProjection w)
     (complementaryProjection_mem_of_reduces hRU hw) (Uᗮ.starProjection_apply_mem w)
   conv_lhs => rw [hdecomp]
   conv_rhs => rw [hdecomp]
@@ -435,10 +437,10 @@ indexed by `{M ∩ U, M ∩ Uᗮ}`, not by `{M ∩ U, M ∩ V}`.  The norm form
 `‖P_V x‖ = c * ‖x‖` is the cosine form of `∠(x, Q x) = θ` with `c = cos θ`. -/
 def IsPrintedFixedCosineReducingSubspace
     (M : Submodule 𝕜 H) (c : ℝ) : Prop :=
-  (projection U).Reduces M ∧
-  (projection V).Reduces M ∧
-  (∀ x : H, x ∈ M → x ∈ U → ‖projection V x‖ = c * ‖x‖) ∧
-  (∀ x : H, x ∈ M → x ∈ Uᗮ → ‖complementaryProjection V x‖ = c * ‖x‖)
+  (U.starProjection).Reduces M ∧
+  (V.starProjection).Reduces M ∧
+  (∀ x : H, x ∈ M → x ∈ U → ‖V.starProjection x‖ = c * ‖x‖) ∧
+  (∀ x : H, x ∈ M → x ∈ Uᗮ → ‖(Vᗮ).starProjection x‖ = c * ‖x‖)
 
 /-- Bundled form of `fixedCosineSubspace_maximal`: the printed hypotheses
 (a)(b)(c) alone put `M` inside the fixed-cosine eigenspace. -/

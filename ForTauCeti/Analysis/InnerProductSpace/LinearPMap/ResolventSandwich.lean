@@ -326,15 +326,15 @@ theorem norm_sub_smul_ge_of_lowerFormBound {β lam : ℝ}
 
 /-- **A real point below a form lower bound is a resolvent point.**
 
-`RealLowerBound.mem_resolventSet_of_lower_bound` does the analytic work; this is
+`mem_resolventSet_and_norm_le_of_lower_bound` does the analytic work; this is
 the packaging that lets a caller supply the *form* bound the rest of this file
 uses, rather than the norm bound that theorem states. -/
 theorem mem_resolventSet_of_lowerFormBound [CompleteSpace E]
     (hA : IsSelfAdjoint A) {β lam : ℝ} (hlt : lam < β)
     (hform : ∀ x : A.domain, β * ‖(x : E)‖ ^ 2 ≤ (⟪A x, (x : E)⟫_ℂ).re) :
     (lam : ℂ) ∈ resolventSet A :=
-  mem_resolventSet_of_lower_bound hA (Complex.conj_ofReal lam) (by linarith)
-    (norm_sub_smul_ge_of_lowerFormBound hform)
+  (mem_resolventSet_and_norm_le_of_lower_bound hA (by simpa using sub_pos.mpr hlt)
+    (norm_sub_smul_ge_of_lowerFormBound hform)).1
 
 /-- **The resolvent of a form-semibounded operator is coercive**, with constant
 `β - lam`.

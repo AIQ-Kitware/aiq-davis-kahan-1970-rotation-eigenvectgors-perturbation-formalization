@@ -34,26 +34,19 @@ one another.
 
 ## Why this is stated on the Gram operator rather than on `|T|`
 
-`ForTauCeti/Analysis/InnerProductSpace/Polar/PartialIsometry.lean` builds the
-same object for `𝕜 = ℂ`, keyed on `ContinuousLinearMap.modulus`.  That route is
-confined to `ℂ` for one reason only: the modulus is a continuous functional
-calculus, and Mathlib supplies the `ContinuousFunctionalCalculus ℝ (E →L[𝕜] E)
-IsSelfAdjoint` instance for `ℂ` and not for a general `RCLike` field.
-
-**The construction needs no functional calculus at all.**  Everything below
-rests on one consequence of the Gram identity,
+`ForTauCeti/Analysis/InnerProductSpace/Polar/PartialIsometry.lean` specializes this
+construction to `A = T.modulus` and packages the result as the canonical polar partial
+isometry.  The lower-level Gram formulation remains useful because it needs no functional
+calculus at all.  Everything below rests on one consequence of the Gram identity,
 `ContinuousLinearMap.norm_apply_eq_of_gram_eq`:
 
 ```
 ‖A x‖ = ‖T x‖.
 ```
 
-Read left to right it says `A x ↦ T x` is well defined; read as an equation it
-says that assignment is isometric.  So taking the Gram square root as a
-*hypothesis* rather than as a definition removes the field restriction, and a
-caller who does have a modulus — over `ℂ`, or over `RCLike` with the calculus
-assumed as an instance argument, as `DavisKahan`'s symmetric-norm-ideal theory
-does — supplies it by `operatorAbsoluteValue_sq` and self-adjointness.
+Read left to right it says `A x ↦ T x` is well defined; read as an equation it says that
+assignment is isometric.  A caller with the canonical modulus supplies
+`A = T.modulus`, `T.modulus_isSelfAdjoint`, and `T.modulus_mul_self`.
 
 ## Main definitions and results
 
@@ -80,7 +73,7 @@ so it still extends by continuity.  What is lost is the reverse identity
 `A ≠ 0`.  So `exists_contraction_of_gram_le` is deliberately one-sided.
 
 The construction itself (`rangeTopologicalClosure`, `corestrictRangeClosure`,
-`gramContractionAux`, `gramContraction`) mentions no Gram hypothesis at all, so
+`gramContractionOnRangeClosure`, `gramContraction`) mentions no Gram hypothesis at all, so
 both versions share it; only the property proofs differ.
 
 ## Provenance
@@ -179,7 +172,7 @@ theorem denseRange_corestrictRangeClosure (A : E →L[𝕜] E) :
 
 /-- The extension of the isometry `A x ↦ T x` from the dense range of `A` to the
 whole initial space. -/
-noncomputable def gramContractionAux (T : E →L[𝕜] F) (A : E →L[𝕜] E) :
+noncomputable def gramContractionOnRangeClosure (T : E →L[𝕜] F) (A : E →L[𝕜] E) :
     A.rangeTopologicalClosure →L[𝕜] F :=
   T.toLinearMap.extendOfNorm A.corestrictRangeClosure
 
@@ -189,7 +182,7 @@ noncomputable def gramContractionAux (T : E →L[𝕜] F) (A : E →L[𝕜] E) :
 `W₀` is the continuous extension of `A x ↦ T x`.  It is a partial isometry:
 isometric on the initial space and zero on its orthogonal complement. -/
 noncomputable def gramContraction (T : E →L[𝕜] F) (A : E →L[𝕜] E) : E →L[𝕜] F :=
-  T.gramContractionAux A ∘L A.rangeTopologicalClosure.orthogonalProjectionOnto
+  T.gramContractionOnRangeClosure A ∘L A.rangeTopologicalClosure.orthogonalProjectionOnto
 
 section GramHyp
 
@@ -205,8 +198,8 @@ theorem norm_apply_le_norm_corestrictRangeClosure (x : E) :
   exact le_of_eq (norm_apply_eq_of_gram_eq hA hgram x).symm
 
 /-- The extension undoes `A` on its range: `W₀ (A x) = T x`. -/
-theorem gramContractionAux_corestrictRangeClosure (x : E) :
-    T.gramContractionAux A (A.corestrictRangeClosure x) = T x :=
+theorem gramContractionOnRangeClosure_corestrictRangeClosure (x : E) :
+    T.gramContractionOnRangeClosure A (A.corestrictRangeClosure x) = T x :=
   LinearMap.extendOfNorm_eq A.denseRange_corestrictRangeClosure
     ⟨1, norm_apply_le_norm_corestrictRangeClosure hA hgram⟩ x
 
@@ -219,7 +212,7 @@ theorem gramContraction_apply_apply (x : E) :
     simpa using
       Submodule.starProjection_eq_self_iff.mpr (A.apply_mem_rangeTopologicalClosure x)
   rw [gramContraction, ContinuousLinearMap.comp_apply, hproj,
-    gramContractionAux_corestrictRangeClosure hA hgram]
+    gramContractionOnRangeClosure_corestrictRangeClosure hA hgram]
 
 /-- **The factorisation**: `W ∘L A = T`. -/
 theorem gramContraction_comp_right : T.gramContraction A ∘L A = T := by
@@ -230,13 +223,13 @@ theorem gramContraction_comp_right : T.gramContraction A ∘L A = T := by
 extension because the map it extends is isometric, the projection because it is
 orthogonal. -/
 theorem norm_gramContraction_le_one : ‖T.gramContraction A‖ ≤ 1 := by
-  have haux : ‖T.gramContractionAux A‖ ≤ 1 :=
+  have haux : ‖T.gramContractionOnRangeClosure A‖ ≤ 1 :=
     LinearMap.opNorm_extendOfNorm_le A.denseRange_corestrictRangeClosure zero_le_one
       (norm_apply_le_norm_corestrictRangeClosure hA hgram)
   have hproj : ‖A.rangeTopologicalClosure.orthogonalProjectionOnto‖ ≤ 1 :=
     Submodule.orthogonalProjectionOnto_norm_le _
   calc ‖T.gramContraction A‖
-      ≤ ‖T.gramContractionAux A‖ *
+      ≤ ‖T.gramContractionOnRangeClosure A‖ *
         ‖A.rangeTopologicalClosure.orthogonalProjectionOnto‖ :=
         ContinuousLinearMap.opNorm_comp_le _ _
     _ ≤ 1 * 1 := mul_le_mul haux hproj (norm_nonneg _) zero_le_one
@@ -244,16 +237,16 @@ theorem norm_gramContraction_le_one : ‖T.gramContraction A‖ ≤ 1 := by
 
 /-- The inner-product identity behind `W⋆ T = A`, stated on the initial space so
 that it can be proved on the dense range of `A` and transported by continuity. -/
-theorem inner_gramContractionAux (x : E) (z : A.rangeTopologicalClosure) :
-    ⟪T x, T.gramContractionAux A z⟫_𝕜 = ⟪A x, (z : E)⟫_𝕜 := by
+theorem inner_gramContractionOnRangeClosure (x : E) (z : A.rangeTopologicalClosure) :
+    ⟪T x, T.gramContractionOnRangeClosure A z⟫_𝕜 = ⟪A x, (z : E)⟫_𝕜 := by
   have hAadj : adjoint A = A := by
     rw [← ContinuousLinearMap.star_eq_adjoint]; exact hA.star_eq
   have heq : Set.EqOn
-      (fun w : A.rangeTopologicalClosure => ⟪T x, T.gramContractionAux A w⟫_𝕜)
+      (fun w : A.rangeTopologicalClosure => ⟪T x, T.gramContractionOnRangeClosure A w⟫_𝕜)
       (fun w : A.rangeTopologicalClosure => ⟪A x, (w : E)⟫_𝕜)
       (Set.range A.corestrictRangeClosure) := by
     rintro _ ⟨w, rfl⟩
-    simp only [gramContractionAux_corestrictRangeClosure hA hgram,
+    simp only [gramContractionOnRangeClosure_corestrictRangeClosure hA hgram,
       coe_corestrictRangeClosure_apply]
     calc ⟪T x, T w⟫_𝕜 = ⟪x, adjoint T (T w)⟫_𝕜 := (adjoint_inner_right T x (T w)).symm
       _ = ⟪x, (adjoint T ∘L T) w⟫_𝕜 := by rw [ContinuousLinearMap.comp_apply]
@@ -276,11 +269,11 @@ theorem adjoint_gramContraction_comp_left :
   calc ⟪(adjoint (T.gramContraction A) ∘L T) x, y⟫_𝕜
       = ⟪T x, T.gramContraction A y⟫_𝕜 := by
         rw [ContinuousLinearMap.comp_apply, adjoint_inner_left]
-    _ = ⟪T x, T.gramContractionAux A
+    _ = ⟪T x, T.gramContractionOnRangeClosure A
           (A.rangeTopologicalClosure.orthogonalProjectionOnto y)⟫_𝕜 := by
         rw [gramContraction, ContinuousLinearMap.comp_apply]
     _ = ⟪A x, A.rangeTopologicalClosure.starProjection y⟫_𝕜 :=
-        inner_gramContractionAux hA hgram x _
+        inner_gramContractionOnRangeClosure hA hgram x _
     _ = ⟪A.rangeTopologicalClosure.starProjection (A x), y⟫_𝕜 :=
         (Submodule.inner_starProjection_left_eq_right _ _ _).symm
     _ = ⟪A x, y⟫_𝕜 := by
@@ -345,8 +338,8 @@ theorem norm_apply_le_norm_corestrictRangeClosure_of_gram_le (x : E) :
   exact norm_apply_le_of_gram_le hA hle x
 
 /-- The extension undoes `A` on its range: `W₀ (A x) = T x`. -/
-theorem gramContractionAux_corestrictRangeClosure_of_gram_le (x : E) :
-    T.gramContractionAux A (A.corestrictRangeClosure x) = T x :=
+theorem gramContractionOnRangeClosure_corestrictRangeClosure_of_gram_le (x : E) :
+    T.gramContractionOnRangeClosure A (A.corestrictRangeClosure x) = T x :=
   LinearMap.extendOfNorm_eq A.denseRange_corestrictRangeClosure
     ⟨1, norm_apply_le_norm_corestrictRangeClosure_of_gram_le hA hle⟩ x
 
@@ -359,7 +352,7 @@ theorem gramContraction_apply_apply_of_gram_le (x : E) :
     simpa using
       Submodule.starProjection_eq_self_iff.mpr (A.apply_mem_rangeTopologicalClosure x)
   rw [gramContraction, ContinuousLinearMap.comp_apply, hproj,
-    gramContractionAux_corestrictRangeClosure_of_gram_le hA hle]
+    gramContractionOnRangeClosure_corestrictRangeClosure_of_gram_le hA hle]
 
 /-- **The factorisation**: `W ∘L A = T`. -/
 theorem gramContraction_comp_right_of_gram_le : T.gramContraction A ∘L A = T := by
@@ -368,13 +361,13 @@ theorem gramContraction_comp_right_of_gram_le : T.gramContraction A ∘L A = T :
 
 /-- **The contraction bound**: `‖W‖ ≤ 1`. -/
 theorem norm_gramContraction_le_one_of_gram_le : ‖T.gramContraction A‖ ≤ 1 := by
-  have haux : ‖T.gramContractionAux A‖ ≤ 1 :=
+  have haux : ‖T.gramContractionOnRangeClosure A‖ ≤ 1 :=
     LinearMap.opNorm_extendOfNorm_le A.denseRange_corestrictRangeClosure zero_le_one
       (norm_apply_le_norm_corestrictRangeClosure_of_gram_le hA hle)
   have hproj : ‖A.rangeTopologicalClosure.orthogonalProjectionOnto‖ ≤ 1 :=
     Submodule.orthogonalProjectionOnto_norm_le _
   calc ‖T.gramContraction A‖
-      ≤ ‖T.gramContractionAux A‖ *
+      ≤ ‖T.gramContractionOnRangeClosure A‖ *
         ‖A.rangeTopologicalClosure.orthogonalProjectionOnto‖ :=
         ContinuousLinearMap.opNorm_comp_le _ _
     _ ≤ 1 * 1 := mul_le_mul haux hproj (norm_nonneg _) zero_le_one

@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
 import DavisKahan.OperatorIdeal.CanonicalRealView
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
+import DavisKahan.Sylvester.ScalarTransport
+import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.ScalarTransport
 
 /-!
 # Projection-block lemmas from Davis--Kahan section 6
@@ -13,9 +15,9 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
 This file formalizes the two elementary projection lemmas used verbatim in the
 paper's proof of the symmetric sine theorem.
 
-* `paperDiagonalPair` is `Omega K Gamma + OmegaComplement K GammaComplement`.
+* `diagonalPair` is `Omega K Gamma + OmegaComplement K GammaComplement`.
   Its reflection identity is the displayed proof of Lemma 6.2.
-* `paperCrossSineSum` is the sum of the two complementary cross projections.
+* `crossSineSum` is the sum of the two complementary cross projections.
   Right composition by the target reflection turns it into the projector
   difference.  Since the reflection is an involutive isometry, the two
   operators have identical complete approximation-singular-value sequences.
@@ -39,7 +41,7 @@ variable {E : Type v}
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
 
 /-- The pair of diagonal projection blocks from Davis--Kahan Lemma 6.2. -/
-def paperDiagonalPair (U V : Submodule 𝕜 E)
+def diagonalPair (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (K : E →L[𝕜] E) : E →L[𝕜] E :=
   U.starProjection ∘L K ∘L V.starProjection +
@@ -47,14 +49,14 @@ def paperDiagonalPair (U V : Submodule 𝕜 E)
 
 omit [CompleteSpace E] in
 /-- The reflection identity displayed in the proof of Davis--Kahan Lemma 6.2. -/
-theorem two_smul_paperDiagonalPair_eq_add_reflections
+theorem two_smul_diagonalPair_eq_add_reflections
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (K : E →L[𝕜] E) :
-    (2 : 𝕜) • paperDiagonalPair U V K =
+    (2 : 𝕜) • diagonalPair U V K =
       K + U.reflectionOperator ∘L K ∘L V.reflectionOperator := by
   ext x
-  simp only [paperDiagonalPair, ContinuousLinearMap.comp_apply, add_apply,
+  simp only [diagonalPair, ContinuousLinearMap.comp_apply, add_apply,
     smul_apply]
   simp_rw [Submodule.starProjection_orthogonal_apply,
     Submodule.reflectionOperator_apply]
@@ -62,27 +64,27 @@ theorem two_smul_paperDiagonalPair_eq_add_reflections
   module
 
 /-- Ideal membership for the diagonal pair. -/
-theorem paperDiagonalPair_mem
+theorem diagonalPair_mem
     (N : TauCeti.SymmetricOperatorIdealFamily.{u, v} 𝕜)
     [N.toOperatorIdealFamily.IsComplete]
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {K : E →L[𝕜] E} (hK : N.Mem K) :
-    N.Mem (paperDiagonalPair U V K) := by
+    N.Mem (diagonalPair U V K) := by
   exact N.add_mem
     (N.comp_mem U.starProjection V.starProjection hK)
     (N.comp_mem Uᗮ.starProjection Vᗮ.starProjection hK)
 
 /-- **Davis--Kahan Lemma 6.2 for an arbitrary rectangular symmetric ideal.** -/
-theorem paperDiagonalPair_gauge_le
+theorem diagonalPair_gauge_le
     (N : TauCeti.SymmetricOperatorIdealFamily.{u, v} 𝕜)
     [N.toOperatorIdealFamily.IsComplete]
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {K : E →L[𝕜] E} (hK : N.Mem K) :
-    N.gaugeReal (paperDiagonalPair U V K) ≤ N.gaugeReal K := by
-  have hB : N.Mem (paperDiagonalPair U V K) :=
-    paperDiagonalPair_mem N U V hK
+    N.gaugeReal (diagonalPair U V K) ≤ N.gaugeReal K := by
+  have hB : N.Mem (diagonalPair U V K) :=
+    diagonalPair_mem N U V hK
   have hJ : N.Mem
       (U.reflectionOperator ∘L K ∘L V.reflectionOperator) :=
     N.comp_mem U.reflectionOperator V.reflectionOperator hK
@@ -97,21 +99,20 @@ theorem paperDiagonalPair_gauge_le
         N.gaugeReal K + N.gaugeReal
           (U.reflectionOperator ∘L K ∘L V.reflectionOperator) :=
     N.gaugeReal_add_le hK hJ
-  have htwo : N.gaugeReal ((2 : 𝕜) • paperDiagonalPair U V K) =
-      2 * N.gaugeReal (paperDiagonalPair U V K) := by
+  have htwo : N.gaugeReal ((2 : 𝕜) • diagonalPair U V K) =
+      2 * N.gaugeReal (diagonalPair U V K) := by
     rw [N.gaugeReal_smul (2 : 𝕜) hB]
     norm_num
-  rw [← two_smul_paperDiagonalPair_eq_add_reflections U V K, htwo] at hsum
+  rw [← two_smul_diagonalPair_eq_add_reflections U V K, htwo] at hsum
   linarith
 
 /-- Lemma 6.2 simultaneously for every finite Ky Fan approximation gauge. -/
-theorem paperDiagonalPair_all_kyFan_le
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
+theorem diagonalPair_all_kyFan_le
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (K : E →L[𝕜] E) :
     ∀ k : ℕ,
-      kyFanApproximationGauge k (paperDiagonalPair U V K) ≤
+      kyFanApproximationGauge k (diagonalPair U V K) ≤
         kyFanApproximationGauge k K := by
   intro k
   by_cases hk0 : k = 0
@@ -119,39 +120,37 @@ theorem paperDiagonalPair_all_kyFan_le
     simp [kyFanApproximationGauge, ContinuousLinearMap.kyFanGauge]
   · have hk : 0 < k := Nat.pos_of_ne_zero hk0
     let N := KyFanDominantIdealFamily.kyFan (𝕜 := 𝕜) k hk
-    have h := paperDiagonalPair_gauge_le
+    have h := diagonalPair_gauge_le
       N.toSymmetricOperatorIdealFamily U V
       (KyFanDominantIdealFamily.kyFan_mem (𝕜 := 𝕜) k hk K)
     simpa only [N,
       KyFanDominantIdealFamily.kyFan_gauge] using h
 
 /-- Literal source-norm form of Davis--Kahan Lemma 6.2. -/
-theorem paperDiagonalPair_symmetricNorming_le
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
+theorem diagonalPair_symmetricNorming_le
     (N : SymmetricNormingFunction)
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (K : E →L[𝕜] E) :
-    N.extendedGauge (paperDiagonalPair U V K) ≤ N.extendedGauge K :=
+    N.extendedGauge (diagonalPair U V K) ≤ N.extendedGauge K :=
   N.extendedGauge_le_of_all_kyFan_le
-    (paperDiagonalPair_all_kyFan_le U V K)
+    (diagonalPair_all_kyFan_le U V K)
 
 /-- Real-valued source-norm form on the canonical ideal. -/
-theorem paperDiagonalPair_normingGauge_le
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
+theorem diagonalPair_normingGauge_le
     (N : SymmetricNormingFunction)
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {K : E →L[𝕜] E} (hK : N.Mem K) :
-    N.Mem (paperDiagonalPair U V K) ∧
-      N.gauge (paperDiagonalPair U V K) ≤ N.gauge K := by
-  have hle := paperDiagonalPair_symmetricNorming_le N U V K
-  have hB : N.Mem (paperDiagonalPair U V K) := by
+    N.Mem (diagonalPair U V K) ∧
+      N.gauge (diagonalPair U V K) ≤ N.gauge K := by
+  have hle := diagonalPair_symmetricNorming_le N U V K
+  have hB : N.Mem (diagonalPair U V K) := by
     intro htop
     rw [htop] at hle
     exact hK (top_le_iff.mp hle)
   refine ⟨hB, ?_⟩
-  show (N.extendedGauge (paperDiagonalPair U V K)).toReal ≤
+  show (N.extendedGauge (diagonalPair U V K)).toReal ≤
     (N.extendedGauge K).toReal
   exact (ENNReal.toReal_le_toReal hB hK).mpr hle
 
@@ -230,7 +229,7 @@ theorem sameApproximationSingularValues_comp_reflection_left
   exact key
 
 /-- Sum of the two cross-projection blocks appearing in Proposition 6.1. -/
-def paperCrossSineSum (U V : Submodule 𝕜 E)
+def crossSineSum (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[𝕜] E :=
   Uᗮ.starProjection ∘L V.starProjection +
     U.starProjection ∘L Vᗮ.starProjection
@@ -238,13 +237,13 @@ def paperCrossSineSum (U V : Submodule 𝕜 E)
 omit [CompleteSpace E] in
 /-- The cross-block sum is the projector difference followed by the target
 reflection. -/
-theorem paperCrossSineSum_eq_projectionDiff_comp_reflection
+theorem crossSineSum_eq_projectionDiff_comp_reflection
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    paperCrossSineSum U V =
+    crossSineSum U V =
       (V.starProjection - U.starProjection) ∘L V.reflectionOperator := by
   ext x
-  simp only [paperCrossSineSum, ContinuousLinearMap.comp_apply, add_apply,
+  simp only [crossSineSum, ContinuousLinearMap.comp_apply, add_apply,
     sub_apply]
   rw [Submodule.reflectionOperator_apply]
   simp_rw [Submodule.starProjection_orthogonal_apply]
@@ -258,12 +257,12 @@ theorem paperCrossSineSum_eq_projectionDiff_comp_reflection
 
 /-- The cross-block sum has exactly the complete singular-value sequence of the
 projector difference. -/
-theorem paperCrossSineSum_same_projectionDiff
+theorem crossSineSum_same_projectionDiff
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     SameApproximationSingularValues
-      (paperCrossSineSum U V) (V.starProjection - U.starProjection) := by
-  rw [paperCrossSineSum_eq_projectionDiff_comp_reflection]
+      (crossSineSum U V) (V.starProjection - U.starProjection) := by
+  rw [crossSineSum_eq_projectionDiff_comp_reflection]
   exact sameApproximationSingularValues_comp_reflection_right V _
 
 end

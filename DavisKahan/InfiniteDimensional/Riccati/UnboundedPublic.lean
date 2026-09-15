@@ -87,8 +87,8 @@ theorem complex_unbounded_blockDiagonalization
       TauCeti.LinearPMap.UnitaryEquivalent
         (unboundedBlockDiagonalCore H X)
         (unboundedBlockOperatorCore H) W Winv ∧
-      W ∘L projection (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) =
-        projection (unboundedBlockGraph X) ∘L W ∧
+      W ∘L Submodule.starProjection (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) =
+        Submodule.starProjection (unboundedBlockGraph X) ∘L W ∧
       TauCeti.LinearPMap.ReducesSubspace
         (unboundedBlockDiagonalCore H X)
         (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) ∧
@@ -119,8 +119,8 @@ theorem complex_unbounded_blockDiagonalization_of_strongSolution
       TauCeti.LinearPMap.UnitaryEquivalent
         (unboundedBlockDiagonalCore H X)
         (unboundedBlockOperatorCore H) W Winv ∧
-      W ∘L projection (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) =
-        projection (unboundedBlockGraph X) ∘L W ∧
+      W ∘L Submodule.starProjection (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) =
+        Submodule.starProjection (unboundedBlockGraph X) ∘L W ∧
       TauCeti.LinearPMap.ReducesSubspace
         (unboundedBlockDiagonalCore H X)
         (unboundedBlockGraph (0 : F0 →L[ℂ] F1)) ∧

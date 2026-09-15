@@ -7,6 +7,8 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.Theorem61
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.HeterogeneousRepresentative
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan Theorem 6.1 for every source-defined norm
 
@@ -41,7 +43,7 @@ variable {E F G H : Type v}
   [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
 /-- Norm-independent mathematical inputs of Davis--Kahan Theorem 6.1. -/
-structure PaperTheorem61Data where
+structure Theorem61Data where
   data : UnboundedSinThetaData (𝕜 := ℂ) (E := E) (F := F) (G := G)
   exactMap : H →L[ℂ] E
   ambient_selfAdjoint : _root_.IsSelfAdjoint data.A
@@ -55,17 +57,17 @@ structure PaperTheorem61Data where
   lowerFrame : LowerFrameBound data.X frameLowerBound
   spectral_gap : FormBoundedSylvesterGap data.A₀ data.Λ₁ gap
 
-namespace PaperTheorem61Data
+namespace Theorem61Data
 
 /-- Canonical directed sine block used to state the singular-value condition. -/
-def canonicalSinTheta (P : PaperTheorem61Data
+def canonicalSinTheta (P : Theorem61Data
     (E := E) (F := F) (G := G) (H := H)) : F →L[ℂ] E :=
   directedSinThetaOperator P.data.X P.exactMap
     P.lowerFrame P.frameLowerBound_pos
 
 /-- Package the norm-independent data for one finite Ky Fan gauge. -/
 noncomputable def toKyFanProblem
-    (P : PaperTheorem61Data (E := E) (F := F) (G := G) (H := H))
+    (P : Theorem61Data (E := E) (F := F) (G := G) (H := H))
     (k : ℕ) (hk : 0 < k) :
     FormBoundedGeneralSinThetaProblem (E := E) (F := F) (G := G) (H := H)
       (KyFanDominantIdealFamily.kyFan (𝕜 := ℂ) k hk) where
@@ -87,8 +89,8 @@ noncomputable def toKyFanProblem
 /-- The accepted theorem yields every finite Ky Fan inequality required by the
 source Fan-dominance argument. -/
 theorem all_kyFan_bound
-    (P : PaperTheorem61Data (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentative P.canonicalSinTheta) :
+    (P : Theorem61Data (E := E) (F := F) (G := G) (H := H))
+    (S : SinThetaRepresentative P.canonicalSinTheta) :
     ∀ k : ℕ,
       P.gap * P.frameLowerBound * kyFanApproximationGauge k S.operator ≤
         kyFanApproximationGauge k P.data.residual := by
@@ -102,8 +104,8 @@ theorem all_kyFan_bound
     have hmain := FormBoundedGeneralSinThetaProblem.result N (P.toKyFanProblem k hk)
     have hsame := S.same_singular_values.kyFanApproximationGauge_eq k
     simpa only [N, KyFanDominantIdealFamily.kyFan_gauge,
-      PaperTheorem61Data.toKyFanProblem,
-      PaperTheorem61Data.canonicalSinTheta, hsame] using hmain.2
+      Theorem61Data.toKyFanProblem,
+      Theorem61Data.canonicalSinTheta, hsame] using hmain.2
 
 /-- **Davis--Kahan 1970, Theorem 6.1, literal universal-norm form.**
 
@@ -111,8 +113,8 @@ The selected `sin Θ₀` is arbitrary subject only to the complete singular-valu
 condition stated in the paper, and `N` is an arbitrary normalized coherent
 symmetric norming function. -/
 theorem result_every_unitarilyInvariantNorm
-    (P : PaperTheorem61Data (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentative P.canonicalSinTheta)
+    (P : Theorem61Data (E := E) (F := F) (G := G) (H := H))
+    (S : SinThetaRepresentative P.canonicalSinTheta)
     (N : SymmetricNormingFunction)
     (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
@@ -128,8 +130,8 @@ theorem result_every_unitarilyInvariantNorm_across
     {E₀ F₀ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace ℂ E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace ℂ F₀] [CompleteSpace F₀]
-    (P : PaperTheorem61Data (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentativeAcross
+    (P : Theorem61Data (E := E) (F := F) (G := G) (H := H))
+    (S : SinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.canonicalSinTheta)
     (N : SymmetricNormingFunction)
     (hR : N.Mem P.data.residual) :
@@ -137,16 +139,16 @@ theorem result_every_unitarilyInvariantNorm_across
       P.gap * P.frameLowerBound * N.gauge S.operator ≤
         N.gauge P.data.residual := by
   have hcanonical := P.result_every_unitarilyInvariantNorm
-    (PaperSinThetaRepresentative.canonical P.canonicalSinTheta) N hR
+    (SinThetaRepresentative.canonical P.canonicalSinTheta) N hR
   have htransport := S.normingMem_iff_and_gauge_eq N
   refine ⟨htransport.1.mpr hcanonical.1, ?_⟩
   rw [htransport.2]
   exact hcanonical.2
 
-end PaperTheorem61Data
+end Theorem61Data
 
 /-- Norm-independent inputs of the original isometric sine theorem. -/
-structure PaperIsometricTheoremData where
+structure IsometricTheoremData where
   data : UnboundedSinThetaData (𝕜 := ℂ) (E := E) (F := F) (G := G)
   exactMap : H →L[ℂ] E
   ambient_selfAdjoint : _root_.IsSelfAdjoint data.A
@@ -158,13 +160,13 @@ structure PaperIsometricTheoremData where
   trial_isometry : IsometricEmbedding data.X
   spectral_gap : FormBoundedSylvesterGap data.A₀ data.Λ₁ gap
 
-namespace PaperIsometricTheoremData
+namespace IsometricTheoremData
 
 /-- Forget the isometry hypothesis: an isometric embedding has lower frame bound `1`, so the
 isometric record is the general one with `frameLowerBound := 1`. -/
 noncomputable def toGeneral
-    (P : PaperIsometricTheoremData (E := E) (F := F) (G := G) (H := H)) :
-    PaperTheorem61Data (E := E) (F := F) (G := G) (H := H) where
+    (P : IsometricTheoremData (E := E) (F := F) (G := G) (H := H)) :
+    Theorem61Data (E := E) (F := F) (G := G) (H := H) where
   data := P.data
   exactMap := P.exactMap
   ambient_selfAdjoint := P.ambient_selfAdjoint
@@ -180,7 +182,7 @@ noncomputable def toGeneral
 
 /-- The canonical sine-theta operator of an isometric configuration, read off the general record. -/
 def canonicalSinTheta
-    (P : PaperIsometricTheoremData (E := E) (F := F) (G := G) (H := H)) :=
+    (P : IsometricTheoremData (E := E) (F := F) (G := G) (H := H)) :=
   P.toGeneral.canonicalSinTheta
 
 /-- Original isometric sine theorem for every normalized source norm and every
@@ -189,8 +191,8 @@ theorem result_every_unitarilyInvariantNorm_across
     {E₀ F₀ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace ℂ E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace ℂ F₀] [CompleteSpace F₀]
-    (P : PaperIsometricTheoremData (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentativeAcross
+    (P : IsometricTheoremData (E := E) (F := F) (G := G) (H := H))
+    (S : SinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.canonicalSinTheta)
     (N : SymmetricNormingFunction) (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
@@ -198,7 +200,7 @@ theorem result_every_unitarilyInvariantNorm_across
   have h := P.toGeneral.result_every_unitarilyInvariantNorm_across S N hR
   simpa [toGeneral] using h
 
-end PaperIsometricTheoremData
+end IsometricTheoremData
 
 end Complex
 
@@ -211,7 +213,7 @@ variable {E F G H : Type v}
   [NormedAddCommGroup H] [InnerProductSpace ℝ H] [CompleteSpace H]
 
 /-- Real norm-independent mathematical inputs of Theorem 6.1. -/
-structure PaperRealTheorem61Data where
+structure RealTheorem61Data where
   data : UnboundedSinThetaData (𝕜 := ℝ) (E := E) (F := F) (G := G)
   exactMap : H →L[ℝ] E
   ambient_selfAdjoint : _root_.IsSelfAdjoint data.A
@@ -225,17 +227,17 @@ structure PaperRealTheorem61Data where
   lowerFrame : LowerFrameBound data.X frameLowerBound
   spectral_gap : FormBoundedSylvesterGap data.A₀ data.Λ₁ gap
 
-namespace PaperRealTheorem61Data
+namespace RealTheorem61Data
 
 /-- Real canonical directed sine block. -/
-def canonicalSinTheta (P : PaperRealTheorem61Data
+def canonicalSinTheta (P : RealTheorem61Data
     (E := E) (F := F) (G := G) (H := H)) : F →L[ℝ] E :=
   directedSinThetaOperatorReal P.data.X P.exactMap
     P.lowerFrame P.frameLowerBound_pos
 
 /-- Real data specialized to one finite Ky Fan gauge. -/
 noncomputable def toKyFanProblem
-    (P : PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H))
+    (P : RealTheorem61Data (E := E) (F := F) (G := G) (H := H))
     (k : ℕ) (hk : 0 < k) :
     RealGeneralSinThetaProblem (E := E) (F := F) (G := G) (H := H)
       (KyFanDominantIdealFamily.kyFan (𝕜 := ℝ) k hk) where
@@ -256,8 +258,8 @@ noncomputable def toKyFanProblem
 
 /-- Every real finite Ky Fan inequality. -/
 theorem all_kyFan_bound
-    (P : PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentative P.canonicalSinTheta) :
+    (P : RealTheorem61Data (E := E) (F := F) (G := G) (H := H))
+    (S : SinThetaRepresentative P.canonicalSinTheta) :
     ∀ k : ℕ,
       P.gap * P.frameLowerBound * kyFanApproximationGauge k S.operator ≤
         kyFanApproximationGauge k P.data.residual := by
@@ -271,13 +273,13 @@ theorem all_kyFan_bound
     have hmain := RealGeneralSinThetaProblem.result N (P.toKyFanProblem k hk)
     have hsame := S.same_singular_values.kyFanApproximationGauge_eq k
     simpa only [N, KyFanDominantIdealFamily.kyFan_gauge,
-      PaperRealTheorem61Data.toKyFanProblem,
-      PaperRealTheorem61Data.canonicalSinTheta, hsame] using hmain.2
+      RealTheorem61Data.toKyFanProblem,
+      RealTheorem61Data.canonicalSinTheta, hsame] using hmain.2
 
 /-- Literal real Theorem 6.1 for every source-defined norm. -/
 theorem result_every_unitarilyInvariantNorm
-    (P : PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentative P.canonicalSinTheta)
+    (P : RealTheorem61Data (E := E) (F := F) (G := G) (H := H))
+    (S : SinThetaRepresentative P.canonicalSinTheta)
     (N : SymmetricNormingFunction)
     (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
@@ -293,8 +295,8 @@ theorem result_every_unitarilyInvariantNorm_across
     {E₀ F₀ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace ℝ E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace ℝ F₀] [CompleteSpace F₀]
-    (P : PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentativeAcross
+    (P : RealTheorem61Data (E := E) (F := F) (G := G) (H := H))
+    (S : SinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.canonicalSinTheta)
     (N : SymmetricNormingFunction)
     (hR : N.Mem P.data.residual) :
@@ -302,16 +304,16 @@ theorem result_every_unitarilyInvariantNorm_across
       P.gap * P.frameLowerBound * N.gauge S.operator ≤
         N.gauge P.data.residual := by
   have hcanonical := P.result_every_unitarilyInvariantNorm
-    (PaperSinThetaRepresentative.canonical P.canonicalSinTheta) N hR
+    (SinThetaRepresentative.canonical P.canonicalSinTheta) N hR
   have htransport := S.normingMem_iff_and_gauge_eq N
   refine ⟨htransport.1.mpr hcanonical.1, ?_⟩
   rw [htransport.2]
   exact hcanonical.2
 
-end PaperRealTheorem61Data
+end RealTheorem61Data
 
 /-- Real norm-independent inputs of the original isometric sine theorem. -/
-structure PaperRealIsometricTheoremData where
+structure RealIsometricTheoremData where
   data : UnboundedSinThetaData (𝕜 := ℝ) (E := E) (F := F) (G := G)
   exactMap : H →L[ℝ] E
   ambient_selfAdjoint : _root_.IsSelfAdjoint data.A
@@ -323,13 +325,13 @@ structure PaperRealIsometricTheoremData where
   trial_isometry : IsometricEmbedding data.X
   spectral_gap : FormBoundedSylvesterGap data.A₀ data.Λ₁ gap
 
-namespace PaperRealIsometricTheoremData
+namespace RealIsometricTheoremData
 
 /-- Forget the isometry hypothesis, real-scalar case. -/
 noncomputable def toGeneral
-    (P : PaperRealIsometricTheoremData
+    (P : RealIsometricTheoremData
       (E := E) (F := F) (G := G) (H := H)) :
-    PaperRealTheorem61Data (E := E) (F := F) (G := G) (H := H) where
+    RealTheorem61Data (E := E) (F := F) (G := G) (H := H) where
   data := P.data
   exactMap := P.exactMap
   ambient_selfAdjoint := P.ambient_selfAdjoint
@@ -345,7 +347,7 @@ noncomputable def toGeneral
 
 /-- The canonical sine-theta operator of a real isometric configuration. -/
 def canonicalSinTheta
-    (P : PaperRealIsometricTheoremData
+    (P : RealIsometricTheoremData
       (E := E) (F := F) (G := G) (H := H)) :=
   P.toGeneral.canonicalSinTheta
 
@@ -355,9 +357,9 @@ theorem result_every_unitarilyInvariantNorm_across
     {E₀ F₀ : Type v}
     [NormedAddCommGroup E₀] [InnerProductSpace ℝ E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace ℝ F₀] [CompleteSpace F₀]
-    (P : PaperRealIsometricTheoremData
+    (P : RealIsometricTheoremData
       (E := E) (F := F) (G := G) (H := H))
-    (S : PaperSinThetaRepresentativeAcross
+    (S : SinThetaRepresentativeAcross
       (E₀ := E₀) (F₀ := F₀) P.canonicalSinTheta)
     (N : SymmetricNormingFunction) (hR : N.Mem P.data.residual) :
     N.Mem S.operator ∧
@@ -365,7 +367,7 @@ theorem result_every_unitarilyInvariantNorm_across
   have h := P.toGeneral.result_every_unitarilyInvariantNorm_across S N hR
   simpa [toGeneral] using h
 
-end PaperRealIsometricTheoremData
+end RealIsometricTheoremData
 
 end Real
 

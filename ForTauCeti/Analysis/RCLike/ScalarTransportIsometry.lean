@@ -74,6 +74,49 @@ theorem submodule_inf (S T : Submodule 𝕜 X) :
   ext x
   simp only [mem_submodule, Submodule.mem_inf]
 
+/-- **The subtype of a transported subspace is the transport of the original subtype.**
+
+`ScalarTransport.submodule S` keeps exactly the carrier of `S`, while
+`ScalarTransport e S` transports the Hilbert structure on the subtype itself.
+This canonical isometry is the adapter between those two spellings.  It is the
+missing coordinate map needed to transport partial operators whose domain or
+codomain is a closed subspace, such as an unbounded Ritz compression. -/
+@[expose]
+noncomputable def submoduleSubtypeEquiv (S : Submodule 𝕜 X) :
+    ScalarTransport e S ≃ₗᵢ[𝕂] (submodule (e := e) S : Submodule 𝕂 (ScalarTransport e X)) where
+  toFun x := ⟨of (e := e) ((out (e := e) x : S) : X), (out (e := e) x : S).2⟩
+  invFun y := of (e := e) (⟨out (e := e) (y : ScalarTransport e X), y.2⟩ : S)
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+  norm_map' _ := rfl
+
+/-- **The transport of an orthogonal-complement subtype is canonically the
+orthogonal complement of the transported subspace.**
+
+This is the codomain adapter needed by directed tangent corners.  Keeping it as
+an isometric equivalence avoids exposing equality casts between
+`submodule (Sᗮ)` and `(submodule S)ᗮ` to downstream APIs. -/
+noncomputable def orthogonalSubmoduleSubtypeEquiv (S : Submodule 𝕜 X) :
+    ScalarTransport e Sᗮ ≃ₗᵢ[𝕂]
+      ((submodule (e := e) S)ᗮ : Submodule 𝕂 (ScalarTransport e X)) := by
+  rw [submodule_orthogonal]
+  exact submoduleSubtypeEquiv (e := e) Sᗮ
+
+/-- The transported-subspace adapter does not move the ambient vector. -/
+@[simp] theorem submoduleSubtypeEquiv_coe_apply (S : Submodule 𝕜 X)
+    (x : ScalarTransport e S) :
+    (((submoduleSubtypeEquiv (e := e) S x :
+        submodule (e := e) S) : ScalarTransport e X)) =
+      of (e := e) (((out (e := e) x : S) : X)) := rfl
+
+/-- Nor does its inverse move the ambient vector. -/
+@[simp] theorem submoduleSubtypeEquiv_symm_coe_apply (S : Submodule 𝕜 X)
+    (x : submodule (e := e) S) :
+    out (e := e) ((submoduleSubtypeEquiv (e := e) S).symm x) =
+      (⟨out (e := e) (x : ScalarTransport e X), x.2⟩ : S) := rfl
+
 /-- Two subspaces with the same carrier give isometric coercions. -/
 noncomputable def submoduleEquivOfEq {S T : Submodule 𝕜 X} (h : S = T) :
     (S : Submodule 𝕜 X) ≃ₗᵢ[𝕜] (T : Submodule 𝕜 X) where

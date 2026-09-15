@@ -32,7 +32,7 @@ This file supplies the two notions that keep the choice free.
 
 The two structural facts a consumer needs are here.  An eigenfamily spans an
 invariant subspace whose restricted spectrum is contained in the recorded
-eigenvalue list (`IsEigenFamily.restrictedSpectrum_span_subset`), and — the
+eigenvalue list (`IsEigenFamily.restrictedPointSpectrum_span_subset`), and — the
 point of the file — a *gap-separated* ordered eigenframe spans the canonical
 `spanIndices` block no matter which eigenvectors were chosen
 (`IsOrderedEigenframe.span_eq_spanIndices`).  So a spectral gap makes the block
@@ -40,12 +40,12 @@ canonical, and without one it genuinely is not.
 
 ## Main results
 
-* `TauCeti.IsEigenFamily.restrictedSpectrum_span_subset`: the eigenvalues
+* `TauCeti.IsEigenFamily.restrictedPointSpectrum_span_subset`: the eigenvalues
   carried by the span are among the recorded ones.
 * `TauCeti.IsOrderedEigenframe.span_eq_spanIndices`: under a population gap
   separating `Set.range e` from its complement, the span is the canonical block.
-* `TauCeti.IsOrderedEigenframe.internalGap_span`: the same hypotheses give the
-  intrinsic `InternalGap` used by the residual estimates.
+* `TauCeti.IsOrderedEigenframe.pointInternalGap_span`: the same hypotheses give the
+  intrinsic `PointInternalGap` used by the residual estimates.
 -/
 
 public section
@@ -86,9 +86,9 @@ theorem isInvariant_span (h : IsEigenFamily T c y) :
   · intro a b _ hb; rw [map_smul]; exact Submodule.smul_mem _ _ hb
 
 /-- Every recorded eigenvalue is carried by the span. -/
-theorem eigenvalue_mem_restrictedSpectrum (h : IsEigenFamily T c y) (i : ι) :
-    c i ∈ restrictedSpectrum T (Submodule.span 𝕜 (Set.range y)) :=
-  mem_restrictedSpectrum (Submodule.subset_span ⟨i, rfl⟩) (h.orthonormal.ne_zero i)
+theorem eigenvalue_mem_restrictedPointSpectrum (h : IsEigenFamily T c y) (i : ι) :
+    c i ∈ restrictedPointSpectrum T (Submodule.span 𝕜 (Set.range y)) :=
+  mem_restrictedPointSpectrum (Submodule.subset_span ⟨i, rfl⟩) (h.orthonormal.ne_zero i)
     (h.apply_eq i)
 
 /-- The span of an eigenfamily has the dimension of its index type. -/
@@ -103,15 +103,15 @@ eigenvalue on the other, so every coordinate of a vector with a new eigenvalue
 vanishes and the vector is `0`.
 
 This is what makes an eigenframe hypothesis usable as a *spectral* hypothesis:
-`InternalGap` quantifies over `restrictedSpectrum`, which a caller can only
+`PointInternalGap` quantifies over `restrictedPointSpectrum`, which a caller can only
 control through a statement of this kind. -/
-theorem restrictedSpectrum_span_subset [Finite ι] [FiniteDimensional 𝕜 E]
+theorem restrictedPointSpectrum_span_subset [Finite ι] [FiniteDimensional 𝕜 E]
     (h : IsEigenFamily T c y) (hT : T.IsSymmetric) :
-    restrictedSpectrum T (Submodule.span 𝕜 (Set.range y)) ⊆ Set.range c := by
+    restrictedPointSpectrum T (Submodule.span 𝕜 (Set.range y)) ⊆ Set.range c := by
   classical
   have _ : Fintype ι := Fintype.ofFinite ι
   intro lam hlam
-  obtain ⟨x, hxU, hx0, hxEig⟩ := mem_restrictedSpectrum_iff.mp hlam
+  obtain ⟨x, hxU, hx0, hxEig⟩ := mem_restrictedPointSpectrum_iff.mp hlam
   by_contra hnot
   -- Every coordinate of `x` against the family vanishes.
   have hcoord : ∀ i, ⟪y i, x⟫_𝕜 = 0 := by
@@ -258,17 +258,18 @@ theorem span_eq_spanIndices (hw : IsOrderedEigenframe hT hn e w) {Δ : ℝ} (hΔ
   simp
 
 /-- **The intrinsic gap.**  A `Δ`-separated ordered eigenframe spans a subspace
-with `InternalGap T · Δ`: both the selected and the complementary spectrum are
+with `PointInternalGap T · Δ`: both the selected and the complementary spectrum are
 read off the sorted eigenvalue list, and the index separation is exactly the
 hypothesis. -/
-theorem internalGap_span (hw : IsOrderedEigenframe hT hn e w) {Δ : ℝ} (hΔ : 0 < Δ)
+theorem pointInternalGap_span (hw : IsOrderedEigenframe hT hn e w) {Δ : ℝ} (hΔ : 0 < Δ)
     (hgap : ∀ (i : Fin d) (k : Fin n), k ∉ Set.range e →
       Δ ≤ |hT.eigenvalues hn (e i) - hT.eigenvalues hn k|) :
-    InternalGap T (Submodule.span 𝕜 (Set.range w)) Δ := by
+    PointInternalGap T (Submodule.span 𝕜 (Set.range w)) Δ := by
   classical
+  refine ⟨hw.isInvariant_span, ?_⟩
   intro lam μ hlam hμ
   -- The selected side: `lam` is one of the frame's own eigenvalues.
-  obtain ⟨i, rfl⟩ := hw.toIsEigenFamily.restrictedSpectrum_span_subset hT hlam
+  obtain ⟨i, rfl⟩ := hw.toIsEigenFamily.restrictedPointSpectrum_span_subset hT hlam
   -- The complementary side: `Uᗮ` is the span of the unselected basis vectors.
   rw [hw.span_eq_spanIndices hΔ hgap] at hμ
   set S : Finset (Fin n) := Finset.univ.map e with hS
@@ -277,7 +278,7 @@ theorem internalGap_span (hw : IsOrderedEigenframe hT hn e w) {Δ : ℝ} (hΔ : 
   rw [hrange, OrthonormalBasis.orthogonal_spanIndices, hcompl,
     ← span_range_eigenvectorBasis_coe hT hn Sᶜ] at hμ
   obtain ⟨k, rfl⟩ :=
-    (isEigenFamily_eigenvectorBasis_coe hT hn Sᶜ).restrictedSpectrum_span_subset hT hμ
+    (isEigenFamily_eigenvectorBasis_coe hT hn Sᶜ).restrictedPointSpectrum_span_subset hT hμ
   refine hgap i ↑k ?_
   rw [hrange]
   exact fun hk => (Finset.mem_compl.mp k.2) hk

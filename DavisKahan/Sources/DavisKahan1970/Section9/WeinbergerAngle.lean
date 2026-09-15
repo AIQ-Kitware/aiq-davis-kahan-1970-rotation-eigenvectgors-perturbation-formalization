@@ -23,13 +23,13 @@ other Ritz vectors.
 
 This file records that boundary in executable form.  It provides the scalar
 energy-splitting lemma that is sufficient for the familiar sine-square ratio,
-and a rational three-dimensional tripwire showing that a scalar lower bound
-for the second eigenvalue alone does not imply the same ratio for the second
-Ritz vector.
+and a rational three-dimensional counterexample showing that a scalar lower
+bound for the second eigenvalue alone does not imply the same ratio for the
+second Ritz vector.
 
-The tripwire is deliberately theorem-level documentation: future work must not
-replace Weinberger's coupled hypotheses by the weaker scalar statement simply
-because the latter has the desired type shape.
+The counterexample is deliberately stated as a theorem: Weinberger's coupled
+hypotheses may not be replaced by the weaker scalar statement simply because
+the latter has the desired type shape.
 -/
 
 namespace TauCeti
@@ -58,7 +58,7 @@ theorem weinberger_sine_sq_le_of_coupled_energy
   apply (le_div_iff₀ hden).2
   nlinarith
 
-/-- A machine-checked tripwire against the false inference
+/-- A machine-checked counterexample to the false inference
 
 `scalar lower bound for lambda_2  =>  Weinberger's second-vector angle ratio`.
 
@@ -77,7 +77,7 @@ The conjuncts encode an exact three-dimensional Ritz problem for
 
 Thus the second-vector angle estimate needs Weinberger's coupled variational
 information; the scalar lower-eigenvalue fact by itself is insufficient. -/
-theorem naive_second_scalar_lower_bound_tripwire :
+theorem secondScalarLowerBound_angleBound_counterexample :
     (((18 : ℝ) / 35) ^ 2 + ((-6 : ℝ) / 7) ^ 2 + ((1 : ℝ) / 35) ^ 2 = 1) ∧
     (((3 : ℝ) / 7) ^ 2 + ((2 : ℝ) / 7) ^ 2 + ((6 : ℝ) / 7) ^ 2 = 1) ∧
     ((18 : ℝ) / 35 * ((3 : ℝ) / 7)

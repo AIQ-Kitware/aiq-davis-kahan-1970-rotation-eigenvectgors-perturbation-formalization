@@ -434,28 +434,28 @@ theorem sum_doubleAngleTangent_le_selected_add_tail
     (hXr : ‖X‖ ≤ r)
     (F : ApproximateLeadingSingularFamily X k ε) :
     (∑ n ∈ Finset.range k,
-        DavisKahanTheory.doubleAngleTangent (X.approximationNumber n)) ≤
+        DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n)) ≤
       (∑ i : Fin F.count,
-        DavisKahanTheory.doubleAngleTangent (X.approximationNumber i)) +
+        DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber i)) +
         (k - F.count) * ((2 / (1 - r ^ 2)) * ε) := by
   classical
   have hcount := F.count_le
   rw [← Finset.sum_range_add_sum_Ico
-    (f := fun n => DavisKahanTheory.doubleAngleTangent
+    (f := fun n => DavisKahan.TanTwoTheta.doubleAngleTangent
       (X.approximationNumber n)) hcount]
   have hhead :
       (∑ n ∈ Finset.range F.count,
-          DavisKahanTheory.doubleAngleTangent (X.approximationNumber n)) =
+          DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n)) =
         ∑ i : Fin F.count,
-          DavisKahanTheory.doubleAngleTangent (X.approximationNumber i) :=
+          DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber i) :=
     (Fin.sum_univ_eq_sum_range
-      (fun n => DavisKahanTheory.doubleAngleTangent
+      (fun n => DavisKahan.TanTwoTheta.doubleAngleTangent
         (X.approximationNumber n)) F.count).symm
   rw [hhead]
   apply add_le_add_right
   calc
     (∑ n ∈ Finset.Ico F.count k,
-        DavisKahanTheory.doubleAngleTangent (X.approximationNumber n))
+        DavisKahan.TanTwoTheta.doubleAngleTangent (X.approximationNumber n))
         ≤ ∑ _n ∈ Finset.Ico F.count k,
             ((2 / (1 - r ^ 2)) * ε) := by
           apply Finset.sum_le_sum
@@ -467,7 +467,7 @@ theorem sum_doubleAngleTangent_le_selected_add_tail
             F.tail_small n hnmem.1 hnmem.2
           have hanr : X.approximationNumber n ≤ r :=
             (X.approximationNumber_le_norm n).trans hXr
-          unfold DavisKahanTheory.doubleAngleTangent
+          unfold DavisKahan.TanTwoTheta.doubleAngleTangent
           have hdenr : 0 < 1 - r ^ 2 := by nlinarith
           have hdena : 0 < 1 - (X.approximationNumber n) ^ 2 := by
             nlinarith

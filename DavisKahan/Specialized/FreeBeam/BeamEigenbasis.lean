@@ -7,6 +7,11 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Specialized.FreeBeam.BeamWeinberger
 import DavisKahan.Sources.DavisKahan1970.Section9.SchurComplement
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Section 9, equations (9.9)--(9.11): the beam block realization
 
@@ -53,6 +58,7 @@ namespace TauCeti
 namespace DavisKahan
 namespace FreeBeam
 namespace Model
+
 
 open DavisKahan1970.Section9
 

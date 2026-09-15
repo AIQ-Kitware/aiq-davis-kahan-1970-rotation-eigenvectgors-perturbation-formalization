@@ -254,16 +254,15 @@ theorem upperHemicontinuousAt_isMinOn_of_isCompact {X : Type*} [TopologicalSpace
 /-- **Upper hemicontinuity of the argmin correspondence over a fixed compact set
 (the fixed-constraint case of Berge's maximum theorem), via Mathlib's
 `UpperHemicontinuousAt`.**
-For `X` Hausdorff (so the compact feasible set `K` is closed), jointly continuous
-`g`, and `P` first-countable at `p₀`, the argmin correspondence
+For jointly continuous `g` and compact `K`, the argmin correspondence
 `p ↦ {x ∈ K | IsMinOn (g p) K x}` is upper hemicontinuous at `p₀` in the sense of
 `Mathlib.Topology.Semicontinuity.Hemicontinuity`.
 
-This lands the closed-graph statement on Mathlib's own predicate, via its
-sequential characterization `UpperHemicontinuousAt.of_sequences`: the
-correspondence is `K`-valued (so the containment premise is trivial) and the
-closed-graph obligation is discharged by passing the minimization inequality
-`g (p n) (c n) ≤ g (p n) y` to the limit through joint continuity. -/
+This lands the closed-graph statement on Mathlib's own predicate.  It carries no
+countability or separation hypothesis: the earlier route through
+`UpperHemicontinuousAt.of_sequences` needed `[FirstCountableTopology X]`,
+`[T2Space X]` and `[(𝓝 p₀).IsCountablyGenerated]`, and
+`upperHemicontinuousAt_isMinOn_of_isCompact` does without them. -/
 theorem upperHemicontinuousAt_isMinOn {X : Type*} [TopologicalSpace X]
     {K : Set X} (hK : IsCompact K)
     {g : P → X → ℝ} (hg : Continuous (Function.uncurry g)) (p₀ : P) :

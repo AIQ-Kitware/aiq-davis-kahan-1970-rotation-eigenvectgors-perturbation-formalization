@@ -19,9 +19,10 @@ membership and the arbitrary-gauge estimate.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
+open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.RealComplexification
 
 noncomputable section
@@ -74,7 +75,7 @@ It supports interval/exterior separation and both ordered half-line
 orientations, with the same sharp constant and an arbitrary real unitarily
 invariant ideal family. -/
 theorem davisKahan1970_sylvester_real
-    (N : KyFanDominantIdealFamily (𝕜 := ℝ))
+    (N : FanDominantIdealFamily (𝕜 := ℝ))
     {A : E →ₗ.[ℝ] E}
     {B : F →ₗ.[ℝ] F}
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
@@ -92,6 +93,6 @@ theorem davisKahan1970_sylvester_real
 
 end
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

@@ -3,15 +3,16 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
-import DavisKahan.SpectralTheory.PartialMap.Basic
+import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Closed
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Constructions
+import DavisKahan.BoundedOperator.Problem
+import DavisKahan.SpectralTheory.AbstractSpectrum
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
 /-!
-# Unitary conjugation for DK closed operators
+# Unitary conjugation for unbounded operators
 
-This module states unitary conjugation in terms of the DK closed-operator
-wrapper.  The source and target Hilbert spaces may differ, which is important
+This module states unitary conjugation for a partial map `H →ₗ.[ℂ] H`.  The source and target Hilbert spaces may differ, which is important
 when conjugating operators restricted to spectral subspaces.  The construction
 came from the vendored Spectra package, retired on 2026-07-29; it is now built
 on Mathlib's `LinearPMap`.
@@ -39,6 +40,7 @@ noncomputable def unitaryConjugate
     (_hA : IsSelfAdjoint A) : K →ₗ.[ℂ] K :=
   TauCeti.LinearPMap.unitaryConj W A
 
+omit [CompleteSpace K] in
 /-- The domain of a unitary conjugate is the image of the original domain. -/
 @[simp] theorem unitaryConjugate_domain
     (W : H ≃ₗᵢ[ℂ] K) (A : H →ₗ.[ℂ] H)
@@ -46,6 +48,7 @@ noncomputable def unitaryConjugate
     (unitaryConjugate W A hA).domain =
       A.domain.comap (W.symm.toLinearEquiv : K →ₗ[ℂ] H) := rfl
 
+omit [CompleteSpace K] in
 /-- Membership in the transported domain is the expected inverse-image
 condition. -/
 theorem mem_unitaryConjugate_domain_iff
@@ -53,6 +56,7 @@ theorem mem_unitaryConjugate_domain_iff
     (hA : IsSelfAdjoint A) {x : K} :
     x ∈ (unitaryConjugate W A hA).domain ↔ W.symm x ∈ A.domain := Iff.rfl
 
+omit [CompleteSpace K] in
 /-- The transported domain is also the direct image of the original domain. -/
 theorem unitaryConjugate_domain_eq_map
     (W : H ≃ₗᵢ[ℂ] K) (A : H →ₗ.[ℂ] H)
@@ -68,6 +72,7 @@ theorem unitaryConjugate_domain_eq_map
     change W.symm (W z) ∈ A.domain
     simpa using hz
 
+omit [CompleteSpace K] in
 /-- The unitary conjugate acts by transporting, applying, and transporting back. -/
 @[simp] theorem unitaryConjugate_apply
     (W : H ≃ₗᵢ[ℂ] K) (A : H →ₗ.[ℂ] H)
@@ -75,6 +80,7 @@ theorem unitaryConjugate_domain_eq_map
     (unitaryConjugate W A hA) x =
       W (A ⟨W.symm (x : K), x.property⟩) := rfl
 
+omit [CompleteSpace K] in
 /-- The unitary sends every original-domain vector into the transported
  domain. -/
 theorem unitaryConjugate_map_mem_domain
@@ -84,6 +90,7 @@ theorem unitaryConjugate_map_mem_domain
   rw [mem_unitaryConjugate_domain_iff, W.symm_apply_apply]
   exact x.property
 
+omit [CompleteSpace K] in
 /-- Conjugation acts by the expected formula on transported domain vectors. -/
 theorem unitaryConjugate_apply_map
     (W : H ≃ₗᵢ[ℂ] K) (A : H →ₗ.[ℂ] H)
@@ -162,6 +169,7 @@ theorem mem_resolventSet_unitaryConj_iff
     rwa [unitaryConj_symm_unitaryConj W A] at hz'
   · exact mem_resolventSet_unitaryConj_of_mem W A
 
+omit [CompleteSpace K] in
 /-- A resolvent of the original DK operator transports to a resolvent of the
 unitarily conjugated DK operator. -/
 theorem mem_resolventSet_unitaryConjugate_iff
@@ -182,6 +190,7 @@ theorem unitaryConjugate_isSelfAdjoint
   change IsSelfAdjoint (TauCeti.LinearPMap.unitaryConj W A)
   exact TauCeti.LinearPMap.isSelfAdjoint_unitaryConj hA
 
+omit [CompleteSpace K] in
 /-- The real spectrum is invariant under unitary conjugation. -/
 theorem unitaryConjugate_spectrum_eq
     (W : H ≃ₗᵢ[ℂ] K) (A : H →ₗ.[ℂ] H)

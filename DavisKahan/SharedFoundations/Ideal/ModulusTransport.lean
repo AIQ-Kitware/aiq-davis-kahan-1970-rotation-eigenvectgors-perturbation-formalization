@@ -43,7 +43,7 @@ variable {E : Type u} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 orthogonal projection onto it, so it is norm non-increasing everywhere. -/
 theorem norm_polarPartial_le_one (T : E →L[ℂ] E) : ‖T.polarPartial‖ ≤ 1 := by
   refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => ?_
-  rw [one_mul, T.polarPartial_apply, T.norm_polarPartialAux_apply]
+  rw [one_mul, T.polarPartial_apply, T.norm_polarInitialMap_apply]
   exact T.polarInitial.norm_orthogonalProjectionOnto_apply_le x
 
 /-- The polar factor and its adjoint are contractions. -/

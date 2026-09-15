@@ -9,6 +9,9 @@ import DavisKahan.Sources.DavisKahan1970.SharpKyFan
 import ForTauCeti.Analysis.InnerProductSpace.Polar.Isometry
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.GramBandPolar
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Branch-free Ky Fan reflection tangent estimate
 

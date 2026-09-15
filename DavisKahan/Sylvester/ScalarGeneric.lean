@@ -12,19 +12,27 @@ The manuscript Section 5 Sylvester theorem exists here twice and only twice.
 `davisKahan1970_sylvester_complex` is proved over `ℂ`, through the vendored
 Spectra spectral cutoffs and the ordered engine; `real_unbounded_sylvester_kyFan`
 is proved over `ℝ`, by complexifying and descending through exact invariance of
-the approximation numbers.  Neither is `RCLike`-generic, and neither can be made
-so by a case split: `RCLike` carries no discriminator separating its two intended
-models, so "it holds for `ℝ` and it holds for `ℂ`" is not by itself a proof of
-anything about a general `RCLike` field.
+the approximation numbers.  Neither is `RCLike`-generic.
 
 This module does for that estimate exactly what
 `ContinuousLinearMap.HasMinMaxLowerBoundEverywhere` already does one layer down
 for the min--max lower bound: it names the estimate as a property *of the scalar
-field*, quantified over every pair of Hilbert spaces at once, and supplies the
-two instances.  A statement over `[RCLike 𝕜]` may then take the class as an
-instance binder; at `ℝ` and at `ℂ` instance search discharges it, so no
-hypothesis is added to any statement that was previously written out over a
-fixed field.
+field*, quantified over every pair of Hilbert spaces at once.
+
+**The class is discharged unconditionally.**  Until 2026-09-01 this file said that
+"it holds for `ℝ` and it holds for `ℂ`" was not by itself a proof of anything at a
+general `RCLike` field, because `RCLike` carries no discriminator between its two
+models.  That was wrong: `RCLike.I_eq_zero_or_im_I_eq_one` is exactly such a
+discriminator, and `Sylvester/ScalarTransport.lean` uses it, transporting the
+Hilbert-space structure along a field isomorphism to `ℝ` or to `ℂ` and carrying the
+estimate back.  `hasUnboundedSylvesterKyFan` is therefore an instance at **every**
+`RCLike` field.
+
+So the class survives as an implementation seam, not as a hypothesis.  A statement
+below this layer may still take it as an instance binder -- the modules that
+*prove* it must -- but no statement above this layer should: instance search
+discharges it, and a leftover binder advertises as a hypothesis something the
+caller never supplies.  The 2026-09-03 sweep removed 35 such binders.
 
 Only the finite Ky Fan gauges appear.  That is the weakest form that still
 generates the rest: wherever a `KyFanDominantIdealFamily` is in hand, Fan
@@ -35,7 +43,9 @@ statements are already built.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
+
+open TauCeti.DavisKahan.ExactSinTheta
 
 open scoped InnerProductSpace
 
@@ -118,6 +128,6 @@ instance hasUnboundedSylvesterKyFan_real :
 
 end
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

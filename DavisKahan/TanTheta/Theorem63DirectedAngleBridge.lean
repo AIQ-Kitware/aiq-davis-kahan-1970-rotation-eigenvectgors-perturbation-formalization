@@ -10,19 +10,22 @@ import ForTauCeti.Analysis.InnerProductSpace.Polar.CFCBridge
 import ForTauCeti.Analysis.InnerProductSpace.PrincipalAngles.Equisingular
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Identifying the Theorem 6.3 tangent with the paper's directed angle
 
 `theorem63DirectedTangent` was constructed in the right singular basis of the
 directed sine block, with diagonal entries `tan (arcsin sigma_i)`.  The source
-paper angle `paperSourceDirectedAngleC Z V` is defined independently, by
+paper angle `directedAngleBlockC Z V` is defined independently, by
 continuous functional calculus from the positive cosine overlap.
 
 This file proves that these are the same operator on the trial coordinates.
 More precisely, once the source gap has excluded `sigma_i = 1`,
 
 `theorem63DirectedTangent Z V =
-  Z.subtypeL ∘L cfc Real.tan (paperSourceDirectedAngleC Z V)`.
+  Z.subtypeL ∘L cfc Real.tan (directedAngleBlockC Z V)`.
 
 This is the semantic bridge needed by the ambient `tan Theta` half of the
 Davis--Kahan theorem: the singular-basis representative used by Theorem 6.3 is
@@ -34,10 +37,11 @@ open scoped InnerProductSpace BigOperators
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactTanTheta
+namespace TanTheta
 
 open ExactSinTheta
 open Module (finrank)
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -45,12 +49,6 @@ universe u
 
 variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
   [CompleteSpace H]
-
-/-- A projected subspace of a complete Hilbert space is complete.  The source
-angle and finite CFC bridge both need this instance on the coordinate space. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionDirectedAngleBridge
-    (W : Submodule ℂ H) [W.HasOrthogonalProjection] : CompleteSpace W :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection W).completeSpace_coe
 
 /-- The bounded endomorphisms of a projected coordinate subspace form the
 C-star algebra used by Mathlib's continuous functional calculus. -/
@@ -125,10 +123,10 @@ private abbrev directedSine : Z →L[ℂ] H :=
   theorem63DirectedSineBlock Z V
 
 private abbrev coordinateSine : Z →L[ℂ] Vᗮ :=
-  paperSineBlockC Z V
+  sineBlockC Z V
 
 private abbrev coordinateSineModulus : Z →L[ℂ] Z :=
-  paperSineModulusC Z V
+  sineBlockModulusC Z V
 
 /-- The ambient directed sine block is the coordinate sine block followed by
 inclusion of `V-perp`. -/
@@ -141,7 +139,7 @@ private theorem subtypeL_comp_adjoint_subtypeL
 omit [FiniteDimensional ℂ ↥Z] in
 private theorem directedSine_eq_subtype_comp_coordinateSine :
     directedSine Z V = Vᗮ.subtypeL ∘L coordinateSine Z V := by
-  rw [directedSine, coordinateSine, theorem63DirectedSineBlock, paperSineBlockC,
+  rw [directedSine, coordinateSine, theorem63DirectedSineBlock, sineBlockC,
     ← ContinuousLinearMap.comp_assoc, subtypeL_comp_adjoint_subtypeL]
 
 /-- Inclusion of `V-perp` is isometric on the range of the coordinate sine
@@ -225,7 +223,7 @@ private theorem coordinateSineModulus_apply_rightSingularBasis
 `arcsin sigma_i`. -/
 private theorem sourceDirectedAngle_apply_rightSingularBasis
     (i : Fin (finrank ℂ Z)) :
-    paperSourceDirectedAngleC Z V
+    directedAngleBlockC Z V
         (finiteSourceRightSingularBasis (directedSine Z V) i) =
       ((Real.arcsin (finiteSourceSingularValue (directedSine Z V) i) : ℝ) : ℂ) •
         finiteSourceRightSingularBasis (directedSine Z V) i := by
@@ -236,7 +234,7 @@ private theorem sourceDirectedAngle_apply_rightSingularBasis
   have hMeig : M (b i) = ((sigma : ℝ) : ℂ) • b i := by
     simpa [M, b, sigma] using
       coordinateSineModulus_apply_rightSingularBasis Z V i
-  rw [paperSourceDirectedAngleC_eq_arcsin_sineModulus Z V]
+  rw [sourceDirectedAngleC_eq_arcsin_sineModulus Z V]
   exact cfc_apply_of_apply_eq_smul_finite hMsa Real.arcsin
     Real.continuous_arcsin.continuousOn hMeig
 
@@ -298,14 +296,14 @@ private theorem norm_coordinateSineModulus_lt_one_of_all_singular_lt_one
 source angle lies strictly below `pi/2`. -/
 private theorem spectrum_sourceDirectedAngle_lt_pi_div_two
     (hlt : ∀ i, finiteSourceSingularValue (directedSine Z V) i < 1)
-    {t : ℝ} (ht : t ∈ spectrum ℝ (paperSourceDirectedAngleC Z V)) :
+    {t : ℝ} (ht : t ∈ spectrum ℝ (directedAngleBlockC Z V)) :
     0 ≤ t ∧ t < Real.pi / 2 := by
   let M := coordinateSineModulus Z V
   have hMsa : IsSelfAdjoint M := ContinuousLinearMap.modulus_isSelfAdjoint _
   have hMnorm : ‖M‖ < 1 := by
     simpa [M] using
       norm_coordinateSineModulus_lt_one_of_all_singular_lt_one Z V hlt
-  rw [paperSourceDirectedAngleC_eq_arcsin_sineModulus Z V,
+  rw [sourceDirectedAngleC_eq_arcsin_sineModulus Z V,
     cfc_map_spectrum (R := ℝ) Real.arcsin M hMsa
       Real.continuous_arcsin.continuousOn] at ht
   obtain ⟨s, hs, rfl⟩ := ht
@@ -330,7 +328,7 @@ private theorem spectrum_sourceDirectedAngle_lt_pi_div_two
 Theorem 6.3's directed sine singular values stay below one. -/
 private theorem continuousOn_tan_sourceDirectedAngle
     (hlt : ∀ i, finiteSourceSingularValue (directedSine Z V) i < 1) :
-    ContinuousOn Real.tan (spectrum ℝ (paperSourceDirectedAngleC Z V)) := by
+    ContinuousOn Real.tan (spectrum ℝ (directedAngleBlockC Z V)) := by
   exact Real.continuousOn_tan.mono (by
     intro t ht
     have h := spectrum_sourceDirectedAngle_lt_pi_div_two Z V hlt ht
@@ -345,12 +343,12 @@ theorem theorem63DirectedTangentCoordinate_eq_cfcTan_sourceDirectedAngle
       (theorem63DirectedSineBlock Z V) i < 1) :
     (diagOp (finiteSourceRightSingularBasis (theorem63DirectedSineBlock Z V))
       (theorem63DirectedTangentDiagonal Z V)).toContinuousLinearMap =
-      cfc Real.tan (paperSourceDirectedAngleC Z V) := by
+      cfc Real.tan (directedAngleBlockC Z V) := by
   let S := directedSine Z V
   let b := finiteSourceRightSingularBasis S
-  let A := paperSourceDirectedAngleC Z V
+  let A := directedAngleBlockC Z V
   have hAsa : IsSelfAdjoint A := by
-    exact cfc_predicate Real.arccos (paperCosineModulusC Z V)
+    exact cfc_predicate Real.arccos (cosineBlockModulusC Z V)
   have htan : ContinuousOn Real.tan (spectrum ℝ A) := by
     simpa [A, S, directedSine] using continuousOn_tan_sourceDirectedAngle Z V hlt
   have hlin :
@@ -380,7 +378,7 @@ theorem theorem63DirectedTangent_eq_subtype_comp_cfcTan_sourceDirectedAngle
     (hlt : ∀ i, finiteSourceSingularValue
       (theorem63DirectedSineBlock Z V) i < 1) :
     theorem63DirectedTangent Z V =
-      Z.subtypeL ∘L cfc Real.tan (paperSourceDirectedAngleC Z V) := by
+      Z.subtypeL ∘L cfc Real.tan (directedAngleBlockC Z V) := by
   rw [theorem63DirectedTangent,
     theorem63DirectedTangentCoordinate_eq_cfcTan_sourceDirectedAngle Z V hlt]
 
@@ -394,7 +392,7 @@ theorem theorem63DirectedTangent_eq_subtype_comp_cfcTan_sourceDirectedAngle_of_f
     (hUnwantedLower : ∀ y ∈ Vᗮ,
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ) :
     theorem63DirectedTangent Z V =
-      Z.subtypeL ∘L cfc Real.tan (paperSourceDirectedAngleC Z V) := by
+      Z.subtypeL ∘L cfc Real.tan (directedAngleBlockC Z V) := by
   apply theorem63DirectedTangent_eq_subtype_comp_cfcTan_sourceDirectedAngle Z V
   exact theorem63_singularValues_sine_lt_one
     T hT V Z hV hdelta hCompressionUpper hUnwantedLower
@@ -402,6 +400,6 @@ theorem theorem63DirectedTangent_eq_subtype_comp_cfcTan_sourceDirectedAngle_of_f
 end
 
 end
-end ExactTanTheta
+end TanTheta
 end DavisKahan
 end TauCeti

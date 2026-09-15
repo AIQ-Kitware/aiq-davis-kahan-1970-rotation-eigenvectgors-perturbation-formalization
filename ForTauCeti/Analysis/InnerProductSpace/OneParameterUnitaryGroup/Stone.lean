@@ -234,9 +234,9 @@ theorem hasGrowthBound_toSemigroup (U : OneParameterUnitaryGroup H) :
     (toSemigroup U).HasGrowthBound 0 1 := by
   refine Semigroups.StronglyContinuousSemigroup.hasGrowthBound_of_bound le_rfl fun t ht => ?_
   rw [zero_mul, Real.exp_zero, mul_one]
-  refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => ?_
-  rw [one_mul, toSemigroup_realOperator U ht]
-  exact le_of_eq (norm_preserving U t x)
+  have ht' : (t.toNNReal : ℝ) = t := Real.coe_toNNReal t ht
+  rw [← ht', Semigroups.StronglyContinuousSemigroup.realOperator_coe]
+  exact norm_toSemigroup_le U t.toNNReal
 
 /-- The `λ = 1` Hille–Yosida resolvent of a unitary group, as a plain
 existence statement about the *group* generator. -/

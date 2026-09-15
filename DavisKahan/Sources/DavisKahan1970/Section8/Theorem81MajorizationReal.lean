@@ -6,6 +6,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Sources.DavisKahan1970.Section8.Theorem81ApproximationReal
 import DavisKahan.Sources.DavisKahan1970.Section8.Theorem81Majorization
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan 1970, Theorem 8.1(iii) over a REAL Hilbert space
 

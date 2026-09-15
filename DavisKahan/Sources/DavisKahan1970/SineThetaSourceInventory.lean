@@ -8,6 +8,8 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.All
 import DavisKahan.Sources.DavisKahan1970.SineTheta.FiniteMultiplicity
 import DavisKahan.Sources.DavisKahan1970.GeneralSinTheta
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Literal Davis--Kahan 1970 sine-theta surface
 
@@ -51,220 +53,217 @@ alias sourceNormClass_nonempty := symmetricNormingFunction_nonempty
 
 /-! ## Literal angle objects -/
 
-alias directedCosineBlock := paperCosineBlockC
-alias directedSineBlock := paperSineBlockC
-alias directedCosineOperator := paperCosineModulusC
-alias directedAngle_complex := paperSourceDirectedAngleC
-alias directedSinAngle_complex := paperSourceDirectedSinC
-alias directedCosAngle_complex := paperSourceDirectedCosC
-alias directedCosAngle_eq_modulus := paperSourceDirectedCosC_eq
+alias directedCosineBlock := cosineBlockC
+alias directedSineBlock := sineBlockC
+alias directedCosineOperator := cosineBlockModulusC
+alias directedAngle_complex := directedAngleBlockC
+alias directedSinAngle_complex := directedSinAngleBlockC
+alias directedCosAngle_complex := directedCosAngleBlockC
+alias directedCosAngle_eq_modulus := sourceDirectedCosC_eq
 alias directedSinAngle_eq_modulus :=
-  paperSourceDirectedSinC_eq_paperSineModulusC
+  directedSinAngleBlockC_eq_sineBlockModulusC
 alias directedSinAngle_singularValues :=
-  paperSourceDirectedSin_same_paperSineBlock
+  directedSinAngleBlock_same_sineBlock
 alias directedAngle_eq_arcsin_sineModulus :=
-  paperSourceDirectedAngleC_eq_arcsin_sineModulus
+  sourceDirectedAngleC_eq_arcsin_sineModulus
 alias directedAngle_real_eq_arcsin_sineModulus :=
-  paperSourceDirectedAngleR_eq_arcsin_sineModulus
-alias directedAngle_real := paperSourceDirectedAngleR
-alias directedSinAngle_real := paperSourceDirectedSinR
-alias directedCosAngle_real := paperSourceDirectedCosR
-alias fullAngleCoordinates_complex := paperSourceFullAngleC
-alias fullSinAngleCoordinates_complex := paperSourceFullSinC
+  sourceDirectedAngleR_eq_arcsin_sineModulus
+alias directedAngle_real := sourceDirectedAngleR
+alias directedSinAngle_real := sourceDirectedSinR
+alias directedCosAngle_real := sourceDirectedCosR
+alias fullAngleCoordinates_complex := fullAngleBlockC
+alias fullSinAngleCoordinates_complex := fullSinAngleBlockC
 alias fullSinAngle_singularValues_projectionDifference :=
-  paperSourceFullSin_same_projectionDifference
+  sourceFullSin_same_projectionDifference
 alias fullSinAngle_norm_projectionDifference :=
-  paperSourceFullSin_mem_iff_and_gauge_eq
-alias ambientEquivalentAngle := DavisKahanExt.paperAngleOperatorC
-alias ambientEquivalentSinAngle := DavisKahanExt.paperSinAngleOperatorC
-alias ambientEquivalentSinAngle_eq_projectionDifferenceSine :=
-  DavisKahanExt.paperSinAngleOperatorC_eq
-alias fullAngleCoordinates_real := paperSourceFullAngleR
-alias fullSinAngleCoordinates_real := paperSourceFullSinR
+  sourceFullSin_mem_iff_and_gauge_eq
+alias ambientEquivalentAngle := DavisKahan.Angle.angleOperatorC
+alias ambientEquivalentSinAngle := DavisKahan.Angle.sinAngleOperatorC
+alias fullAngleCoordinates_real := sourceFullAngleR
+alias fullSinAngleCoordinates_real := sourceFullSinR
 
 /-! ## Lemmas 6.1 and 6.2 -/
 
-alias lemma6_1_kyFan := paperLemma61_all_kyFan
-alias lemma6_1 := paperLemma61_every_unitarilyInvariantNorm
-alias lemma6_1_converse := paperLemma61_converse
-alias lemma6_2 := paperDiagonalPair_normingGauge_le
-alias lemma6_2_kyFan := paperDiagonalPair_all_kyFan_le
+alias lemma6_1_kyFan := lemma61_all_kyFan
+alias lemma6_1 := lemma61_every_unitarilyInvariantNorm
+alias lemma6_1_converse := lemma61_converse
+alias lemma6_2 := diagonalPair_normingGauge_le
+alias lemma6_2_kyFan := diagonalPair_all_kyFan_le
 
 /-! ## Original and generalized sine theorems -/
 
-alias GeneralSinThetaIdealFamilyProblem := PaperGeneralSinThetaProblem
-alias IsometricSinThetaIdealFamilyProblem := PaperIsometricSinThetaProblem
-alias RealGeneralSinThetaIdealFamilyProblem := PaperRealGeneralSinThetaProblem
-alias RealIsometricSinThetaIdealFamilyProblem := PaperRealIsometricSinThetaProblem
-alias sinTheta_generalized_idealFamily_complex := PaperGeneralSinThetaProblem.result
-alias sinTheta_idealFamily_complex := PaperIsometricSinThetaProblem.result
+alias GeneralSinThetaIdealFamilyProblem := GeneralSinThetaRepresentativeProblem
+alias IsometricSinThetaIdealFamilyProblem := IsometricSinThetaRepresentativeProblem
+alias RealGeneralSinThetaIdealFamilyProblem := RealGeneralSinThetaRepresentativeProblem
+alias RealIsometricSinThetaIdealFamilyProblem := RealIsometricSinThetaRepresentativeProblem
+alias sinTheta_generalized_idealFamily_complex := GeneralSinThetaRepresentativeProblem.result
+alias sinTheta_idealFamily_complex := IsometricSinThetaRepresentativeProblem.result
 alias sinTheta_generalized_idealFamily_real :=
-  PaperRealGeneralSinThetaProblem.result
-alias sinTheta_idealFamily_real := PaperRealIsometricSinThetaProblem.result
+  RealGeneralSinThetaRepresentativeProblem.result
+alias sinTheta_idealFamily_real := RealIsometricSinThetaRepresentativeProblem.result
 
-alias IsometricSinThetaPaperData := PaperIsometricTheoremData
+alias IsometricSinThetaPaperData := IsometricTheoremData
 alias sinTheta_paperData_complex :=
-  PaperIsometricTheoremData.result_every_unitarilyInvariantNorm_across
-alias RealIsometricSinThetaPaperData := PaperRealIsometricTheoremData
+  IsometricTheoremData.result_every_unitarilyInvariantNorm_across
+alias RealIsometricSinThetaPaperData := RealIsometricTheoremData
 alias sinTheta_paperData_real :=
-  PaperRealIsometricTheoremData.result_every_unitarilyInvariantNorm_across
+  RealIsometricTheoremData.result_every_unitarilyInvariantNorm_across
 
-alias Theorem6_1Data := PaperTheorem61Data
--- **The canonical source theorems are `DavisKahan1970.theorem6_1_source_complex`
+alias Theorem6_1Data := Theorem61Data
+-- **The canonical source theorems are `DavisKahan1970.theorem6_1_complex`
 -- and `..._real`** in `Sources/DavisKahan1970/Theorem61.lean`.  They take the
 -- components -- ambient/trial/complementary operators, coordinate maps, residual,
 -- `IsTrialResidualEquation`, `IsExactSpectralDecomposition`, the frame bound and
--- the gap -- rather than a `PaperTheorem61Data` record.  The aliases below name
--- the record methods those theorems call.
-alias Theorem6_1_complex :=
-  PaperTheorem61Data.result_every_unitarilyInvariantNorm_across
-alias Theorem6_1RealData := PaperRealTheorem61Data
-alias Theorem6_1_real :=
-  PaperRealTheorem61Data.result_every_unitarilyInvariantNorm_across
+-- the gap -- rather than a `Theorem61Data` record.  The capitalized
+-- `Theorem6_1_{complex,real}` aliases for the record methods were deleted on
+-- 2026-09-05: they differed from the canonical names only in case, which the
+-- 2026-09-04 hostile review flagged (F6.2) as a name a reader cannot tell apart
+-- from the theorem it is not.  Cite `Theorem61Data.result_*` for the record form.
+alias Theorem6_1RealData := RealTheorem61Data
 alias sinTheta_generalized_paperData_complex :=
-  PaperTheorem61Data.result_every_unitarilyInvariantNorm_across
+  Theorem61Data.result_every_unitarilyInvariantNorm_across
 alias sinTheta_generalized_paperData_real :=
-  PaperRealTheorem61Data.result_every_unitarilyInvariantNorm_across
+  RealTheorem61Data.result_every_unitarilyInvariantNorm_across
 
 /-! ## Proposition 6.1
 
-**The canonical source theorems are `DavisKahan1970.proposition6_1_source_complex`
+**The canonical source theorems are `DavisKahan1970.proposition6_1_complex`
 and `..._real` in `Sources/DavisKahan1970/Proposition61.lean`.**  They take the
 operators, the reducing subspaces, the gap and the two separations directly.
-The aliases below name the record methods those theorems call, and are the
-implementation and compatibility API: a caller who already holds a
-`PaperSymmetricSinThetaProblem` can still use them, but nobody should have to
-build one. -/
+The aliases below are the implementation and compatibility API: a caller who
+already holds a `SymmetricSinThetaProblem` can still use them, but nobody should
+have to build one.  The two capitalized `Proposition6_1_{complex,real}` aliases
+were deleted on 2026-09-05 as case twins of the canonical names (F6.2); cite
+`SymmetricSinThetaProblem.result_*` for the record form. -/
 
-alias SymmetricSinThetaProblem := PaperSymmetricSinThetaProblem
-alias Proposition6_1_complex :=
-  PaperSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm
+alias SymmetricSinThetaProblem := SymmetricSinThetaProblem
 
 -- The real-scalar form.  A unitarily invariant norm sees only the complete
 -- singular-value sequence, so the real conclusion is carried by
--- `paperCrossSineSum U V` rather than by a functional-calculus sine: no real
+-- `crossSineSum U V` rather than by a functional-calculus sine: no real
 -- continuous functional calculus is needed, and none is assumed.
--- `Proposition6_1_real_sinTheta_singularValues` is the compiled certificate that
+-- `proposition6_1_real_sinTheta_singularValues` is the compiled certificate that
 -- this operator carries exactly the paper's whole-space `sin Theta` sequence,
--- and `Proposition6_1_real_representative` states the estimate for an arbitrary
+-- and `proposition6_1_real_representative` states the estimate for an arbitrary
 -- operator with that sequence.
-alias RealSymmetricSinThetaProblem := PaperRealSymmetricSinThetaProblem
-alias Proposition6_1_real :=
-  PaperRealSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_real
-alias Proposition6_1_real_kyFan :=
-  PaperRealSymmetricSinThetaProblem.symmetric_all_kyFan_real
-alias Proposition6_1_real_sinTheta_singularValues :=
-  PaperRealSymmetricSinThetaProblem.crossSineSum_normingMem_iff_and_gauge_eq
-alias Proposition6_1_real_sinTheta_eq_literalFullSinAngle :=
-  approximationNumber_paperSourceFullSinR_eq_paperCrossSineSum
-alias Proposition6_1_real_representative :=
-  PaperRealSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_representative_real
+alias RealSymmetricSinThetaProblem := RealSymmetricSinThetaProblem
+alias proposition6_1_real_kyFan :=
+  RealSymmetricSinThetaProblem.symmetric_all_kyFan_real
+alias proposition6_1_real_sinTheta_singularValues :=
+  RealSymmetricSinThetaProblem.crossSineSum_normingMem_iff_and_gauge_eq
+alias proposition6_1_real_sinTheta_eq_literalFullSinAngle :=
+  approximationNumber_sourceFullSinR_eq_crossSineSum
+alias proposition6_1_real_representative :=
+  RealSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_representative_real
 
 /-! ## Theorem 6.2 and its printed finite-rank consequence
 
-**The canonical source theorems are `DavisKahan1970.theorem6_2_source_complex`
+**The canonical source theorems are `DavisKahan1970.theorem6_2_complex`
 and `..._real`** in `Sources/DavisKahan1970/Theorem61.lean`, on the same
 component hypotheses as Theorem 6.1.  The aliases below are the record methods
-they call. -/
+they call; the two capitalized `Theorem6_2_{complex,real}` case twins were
+deleted on 2026-09-05 (F6.2), so cite `Theorem62Data.result_across` and
+`RealTheorem62Data.result_across` for the record form. -/
 
 alias PairwiseSpectrumGap := PairwiseSpectrumGap
-alias Theorem6_2Data := PaperTheorem62Data
-alias Theorem6_2_complex := PaperTheorem62Data.result_across
+alias Theorem6_2Data := Theorem62Data
 alias Theorem6_2_boundNorm_of_finiteRank :=
-  PaperTheorem62Data.operatorNorm_result_across_of_rank_le
-alias Theorem6_2RealData := PaperRealTheorem62Data
-alias Theorem6_2_real := PaperRealTheorem62Data.result_across
+  Theorem62Data.operatorNorm_result_across_of_rank_le
+alias Theorem6_2RealData := RealTheorem62Data
 alias Theorem6_2_real_boundNorm_of_finiteRank :=
-  PaperRealTheorem62Data.operatorNorm_result_across_of_rank_le
+  RealTheorem62Data.operatorNorm_result_across_of_rank_le
 
 /-! ## Exact unbounded appendix forms -/
 
-alias HasCommonDomain := HasPaperCommonDomain
-alias CommonDomainSinThetaData := PaperCommonDomainSinThetaData
-alias CommonDomainTheorem6_1Data := PaperCommonDomainTheorem61Data
-alias Theorem6_1_commonDomain :=
-  PaperCommonDomainTheorem61Data.result_every_unitarilyInvariantNorm_across
-alias CommonDomainTheorem6_2Data := PaperCommonDomainTheorem62Data
-alias Theorem6_2_commonDomain := PaperCommonDomainTheorem62Data.result_across
+alias CommonDomainSinThetaData := CommonDomainSinThetaData
+alias CommonDomainTheorem6_1Data := CommonDomainTheorem61Data
+alias theorem6_1_commonDomain :=
+  CommonDomainTheorem61Data.result_every_unitarilyInvariantNorm_across
+alias CommonDomainTheorem6_2Data := CommonDomainTheorem62Data
+alias Theorem6_2_commonDomain := CommonDomainTheorem62Data.result_across
 alias Theorem6_2_commonDomain_boundNorm_of_finiteRank :=
-  PaperCommonDomainTheorem62Data.operatorNorm_result_of_rank_le
+  CommonDomainTheorem62Data.operatorNorm_result_of_rank_le
 -- The Appendix says "the hypotheses of Proposition 6.1 and Theorem 6.1 may be
 -- relaxed similarly".  This is that relaxation of Proposition 6.1: two closed
 -- self-adjoint operators on one dense domain, whose difference there is the
--- paper's bounded `H`.  `Proposition6_1_commonDomain_ofBounded` records that the
+-- paper's bounded `H`.  `proposition6_1_commonDomain_ofBounded` records that the
 -- bounded inputs are an instance, so nothing is assumed that Proposition 6.1 did
 -- not already assume.
 alias CommonDomainSymmetricSinThetaProblem :=
-  PaperCommonDomainSymmetricSinThetaProblem
-alias Proposition6_1_commonDomain :=
-  PaperCommonDomainSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm
-alias Proposition6_1_commonDomain_kyFan :=
-  PaperCommonDomainSymmetricSinThetaProblem.symmetric_all_kyFan
-alias Proposition6_1_commonDomain_ofBounded :=
-  PaperCommonDomainSymmetricSinThetaProblem.ofBounded
+  CommonDomainSymmetricSinThetaProblem
+alias proposition6_1_commonDomain :=
+  CommonDomainSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm
+alias proposition6_1_commonDomain_kyFan :=
+  CommonDomainSymmetricSinThetaProblem.symmetric_all_kyFan
+alias proposition6_1_commonDomain_ofBounded :=
+  CommonDomainSymmetricSinThetaProblem.ofBounded
 -- The common-domain Proposition 6.1 is stated over any `RCLike` field.  Its
--- scalar-generic conclusion is carried by `paperCrossSineSum U V` rather than by
+-- scalar-generic conclusion is carried by `crossSineSum U V` rather than by
 -- a functional-calculus sine, for the same reason as in the bounded real file:
--- no real continuous functional calculus is constructed, and a unitarily
--- invariant norm sees only the singular-value sequence.
--- `Proposition6_1_commonDomain_sinTheta_singularValues` is the compiled
+-- a unitarily invariant norm sees only the singular-value sequence, and the block
+-- form is what the proof produces.  Until 2026-09-03 the reason given was that no
+-- real continuous functional calculus was constructed; one now is, at every
+-- `RCLike` field, so `TauCeti.DavisKahan.Angle.sinAngleOperator` could name the
+-- conclusion directly.  Restating it that way is a separate change and would move
+-- this theorem's statement pin.
+-- `proposition6_1_commonDomain_sinTheta_singularValues` is the compiled
 -- certificate that this operator carries exactly the paper's whole-space
--- `sin Theta` sequence.  Over `ℂ` the literal form is `Proposition6_1_commonDomain`
--- itself.  `Proposition6_1_real_commonDomain_ofBounded` records that the real
+-- `sin Theta` sequence.  Over `ℂ` the literal form is `proposition6_1_commonDomain`
+-- itself.  `proposition6_1_real_commonDomain_ofBounded` records that the real
 -- bounded inputs are an instance, so the real form is a relaxation of the real
 -- Proposition 6.1 rather than a statement parallel to it.
-alias Proposition6_1_commonDomain_crossSineSum :=
-  PaperCommonDomainSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_crossSineSum
-alias Proposition6_1_commonDomain_crossSineSum_kyFan :=
-  PaperCommonDomainSymmetricSinThetaProblem.symmetric_all_kyFan_crossSineSum
-alias Proposition6_1_commonDomain_sinTheta_singularValues :=
-  PaperCommonDomainSymmetricSinThetaProblem.crossSineSum_normingMem_iff_and_gauge_eq
-alias Proposition6_1_real_commonDomain :=
-  PaperCommonDomainSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_real
-alias Proposition6_1_real_commonDomain_kyFan :=
-  PaperCommonDomainSymmetricSinThetaProblem.symmetric_all_kyFan_real
-alias Proposition6_1_real_commonDomain_ofBounded :=
-  PaperCommonDomainSymmetricSinThetaProblem.ofBoundedReal
+alias proposition6_1_commonDomain_crossSineSum :=
+  CommonDomainSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_crossSineSum
+alias proposition6_1_commonDomain_crossSineSum_kyFan :=
+  CommonDomainSymmetricSinThetaProblem.symmetric_all_kyFan_crossSineSum
+alias proposition6_1_commonDomain_sinTheta_singularValues :=
+  CommonDomainSymmetricSinThetaProblem.crossSineSum_normingMem_iff_and_gauge_eq
+alias proposition6_1_real_commonDomain :=
+  CommonDomainSymmetricSinThetaProblem.result_every_unitarilyInvariantNorm_real
+alias proposition6_1_real_commonDomain_kyFan :=
+  CommonDomainSymmetricSinThetaProblem.symmetric_all_kyFan_real
+alias proposition6_1_real_commonDomain_ofBounded :=
+  CommonDomainSymmetricSinThetaProblem.ofBoundedReal
 alias RealCommonDomainTheorem6_1Data :=
-  PaperRealCommonDomainTheorem61Data
-alias Theorem6_1_real_commonDomain :=
-  PaperRealCommonDomainTheorem61Data.result_every_unitarilyInvariantNorm_across
+  RealCommonDomainTheorem61Data
+alias theorem6_1_real_commonDomain :=
+  RealCommonDomainTheorem61Data.result_every_unitarilyInvariantNorm_across
 alias RealCommonDomainTheorem6_2Data :=
-  PaperRealCommonDomainTheorem62Data
-alias Theorem6_2_real_commonDomain :=
-  PaperRealCommonDomainTheorem62Data.result_across
+  RealCommonDomainTheorem62Data
+alias theorem6_2_real_commonDomain :=
+  RealCommonDomainTheorem62Data.result_across
 alias Theorem6_2_real_commonDomain_boundNorm_of_finiteRank :=
-  PaperRealCommonDomainTheorem62Data.operatorNorm_result_of_rank_le
+  RealCommonDomainTheorem62Data.operatorNorm_result_of_rank_le
 
 /-! ## Graph-core appendix forms -/
 
 alias IsGraphCore := PartialMap.IsGraphCore
-alias CommonCoreResidualData := PaperCommonCoreResidualData
+alias CommonCoreResidualData := CommonCoreResidualData
 alias commonCoreResidual_extends_to_domain :=
-  PaperCommonCoreResidualData.extends_to_domain
-alias CommonCoreTheorem6_1Data := PaperCommonCoreTheorem61Data
-alias Theorem6_1_commonCore :=
-  PaperCommonCoreTheorem61Data.result_every_unitarilyInvariantNorm_across
-alias CommonCoreTheorem6_2Data := PaperCommonCoreTheorem62Data
-alias Theorem6_2_commonCore := PaperCommonCoreTheorem62Data.result_across
-alias RealCommonCoreTheorem6_1Data := PaperRealCommonCoreTheorem61Data
-alias Theorem6_1_real_commonCore :=
-  PaperRealCommonCoreTheorem61Data.result_every_unitarilyInvariantNorm_across
-alias RealCommonCoreTheorem6_2Data := PaperRealCommonCoreTheorem62Data
-alias Theorem6_2_real_commonCore :=
-  PaperRealCommonCoreTheorem62Data.result_across
+  CommonCoreResidualData.extends_to_domain
+alias CommonCoreTheorem6_1Data := CommonCoreTheorem61Data
+alias theorem6_1_commonCore :=
+  CommonCoreTheorem61Data.result_every_unitarilyInvariantNorm_across
+alias CommonCoreTheorem6_2Data := CommonCoreTheorem62Data
+alias Theorem6_2_commonCore := CommonCoreTheorem62Data.result_across
+alias RealCommonCoreTheorem6_1Data := RealCommonCoreTheorem61Data
+alias theorem6_1_real_commonCore :=
+  RealCommonCoreTheorem61Data.result_every_unitarilyInvariantNorm_across
+alias RealCommonCoreTheorem6_2Data := RealCommonCoreTheorem62Data
+alias theorem6_2_real_commonCore :=
+  RealCommonCoreTheorem62Data.result_across
 
 /-! ## Sharpness and necessity -/
 
 alias Theorem6_1_equality_every_norm :=
-  paperTheorem61_planar_equality_every_norm
-alias sineTheta_constant_one_optimal := paperSinTheta_constant_one_optimal
+  theorem61_planar_equality_every_norm
+alias sineTheta_constant_one_optimal := sinTheta_constant_one_optimal
 alias oneGap_counterexample_sine_squareNorm :=
-  paperCounterexample_sine_square_norm
+  counterexample_sine_square_norm
 alias oneGap_counterexample_perturbation_squareNorm :=
-  paperCounterexample_perturbation_square_norm
+  counterexample_perturbation_square_norm
 alias oneGap_does_not_imply_Proposition6_1 :=
-  paperOneGap_does_not_imply_symmetric_square_estimate
+  oneGap_does_not_imply_symmetric_square_estimate
 
 end DavisKahan1970
 end TauCeti

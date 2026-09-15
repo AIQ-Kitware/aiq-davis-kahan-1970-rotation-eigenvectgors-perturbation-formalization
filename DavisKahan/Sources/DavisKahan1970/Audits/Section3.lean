@@ -72,7 +72,7 @@ example (J : TauCeti.DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℝ]
       TauCeti.DavisKahan.halmosTargetDefect U V) :
     Commute (proposition3_5_angleOperator U V) (U.starProjection : H →L[ℝ] H) ∧
       Commute (proposition3_5_angleOperator U V) (V.starProjection : H →L[ℝ] H) ∧
-      Commute (proposition3_5_angleOperator U V) (corollary3_2_paperQuarterTurn U V J) ∧
+      Commute (proposition3_5_angleOperator U V) (corollary3_2_nonacuteQuarterTurn U V J) ∧
       Commute (proposition3_5_angleOperator U V)
         (TauCeti.DavisKahan.nonacuteDirectRotation U V J) :=
   proposition3_5_commutations U V J
@@ -99,7 +99,7 @@ example (J : TauCeti.DavisKahan.halmosSourceDefect U V ≃ₗᵢ[ℂ]
       TauCeti.DavisKahan.halmosTargetDefect U V) :
     Commute (proposition3_5_angleOperator U V) (U.starProjection : H →L[ℂ] H) ∧
       Commute (proposition3_5_angleOperator U V) (V.starProjection : H →L[ℂ] H) ∧
-      Commute (proposition3_5_angleOperator U V) (corollary3_2_paperQuarterTurn U V J) ∧
+      Commute (proposition3_5_angleOperator U V) (corollary3_2_nonacuteQuarterTurn U V J) ∧
       Commute (proposition3_5_angleOperator U V)
         (TauCeti.DavisKahan.nonacuteDirectRotation U V J) :=
   proposition3_5_commutations U V J

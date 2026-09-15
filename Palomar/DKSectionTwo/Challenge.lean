@@ -427,24 +427,26 @@ def TangentDefined {X Y : Type v}
     (S : X →L[𝕜] Y) : Prop :=
   ∀ n, Real.cos (Real.arcsin (singularValue S n)) ≠ 0
 
-/-- The crossed defect subspaces are isometrically isomorphic: the source's
-condition (3.5), introduced in Section 3 and standing from there on, which is
-what makes the ambient angle meaningful when the subspaces are not acute.  It is
-*not* printed in the Section 2 display; see the note before `TanThetaResult`. -/
-def CrossedDefectsEquivalent (U V : Submodule 𝕜 E) : Prop :=
-  Nonempty ((U ⊓ Vᗮ : Submodule 𝕜 E) ≃ₗᵢ[𝕜] (Uᗮ ⊓ V : Submodule 𝕜 E))
 
 end Angles
 
-/-! ## 7. The four theorems of Section 2
+/-! ## 7. The four theorem families of Section 2
 
-Davis and Kahan open with four unnumbered theorems.  Three of them print two
-conclusions -- one *directed*, comparing the trial subspace with the exact one
-through the residual, and one *ambient*, comparing the two subspaces through the
-whole perturbation.  Each printed clause quantifies its own data and its own
-hypotheses, so the three two-clause theorems conclude in a record whose fields
-are the printed clauses; sharing a membership premise across both would make each
-clause carry the other's. -/
+Davis and Kahan open Section 2 with four named theorem families.  For this
+Palomar entry we compare the strongest polished conclusion from each family,
+except for `sin 2Θ`, whose residual and whole-space estimates are genuinely
+distinct public conclusions in the source proof.
+
+* `sin Θ`: the residual estimate `δ ‖sin Θ₀‖ ≤ ‖R‖`.
+* `tan Θ`: the residual estimate `δ ‖tan Θ₀‖ ≤ ‖R‖`; the paper derives the
+  whole-space estimate afterward from this bound and the block geometry.
+* `sin 2Θ`: both the residual estimate and the whole-space estimate.
+* `tan 2Θ`: the residual estimate `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖`; the paper states that
+  the whole-space estimate then follows from Lemma 6.1.
+
+This gives five ordinary theorem declarations.  There are no artificial
+`*Result : Prop` wrapper structures and no conjunction used merely to bundle
+independent printed clauses. -/
 
 section Theorems
 
@@ -455,11 +457,8 @@ variable {E F G K : Type v}
   [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
   [NormedAddCommGroup K] [InnerProductSpace 𝕜 K] [CompleteSpace K]
 
-/-- **The `sin Θ` theorem.**  If the trial block `A₀` and the complementary exact
-block `Λ₁` are separated by a gap `δ`, then `δ ‖sin Θ₀‖ ≤ ‖R‖` in every unitarily
-invariant norm.  The ambient operator may be unbounded, the trial block may be
-unbounded, the space may have any dimension, and the separating interval may be
-half-infinite.  This is the one Section 2 theorem with a single conclusion. -/
+/-- **The `sin Θ` theorem.**  Under the source gap hypothesis,
+`δ ‖sin Θ₀‖ ≤ ‖R‖` in every unitarily invariant norm. -/
 theorem sinTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} {A₀ : F →ₗ.[𝕜] F} {Λ₁ : G →ₗ.[𝕜] G}
     {E₀ : F →L[𝕜] E} {F₀ : K →L[𝕜] E} {F₁ : G →L[𝕜] E} {R : F →L[𝕜] E}
@@ -470,143 +469,51 @@ theorem sinTheta (N : SymmetricNormingFunction)
       δ * N.norm (directedSine E₀ F₀) ≤ N.norm R := by
   sorry
 
-/-! ### `tan Θ`
-
-#### The ambient clause carries (3.5), which the Section 2 display does not print
-
-`TanThetaResult.ambient` below asks for `CrossedDefectsEquivalent U V`.  That is
-the source's condition (3.5), and **it is not written in the Section 2 display**:
-(3.5) is introduced in Section 3, made standing there for the rest of the paper,
-and the Section 6 proof of this very clause works inside that standing scope.
-The hypothesis is imported from the paper's later scope; it is not read off the
-local statement.
-
-It is not decoration.  Section 1 announces once that results are vacuous when a
-displayed norm fails to exist, and that the qualification will not be repeated at
-the individual statements; for this clause that convention does real work.
-Nothing in the printed hypotheses constrains the crossed defect `Uᗮ ⊓ V`, and
-when it is nonzero -- possible in infinite dimension, and only there -- the
-ambient angle has a right angle, `tan Θ` is unbounded, and `‖tan Θ‖` does not
-exist while `‖H‖` is finite.  Read literally, with the missing norm valued at
-`+∞`, the printed ambient clause would be false; read under the paper's own
-global semantics it is the (3.5)-qualified statement formalized here.  This
-formalization adopts the second reading, and says so rather than claiming the
-display contains the hypothesis. -/
-
-/-- **The two printed conclusions of the `tan Θ` theorem**, each with its own
-data and hypotheses: `δ ‖tan Θ₀‖ ≤ ‖R‖` for every trial subspace with
-Rayleigh--Ritz data, needing only the *residual* in the norm's ideal, and
-`δ ‖tan Θ‖ ≤ ‖H‖` for a bounded self-adjoint perturbation with vanishing trial
-diagonal block, needing the *perturbation*.  Each clause also concludes that its
-tangent has no pole. -/
-structure TanThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
-    (V : Submodule 𝕜 E) [V.HasOrthogonalProjection] (α δ : ℝ) : Prop where
-  /-- `δ ‖tan Θ₀‖ ≤ ‖R‖`: the directed conclusion, on the residual alone. -/
-  directed : ∀ {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
-      (D : RitzData A U), SemiboundedAbove D.compression α →
-      N.Finite D.residual →
-        TangentDefined (directedSineBlock U V) ∧
-          N.SeqFinite (tanSeq (directedSineBlock U V)) ∧
-          δ * N.seqNorm (tanSeq (directedSineBlock U V)) ≤ N.norm D.residual
-  /-- `δ ‖tan Θ‖ ≤ ‖H‖`: the ambient conclusion, on the whole perturbation.
-  `CrossedDefectsEquivalent` is the source's (3.5), standing from Section 3 but
-  absent from the Section 2 display; the note above says where it comes from. -/
-  ambient : ∀ {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
-      (D : RitzData A U), SemiboundedAbove D.compression α →
-      ∀ (H : E →L[𝕜] E), IsSelfAdjoint H →
-      D.residual = Uᗮ.starProjection ∘L H ∘L U.subtypeL →
-      CrossedDefectsEquivalent U V →
-      N.Finite H →
-        TangentDefined (ambientSine U V) ∧
-          N.SeqFinite (tanSeq (ambientSine U V)) ∧
-          δ * N.seqNorm (tanSeq (ambientSine U V)) ≤ N.norm H
-
-/-- **The `tan Θ` theorem**, both printed conclusions.
-
-The separation is *ordered* -- the trial block at or below `α`, the unwanted
-exact block at or above `α + δ` -- and the perturbation has vanishing trial
-diagonal block, the Rayleigh--Ritz condition `H₀ = 0` carried by `RitzData` and
-by `D.residual = P_{Uᗮ} H|_U`.  Then `δ ‖tan Θ₀‖ ≤ ‖R‖` and `δ ‖tan Θ‖ ≤ ‖H‖`,
-with the sharp factor one.  `V` is any subspace reducing `A`. -/
+/-- **The `tan Θ` theorem, in its stronger residual form.**  The source proves
+this estimate first; its whole-space perturbation estimate is then derived from
+it using the two-corner geometry. -/
 theorem tanTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : Reduces A V)
     {α δ : ℝ} (hδ : 0 < δ)
-    (hunwanted : SemiboundedBelow (block A Vᗮ hV.orthogonal) (α + δ)) :
-    TanThetaResult N A V α δ := by
+    (hunwanted : SemiboundedBelow (block A Vᗮ hV.orthogonal) (α + δ))
+    {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
+    (D : RitzData A U) (hupper : SemiboundedAbove D.compression α)
+    (hR : N.Finite D.residual) :
+    TangentDefined (directedSineBlock U V) ∧
+      N.SeqFinite (tanSeq (directedSineBlock U V)) ∧
+      δ * N.seqNorm (tanSeq (directedSineBlock U V)) ≤ N.norm D.residual := by
   sorry
 
-/-! ### `sin 2Θ` -/
-
-/-- **The two printed conclusions of the `sin 2Θ` theorem**, for a subspace `U`
-reducing `A` whose two blocks are separated by `δ`: `δ ‖sin 2Θ₀‖ ≤ 2 ‖R‖` for
-every trial subspace with a residual, needing only the residual in the ideal, and
-`δ ‖sin 2Θ‖ ≤ 2 ‖H‖` for every bounded self-adjoint perturbation and every
-subspace reducing the perturbed operator, needing the perturbation.
-
-The factor two is the paper's, and is sharp.  Unlike `tan Θ` no Rayleigh--Ritz
-condition is imposed, and unlike `tan Θ` the Appendix does not extend this
-theorem to an unbounded trial compression. -/
-structure SinTwoThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
-    (U : Submodule 𝕜 E) [U.HasOrthogonalProjection] (δ : ℝ) : Prop where
-  /-- `δ ‖sin 2Θ₀‖ ≤ 2 ‖R‖`: the directed conclusion, on the residual alone. -/
-  directed : ∀ {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
-      (D : BoundedTrialBlock A V), N.Finite D.residual →
-        N.Finite (directedDoubleSine U V) ∧
-          δ * N.norm (directedDoubleSine U V) ≤ 2 * N.norm D.residual
-  /-- `δ ‖sin 2Θ‖ ≤ 2 ‖H‖`: the ambient conclusion, on the whole perturbation. -/
-  ambient : ∀ (H : E →L[𝕜] E), IsSelfAdjoint H →
-      ∀ {V : Submodule 𝕜 E} [V.HasOrthogonalProjection],
-      Reduces (addBounded A H) V → N.Finite H →
-        N.Finite (ambientDoubleSine U V) ∧
-          δ * N.norm (ambientDoubleSine U V) ≤ 2 * N.norm H
-
-/-- **The `sin 2Θ` theorem**, both printed conclusions.  The separating interval
-may be half-infinite, the ambient operator may be unbounded, and `U` is any
-subspace reducing `A` whose two blocks the separation puts a gap `δ` between. -/
-theorem sinTwoTheta (N : SymmetricNormingFunction)
+/-- **The residual clause of the `sin 2Θ` theorem.** -/
+theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ) :
-    SinTwoThetaResult N A U δ := by
+    (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ)
+    {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
+    (D : BoundedTrialBlock A V) (hR : N.Finite D.residual) :
+    N.Finite (directedDoubleSine U V) ∧
+      δ * N.norm (directedDoubleSine U V) ≤ 2 * N.norm D.residual := by
   sorry
 
-/-! ### `tan 2Θ` -/
+/-- **The whole-space clause of the `sin 2Θ` theorem.**  Unlike the tangent
+families, this is retained as a separate public statement rather than being
+presented as a corollary of the residual clause. -/
+theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
+    {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
+    {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ)
+    (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)
+    {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
+    (hV : Reduces (addBounded A H) V) (hHmem : N.Finite H) :
+    N.Finite (ambientDoubleSine U V) ∧
+      δ * N.norm (ambientDoubleSine U V) ≤ 2 * N.norm H := by
+  sorry
 
-/-- **The two printed conclusions of the `tan 2Θ` theorem**, for `U` reducing `A`
-ordered below `α` with its complement above `α + δ` and `H` a bounded
-self-adjoint perturbation off-diagonal for that splitting -- the source's
-`H₀ = H₁ = 0`: `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖` with `R` the corner `P_{Uᗮ} H P_U` and only
-that corner in the ideal, and `δ ‖tan 2Θ‖ ≤ 2 ‖H‖` with the whole perturbation.
-
-No hypothesis excluding the poles of `tan 2Θ` is part of the printed theorem:
-Section 7 derives the nonvanishing of the relevant `cos 2θⱼ`, which appears here
-as `TangentDefined` of the double-angle sine -- the quarter-turn exclusion
-`‖sin 2Θ‖ < 1`, uniform over the whole angle rather than read off a
-singular-value sequence of the single angle. -/
-structure TanTwoThetaResult (N : SymmetricNormingFunction) (A : E →ₗ.[𝕜] E)
-    (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
-    (H : E →L[𝕜] E) (δ : ℝ) : Prop where
-  /-- `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖`: the directed conclusion, on the residual corner. -/
-  directed : ∀ {V : Submodule 𝕜 E} [V.HasOrthogonalProjection],
-      Reduces (addBounded A H) V →
-      N.Finite (Uᗮ.starProjection ∘L H ∘L U.starProjection) →
-        TangentDefined (directedDoubleSine U V) ∧
-          N.SeqFinite (tanSeq (directedDoubleSine U V)) ∧
-          δ * N.seqNorm (tanSeq (directedDoubleSine U V)) ≤
-            2 * N.norm (Uᗮ.starProjection ∘L H ∘L U.starProjection)
-  /-- `δ ‖tan 2Θ‖ ≤ 2 ‖H‖`: the ambient conclusion, on the whole perturbation. -/
-  ambient : ∀ {V : Submodule 𝕜 E} [V.HasOrthogonalProjection],
-      Reduces (addBounded A H) V → N.Finite H →
-        TangentDefined (ambientDoubleSine U V) ∧
-          N.SeqFinite (tanSeq (ambientDoubleSine U V)) ∧
-          δ * N.seqNorm (tanSeq (ambientDoubleSine U V)) ≤ 2 * N.norm H
-
-/-- **The `tan 2Θ` theorem**, both printed conclusions.  The separation is
-ordered on the two blocks of `A` and the perturbation is *off-diagonal* for the
-splitting -- `H₀ = H₁ = 0`.  Then `δ ‖tan 2Θ₀‖ ≤ 2 ‖R‖` and
-`δ ‖tan 2Θ‖ ≤ 2 ‖H‖`. -/
+/-- **The `tan 2Θ` theorem, in its stronger residual form.**  The paper proves
+this estimate and then states that the whole-space estimate follows by Lemma 6.1. -/
 theorem tanTwoTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
@@ -615,8 +522,14 @@ theorem tanTwoTheta (N : SymmetricNormingFunction)
     (hoffdiag₁ : Uᗮ.starProjection ∘L H ∘L Uᗮ.starProjection = 0)
     {α δ : ℝ} (hδ : 0 < δ)
     (hlow : SemiboundedAbove (block A U hU) α)
-    (hhigh : SemiboundedBelow (block A Uᗮ hU.orthogonal) (α + δ)) :
-    TanTwoThetaResult N A U H δ := by
+    (hhigh : SemiboundedBelow (block A Uᗮ hU.orthogonal) (α + δ))
+    {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
+    (hV : Reduces (addBounded A H) V)
+    (hRmem : N.Finite (Uᗮ.starProjection ∘L H ∘L U.starProjection)) :
+    TangentDefined (directedDoubleSine U V) ∧
+      N.SeqFinite (tanSeq (directedDoubleSine U V)) ∧
+      δ * N.seqNorm (tanSeq (directedDoubleSine U V)) ≤
+        2 * N.norm (Uᗮ.starProjection ∘L H ∘L U.starProjection) := by
   sorry
 
 end Theorems

@@ -10,6 +10,8 @@ import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Constructions
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Bounded Borel calculus for bounded self-adjoint operators
 
@@ -56,7 +58,7 @@ theorem isBddMeasurable_pullback (A : H →L[ℂ] H)
 map: the native Borel calculus of the (normal) operator, with the symbol pulled
 back along the real part of the spectrum. -/
 noncomputable def boundedSelfAdjointBorelCalculusC
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (f : ℝ → ℂ) (hf : Measurable f)
     (hfb : ∃ C : ℝ, ∀ x : ℝ, ‖f x‖ ≤ C) : H →L[ℂ] H :=
   TauCeti.BorelCalculus.borelCalculus
@@ -65,7 +67,7 @@ noncomputable def boundedSelfAdjointBorelCalculusC
 
 /-- Two symbols agreeing on the real spectrum give the same calculus. -/
 theorem boundedSelfAdjointBorelCalculusC_congr_on_spectrum'
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {f g : ℝ → ℂ}
     (hf : Measurable f) (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C)
     (hg : Measurable g) (hgb : ∃ C : ℝ, ∀ x, ‖g x‖ ≤ C)
@@ -81,7 +83,7 @@ theorem boundedSelfAdjointBorelCalculusC_congr_on_spectrum'
 
 /-- The operator norm of the calculus is controlled by a global symbol bound. -/
 theorem norm_boundedSelfAdjointBorelCalculusC_le'
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (f : ℝ → ℂ) (hf : Measurable f) (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C)
     {C : ℝ} (hC0 : 0 ≤ C) (hC : ∀ x ∈ realSpectrum A, ‖f x‖ ≤ C) :
     ‖boundedSelfAdjointBorelCalculusC A hA f hf hfb‖ ≤ C := by
@@ -129,7 +131,7 @@ theorem realSpectrum_eq_toPMap_top_spectrum
 
 /-- The real spectrum of a bounded self-adjoint operator is closed. -/
 theorem isClosed_realSpectrum_boundedSelfAdjoint
-    (A : H →L[ℂ] H) (_hA : IsSelfAdjointOperator A) :
+    (A : H →L[ℂ] H) (_hA : A.IsSymmetric) :
     IsClosed (realSpectrum A) := by
   have hpre : realSpectrum A = (fun r : ℝ => (r : ℂ)) ⁻¹' spectrum ℂ A := rfl
   rw [hpre]
@@ -137,7 +139,7 @@ theorem isClosed_realSpectrum_boundedSelfAdjoint
 
 /-- The real spectrum is measurable. -/
 theorem measurableSet_realSpectrum_boundedSelfAdjoint
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A) :
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric) :
     MeasurableSet (realSpectrum A) :=
   (isClosed_realSpectrum_boundedSelfAdjoint A hA).measurableSet
 
@@ -148,7 +150,7 @@ noncomputable def spectrumRestrictedSymbol
 
 /-- Measurability of the spectrum-restricted symbol. -/
 theorem measurable_spectrumRestrictedSymbol
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (f : ℝ → ℝ) (hf : Measurable f) :
     Measurable (spectrumRestrictedSymbol A f) := by
   exact Complex.measurable_ofReal.comp hf |>.indicator
@@ -172,7 +174,7 @@ theorem bounded_spectrumRestrictedSymbol
 /-- Real-valued bounded-on-spectrum Borel calculus.  The explicit boundedness
 hypothesis is mathematically necessary. -/
 noncomputable def boundedSelfAdjointBorelCalculus
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (f : ℝ → ℝ) (hf : Measurable f) (hfb : BoundedOnSpectrum A f) :
     H →L[ℂ] H :=
   boundedSelfAdjointBorelCalculusC A hA
@@ -189,7 +191,7 @@ theorem indicator_one_bdd (s : Set ℝ) :
 
 /-- The complex calculus of an indicator is the canonical spectral projection. -/
 theorem boundedSelfAdjointBorelCalculusC_indicator
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) :
     boundedSelfAdjointBorelCalculusC A hA
       (Set.indicator s fun _ => (1 : ℂ))
@@ -200,7 +202,7 @@ theorem boundedSelfAdjointBorelCalculusC_indicator
 
 /-- Symbols agreeing on the real spectrum have the same bounded calculus. -/
 theorem boundedSelfAdjointBorelCalculusC_congr_on_spectrum
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {f g : ℝ → ℂ}
     (hf : Measurable f) (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C)
     (hg : Measurable g) (hgb : ∃ C : ℝ, ∀ x, ‖g x‖ ≤ C)
@@ -211,7 +213,7 @@ theorem boundedSelfAdjointBorelCalculusC_congr_on_spectrum
 
 /-- The calculus depends only on the symbol. -/
 theorem boundedSelfAdjointBorelCalculusC_congr
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {f g : ℝ → ℂ} (hfg : f = g)
     (hf : Measurable f) (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C)
     (hg : Measurable g) (hgb : ∃ C : ℝ, ∀ x, ‖g x‖ ≤ C) :
@@ -222,7 +224,7 @@ theorem boundedSelfAdjointBorelCalculusC_congr
 
 /-- The calculus is additive in the symbol. -/
 theorem boundedSelfAdjointBorelCalculusC_add
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {f g : ℝ → ℂ}
     (hf : Measurable f) (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C)
     (hg : Measurable g) (hgb : ∃ C : ℝ, ∀ x, ‖g x‖ ≤ C)
@@ -236,7 +238,7 @@ theorem boundedSelfAdjointBorelCalculusC_add
 
 /-- The calculus is homogeneous in the symbol. -/
 theorem boundedSelfAdjointBorelCalculusC_smul
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A) (c : ℂ)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric) (c : ℂ)
     {f : ℝ → ℂ} (hf : Measurable f) (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C)
     (hs : Measurable (fun x => c * f x))
     (hsb : ∃ C : ℝ, ∀ x, ‖c * f x‖ ≤ C) :
@@ -247,7 +249,7 @@ theorem boundedSelfAdjointBorelCalculusC_smul
 
 /-- The calculus of the zero symbol vanishes. -/
 theorem boundedSelfAdjointBorelCalculusC_zero
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (hm : Measurable (fun _ : ℝ => (0 : ℂ)))
     (hb : ∃ C : ℝ, ∀ x, ‖(fun _ : ℝ => (0 : ℂ)) x‖ ≤ C) :
     boundedSelfAdjointBorelCalculusC A hA (fun _ => (0 : ℂ)) hm hb = 0 := by
@@ -256,7 +258,7 @@ theorem boundedSelfAdjointBorelCalculusC_zero
 
 /-- Operator norm is bounded by a global pointwise symbol bound. -/
 theorem norm_boundedSelfAdjointBorelCalculusC_le
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (f : ℝ → ℂ) (hf : Measurable f)
     (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C)
     {C : ℝ} (hC : ∀ x, ‖f x‖ ≤ C) :
@@ -266,7 +268,7 @@ theorem norm_boundedSelfAdjointBorelCalculusC_le
 
 /-- A spectrum-only pointwise bound controls a calculus difference. -/
 theorem boundedSelfAdjointBorelCalculusC_norm_sub_le
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {f g : ℝ → ℂ}
     (hf : Measurable f) (hfb : ∃ Cf : ℝ, ∀ x, ‖f x‖ ≤ Cf)
     (hg : Measurable g) (hgb : ∃ Cg : ℝ, ∀ x, ‖g x‖ ≤ Cg)
@@ -341,7 +343,7 @@ theorem boundedIdentitySymbol_eq [Nontrivial H]
 
 /-- The bounded calculus of the cut-off identity is the original operator. -/
 theorem boundedSelfAdjointBorelCalculusC_id [Nontrivial H]
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A) :
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric) :
     boundedSelfAdjointBorelCalculusC A hA (boundedIdentitySymbol A)
       (measurable_boundedIdentitySymbol A)
       (bounded_boundedIdentitySymbol A) = A := by
@@ -372,7 +374,7 @@ theorem identity_boundedOnSpectrum [Nontrivial H]
 
 /-- Spectrum-only sup control for the real-valued calculus. -/
 theorem boundedSelfAdjointBorelCalculus_norm_sub_le
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {f g : ℝ → ℝ} (hf : Measurable f) (hg : Measurable g)
     (hfb : BoundedOnSpectrum A f) (hgb : BoundedOnSpectrum A g)
     {C : ℝ} (hC0 : 0 ≤ C)
@@ -388,7 +390,7 @@ theorem boundedSelfAdjointBorelCalculus_norm_sub_le
 
 /-- The real Borel calculus of the identity is the original operator. -/
 theorem boundedSelfAdjointBorelCalculus_id [Nontrivial H]
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A) :
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric) :
     boundedSelfAdjointBorelCalculus A hA (fun x => x) measurable_id
       (identity_boundedOnSpectrum A) = A := by
   have hcongr : boundedSelfAdjointBorelCalculusC A hA

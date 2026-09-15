@@ -22,11 +22,11 @@ The residual gap belongs between the coordinate operator `M` and the unwanted
 spectrum of `A` on `Uᗮ`.  A bare internal gap between the two reducing blocks
 of `A` does not control an arbitrary trial pair `(X,M)`, and the former direct
 Sylvester body was not type-correct: its displayed right-hand side consisted
-of ambient endomorphisms while the norm had rectangular type `F -> E`.
+of ambient endomorphisms while the norm had rectangular type `F → E`.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 
@@ -40,13 +40,13 @@ variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
 map.  This is the complete rectangular UI-norm family obtained from the sharp
 single-angle residual theorem and `sin (2 t) <= 2 sin t`. -/
 theorem sinTwoTheta_residual_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric) {U : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
     {a b δ : ℝ} (hδ : 0 < δ)
-    (hMspec : SpectrumIn M ⊤ (Set.Icc a b))
-    (hAspec : SpectrumIn A Uᗮ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}) :
+    (hMspec : PointSpectrumIn M ⊤ (Set.Icc a b))
+    (hAspec : PointSpectrumIn A Uᗮ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}) :
     δ * N (sinTwoThetaEmbedding U X) ≤ 2 * N (residual A X M) := by
   have hdouble := sinTwoThetaEmbedding_uiNorm_le_two_mul N U X
   have hsingle := sinTheta_residual_le N hA hU X hM hδ hMspec hAspec
@@ -60,7 +60,7 @@ theorem sinTwoTheta_residual_le
 
 /-- Ordered half-line residual `sin 2 Theta` theorem. -/
 theorem sinTwoTheta_residual_le_of_orderedGap
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric) {U : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
@@ -80,11 +80,11 @@ theorem sinTwoTheta_residual_le_of_orderedGap
 Sylvester loss becomes the expected factor `pi` after the elementary
 `sin (2 t) <= 2 sin t` comparison. -/
 theorem sinTwoTheta_residual_le_of_spectralDistance
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric) {U : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {M : F →ₗ[𝕜] F} (hM : M.IsSymmetric)
-    {δ : ℝ} (hδ : 0 < δ) (hgap : SpectraSeparated M ⊤ A Uᗮ δ) :
+    {δ : ℝ} (hδ : 0 < δ) (hgap : PointSpectraSeparated M ⊤ A Uᗮ δ) :
     δ * N (sinTwoThetaEmbedding U X) ≤
       Real.pi * N (residual A X M) := by
   have hdouble := sinTwoThetaEmbedding_uiNorm_le_two_mul N U X
@@ -99,5 +99,5 @@ theorem sinTwoTheta_residual_le_of_spectralDistance
       mul_le_mul_of_nonneg_left hsingle (by positivity)
     _ = Real.pi * N (residual A X M) := by ring
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

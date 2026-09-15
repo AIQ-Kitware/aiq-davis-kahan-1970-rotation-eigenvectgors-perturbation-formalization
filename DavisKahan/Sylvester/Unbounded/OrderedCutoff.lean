@@ -17,9 +17,10 @@ passages and Fan dominance endpoint.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace Topology
+open TauCeti.DavisKahan.ExactSinTheta
 open Filter
 
 universe u v
@@ -351,7 +352,7 @@ theorem kyFan_unbounded_sylvester_le_of_semibounded_direct
     (KyFanDominantIdealFamily.kyFan (𝕜 := 𝕜) k hk).toSymmetricOperatorIdealFamily
     hA1inv B1 hρ hδ hA1invNorm hB1norm hEqShift
       (KyFanDominantIdealFamily.kyFan_mem (𝕜 := 𝕜) k hk Cc)
-  simp only [KyFanDominantIdealFamily.toSymmetric_gaugeReal] at hmain
+  simp only [FanDominantIdealFamily.toSymmetric_gaugeReal] at hmain
   rw [KyFanDominantIdealFamily.kyFan_gauge (𝕜 := 𝕜) k hk Xc,
     KyFanDominantIdealFamily.kyFan_gauge (𝕜 := 𝕜) k hk Cc] at hmain
   simpa only [Xc, Cc, PA, PB, ContinuousLinearMap.comp_assoc] using hmain.2
@@ -451,7 +452,7 @@ theorem kyFan_unbounded_sylvester_le_of_semibounded_direct_swapped
     (KyFanDominantIdealFamily.kyFan (𝕜 := 𝕜) k hk).toSymmetricOperatorIdealFamily
     hB1inv A1 hρ hδ hB1invNorm hA1norm hEqShift
       (KyFanDominantIdealFamily.kyFan_mem (𝕜 := 𝕜) k hk Cc)
-  simp only [KyFanDominantIdealFamily.toSymmetric_gaugeReal] at hmain
+  simp only [FanDominantIdealFamily.toSymmetric_gaugeReal] at hmain
   rw [KyFanDominantIdealFamily.kyFan_gauge (𝕜 := 𝕜) k hk Xc,
     KyFanDominantIdealFamily.kyFan_gauge (𝕜 := 𝕜) k hk Cc] at hmain
   simpa only [Xc, Cc, PA, PB, ContinuousLinearMap.comp_assoc] using hmain.2
@@ -480,7 +481,7 @@ theorem unbounded_sylvester_mem_of_semibounded_direct
 
 /-- Davis--Kahan Theorem 5.2 in the lower-left/upper-right orientation. -/
 theorem unbounded_sylvester_mem_and_gauge_le_direct
-    (N : KyFanDominantIdealFamily (𝕜 := 𝕜))
+    (N : FanDominantIdealFamily (𝕜 := 𝕜))
     {A : E →ₗ.[𝕜] E}
     {B : F →ₗ.[𝕜] F}
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
@@ -502,7 +503,7 @@ theorem unbounded_sylvester_mem_and_gauge_le_direct
 
 /-- Davis--Kahan Theorem 5.2 in the upper-left/lower-right orientation. -/
 theorem unbounded_sylvester_mem_and_gauge_le_direct_swapped
-    (N : KyFanDominantIdealFamily (𝕜 := 𝕜))
+    (N : FanDominantIdealFamily (𝕜 := 𝕜))
     {A : E →ₗ.[𝕜] E}
     {B : F →ₗ.[𝕜] F}
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
@@ -525,6 +526,6 @@ theorem unbounded_sylvester_mem_and_gauge_le_direct_swapped
 
 end ApproximationNumberEndpointAssumptions
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

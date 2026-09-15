@@ -78,7 +78,7 @@ a bounded self-adjoint operator is indexed along the real part of its own
 spectrum, so a continuous symbol agreeing with the indicator *there* has the
 same calculus image, definitionally. -/
 theorem boundedSelfAdjointSpectralProjection_eq_cfcL_of_selector
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s)
     (g : C(spectrum ℂ A, ℂ))
     (hg : ∀ (lam : ℝ) (hlam : (lam : ℂ) ∈ spectrum ℂ A),
@@ -103,7 +103,7 @@ theorem boundedSelfAdjointSpectralProjection_eq_cfcL_of_selector
 resolvent is the complex continuous functional calculus of the scalar
 resolvent symbol. -/
 theorem resolventOperator_eq_cfc_resolventSymbol
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (z : ℂ) (delta : ℝ) (hdelta : 0 < delta)
     (hsep : ∀ lam ∈ realSpectrum A, delta ≤ ‖z - (lam : ℂ)‖) :
     resolventOperator A z = cfc (fun w : ℂ => (w - z)⁻¹) A := by

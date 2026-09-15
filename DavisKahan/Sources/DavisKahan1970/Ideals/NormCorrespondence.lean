@@ -115,7 +115,7 @@ end DiagonalSingularValues
 section UnitarilyInvariantGauge
 
 variable {n : ℕ}
-  (N : TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n)))
+  (N : TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n)) (EuclideanSpace ℂ (Fin n)))
   (b : OrthonormalBasis (Fin n) ℂ (EuclideanSpace ℂ (Fin n)))
 
 /-- The gauge of any unitarily invariant norm ignores the signs of the
@@ -139,7 +139,7 @@ end UnitarilyInvariantGauge
 theorem singularValues_smul_complex {n : ℕ} (a : ℂ)
     (A : EuclideanSpace ℂ (Fin n) →ₗ[ℂ] EuclideanSpace ℂ (Fin n)) (i : ℕ) :
     (a • A).singularValues i = ‖a‖ * A.singularValues i :=
-  TauCeti.RectangularUnitarilyInvariantSeminorm.singularValues_smul_rect
+  TauCeti.singularValues_smul_apply
     a A i
 
 namespace SymmetricNormingFunction
@@ -280,71 +280,74 @@ def finiteOperatorValue (Φ : SymmetricNormingFunction.Axiomatic) (n : ℕ)
 /-- A source symmetric gauge induces the finite-dimensional unitarily
 invariant norm used by the implementation. -/
 noncomputable def finiteNorm (Φ : SymmetricNormingFunction.Axiomatic) (n : ℕ) :
-    TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n)) where
-  toFun := Φ.finiteOperatorValue n
-  add_le' A B := by
-    have hmaj : ∀ m : ℕ,
-        (∑ i ∈ Finset.univ.filter (fun i : Fin n => (i : ℕ) < m),
-            (A + B).singularValues (i : ℕ)) ≤
-          ∑ i ∈ Finset.univ.filter (fun i : Fin n => (i : ℕ) < m),
-            (A.singularValues (i : ℕ) + B.singularValues (i : ℕ)) := by
-      intro m
-      rw [Finset.sum_add_distrib]
-      rcases le_or_gt m n with hm | hm
-      · rw [TauCeti.sum_filter_lt_eq_sum_fin hm
-            (fun k => (A + B).singularValues k),
-          TauCeti.sum_filter_lt_eq_sum_fin hm (fun k => A.singularValues k),
-          TauCeti.sum_filter_lt_eq_sum_fin hm (fun k => B.singularValues k),
-          ← TauCeti.kyFanSum_eq_sum_fin, ← TauCeti.kyFanSum_eq_sum_fin,
-          ← TauCeti.kyFanSum_eq_sum_fin]
-        exact TauCeti.kyFanSum_add_le m A B
-      · have huniv :
-            (Finset.univ.filter fun i : Fin n => (i : ℕ) < m) = Finset.univ :=
-          Finset.filter_true_of_mem fun i _ => lt_trans i.isLt hm
-        rw [huniv, ← TauCeti.kyFanSum_eq_sum_fin,
-          ← TauCeti.kyFanSum_eq_sum_fin, ← TauCeti.kyFanSum_eq_sum_fin]
-        exact TauCeti.kyFanSum_add_le n A B
-    show Φ.gauge n (fun i : Fin n => (A + B).singularValues (i : ℕ)) ≤
-      Φ.gauge n (fun i : Fin n => A.singularValues (i : ℕ)) +
-        Φ.gauge n (fun i : Fin n => B.singularValues (i : ℕ))
-    calc
-      Φ.gauge n (fun i : Fin n => (A + B).singularValues (i : ℕ))
-          ≤ Φ.gauge n (fun i : Fin n =>
-              A.singularValues (i : ℕ) + B.singularValues (i : ℕ)) := by
-        apply Φ.weak_majorization
-        · exact fun i j hij =>
-            (A + B).singularValues_antitone (Fin.le_def.mp hij)
-        · exact fun i => (A + B).singularValues_nonneg _
-        · exact fun i =>
-            add_nonneg (A.singularValues_nonneg _) (B.singularValues_nonneg _)
-        · exact hmaj
-      _ ≤ Φ.gauge n (fun i : Fin n => A.singularValues (i : ℕ)) +
-            Φ.gauge n (fun i : Fin n => B.singularValues (i : ℕ)) :=
-        Φ.add_le _ _
-  smul' c A := by
-    have hs : (fun i : Fin n => (c • A).singularValues (i : ℕ)) =
-        ‖c‖ • (fun i : Fin n => A.singularValues (i : ℕ)) := by
-      funext i
-      rw [singularValues_smul_complex c A (i : ℕ)]
-      rfl
-    show Φ.gauge n (fun i : Fin n => (c • A).singularValues (i : ℕ)) =
-      ‖c‖ * Φ.gauge n (fun i : Fin n => A.singularValues (i : ℕ))
-    rw [hs, Φ.smul, abs_of_nonneg (norm_nonneg c)]
-  invariant' U V A := by
-    have h : (U.toLinearMap ∘ₗ A ∘ₗ V.toLinearMap).singularValues =
-        A.singularValues := by
-      rw [show (U.toLinearMap :
-              EuclideanSpace ℂ (Fin n) →ₗ[ℂ] EuclideanSpace ℂ (Fin n))
-            = ↑U.toLinearEquiv from rfl,
-        show (V.toLinearMap :
-              EuclideanSpace ℂ (Fin n) →ₗ[ℂ] EuclideanSpace ℂ (Fin n))
-            = ↑V.toLinearEquiv from rfl,
-        TauCeti.singularValues_unitary_comp,
-        TauCeti.singularValues_comp_unitary]
-    show Φ.gauge n (fun i : Fin n =>
-        (U.toLinearMap ∘ₗ A ∘ₗ V.toLinearMap).singularValues (i : ℕ)) =
-      Φ.gauge n (fun i : Fin n => A.singularValues (i : ℕ))
-    rw [h]
+    TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n)) (EuclideanSpace ℂ (Fin n)) where
+  toSeminorm := Seminorm.of
+    (Φ.finiteOperatorValue n)
+    (fun A B => by
+      have hmaj : ∀ m : ℕ,
+          (∑ i ∈ Finset.univ.filter (fun i : Fin n => (i : ℕ) < m),
+              (A + B).singularValues (i : ℕ)) ≤
+            ∑ i ∈ Finset.univ.filter (fun i : Fin n => (i : ℕ) < m),
+              (A.singularValues (i : ℕ) + B.singularValues (i : ℕ)) := by
+        intro m
+        rw [Finset.sum_add_distrib]
+        rcases le_or_gt m n with hm | hm
+        · rw [TauCeti.sum_filter_lt_eq_sum_fin hm
+              (fun k => (A + B).singularValues k),
+            TauCeti.sum_filter_lt_eq_sum_fin hm (fun k => A.singularValues k),
+            TauCeti.sum_filter_lt_eq_sum_fin hm (fun k => B.singularValues k),
+            ← TauCeti.kyFanSum_eq_sum_fin, ← TauCeti.kyFanSum_eq_sum_fin,
+            ← TauCeti.kyFanSum_eq_sum_fin]
+          exact TauCeti.kyFanSum_add_le m A B
+        · have huniv :
+              (Finset.univ.filter fun i : Fin n => (i : ℕ) < m) = Finset.univ :=
+            Finset.filter_true_of_mem fun i _ => lt_trans i.isLt hm
+          rw [huniv, ← TauCeti.kyFanSum_eq_sum_fin,
+            ← TauCeti.kyFanSum_eq_sum_fin, ← TauCeti.kyFanSum_eq_sum_fin]
+          exact TauCeti.kyFanSum_add_le n A B
+      show Φ.gauge n (fun i : Fin n => (A + B).singularValues (i : ℕ)) ≤
+        Φ.gauge n (fun i : Fin n => A.singularValues (i : ℕ)) +
+          Φ.gauge n (fun i : Fin n => B.singularValues (i : ℕ))
+      calc
+        Φ.gauge n (fun i : Fin n => (A + B).singularValues (i : ℕ))
+            ≤ Φ.gauge n (fun i : Fin n =>
+                A.singularValues (i : ℕ) + B.singularValues (i : ℕ)) := by
+          apply Φ.weak_majorization
+          · exact fun i j hij =>
+              (A + B).singularValues_antitone (Fin.le_def.mp hij)
+          · exact fun i => (A + B).singularValues_nonneg _
+          · exact fun i =>
+              add_nonneg (A.singularValues_nonneg _) (B.singularValues_nonneg _)
+          · exact hmaj
+        _ ≤ Φ.gauge n (fun i : Fin n => A.singularValues (i : ℕ)) +
+              Φ.gauge n (fun i : Fin n => B.singularValues (i : ℕ)) :=
+          Φ.add_le _ _)
+    (fun c A => by
+      have hs : (fun i : Fin n => (c • A).singularValues (i : ℕ)) =
+          ‖c‖ • (fun i : Fin n => A.singularValues (i : ℕ)) := by
+        funext i
+        rw [singularValues_smul_complex c A (i : ℕ)]
+        rfl
+      show Φ.gauge n (fun i : Fin n => (c • A).singularValues (i : ℕ)) =
+        ‖c‖ * Φ.gauge n (fun i : Fin n => A.singularValues (i : ℕ))
+      rw [hs, Φ.smul, abs_of_nonneg (norm_nonneg c)])
+  unitary_invariant' :=
+    TauCeti.UnitarilyInvariantSeminorm.unitary_invariant_of_isometry
+      (fun U V A => by
+        have h : (U.toLinearMap ∘ₗ A ∘ₗ V.toLinearMap).singularValues =
+            A.singularValues := by
+          rw [show (U.toLinearMap :
+                  EuclideanSpace ℂ (Fin n) →ₗ[ℂ] EuclideanSpace ℂ (Fin n))
+                = ↑U.toLinearEquiv from rfl,
+            show (V.toLinearMap :
+                  EuclideanSpace ℂ (Fin n) →ₗ[ℂ] EuclideanSpace ℂ (Fin n))
+                = ↑V.toLinearEquiv from rfl,
+            TauCeti.singularValues_unitary_comp,
+            TauCeti.singularValues_comp_unitary]
+        show Φ.gauge n (fun i : Fin n =>
+            (U.toLinearMap ∘ₗ A ∘ₗ V.toLinearMap).singularValues (i : ℕ)) =
+          Φ.gauge n (fun i : Fin n => A.singularValues (i : ℕ))
+        rw [h])
 
 /-- **The induced finite norm has exactly the source gauge.**  Both the
 normalization and the zero-padding law of the reconstructed family reduce to
@@ -399,16 +402,6 @@ theorem toNormingFunction_ofNormingFunction_finite_apply
   ((N.finiteNorm n).apply_eq_gauge finrank_euclideanSpace_fin
     (EuclideanSpace.basisFun (Fin n) ℂ) A).symm
 
-/-- Two coherent finite operator families with the same gauge agree. -/
-private theorem uin_ext {n : ℕ}
-    {N M : TauCeti.UnitarilyInvariantSeminorm ℂ (EuclideanSpace ℂ (Fin n))}
-    (h : ∀ A, N A = M A) : N = M := by
-  cases N
-  cases M
-  congr 1
-  funext A
-  exact h A
-
 /-- The coherent finite operator family is completely determined by its source
 symmetric norming function. -/
 theorem ext_finiteGauge
@@ -420,7 +413,7 @@ theorem ext_finiteGauge
     | mk Mf Mnorm Mz =>
       congr 1
       funext n
-      apply uin_ext
+      apply TauCeti.UnitarilyInvariantSeminorm.ext
       intro A
       rw [(Nf n).apply_eq_gauge finrank_euclideanSpace_fin
           (EuclideanSpace.basisFun (Fin n) ℂ) A,

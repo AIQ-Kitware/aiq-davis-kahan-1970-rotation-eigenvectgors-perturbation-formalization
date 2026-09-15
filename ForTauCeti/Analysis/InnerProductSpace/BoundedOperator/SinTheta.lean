@@ -14,7 +14,7 @@ public import ForTauCeti.Analysis.InnerProductSpace.Sylvester.Operator
 # Dimension-free Davis--Kahan `sin Θ`
 
 The supported scalar-generic coercive theorem.  Spectral hypotheses are
-converted to these form bounds in scalar-specific bridge modules.
+converted to these form bounds by the generic `TauCeti.SpectralOrder` API.
 
 ## Provenance
 
@@ -33,8 +33,7 @@ and the proof are unchanged apart from spelling the compatibility aliases
 `Reduces`, `projection` and `norm_sylvester_le_of_coercive` as the canonical
 `ContinuousLinearMap.Reduces`, `Submodule.starProjection` and
 `TauCeti.ContinuousLinearMap.opNorm_le_div_of_comp_sub_comp_eq` they forwarded
-to.  `DavisKahan/BoundedOperator/Compat.lean` keeps the old names for the paper
-library.
+to. Consumers now use these canonical declarations directly.
 -/
 
 public section

@@ -6,6 +6,11 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.SharpRadius
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.WitnessOffDiagonal
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Sharp continuation block data along the affine path
 
@@ -22,6 +27,7 @@ argument.  No spectral inclusion is claimed in this leaf.
 namespace TauCeti
 namespace DavisKahanExt
 
+
 open DavisKahan
 
 open Set
@@ -37,8 +43,8 @@ variable {Hspace : Type v} [NormedAddCommGroup Hspace]
 /-- Off-diagonality is preserved by scalar multiplication. -/
 theorem isOffDiagonal_smul
     (U : Submodule ℂ Hspace) [U.HasOrthogonalProjection]
-    (K : Hspace →L[ℂ] Hspace) (hK : IsOffDiagonal U K) (c : ℂ) :
-    IsOffDiagonal U (c • K) := by
+    (K : Hspace →L[ℂ] Hspace) (hK : Submodule.IsOffDiagonal U K) (c : ℂ) :
+    Submodule.IsOffDiagonal U (c • K) := by
   change U.diagonalPart K = 0 at hK
   change U.diagonalPart (c • K) = 0
   apply ContinuousLinearMap.ext
@@ -78,11 +84,11 @@ variable {Hspace : Type v} [NormedAddCommGroup Hspace]
 theorem operatorPath_subspaceBlockOperatorData_A0_eq
     (A K : Hspace →L[ℂ] Hspace)
     (U : Submodule ℂ Hspace) [U.HasOrthogonalProjection]
-    (_hU : Reduces A U) (hK : IsOffDiagonal U K)
-    (t : ℝ) (hpath : IsSelfAdjointOperator (operatorPath A K t)) :
+    (_hU : A.Reduces U) (hK : Submodule.IsOffDiagonal U K)
+    (t : ℝ) (hpath : (operatorPath A K t).IsSymmetric) :
     (subspaceBlockOperatorData (operatorPath A K t) U hpath).A0 =
       compressOperator U A := by
-  have hKt : IsOffDiagonal U ((t : ℂ) • K) :=
+  have hKt : Submodule.IsOffDiagonal U ((t : ℂ) • K) :=
     isOffDiagonal_smul U K hK (t : ℂ)
   unfold operatorPath
   exact subspaceBlockOperatorData_A0_add_offDiagonal
@@ -92,11 +98,11 @@ theorem operatorPath_subspaceBlockOperatorData_A0_eq
 theorem operatorPath_subspaceBlockOperatorData_A1_eq
     (A K : Hspace →L[ℂ] Hspace)
     (U : Submodule ℂ Hspace) [U.HasOrthogonalProjection]
-    (_hU : Reduces A U) (hK : IsOffDiagonal U K)
-    (t : ℝ) (hpath : IsSelfAdjointOperator (operatorPath A K t)) :
+    (_hU : A.Reduces U) (hK : Submodule.IsOffDiagonal U K)
+    (t : ℝ) (hpath : (operatorPath A K t).IsSymmetric) :
     (subspaceBlockOperatorData (operatorPath A K t) U hpath).A1 =
       compressOperator Uᗮ A := by
-  have hKt : IsOffDiagonal U ((t : ℂ) • K) :=
+  have hKt : Submodule.IsOffDiagonal U ((t : ℂ) • K) :=
     isOffDiagonal_smul U K hK (t : ℂ)
   unfold operatorPath
   exact subspaceBlockOperatorData_A1_add_offDiagonal
@@ -107,8 +113,8 @@ scaled perturbation. -/
 theorem operatorPath_subspaceBlockOperatorData_B01_eq
     (A K : Hspace →L[ℂ] Hspace)
     (U : Submodule ℂ Hspace) [U.HasOrthogonalProjection]
-    (hU : Reduces A U)
-    (t : ℝ) (hpath : IsSelfAdjointOperator (operatorPath A K t)) :
+    (hU : A.Reduces U)
+    (t : ℝ) (hpath : (operatorPath A K t).IsSymmetric) :
     (subspaceBlockOperatorData (operatorPath A K t) U hpath).B01 =
       U.orthogonalProjectionOnto ∘L ((t : ℂ) • K) ∘L Uᗮ.subtypeL := by
   unfold operatorPath
@@ -120,8 +126,8 @@ scaled perturbation. -/
 theorem operatorPath_subspaceBlockOperatorData_B10_eq
     (A K : Hspace →L[ℂ] Hspace)
     (U : Submodule ℂ Hspace) [U.HasOrthogonalProjection]
-    (hU : Reduces A U)
-    (t : ℝ) (hpath : IsSelfAdjointOperator (operatorPath A K t)) :
+    (hU : A.Reduces U)
+    (t : ℝ) (hpath : (operatorPath A K t).IsSymmetric) :
     (subspaceBlockOperatorData (operatorPath A K t) U hpath).B10 =
       Uᗮ.orthogonalProjectionOnto ∘L ((t : ℂ) • K) ∘L U.subtypeL := by
   unfold operatorPath
@@ -132,9 +138,9 @@ theorem operatorPath_subspaceBlockOperatorData_B10_eq
 theorem norm_operatorPath_subspaceBlockOperatorData_B01_le
     (A K : Hspace →L[ℂ] Hspace)
     (U : Submodule ℂ Hspace) [U.HasOrthogonalProjection]
-    (hU : Reduces A U)
+    (hU : A.Reduces U)
     (t : ℝ) (ht : t ∈ Set.Icc (0 : ℝ) 1)
-    (hpath : IsSelfAdjointOperator (operatorPath A K t)) :
+    (hpath : (operatorPath A K t).IsSymmetric) :
     ‖(subspaceBlockOperatorData (operatorPath A K t) U hpath).B01‖ ≤
       t * ‖K‖ := by
   rw [operatorPath_subspaceBlockOperatorData_B01_eq A K U hU t hpath]
@@ -150,9 +156,9 @@ theorem norm_operatorPath_subspaceBlockOperatorData_B01_le
 theorem norm_operatorPath_subspaceBlockOperatorData_B10_le
     (A K : Hspace →L[ℂ] Hspace)
     (U : Submodule ℂ Hspace) [U.HasOrthogonalProjection]
-    (hU : Reduces A U)
+    (hU : A.Reduces U)
     (t : ℝ) (ht : t ∈ Set.Icc (0 : ℝ) 1)
-    (hpath : IsSelfAdjointOperator (operatorPath A K t)) :
+    (hpath : (operatorPath A K t).IsSymmetric) :
     ‖(subspaceBlockOperatorData (operatorPath A K t) U hpath).B10‖ ≤
       t * ‖K‖ := by
   rw [operatorPath_subspaceBlockOperatorData_B10_eq A K U hU t hpath]

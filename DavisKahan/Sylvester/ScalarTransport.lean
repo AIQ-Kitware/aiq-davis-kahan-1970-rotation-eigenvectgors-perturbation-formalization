@@ -6,6 +6,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Sylvester.ScalarGeneric
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.ScalarTransport
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The unbounded Sylvester Ky Fan estimate at every `RCLike` field
 
@@ -40,12 +42,14 @@ themselves.
 -/
 
 open scoped InnerProductSpace
+open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti TauCeti.ScalarTransport TauCeti.DavisKahan.ExactSinTheta
 
 universe u w v
 
 namespace TauCeti
 namespace ScalarTransport
+
 
 variable {𝕜 : Type u} {𝕂 : Type w} [RCLike 𝕜] [RCLike 𝕂] {e : RCLikeIso 𝕜 𝕂}
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
@@ -137,7 +141,7 @@ theorem formBoundedSylvesterGap_pmap {A : E →ₗ.[𝕜] E} {B : F →ₗ.[𝕜
   cases h with
   | intervalExterior hβα hgap =>
       refine FormBoundedSylvesterGap.intervalExterior hβα ?_
-      unfold TauCeti.DavisKahan.ExactSinTheta.RealSpectrumIntervalExteriorGap at hgap ⊢
+      unfold TauCeti.DavisKahan.Sylvester.RealSpectrumIntervalExteriorGap at hgap ⊢
       rwa [realSpectrum_pmap, realSpectrum_pmap]
   | leftAboveRightBelow c hA hB =>
       exact FormBoundedSylvesterGap.leftAboveRightBelow c
@@ -158,7 +162,7 @@ theorem sylvesterEquation_pmap {A : E →ₗ.[𝕜] E} {B : F →ₗ.[𝕜] F} {
 end ScalarTransport
 
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open TauCeti.ScalarTransport
 
@@ -189,6 +193,6 @@ instance hasUnboundedSylvesterKyFan (𝕜 : Type u) [RCLike 𝕜] :
   · exact hasUnboundedSylvesterKyFan_of_transport (RCLikeIso.real h)
   · exact hasUnboundedSylvesterKyFan_of_transport (RCLikeIso.complex h)
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

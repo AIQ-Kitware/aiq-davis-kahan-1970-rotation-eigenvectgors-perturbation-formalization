@@ -83,7 +83,7 @@ public section
 
 namespace ContinuousLinearMap
 
-universe u v
+universe u v w
 
 section Corestriction
 
@@ -308,7 +308,7 @@ theorem basisTruncation_apply_basis {ι : Type*} [DecidableEq ι] (b : HilbertBa
     rw [orthonormal_iff_ite.mp b.orthonormal, ite_eq_right (by rintro rfl; exact hj hi), zero_smul]
 
 
-variable {H : Type v} [NormedAddCommGroup H] [InnerProductSpace 𝕜' H] [CompleteSpace H]
+variable {H : Type w} [NormedAddCommGroup H] [InnerProductSpace 𝕜' H] [CompleteSpace H]
 
 omit [CompleteSpace G] [CompleteSpace H] in
 /-- **The energy of the truncation error is the unselected part of the energy.**
@@ -571,7 +571,7 @@ finite-dimensional, agrees with `T ∘L V` because the range is exactly `W`, and
 most `‖T‖`.
 
 **The reverse inequality is not proved here**, and is what stands between this and
-`TauCeti.schattenIdealFamily 𝕜 2 = TauCeti.hilbertSchmidtIdealFamily 𝕜`.  It does *not* need
+`TauCeti.schattenFamilySymmetric 𝕜 2 = TauCeti.hilbertSchmidtIdealFamily 𝕜`.  It does *not* need
 an infinite-dimensional spectral theorem, which is worth saying because the obvious route
 through one is closed — Mathlib's eigenvector basis is finite-dimensional only.  Bounding
 `∑_{n < N} aₙ(T) ^ 2` for **fixed** `N` against a finite-rank truncation, and only then

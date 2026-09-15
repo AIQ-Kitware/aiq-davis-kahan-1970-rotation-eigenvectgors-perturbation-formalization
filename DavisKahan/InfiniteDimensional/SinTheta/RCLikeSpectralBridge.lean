@@ -4,8 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 4.8
 -/
 import DavisKahan.SinTheta.SpectralBridge
-import DavisKahan.InfiniteDimensional.SinTheta.RestrictionCompat
+import DavisKahan.InfiniteDimensional.SinTheta.Restriction
 import Mathlib.Analysis.InnerProductSpace.Rayleigh
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # `RCLike` spectral-bridge lemmas

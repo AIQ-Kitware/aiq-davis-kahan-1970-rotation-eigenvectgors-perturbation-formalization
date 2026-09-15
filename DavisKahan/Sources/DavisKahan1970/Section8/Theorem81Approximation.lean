@@ -7,6 +7,8 @@ import DavisKahan.BoundedOperator.BlockShift
 import DavisKahan.Sources.DavisKahan1970.Section8.CompressionApproximation
 import DavisKahan.Sources.DavisKahan1970.Section8.BranchRepulsion
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan 1970, Theorem 8.1(ii)
 
@@ -22,7 +24,7 @@ bound norm.
 
 Three ingredients, each proved separately:
 
-* `theorem8_1_upperCompressionRepulsion_source` -- part (i) on the `Pᗮ` block,
+* `theorem8_1_upperCompressionRepulsion` -- part (i) on the `Pᗮ` block,
   i.e. `A₁ - α ≤ C₁(Λ₁ - α)C₁` as quadratic forms;
 * `approximationNumber_mono_of_form_le` -- the Weyl step, for positive operators
   and in arbitrary dimension;
@@ -55,7 +57,7 @@ estimate.
 ## Both blocks
 
 The printed clause ends "with a similar relation for `Λ₀`".  That companion is
-proved here too, as `theorem8_1_lowerApproximationRepulsion_source`, against the
+proved here too, as `theorem8_1_lowerApproximationRepulsion`, against the
 mirrored objects `lowerBlockShift` and `lowerCosineBlock`.  The reflection
 carrying one to the other is `A ↦ -A`, `α ↦ -(α + δ)`, which exchanges the two
 sides of the printed gap; it turns `A₁ - α` into `(α + δ) - A₀` and `C₁` into
@@ -134,7 +136,7 @@ Part (ii) finishes by the coarse bound `aₙ(D⋆ M D) ≤ ‖D‖² aₙ(M)`, w
 all but the largest singular value of `C₁`.  Part (iii) instead feeds the *same*
 inequality into the weak-majorization sandwich theorem, which keeps the whole
 sequence.  Neither clause may be derived from the other's final statement. -/
-theorem theorem8_1_upperSandwichApproximation_source
+theorem theorem8_1_upperSandwichApproximation
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -171,7 +173,7 @@ theorem theorem8_1_upperSandwichApproximation_source
         upperBlockShift (A + K) Q alpha ∘L cosineBlock P Q) x⟫_ℂ := by
     intro x
     have hy : Pᗮ.starProjection x ∈ Pᗮ := Submodule.starProjection_apply_mem _ x
-    have hpart := theorem8_1_upperCompressionRepulsion_source A K P hdelta hA hK
+    have hpart := theorem8_1_upperCompressionRepulsion A K P hdelta hA hK
       hAP hPlow hPhigh hKP hKPperp hy
     -- Left side: the ambient form of `S` is the compression form at `P_{Pᗮ} x`.
     have hleft : RCLike.re ⟪x, upperBlockShift A P alpha x⟫_ℂ =
@@ -213,8 +215,8 @@ whose two steps are `approximationNumber_mono_of_form_le` (Weyl monotonicity
 for positive operators, in arbitrary dimension) and
 `approximationNumber_adjoint_sandwich_le` (the cosine-sandwich bound).  The
 form hypothesis of the first step is part (i), i.e.
-`theorem8_1_upperCompressionRepulsion_source`, evaluated at `P_{Pᗮ} x`. -/
-theorem theorem8_1_upperApproximationRepulsion_source
+`theorem8_1_upperCompressionRepulsion`, evaluated at `P_{Pᗮ} x`. -/
+theorem theorem8_1_upperApproximationRepulsion
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -230,7 +232,7 @@ theorem theorem8_1_upperApproximationRepulsion_source
         (upperBlockShift (A + K) (canonicalLowBranch (A + K)
           (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
             (hA.add hK)) alpha) alpha).approximationNumber n :=
-  (theorem8_1_upperSandwichApproximation_source A K P hdelta hA hK hAP hPlow
+  (theorem8_1_upperSandwichApproximation A K P hdelta hA hK hAP hPlow
     hPhigh hKP hKPperp n).trans
     (approximationNumber_adjoint_sandwich_le _ _ n)
 
@@ -274,12 +276,12 @@ theorem theorem8_1_perturbedLowerBlockShift_nonneg
 
   `aₙ((α + δ) - A₀) ≤ aₙ(C₀⋆ ((α + δ) - Λ₀) C₀)`.
 
-The exact mirror of `theorem8_1_upperSandwichApproximation_source`: part (i)'s
+The exact mirror of `theorem8_1_upperSandwichApproximation`: part (i)'s
 printed lower companion supplies the form domination, and
 `approximationNumber_mono_of_form_le` turns the form order between two positive
 operators into domination of every approximation number, in any dimension.  As
 in the upper block this is the step that both (ii) and (iii) consume. -/
-theorem theorem8_1_lowerSandwichApproximation_source
+theorem theorem8_1_lowerSandwichApproximation
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -313,7 +315,7 @@ theorem theorem8_1_lowerSandwichApproximation_source
         lowerBlockShift (A + K) Q alpha delta ∘L lowerCosineBlock P Q) x⟫_ℂ := by
     intro x
     have hy : P.starProjection x ∈ P := Submodule.starProjection_apply_mem _ x
-    have hpart := theorem8_1_lowerCompressionRepulsion_source A K P hdelta hA hK
+    have hpart := theorem8_1_lowerCompressionRepulsion A K P hdelta hA hK
       hAP hPlow hPhigh hKP hKPperp hy
     have hleft : RCLike.re ⟪x, lowerBlockShift A P alpha delta x⟫_ℂ =
         (alpha + delta) * ‖P.starProjection x‖ ^ 2 -
@@ -343,7 +345,7 @@ The printed "with a similar relation for `Λ₀`" reads
 and this is its dimension-free approximation-number form.  Proof: the lower Weyl
 step followed by the same coarse cosine-sandwich bound
 `aₙ(D⋆ M D) ≤ ‖D‖² aₙ(M)` used for the upper block. -/
-theorem theorem8_1_lowerApproximationRepulsion_source
+theorem theorem8_1_lowerApproximationRepulsion
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -359,7 +361,7 @@ theorem theorem8_1_lowerApproximationRepulsion_source
         (lowerBlockShift (A + K) (canonicalLowBranch (A + K)
           (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
             (hA.add hK)) alpha) alpha delta).approximationNumber n :=
-  (theorem8_1_lowerSandwichApproximation_source A K P hdelta hA hK hAP hPlow
+  (theorem8_1_lowerSandwichApproximation A K P hdelta hA hK hAP hPlow
     hPhigh hKP hKPperp n).trans
     (approximationNumber_adjoint_sandwich_le _ _ n)
 

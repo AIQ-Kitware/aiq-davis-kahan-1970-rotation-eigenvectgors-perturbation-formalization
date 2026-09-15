@@ -24,6 +24,7 @@ namespace DavisKahan
 namespace ExactSinTheta
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -32,66 +33,58 @@ universe v
 variable {E : Type v}
   [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
 
-/-- A subspace admitting an orthogonal projection inside a complete ambient
-space is itself complete.  `local instance` does not propagate through imports,
-so it is reinstalled here. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionFullAngle
-    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace ℂ G] [CompleteSpace G]
-    (U : Submodule ℂ G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
-
 /-- `Theta = diag(Theta_0,Theta_1)` on the source orthogonal coordinates. -/
-noncomputable def paperSourceFullAngleC
+noncomputable def fullAngleBlockC
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     WithLp 2 (U × Uᗮ) →L[ℂ] WithLp 2 (U × Uᗮ) :=
   continuousOrthogonalBlockSum
-    (paperSourceDirectedAngleC U V)
-    (paperSourceDirectedAngleC Uᗮ Vᗮ)
+    (directedAngleBlockC U V)
+    (directedAngleBlockC Uᗮ Vᗮ)
 
 /-- The literal block-diagonal `sin Theta`. -/
-noncomputable def paperSourceFullSinC
+noncomputable def fullSinAngleBlockC
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     WithLp 2 (U × Uᗮ) →L[ℂ] WithLp 2 (U × Uᗮ) :=
   continuousOrthogonalBlockSum
-    (paperSourceDirectedSinC U V)
-    (paperSourceDirectedSinC Uᗮ Vᗮ)
+    (directedSinAngleBlockC U V)
+    (directedSinAngleBlockC Uᗮ Vᗮ)
 
 /-- The cross projection sum in coordinates of `U` and `V complement`. -/
-noncomputable def paperSourceCrossBlockSumC
+noncomputable def crossBlockSumC
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     WithLp 2 (U × Uᗮ) →L[ℂ] WithLp 2 (Vᗮ × (Vᗮ)ᗮ) :=
   continuousOrthogonalBlockSum
-    (paperSineBlockC U V)
-    (paperSineBlockC Uᗮ Vᗮ)
+    (sineBlockC U V)
+    (sineBlockC Uᗮ Vᗮ)
 
 /-- The literal full sine and the coordinate cross-block sum have identical
 complete singular-value sequences. -/
-theorem paperSourceFullSin_same_coordinateCrossBlockSum
+theorem sourceFullSin_same_coordinateCrossBlockSum
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     SameApproximationSingularSequence
-      (paperSourceFullSinC U V) (paperSourceCrossBlockSumC U V) := by
+      (fullSinAngleBlockC U V) (crossBlockSumC U V) := by
   exact sameApproximationSingularSequence_continuousOrthogonalBlockSum
-    (paperSourceDirectedSin_same_paperSineBlock U V)
-    (paperSourceDirectedSin_same_paperSineBlock Uᗮ Vᗮ)
+    (directedSinAngleBlock_same_sineBlock U V)
+    (directedSinAngleBlock_same_sineBlock Uᗮ Vᗮ)
 
 /-- The coordinate cross-block sum is unitarily equivalent to the ambient
 cross sum printed in the paper. -/
-theorem paperSourceCrossBlockSum_same_ambientCrossSum
+theorem sourceCrossBlockSum_same_ambientCrossSum
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     SameApproximationSingularSequence
-      (paperSourceCrossBlockSumC U V) (paperCrossSineSum V U) := by
+      (crossBlockSumC U V) (crossSineSum V U) := by
   let Udom : E ≃ₗᵢ[ℂ] WithLp 2 (U × Uᗮ) := U.orthogonalDecomposition
   let Vcod : E ≃ₗᵢ[ℂ] WithLp 2 (Vᗮ × (Vᗮ)ᗮ) := Vᗮ.orthogonalDecomposition
   have hfactor :
       Vcod.toContinuousLinearEquiv.toContinuousLinearMap ∘L
-          paperCrossSineSum V U ∘L
+          crossSineSum V U ∘L
           Udom.symm.toContinuousLinearEquiv.toContinuousLinearMap =
-        paperSourceCrossBlockSumC U V := by
+        crossBlockSumC U V := by
     ext x
     apply WithLp.ofLp_injective 2
     -- `orthogonalDecomposition` carries its own `simp` lemmas for application
@@ -121,34 +114,34 @@ theorem paperSourceCrossBlockSum_same_ambientCrossSum
         Submodule.orthogonalProjectionOnto_apply_of_mem_orthogonal (K := Vᗮᗮ) hmem
       rw [map_sub] at hzero
       exact (sub_eq_zero.mp hzero).symm
-    simp [paperSourceCrossBlockSumC, paperSineBlockC,
-      paperCrossSineSum, Udom, Vcod, Submodule.adjoint_subtypeL,
+    simp [crossBlockSumC, sineBlockC,
+      crossSineSum, Udom, Vcod, Submodule.adjoint_subtypeL,
       hUbStar, hV1, hV2]
   exact (SameApproximationSingularValues.of_isometricEquiv_comp
     Vcod Udom hfactor).symm
 
 /-- The paper's literal full `sin Theta` has exactly the singular values of
 `P_U-P_V`. -/
-theorem paperSourceFullSin_same_projectionDifference
+theorem sourceFullSin_same_projectionDifference
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     SameApproximationSingularSequence
-      (paperSourceFullSinC U V) (U.starProjection - V.starProjection) := by
-  exact (paperSourceFullSin_same_coordinateCrossBlockSum U V).trans
-    ((paperSourceCrossBlockSum_same_ambientCrossSum U V).trans
-      (paperCrossSineSum_same_projectionDiff V U))
+      (fullSinAngleBlockC U V) (U.starProjection - V.starProjection) := by
+  exact (sourceFullSin_same_coordinateCrossBlockSum U V).trans
+    ((sourceCrossBlockSum_same_ambientCrossSum U V).trans
+      (crossSineSum_same_projectionDiff V U))
 
 /-- Every source norm gives the same value to the literal full angle sine and
 the projector difference. -/
-theorem paperSourceFullSin_mem_iff_and_gauge_eq
+theorem sourceFullSin_mem_iff_and_gauge_eq
     (N : SymmetricNormingFunction)
     (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    (N.Mem (paperSourceFullSinC U V) ↔
+    (N.Mem (fullSinAngleBlockC U V) ↔
       N.Mem (U.starProjection - V.starProjection)) ∧
-    N.gauge (paperSourceFullSinC U V) =
+    N.gauge (fullSinAngleBlockC U V) =
       N.gauge (U.starProjection - V.starProjection) :=
-  (paperSourceFullSin_same_projectionDifference U V).normingMem_iff_and_gauge_eq N
+  (sourceFullSin_same_projectionDifference U V).normingMem_iff_and_gauge_eq N
 
 end
 

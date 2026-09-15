@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalRiccati
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Sharp Riccati estimate in ambient off-diagonal coordinates
 
@@ -23,6 +25,7 @@ implemented double-angle operator.
 namespace TauCeti
 namespace DavisKahanExt
 
+
 open DavisKahan.Foundation
 
 open DavisKahan
@@ -39,11 +42,11 @@ under an ordered centered quadratic-form gap for the two diagonal
 compressions. -/
 theorem quarterAcuteAngularCoordinate_sharp_bound_of_form_gap
     (A H : E →L[ℂ] E)
-    (hA : IsSelfAdjointOperator A) (hH : IsSelfAdjointOperator H)
+    (hA : A.IsSymmetric) (hH : H.IsSymmetric)
     (U V : Submodule ℂ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces (A + H) V)
-    (hoff : IsOffDiagonal U H)
+    (hU : A.Reduces U) (hV : ContinuousLinearMap.Reduces (A + H) V)
+    (hoff : Submodule.IsOffDiagonal U H)
     {c d : ℝ} (hd : 0 < d)
     (hA0 : ∀ z : U,
       RCLike.re ⟪compressOperator U A z, z⟫_ℂ ≤ c * ‖z‖ ^ 2)
@@ -57,7 +60,7 @@ theorem quarterAcuteAngularCoordinate_sharp_bound_of_form_gap
     (U.isComplete_coe_of_hasOrthogonalProjection).completeSpace_coe
   let : CompleteSpace (Uᗮ : Submodule ℂ E) :=
     (Uᗮ.isComplete_coe_of_hasOrthogonalProjection).completeSpace_coe
-  have hAH : IsSelfAdjointOperator (A + H) := by
+  have hAH : (A + H).IsSymmetric := by
     have h := hA.add hH
     rwa [← ContinuousLinearMap.toLinearMap_add] at h
   let B : BlockOperatorData (𝕜 := ℂ) (E0 := U) (E1 := Uᗮ) :=

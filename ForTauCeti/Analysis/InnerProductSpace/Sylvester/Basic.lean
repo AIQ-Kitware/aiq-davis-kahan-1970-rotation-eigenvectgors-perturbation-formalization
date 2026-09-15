@@ -75,8 +75,8 @@ spectrum of `A` outside `(a-δ,b+δ)`. -/
 @[expose]
 def IntervalSylvesterGap (A : F →ₗ[𝕜] F) (B : E →ₗ[𝕜] E)
     (a b δ : ℝ) : Prop :=
-  SpectrumIn B ⊤ (Set.Icc a b) ∧
-    SpectrumIn A ⊤ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}
+  PointSpectrumIn B ⊤ (Set.Icc a b) ∧
+    PointSpectrumIn A ⊤ {lam | lam ∉ Set.Ioo (a - δ) (b + δ)}
 
 /-- Interval/exterior separation in either orientation.  The first branch has
 the spectrum of `B` in `[a,b]` and that of `A` outside the enlarged interval;
@@ -96,7 +96,7 @@ two basis-extensionality steps force `X = 0`.
 -/
 theorem sylvesterOperator_injective {A : F →ₗ[𝕜] F} {B : E →ₗ[𝕜] E}
     (hA : A.IsSymmetric) (hB : B.IsSymmetric) {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SpectraSeparated A ⊤ B ⊤ δ) :
+    (hgap : PointSpectraSeparated A ⊤ B ⊤ δ) :
     Function.Injective (sylvesterOperator A B) := by
   intro X Y hXY
   have hker : sylvesterOperator A B (X - Y) = 0 := by
@@ -108,12 +108,12 @@ theorem sylvesterOperator_injective {A : F →ₗ[𝕜] F} {B : E →ₗ[𝕜] E
   intro i
   let α : ℝ := hA.eigenvalues rfl i
   let β : ℝ := hB.eigenvalues rfl j
-  have hα : α ∈ restrictedSpectrum A ⊤ :=
-    mem_restrictedSpectrum Submodule.mem_top
+  have hα : α ∈ restrictedPointSpectrum A ⊤ :=
+    mem_restrictedPointSpectrum Submodule.mem_top
       ((hA.eigenvectorBasis rfl).orthonormal.ne_zero i)
       (by dsimp [α]; exact hA.apply_eigenvectorBasis rfl i)
-  have hβ : β ∈ restrictedSpectrum B ⊤ :=
-    mem_restrictedSpectrum Submodule.mem_top
+  have hβ : β ∈ restrictedPointSpectrum B ⊤ :=
+    mem_restrictedPointSpectrum Submodule.mem_top
       ((hB.eigenvectorBasis rfl).orthonormal.ne_zero j)
       (by dsimp [β]; exact hB.apply_eigenvectorBasis rfl j)
   have hαβ : α ≠ β := by
@@ -187,7 +187,7 @@ bijection; no second coordinate calculation is needed.
 -/
 theorem sylvesterOperator_solveSylvester {A : F →ₗ[𝕜] F}
     {B : E →ₗ[𝕜] E} (hA : A.IsSymmetric) (hB : B.IsSymmetric)
-    {δ : ℝ} (hδ : 0 < δ) (hgap : SpectraSeparated A ⊤ B ⊤ δ)
+    {δ : ℝ} (hδ : 0 < δ) (hgap : PointSpectraSeparated A ⊤ B ⊤ δ)
     (C : E →ₗ[𝕜] F) :
     A ∘ₗ solveSylvester A B C - solveSylvester A B C ∘ₗ B = C := by
   have hinj : Function.Injective (sylvesterOperator A B) :=

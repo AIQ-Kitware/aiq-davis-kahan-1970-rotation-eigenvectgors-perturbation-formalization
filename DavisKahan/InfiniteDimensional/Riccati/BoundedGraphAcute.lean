@@ -101,9 +101,9 @@ theorem blockAngularOperator_isAngularOperator (X : E0 →L[𝕜] E1) :
 ambient angular operator has the expected two coordinates. -/
 theorem zeroGraph_angularParam_apply (X : E0 →L[𝕜] E1)
     (z : WithLp 2 (E0 × E1)) :
-    ((projection (blockGraph (0 : E0 →L[𝕜] E1)) +
+    ((Submodule.starProjection (blockGraph (0 : E0 →L[𝕜] E1)) +
         blockAngularOperator X ∘L
-          projection (blockGraph (0 : E0 →L[𝕜] E1))) z) =
+          Submodule.starProjection (blockGraph (0 : E0 →L[𝕜] E1))) z) =
       WithLp.toLp 2 (WithLp.fst z, X (WithLp.fst z)) := by
   rw [add_apply, ContinuousLinearMap.comp_apply,
     zeroGraph_starProjection_apply]
@@ -114,9 +114,9 @@ theorem zeroGraph_angularParam_apply (X : E0 →L[𝕜] E1)
 bounded block graph. -/
 theorem blockGraph_eq_range_zeroGraph_angularParam (X : E0 →L[𝕜] E1) :
     blockGraph X = LinearMap.range
-      (projection (blockGraph (0 : E0 →L[𝕜] E1)) +
+      (Submodule.starProjection (blockGraph (0 : E0 →L[𝕜] E1)) +
         blockAngularOperator X ∘L
-          projection (blockGraph (0 : E0 →L[𝕜] E1))).toLinearMap := by
+          Submodule.starProjection (blockGraph (0 : E0 →L[𝕜] E1))).toLinearMap := by
   ext z
   constructor
   · intro hz
@@ -125,9 +125,9 @@ theorem blockGraph_eq_range_zeroGraph_angularParam (X : E0 →L[𝕜] E1) :
       exact (toLp_mem_blockGraph_iff X (WithLp.fst z) (WithLp.snd z)).mp hz
     refine ⟨z, ?_⟩
     change
-      (projection (blockGraph (0 : E0 →L[𝕜] E1)) +
+      (Submodule.starProjection (blockGraph (0 : E0 →L[𝕜] E1)) +
         blockAngularOperator X ∘L
-          projection (blockGraph (0 : E0 →L[𝕜] E1))) z = z
+          Submodule.starProjection (blockGraph (0 : E0 →L[𝕜] E1))) z = z
     rw [zeroGraph_angularParam_apply]
     apply WithLp.ofLp_injective 2
     apply Prod.ext
@@ -135,9 +135,9 @@ theorem blockGraph_eq_range_zeroGraph_angularParam (X : E0 →L[𝕜] E1) :
     · simpa using hzrel.symm
   · rintro ⟨w, rfl⟩
     change
-      (projection (blockGraph (0 : E0 →L[𝕜] E1)) +
+      (Submodule.starProjection (blockGraph (0 : E0 →L[𝕜] E1)) +
         blockAngularOperator X ∘L
-          projection (blockGraph (0 : E0 →L[𝕜] E1))) w ∈ blockGraph X
+          Submodule.starProjection (blockGraph (0 : E0 →L[𝕜] E1))) w ∈ blockGraph X
     rw [zeroGraph_angularParam_apply]
     exact (toLp_mem_blockGraph_iff X (WithLp.fst w)
       (X (WithLp.fst w))).mpr rfl
@@ -165,7 +165,7 @@ theorem complex_blockDiagonalization_of_riccati
     {X : E0c →L[ℂ] E1c} (hX : SolvesRiccati H X) :
     ∃ W Winv : WithLp 2 (E0c × E1c) →L[ℂ] WithLp 2 (E0c × E1c),
       ∃ D0 : E0c →L[ℂ] E0c, ∃ D1 : E1c →L[ℂ] E1c,
-      IsUnitaryOperator W ∧ IsUnitaryOperator Winv ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ TauCeti.LinearPMap.IsUnitaryOperator Winv ∧
       Winv ∘L W = ContinuousLinearMap.id ℂ _ ∧
       W ∘L Winv = ContinuousLinearMap.id ℂ _ ∧
       Winv ∘L blockOperator H ∘L W = blockDiagonalOperator D0 D1 := by

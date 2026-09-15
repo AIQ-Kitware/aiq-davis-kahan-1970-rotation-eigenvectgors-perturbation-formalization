@@ -10,7 +10,9 @@ import Mathlib.Analysis.InnerProductSpace.Symmetric
 import Mathlib.Analysis.InnerProductSpace.Projection.Basic
 import Mathlib.Analysis.Normed.Operator.NNNorm
 import ForTauCeti.Analysis.InnerProductSpace.Projection.Geometry
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 
 /-!
 # The Davis--Kahan `tan Θ` theorem on infinite-dimensional Hilbert spaces

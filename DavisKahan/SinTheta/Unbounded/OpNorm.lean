@@ -5,6 +5,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.Sylvester.ShiftedInverse
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Operator-norm `sin Θ` bound from a two-sided shifted inverse
 -/

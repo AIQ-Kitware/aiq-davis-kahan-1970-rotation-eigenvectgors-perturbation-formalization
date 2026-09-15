@@ -32,7 +32,7 @@ readability while the final public API shape is still being refined.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace
 
@@ -93,7 +93,7 @@ shape
 
 with the directed `sin Θ` operator and the gap hypotheses named explicitly. -/
 theorem partIII_sinTheta_uiNorm_prose_like
-    (N : UnitarilyInvariantSeminorm 𝕜 E) {T S : E →ₗ[𝕜] E}
+    (N : UnitarilyInvariantSeminorm 𝕜 E E) {T S : E →ₗ[𝕜] E}
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {c g : ℝ} (hgap : AboveBelowGapProseLike T S U V c g) :
     N ((directedSinThetaOperatorProseLike U V : E →L[𝕜] E) : E →ₗ[𝕜] E)
@@ -115,8 +115,8 @@ structure AboveBelowSpectralGapProseLike (T S : E →ₗ[𝕜] E)
   U_reduces : IsInvariant T U
   V_reduces : IsInvariant S V
   gap_pos : 0 < g
-  U_spectrum : SpectrumIn T U (Set.Ici (c + g))
-  V_spectrum : SpectrumIn S V (Set.Iic c)
+  U_spectrum : PointSpectrumIn T U (Set.Ici (c + g))
+  V_spectrum : PointSpectrumIn S V (Set.Iic c)
 
 omit [CompleteSpace E] in
 /-- Spectral-hypothesis prose-like Davis--Kahan Part III `sin Θ` theorem.
@@ -126,7 +126,7 @@ This wrapper is one layer closer to the paper statement than
 spectral containment hypotheses, then discharged by the existing spectral
 coercivity bridge. -/
 theorem partIII_sinTheta_uiNorm_spectral_prose_like
-    (N : UnitarilyInvariantSeminorm 𝕜 E) {T S : E →ₗ[𝕜] E}
+    (N : UnitarilyInvariantSeminorm 𝕜 E E) {T S : E →ₗ[𝕜] E}
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     {c g : ℝ} (hgap : AboveBelowSpectralGapProseLike T S U V c g) :
     N ((directedSinThetaOperatorProseLike U V : E →L[𝕜] E) : E →ₗ[𝕜] E)
@@ -144,8 +144,8 @@ structure CanonicalSpectralGapProseLike (T S : E →ₗ[𝕜] E)
   T_symm : T.IsSymmetric
   S_symm : S.IsSymmetric
   gap_pos : 0 < g
-  U_spectrum : SpectrumIn T (spectralSubspace T s) (Set.Ici (c + g))
-  V_spectrum : SpectrumIn S (spectralSubspace S t) (Set.Iic c)
+  U_spectrum : PointSpectrumIn T (pointSpectralSubspace T s) (Set.Ici (c + g))
+  V_spectrum : PointSpectrumIn S (pointSpectralSubspace S t) (Set.Iic c)
 
 omit [CompleteSpace E] in
 /-- Canonical spectral-subspace prose-like Davis--Kahan Part III `sin Θ`
@@ -156,13 +156,13 @@ This is the most paper-like wrapper in this file: choose spectral sets `s` and
 obtain the usual `‖sin Θ‖ ≤ ‖S - T‖ / g` estimate for every unitarily invariant
 norm. -/
 theorem partIII_sinTheta_uiNorm_canonical_spectral_prose_like
-    (N : UnitarilyInvariantSeminorm 𝕜 E) {T S : E →ₗ[𝕜] E}
+    (N : UnitarilyInvariantSeminorm 𝕜 E E) {T S : E →ₗ[𝕜] E}
     {s t : Set ℝ} {c g : ℝ} (hgap : CanonicalSpectralGapProseLike T S s t c g) :
-    N ((directedSinThetaOperatorProseLike (spectralSubspace T s) (spectralSubspace S t) :
+    N ((directedSinThetaOperatorProseLike (pointSpectralSubspace T s) (pointSpectralSubspace S t) :
         E →L[𝕜] E) : E →ₗ[𝕜] E)
       ≤ N (S - T) / g := by
-  exact uiNorm_spectralSubspace_directed_sinTheta_le N hgap.T_symm hgap.S_symm
+  exact uiNorm_pointSpectralSubspace_directed_sinTheta_le N hgap.T_symm hgap.S_symm
     hgap.gap_pos hgap.U_spectrum hgap.V_spectrum
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

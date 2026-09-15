@@ -24,20 +24,12 @@ This is that estimate.
 
 ## Why approximation numbers rather than `singularValues`
 
-The obvious route is `singularValues_comp_le` / `singularValues_comp_le'` in
-`ForTauCeti/Analysis/InnerProductSpace/KyFan.lean`.  It does not work here, and
-the reason is worth recording so it is not re-attempted: the right-factor lemma
-`singularValues_comp_le'` is stated only for the *square* case `X C : E →ₗ[𝕜] E`,
-and its proof routes through `singularValues_adjoint`, which is likewise square
-only.  In Theorem 8.1(ii) the sandwich is genuinely cross-space -- `C₁` maps the
-old complement `Pᗮ` to the new one `Qᗮ` -- so neither applies.
-
-`ContinuousLinearMap.approximationNumber` has both one-sided bounds without any
-squareness assumption, and they are already used cross-space elsewhere (see
-`ForTauCeti/Analysis/OperatorIdeal/Family/SymmetricGauge.lean`, which chains them
-over `L ∘L A ∘L R`).  They are also `ContinuousLinearMap`-native, which is the
-form the whole Section 8 development is written in, so no transfer to `LinearMap`
-is needed either.
+`ContinuousLinearMap.approximationNumber` provides both one-sided composition bounds
+for maps between different spaces. They apply directly to the cross-space sandwich:
+`C₁` maps the old complement `Pᗮ` to the new one `Qᗮ`. This development uses
+continuous linear maps throughout, so no transfer to finite-dimensional `LinearMap`
+representatives is needed. The finite-dimensional singular-value bounds in
+`ForTauCeti/Analysis/InnerProductSpace/KyFan.lean` also allow rectangular maps.
 
 In finite dimensions the approximation numbers of an operator are its singular
 values, so this is the printed statement's factor and not a weaker surrogate.

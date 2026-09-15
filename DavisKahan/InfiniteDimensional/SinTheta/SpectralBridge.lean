@@ -8,6 +8,8 @@ import DavisKahan.OperatorIdeal.CanonicalRealView
 import DavisKahan.Sylvester.Bounded
 import DavisKahan.InfiniteDimensional.SinTheta.RCLikeSpectralBridge
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Open obligations of the bounded spectral bridge
 

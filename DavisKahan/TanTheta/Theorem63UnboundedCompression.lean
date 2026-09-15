@@ -7,6 +7,11 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.TanTheta.Theorem63UnboundedInfiniteTrial
 import DavisKahan.SpectralTheory.BoundedTruncation
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Theorem 6.3 with an **unbounded** Ritz compression
 
@@ -14,7 +19,7 @@ The Appendix to Section 6 is explicit that in the unbounded scope both `A₀ ≤
 `Λ₁ ≥ α + δ` "may now be unbounded", which is why the spectral resolution of `A₀` and the
 truncation `Ω(τ) A₀ Ω(τ)` appear in the printed proof at all.
 
-`Theorem63TrialData` and `UnboundedTrialBlock` permit unboundedness only in the *ambient*
+`Theorem63TrialData` and `BoundedCompressionTrialBlock` permit unboundedness only in the *ambient*
 operator: their `compression` is a `Z →L[𝕜] Z`, so the whole restriction of the ambient
 operator to the trial space is a hypothesis-level bounded operator.  This module removes
 that restriction on the tangent side.
@@ -65,10 +70,9 @@ open Filter
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactTanTheta
+namespace TanTheta
 
 open ExactSinTheta
-open TanTheta
 open TauCeti.ApproximationNumber (IsOrthogonalProjectionMap StronglyTendsto)
 
 universe u
@@ -94,7 +98,7 @@ above by `α` but otherwise unbounded; the paper's `R` is bounded.  Only the res
 bounded map here — the compression, and hence the ambient action of the trial space, is
 not.
 
-The field layout mirrors `ExactSinTheta.PaperCommonDomainSinThetaData`, where the sine half
+The field layout mirrors `ExactSinTheta.CommonDomainSinThetaData`, where the sine half
 of the Appendix already reaches this generality. -/
 structure UnboundedCompressionTrialData (Z : Submodule 𝕜 H)
     [Z.HasOrthogonalProjection] [CompleteSpace Z] where
@@ -125,7 +129,8 @@ noncomputable def ofBounded {V : Submodule 𝕜 H} [V.HasOrthogonalProjection]
     (data : Theorem63TrialData Z V) : UnboundedCompressionTrialData Z where
   compression := (data.compression.toLinearMap.toPMap ⊤)
   compression_isSelfAdjoint :=
-    TauCeti.DavisKahanExt.ofBounded_isSelfAdjoint _ data.compression_isSymmetric
+    TauCeti.LinearPMap.isSelfAdjoint_toPMap_top (T := _)
+      (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr data.compression_isSymmetric)
   residual := data.residual
   residual_orthogonal := data.residual_orthogonal
 
@@ -160,7 +165,7 @@ The crossed bound the tangent chain consumes is stated at the abstraction level
 `Theorem63TrialData` consumes.  The printed Theorem 6.3 states it instead as
 `α + δ ≤ Λ₁ = F₁⋆ (A + H) F₁` for a *chosen* pair of complementary reducing subspaces.
 The two are connected exactly as they are on the bounded side
-(`ExactTanTheta.crossed_lower_of_reducing`): by block algebra on the domain.  The link
+(`TanTheta.crossed_lower_of_reducing`): by block algebra on the domain.  The link
 between the data and the ambient operator is the single equation `haction` — the data's
 ambient action is the ambient operator's — which encodes both `A₀ = E₀⋆ (A + H) E₀` and
 `R = (A + H) E₀ - E₀ A₀`.
@@ -772,7 +777,7 @@ theorem ideal_of_formBounds
     (htan : HasTheorem63DirectedTangentApproximationNumbersInfinite Z V tanTheta0)
     (hResidual : N.Mem D.residual) :
     N.Mem tanTheta0 ∧ δ * N.gauge tanTheta0 ≤ N.gauge D.residual := by
-  refine ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hδ
+  refine ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hδ
     hResidual fun k => ?_
   have hcore := D.all_kyFan_core V hδ hupper hcross k
   have hKyTan : kyFanApproximationGauge k tanTheta0 =
@@ -852,6 +857,6 @@ theorem ideal_of_reducing_exists
 
 end UnboundedCompressionTrialData
 
-end ExactTanTheta
+end TanTheta
 end DavisKahan
 end TauCeti

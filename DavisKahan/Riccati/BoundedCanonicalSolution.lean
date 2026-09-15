@@ -5,6 +5,9 @@ Authors: Jon Crall, GPT 5.6 Thinking
 -/
 import DavisKahan.Riccati.BoundedExistence
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Canonical local bounded Riccati solution
 

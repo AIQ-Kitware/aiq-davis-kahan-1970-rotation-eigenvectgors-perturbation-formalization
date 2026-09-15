@@ -6,7 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 module
 
 public import ForTauCeti.Analysis.InnerProductSpace.Complexification.Basic
-public import ForTauCeti.Analysis.InnerProductSpace.OperatorModulus
+public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
+public import Mathlib.Analysis.InnerProductSpace.StarOrder
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Instances
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Isometric
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Order
@@ -29,8 +30,7 @@ infinite-dimensional polar factorization.
   operators, together with its ring, norm and adjoint laws;
 * `TauCeti.RealComplexification.conjugateOperator_cfc_eq`: continuous functional calculus
   commutes with the conjugation, so the fixed-point subalgebra is preserved;
-  `conjugateOperator_cfc` is the same statement with the continuity side condition
-  removed, and `conjugateOperator_modulus` extends it to the operator modulus;
+  `conjugateOperator_cfc` is the same statement with the continuity side condition removed;
 * `TauCeti.RealComplexification.fixed_operator_maps_real_to_real`: a conjugation-fixed operator
   descends to the real subspace;
 * `TauCeti.RealComplexification.complexify_adjoint` and `complexify_gram`: complexification
@@ -535,12 +535,9 @@ theorem complexifyStarAlgHom_apply (A : E →L[ℝ] E) :
 /-! ## The fixed-point subalgebra is closed under the whole spectral calculus
 
 `conjugateOperator_cfc_eq` above needs the symbol to be continuous on the
-spectrum.  The two results below remove that side condition and extend the
-statement from the continuous functional calculus to the operator modulus, so
-that *every* operator this repository builds out of `P_U - P_V` — sine, angle,
-sine of twice the angle, tangent, tangent of twice the angle — is visibly
-conjugation-fixed and therefore descends to a real operator by
-`complexify_realPartOperator`. -/
+spectrum.  The result below removes that side condition.  Modulus transport is
+kept downstream in `ForTauCeti.Analysis.InnerProductSpace.ModulusTransport`, so
+this functional-calculus foundation does not depend on the modulus built from it. -/
 
 /-- The continuous functional calculus of a conjugation-fixed self-adjoint
 operator is conjugation-fixed, with **no continuity hypothesis** on the symbol:
@@ -575,23 +572,6 @@ theorem conjugateOperator_nonneg
     rw [hval, RCLike.re_eq_complex_re, Complex.conj_re, ← RCLike.re_eq_complex_re]
     exact h
 
-/-- **Canonical conjugation commutes with the operator modulus.**  Both sides are
-nonnegative square roots of the same Gram operator, so they agree by uniqueness. -/
-theorem conjugateOperator_modulus
-    (A : RealComplexification E →L[ℂ] RealComplexification E) :
-    conjugateOperator A.modulus = (conjugateOperator A).modulus := by
-  refine ContinuousLinearMap.eq_modulus_of_nonneg_of_mul_self_eq
-    (conjugateOperator_nonneg A.modulus_nonneg) ?_
-  rw [← conjugateOperator_mul, A.modulus_mul_self]
-  rw [← ContinuousLinearMap.mul_def, ← ContinuousLinearMap.mul_def,
-    conjugateOperator_mul, conjugateOperator_adjoint]
-
-/-- The modulus of a conjugation-fixed operator is conjugation-fixed. -/
-theorem conjugateOperator_modulus_of_fixed
-    {A : RealComplexification E →L[ℂ] RealComplexification E}
-    (hfix : conjugateOperator A = A) :
-    conjugateOperator A.modulus = A.modulus := by
-  rw [conjugateOperator_modulus, hfix]
 
 end
 

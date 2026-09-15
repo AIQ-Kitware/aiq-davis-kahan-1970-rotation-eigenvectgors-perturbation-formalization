@@ -7,6 +7,9 @@ import DavisKahan.DoubleAngle.UnboundedIdeal
 import DavisKahan.TanTwoTheta.BoundedOffDiagonal
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Unbounded tangent two theta at operator-norm scope
 
@@ -45,11 +48,11 @@ theorem doubleCosineDenominator_pos
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : IsQuarterAcute U V) :
-    0 < 1 - 2 * directedGap U V ^ 2 := by
-  have hglt : directedGap U V < Real.sqrt 2 / 2 :=
-    lt_of_le_of_lt (directedProjectionGap_le_projectionGap U V) hquarter
-  have hg0 : 0 ≤ directedGap U V := by
-    rw [show directedGap U V =
+    0 < 1 - 2 * U.directedProjectionGap V ^ 2 := by
+  have hglt : U.directedProjectionGap V < Real.sqrt 2 / 2 :=
+    lt_of_le_of_lt (Submodule.directedProjectionGap_le_projectionGap U V) hquarter
+  have hg0 : 0 ≤ U.directedProjectionGap V := by
+    rw [show U.directedProjectionGap V =
       ‖Vᗮ.starProjection ∘L U.starProjection‖ from rfl]
     exact norm_nonneg _
   have h2 : (Real.sqrt 2) ^ 2 = 2 := Real.sq_sqrt (by norm_num)
@@ -59,7 +62,7 @@ theorem doubleCosineDenominator_pos
 self-adjoint perturbation, under an explicit quarter-acuteness hypothesis. -/
 theorem tanTwoTheta_addBounded_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -73,41 +76,41 @@ theorem tanTwoTheta_addBounded_of_spectrum_gap
       (selfAdjointSpectralSubspace A hA B hB)
       (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
         (addBounded_isSelfAdjoint A hA E hE) S hS)) :
-    ‖tanTwoAngleOperatorC
+    ‖directedTanTwoAngleOperatorC
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
           (addBounded_isSelfAdjoint A hA E hE) S hS)
         hquarter‖ ≤
       (2 * ‖E‖ / δ) /
-        (1 - 2 * directedGap
+        (1 - 2 * Submodule.directedProjectionGap
           (selfAdjointSpectralSubspace A hA B hB)
           (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
             (addBounded_isSelfAdjoint A hA E hE) S hS) ^ 2) := by
   let U := selfAdjointSpectralSubspace A hA B hB
   let V := selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
     (addBounded_isSelfAdjoint A hA E hE) S hS
-  have hsin : δ * ‖sinTwoAngleOperatorC U V‖ ≤ 2 * ‖E‖ :=
+  have hsin : δ * ‖directedSinTwoAngleOperatorC U V‖ ≤ 2 * ‖E‖ :=
     sinTwoTheta_addBounded_of_spectrum_gap
       A hA E hE B S hB hS hβα hδ hBlow hBhigh hBcomplSpec
-  have hsinDiv : ‖sinTwoAngleOperatorC U V‖ ≤ 2 * ‖E‖ / δ := by
+  have hsinDiv : ‖directedSinTwoAngleOperatorC U V‖ ≤ 2 * ‖E‖ / δ := by
     rw [le_div_iff₀ hδ]
     simpa only [mul_comm] using hsin
-  have hden : 0 < 1 - 2 * directedGap U V ^ 2 :=
+  have hden : 0 < 1 - 2 * U.directedProjectionGap V ^ 2 :=
     doubleCosineDenominator_pos U V hquarter
   calc
-    ‖tanTwoAngleOperatorC U V hquarter‖ ≤
-        ‖sinTwoAngleOperatorC U V‖ /
-          (1 - 2 * directedGap U V ^ 2) :=
-      norm_tanTwoAngleOperatorC_le_sine_div_doubleCosine U V hquarter
+    ‖directedTanTwoAngleOperatorC U V hquarter‖ ≤
+        ‖directedSinTwoAngleOperatorC U V‖ /
+          (1 - 2 * U.directedProjectionGap V ^ 2) :=
+      norm_directedTanTwoAngleOperatorC_le_sine_div_doubleCosine U V hquarter
     _ ≤ (2 * ‖E‖ / δ) /
-          (1 - 2 * directedGap U V ^ 2) :=
+          (1 - 2 * U.directedProjectionGap V ^ 2) :=
       div_le_div_of_nonneg_right hsinDiv hden.le
 
 /-- Set-localized form of the unbounded operator-norm tangent-two-theta
 estimate. -/
 theorem tanTwoTheta_addBounded_of_intervalExterior
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)
@@ -116,13 +119,13 @@ theorem tanTwoTheta_addBounded_of_intervalExterior
       (selfAdjointSpectralSubspace A hA B hB)
       (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
         (addBounded_isSelfAdjoint A hA E hE) S hS)) :
-    ‖tanTwoAngleOperatorC
+    ‖directedTanTwoAngleOperatorC
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
           (addBounded_isSelfAdjoint A hA E hE) S hS)
         hquarter‖ ≤
       (2 * ‖E‖ / δ) /
-        (1 - 2 * directedGap
+        (1 - 2 * Submodule.directedProjectionGap
           (selfAdjointSpectralSubspace A hA B hB)
           (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
             (addBounded_isSelfAdjoint A hA E hE) S hS) ^ 2) := by

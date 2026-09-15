@@ -35,11 +35,11 @@ variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 with no nontriviality assumptions on either coordinate subspace. -/
 theorem quarterAcuteAngularCoordinate_sharp_bound_of_orderedInternalGap
     (A H : E →L[ℂ] E)
-    (hA : IsSelfAdjointOperator A) (hH : IsSelfAdjointOperator H)
+    (hA : A.IsSymmetric) (hH : H.IsSymmetric)
     (U V : Submodule ℂ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces (A + H) V)
-    (hoff : IsOffDiagonal U H)
+    (hU : A.Reduces U) (hV : ContinuousLinearMap.Reduces (A + H) V)
+    (hoff : Submodule.IsOffDiagonal U H)
     {d : ℝ} (hd : 0 < d) (hgap : OrderedInternalGap A U d)
     (hquarter : IsQuarterAcute U V) :
     d * ‖quarterAcuteAngularCoordinate U V hquarter‖ ≤

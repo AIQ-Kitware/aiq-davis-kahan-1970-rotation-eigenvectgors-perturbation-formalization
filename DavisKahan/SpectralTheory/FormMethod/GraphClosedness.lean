@@ -151,9 +151,9 @@ theorem isClosed_ambientGraph_of_normalized_graphNorm
 norm lower bound. -/
 noncomputable def toPartialMapOfGraphNorm
     (D : FourthOrderTraceModel (𝕜 := 𝕜) (H := H) (V := V))
-    (hdense : DenseRange D.freeEmbed)
-    {c : ℝ} (hc : 0 < c)
-    (hbound : ∀ x : D.freeSubspace, c * ‖x‖ ≤ ‖D.freeGraphMap x‖) :
+    (_hdense : DenseRange D.freeEmbed)
+    {c : ℝ} (_hc : 0 < c)
+    (_hbound : ∀ x : D.freeSubspace, c * ‖x‖ ≤ ‖D.freeGraphMap x‖) :
     H →ₗ.[𝕜] H :=
   D.toPartialMap
 

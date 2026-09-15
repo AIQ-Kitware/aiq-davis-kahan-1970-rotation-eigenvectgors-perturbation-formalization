@@ -6,9 +6,16 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Sources.DavisKahan1970.AmbientBlockVocabulary
 import DavisKahan.Geometry.Angle.OperatorAngleComplex
 import DavisKahan.Sylvester.Spectrum
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 import ForTauCeti.Analysis.InnerProductSpace.Spectral.GapProjection
 import ForTauCeti.Analysis.InnerProductSpace.PrincipalSineSequence
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, Question 10.4: the established step-function specialization
@@ -48,7 +55,7 @@ f(A + H) − f(A)              = Q − P                     (ambient)
 The second is the source's `‖Q^⊥E₀‖ = ‖sin Θ₀‖` because `P_{Q^⊥}|_U` — Lean spelling
 `TauCeti.principalSineOperator U V` — *is* the repository's directed sine operator, by
 definition; and the middle member of the source's chain, `f(A+H)E₀ − E₀f(A₀)`, is recovered
-by `Question10_4_directed_functionalChange_paperForm_complex` using `f(A₀) = 1`.
+by `Question10_4_directed_functionalCalculusResidual_complex` using `f(A₀) = 1`.
 
 ## Where the source is doing more than it says, and what this file assumes instead
 
@@ -79,8 +86,8 @@ namespace DavisKahan1970
 
 open scoped InnerProductSpace
 
-open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -91,13 +98,6 @@ variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [Complete
 -- The continuous functional calculus on a block `↥U →L[ℂ] ↥U` needs `CStarAlgebra` of that
 -- algebra, which needs `CompleteSpace ↥U`; that is one nesting level past the default budget.
 set_option maxSynthPendingDepth 3
-
-/-- A subspace admitting an orthogonal projection is complete, so its bounded operators are a
-C⋆-algebra and carry the functional calculus.  Local, because the statements below apply `cfc`
-to a block and therefore need the instance already at elaboration time. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjection
-    (U : Submodule ℂ E) [U.HasOrthogonalProjection] : CompleteSpace (U : Type v) :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 /-! ### The block presentation the gap theorem consumes -/
 
@@ -115,7 +115,7 @@ theorem subtypeL_comp_compressOperator_of_invariant
 
 /-- **The gap step function of a reduced self-adjoint operator is its reducing projection.**
 
-This is `TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap_complex` presented in the paper's
+This is `TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap` presented in the paper's
 block vocabulary: `U` reduces `A`, the two blocks are the compressions `A₀` and `A₁`, and
 their spectra are separated by the gap `(α, α + δ)`. -/
 theorem cfc_gapStep_eq_starProjection_complex
@@ -128,9 +128,9 @@ theorem cfc_gapStep_eq_starProjection_complex
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
     cfc f A = U.starProjection := by
   have hAred : A.Reduces U :=
-    DavisKahan.reduces_orthogonalComplement
+    ContinuousLinearMap.IsSymmetric.reduces_of_invariant
       (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA) hAU
-  exact TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap_complex hA
+  exact TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap hA
     (subtypeL_comp_compressOperator_of_invariant A U hAU)
     (subtypeL_comp_compressOperator_of_invariant A Uᗮ hAred.2)
     hδ hA0spec hA1spec hf1 hf0
@@ -207,7 +207,7 @@ theorem Question10_4_ambient_functionalChange_complex
     (hL1spec : spectrum ℝ (compressOperator Vᗮ (A + H)) ⊆ Set.Ici (α + δ))
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
-    cfc f (A + H) - cfc f A = paperProjectorDifference U V := by
+    cfc f (A + H) - cfc f A = projectorDifference U V := by
   rw [Question10_4_stepFunction_perturbed_complex V hA hH hAplusH_V hδ hL0spec hL1spec hf1 hf0,
     Question10_4_stepFunction_unperturbed_complex U hA hH hAU hδ hA0spec hA1spec hHU hHUperp hf1 hf0]
   rfl
@@ -224,11 +224,11 @@ theorem Question10_4_ambient_norm_eq_sinTheta_complex
     (hL1spec : spectrum ℝ (compressOperator Vᗮ (A + H)) ⊆ Set.Ici (α + δ))
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
-    ‖cfc f (A + H) - cfc f A‖ = ‖paperProjectorDifference U V‖ ∧
-      ‖paperProjectorDifference U V‖ = ‖sinAngleOperatorC U V‖ := by
+    ‖cfc f (A + H) - cfc f A‖ = ‖projectorDifference U V‖ ∧
+      ‖projectorDifference U V‖ = ‖sinAngleOperatorC U V‖ := by
   refine ⟨by rw [Question10_4_ambient_functionalChange_complex U V hA hH hAU hAplusH_V hδ hA0spec
       hA1spec hL0spec hL1spec hHU hHUperp hf1 hf0], ?_⟩
-  rw [sinAngleOperatorC, ContinuousLinearMap.norm_modulus, paperProjectorDifference,
+  rw [sinAngleOperatorC, ContinuousLinearMap.norm_modulus, projectorDifference,
     ← norm_neg (U.starProjection - V.starProjection)]
   congr 1
   abel
@@ -257,7 +257,7 @@ theorem Question10_4_directed_functionalChange_complex
   have hx : U.starProjection (x : E) = (x : E) :=
     Submodule.starProjection_eq_self_iff.mpr x.2
   simp only [ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply,
-    paperProjectorDifference, sub_apply, hx,
+    projectorDifference, sub_apply, hx,
     neg_apply, TauCeti.principalSineOperator_apply,
     Submodule.starProjection_orthogonal_val]
   abel
@@ -266,7 +266,7 @@ theorem Question10_4_directed_functionalChange_complex
 
 `(f(A+H) − f(A))E₀ = f(A+H)E₀ − E₀f(A₀) = −Q^⊥E₀`.  The middle equality is where `f(A₀) = 1`
 is used, exactly as in the source. -/
-theorem Question10_4_directed_functionalChange_paperForm_complex
+theorem Question10_4_directed_functionalCalculusResidual_complex
     {A H : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     {β α δ : ℝ} (hδ : 0 < δ)
@@ -295,22 +295,16 @@ theorem Question10_4_directed_functionalChange_paperForm_complex
 Davis and Kahan work on a real *or* complex Hilbert space, and the `tan 2θ` estimates these
 identities feed into already have real endpoints
 (`tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_real` and the directed sibling).  The same five
-claims over `ℝ`, on `TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap_real`.
+claims over `ℝ`, on `TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap`.
 
 The ambient identity is stated as `Q − P` directly rather than through
-`paperProjectorDifference`, which is a complex-only definition; the norm form then reads
-`‖Q − P‖ = ‖sin Θ‖` through `TauCeti.DavisKahanExt.Real.sinAngleOperatorRC`, the real sine
+`projectorDifference`, which is a complex-only definition; the norm form then reads
+`‖Q − P‖ = ‖sin Θ‖` through `TauCeti.DavisKahan.Angle.Real.sinAngleOperatorRC`, the real sine
 operator evaluated in the canonical complexification. -/
 
 section RealScalars
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
-
-/-- A real subspace admitting an orthogonal projection is complete; local for the same reason
-as the complex instance above. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionReal
-    (U : Submodule ℝ E) [U.HasOrthogonalProjection] : CompleteSpace (U : Type v) :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 /-- **The gap step function of a reduced real self-adjoint operator is its reducing
 projection.**  Real twin of `cfc_gapStep_eq_starProjection_complex`. -/
@@ -324,9 +318,9 @@ theorem cfc_gapStep_eq_starProjection_real
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
     cfc f A = U.starProjection := by
   have hAred : A.Reduces U :=
-    DavisKahan.reduces_orthogonalComplement
+    ContinuousLinearMap.IsSymmetric.reduces_of_invariant
       (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA) hAU
-  exact TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap_real hA
+  exact TauCeti.SpectralGap.cfc_eq_starProjection_of_blockGap hA
     (subtypeL_comp_compressOperator_of_invariant A U hAU)
     (subtypeL_comp_compressOperator_of_invariant A Uᗮ hAred.2)
     hδ hA0spec hA1spec hf1 hf0
@@ -397,10 +391,10 @@ theorem Question10_4_ambient_norm_eq_sinTheta_real
     {f : ℝ → ℝ} (hf1 : ∀ t ≤ α, f t = 1) (hf0 : ∀ t, α + δ ≤ t → f t = 0) :
     ‖cfc f (A + H) - cfc f A‖ = ‖V.starProjection - U.starProjection‖ ∧
       ‖V.starProjection - U.starProjection‖ =
-        ‖TauCeti.DavisKahanExt.Real.sinAngleOperatorRC U V‖ := by
+        ‖TauCeti.DavisKahan.Angle.Real.sinAngleOperatorRC U V‖ := by
   refine ⟨by rw [Question10_4_ambient_functionalChange_real U V hA hH hAU hAplusH_V hδ
       hA0spec hA1spec hL0spec hL1spec hHU hHUperp hf1 hf0], ?_⟩
-  rw [TauCeti.DavisKahanExt.Real.norm_sinAngleOperatorRC U V]
+  rw [TauCeti.DavisKahan.Angle.Real.norm_sinAngleOperatorRC U V]
   show ‖V.starProjection - U.starProjection‖ = U.projectionGap V
   rw [Submodule.projectionGap,
     show V.starProjection - U.starProjection = -(U.starProjection - V.starProjection) by abel,
@@ -429,7 +423,7 @@ theorem Question10_4_directed_functionalChange_real
   abel
 
 /-- **The source's displayed directed chain over `ℝ`**, in the paper's own middle spelling. -/
-theorem Question10_4_directed_functionalChange_paperForm_real
+theorem Question10_4_directed_functionalCalculusResidual_real
     {A H : E →L[ℝ] E} (hA : IsSelfAdjoint A) (hH : IsSelfAdjoint H)
     (hAU : ∀ x ∈ U, A x ∈ U) (hAplusH_V : ∀ x ∈ V, (A + H) x ∈ V)
     {β α δ : ℝ} (hδ : 0 < δ)

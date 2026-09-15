@@ -22,7 +22,7 @@ Gram identity `(I-R)⋆(I-R) = 2 (I - |S|)`, and the closed forms
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 open Module (finrank)
@@ -550,5 +550,5 @@ theorem kyFanSum_directRotation_displacement_eq_principalChords
   rw [kyFanSum_eq_sum_fin]
   simp_rw [singularValues_directRotation_displacement U V hacute]
   exact sum_repeated_pair_prefix (fun i => principalPlaneChord U V i) k
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

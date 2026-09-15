@@ -3,7 +3,9 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 import DavisKahan.Geometry.Polar.DirectRotationSquare
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
@@ -46,7 +48,7 @@ theorem complexDirectRotation_unitary
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    IsUnitaryOperator (complexDirectRotation U V hacute) :=
+    TauCeti.LinearPMap.IsUnitaryOperator (complexDirectRotation U V hacute) :=
   ⟨_root_.TauCeti.DavisKahan.norm_spectraDirectRotation_apply
       U V hacute,
     _root_.TauCeti.DavisKahan.spectraDirectRotation_surjective
@@ -62,7 +64,7 @@ theorem complexDirectRotation_unique
     (hacute : IsUniformlyAcute U V)
     (W : H →L[ℂ] H)
     (hWunit : W ∈ unitary (H →L[ℂ] H))
-    (hsq : W * W = reflectionOperator V * reflectionOperator U)
+    (hsq : W * W = V.reflectionOperator * U.reflectionOperator)
     (hre : ∀ x, 0 ≤ Complex.re ⟪W x, x⟫_ℂ) :
     W = complexDirectRotation U V hacute :=
   _root_.TauCeti.DavisKahan.spectraDirectRotation_unique_of_sq
@@ -74,8 +76,8 @@ theorem complexDirectRotation_intertwines
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    complexDirectRotation U V hacute ∘L projection U =
-      projection V ∘L complexDirectRotation U V hacute := by
+    complexDirectRotation U V hacute ∘L U.starProjection =
+      V.starProjection ∘L complexDirectRotation U V hacute := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.spectraDirectRotation_intertwines
       U V hacute
@@ -107,8 +109,8 @@ theorem exists_complexDirectRotation
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧
-      W ∘L projection U = projection V ∘L W ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧
+      W ∘L U.starProjection = V.starProjection ∘L W ∧
       U.map W.toLinearMap = V :=
   ⟨complexDirectRotation U V hacute,
     complexDirectRotation_unitary U V hacute,
@@ -123,8 +125,8 @@ theorem exists_complexDirectRotation_with_complements
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
     ∃ W : H →L[ℂ] H,
-      IsUnitaryOperator W ∧
-      W ∘L projection U = projection V ∘L W ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧
+      W ∘L U.starProjection = V.starProjection ∘L W ∧
       U.map W.toLinearMap = V ∧
       Uᗮ.map W.toLinearMap = Vᗮ :=
   ⟨complexDirectRotation U V hacute,
@@ -174,8 +176,8 @@ theorem star_complexDirectRotation_intertwines
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    star (complexDirectRotation U V hacute) ∘L projection V =
-      projection U ∘L star (complexDirectRotation U V hacute) := by
+    star (complexDirectRotation U V hacute) ∘L V.starProjection =
+      U.starProjection ∘L star (complexDirectRotation U V hacute) := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.star_spectraDirectRotation_intertwines
       U V hacute
@@ -185,8 +187,8 @@ theorem star_complexDirectRotation_intertwines_complementary
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    star (complexDirectRotation U V hacute) ∘L complementaryProjection V =
-      complementaryProjection U ∘L star (complexDirectRotation U V hacute) := by
+    star (complexDirectRotation U V hacute) ∘L (Vᗮ).starProjection =
+      (Uᗮ).starProjection ∘L star (complexDirectRotation U V hacute) := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.star_spectraDirectRotation_intertwines_complementary
       U V hacute
@@ -197,8 +199,8 @@ theorem complexDirectRotation_conjugates_projection
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    (complexDirectRotation U V hacute ∘L projection U) ∘L
-        star (complexDirectRotation U V hacute) = projection V := by
+    (complexDirectRotation U V hacute ∘L U.starProjection) ∘L
+        star (complexDirectRotation U V hacute) = V.starProjection := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.spectraDirectRotation_conjugates_projection
       U V hacute
@@ -208,8 +210,8 @@ theorem star_complexDirectRotation_conjugates_projection
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    (star (complexDirectRotation U V hacute) ∘L projection V) ∘L
-        complexDirectRotation U V hacute = projection U := by
+    (star (complexDirectRotation U V hacute) ∘L V.starProjection) ∘L
+        complexDirectRotation U V hacute = U.starProjection := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.star_spectraDirectRotation_conjugates_projection
       U V hacute
@@ -220,8 +222,8 @@ theorem complexDirectRotation_conjugates_complementaryProjection
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    (complexDirectRotation U V hacute ∘L complementaryProjection U) ∘L
-        star (complexDirectRotation U V hacute) = complementaryProjection V := by
+    (complexDirectRotation U V hacute ∘L (Uᗮ).starProjection) ∘L
+        star (complexDirectRotation U V hacute) = (Vᗮ).starProjection := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.spectraDirectRotation_conjugates_complementaryProjection
       U V hacute
@@ -232,8 +234,8 @@ theorem complexDirectRotation_intertwines_reflection
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    complexDirectRotation U V hacute ∘L reflectionOperator U =
-      reflectionOperator V ∘L complexDirectRotation U V hacute := by
+    complexDirectRotation U V hacute ∘L U.reflectionOperator =
+      V.reflectionOperator ∘L complexDirectRotation U V hacute := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.spectraDirectRotation_intertwines_reflection
       U V hacute
@@ -243,8 +245,8 @@ theorem star_complexDirectRotation_intertwines_reflection
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    star (complexDirectRotation U V hacute) ∘L reflectionOperator V =
-      reflectionOperator U ∘L star (complexDirectRotation U V hacute) := by
+    star (complexDirectRotation U V hacute) ∘L V.reflectionOperator =
+      U.reflectionOperator ∘L star (complexDirectRotation U V hacute) := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.star_spectraDirectRotation_intertwines_reflection
       U V hacute
@@ -255,8 +257,8 @@ theorem complexDirectRotation_conjugates_reflection
     (U V : Submodule ℂ H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V) :
-    (complexDirectRotation U V hacute ∘L reflectionOperator U) ∘L
-        star (complexDirectRotation U V hacute) = reflectionOperator V := by
+    (complexDirectRotation U V hacute ∘L U.reflectionOperator) ∘L
+        star (complexDirectRotation U V hacute) = V.reflectionOperator := by
   simpa only [ContinuousLinearMap.mul_def] using
     _root_.TauCeti.DavisKahan.spectraDirectRotation_conjugates_reflection
       U V hacute
@@ -291,7 +293,7 @@ theorem complexDirectRotation_minimal
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsUniformlyAcute U V)
     (W : H →L[ℂ] H) (hWunit : W ∈ unitary (H →L[ℂ] H))
-    (hintertwine : W ∘L projection U = projection V ∘L W) :
+    (hintertwine : W ∘L U.starProjection = V.starProjection ∘L W) :
     ‖complexDirectRotation U V hacute - 1‖ ≤ ‖W - 1‖ := by
   apply _root_.TauCeti.DavisKahan.spectraDirectRotation_minimal
     U V hacute W hWunit

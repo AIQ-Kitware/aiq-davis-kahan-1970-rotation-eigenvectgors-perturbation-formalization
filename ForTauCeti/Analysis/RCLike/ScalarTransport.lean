@@ -67,7 +67,7 @@ no scalars — it renames the field.
 * Extraction class: **new**.  It depends on nothing outside Mathlib, and is the
   reason the two capability classes
   `ContinuousLinearMap.HasMinMaxLowerBoundEverywhere` and
-  `TauCeti.DavisKahan.ExactSinTheta.HasUnboundedSylvesterKyFan` stopped being
+  `TauCeti.DavisKahan.Sylvester.HasUnboundedSylvesterKyFan` stopped being
   hypotheses.
 * Namespace: `TauCeti`, per `ForTauCeti/README.md` section 2.
 * `@[expose]` on ten definitional carriers, each measured load-bearing by
@@ -100,6 +100,16 @@ instance : CoeFun (RCLikeIso 𝕜 𝕂) (fun _ => 𝕜 → 𝕂) := ⟨fun e => 
 
 /-- The coercion to a function is the underlying ring equivalence. -/
 @[simp] theorem coe_toRingEquiv (e : RCLikeIso 𝕜 𝕂) (x : 𝕜) : e.toRingEquiv x = e x := rfl
+
+/-- Reverse an isomorphism of `RCLike` fields. -/
+def symm (e : RCLikeIso 𝕜 𝕂) : RCLikeIso 𝕂 𝕜 where
+  toRingEquiv := e.toRingEquiv.symm
+  map_ofReal r := by
+    apply e.toRingEquiv.injective
+    simp only [RingEquiv.apply_symm_apply, e.map_ofReal]
+  map_I := by
+    apply e.toRingEquiv.injective
+    simp only [RingEquiv.apply_symm_apply, e.map_I]
 
 /-- When `I = 0` the field is `ℝ`. -/
 noncomputable def real (h : (RCLike.I : 𝕜) = 0) : RCLikeIso 𝕜 ℝ where
@@ -338,6 +348,10 @@ def clm (T : E →L[𝕜] F) : ScalarTransport e E →L[𝕂] ScalarTransport e 
 @[simp] theorem clm_apply (T : E →L[𝕜] F) (x : E) :
     clm (e := e) T (of x) = of (T x) := rfl
 
+/-- The transport of operators is subtractive: it does not change the functions. -/
+@[simp] theorem clm_sub (T R : E →L[𝕜] F) :
+    clm (e := e) (T - R) = clm (e := e) T - clm (e := e) R := rfl
+
 /-- and has the same operator norm. -/
 @[simp] theorem clm_norm (T : E →L[𝕜] F) : ‖clm (e := e) T‖ = ‖T‖ := by
   refine le_antisymm (ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg T) fun x => ?_)
@@ -375,7 +389,7 @@ def addEquiv : E ≃+ ScalarTransport e E where
   map_add' _ _ := rfl
 
 /-- The additive identity intertwines the two scalar actions through `e`. -/
-theorem smul_compat (r : 𝕜) (x : E) :
+theorem addEquiv_smul (r : 𝕜) (x : E) :
     addEquiv (e := e) (r • x) = e r • addEquiv (e := e) x := by
   change of (e := e) (r • x) = e r • of (e := e) x
   rw [smul_def, e.toRingEquiv.symm_apply_apply]
@@ -392,7 +406,7 @@ theorem rank_eq (S : Submodule 𝕜 E) :
       right_inv := fun _ => rfl
       map_add' := fun _ _ => rfl }
     e.toRingEquiv.bijective
-    (fun r m => Subtype.ext (smul_compat (e := e) r (m : E)))
+    (fun r m => Subtype.ext (addEquiv_smul (e := e) r (m : E)))
 
 /-- Hence the rank of a transported map. -/
 theorem rank_clm_eq (T : E →L[𝕜] F) :

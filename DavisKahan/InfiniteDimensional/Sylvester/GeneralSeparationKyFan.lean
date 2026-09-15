@@ -9,6 +9,11 @@ import DavisKahan.OperatorIdeal.ComplexificationApproximation
 import DavisKahan.SpectralTheory.Complexification.Spectrum
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.KyFanBochner
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.ExactSinTheta
+
 /-!
 # The separated Sylvester estimate in every finite Ky Fan gauge
 
@@ -55,7 +60,9 @@ and descends -- which is exact, because complexification changes no approximatio
 namespace TauCeti
 
 open TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Sylvester
+
+open TauCeti.DavisKahanExt
 
 open DavisKahan.Foundation
 open DavisKahan.Foundation.RealComplexification
@@ -84,8 +91,8 @@ Sylvester-specific glue: the general two-sided invariance is
 `ContinuousLinearMap.kyFanGauge_unitary_comp_comp`, and all this adds is that the two Fourier
 group elements are unitary.  It is the Ky Fan analogue of `norm_unitary_left_right`. -/
 private theorem kyFanGauge_unitaryGroup_orbit
-    (A : Fc →L[ℂ] Fc) (hA : IsSelfAdjointOperator A)
-    (B : Ec →L[ℂ] Ec) (hB : IsSelfAdjointOperator B)
+    (A : Fc →L[ℂ] Fc) (hA : A.IsSymmetric)
+    (B : Ec →L[ℂ] Ec) (hB : B.IsSymmetric)
     (t : ℝ) (C : Ec →L[ℂ] Fc) (k : ℕ) :
     (unitaryGroup A t ∘L C ∘L unitaryGroup B (-t)).kyFanGauge k = C.kyFanGauge k :=
   ContinuousLinearMap.kyFanGauge_unitary_comp_comp
@@ -104,10 +111,10 @@ d · kyFanGauge k X ≤ (π/2) · kyFanGauge k C    for every k.
 theorem kyFan_sylvester_le_of_generalSeparation_complex
     {A : Fc →L[ℂ] Fc} {B : Ec →L[ℂ] Ec}
     {X C : Ec →L[ℂ] Fc}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
-    (hEq : sylvesterOperator A B X = C) (k : ℕ) :
+    (hEq : ContinuousLinearMap.sylvesterOperator A B X = C) (k : ℕ) :
     d * X.kyFanGauge k ≤ (Real.pi / 2) * C.kyFanGauge k := by
   rw [separatedSylvester_reconstruction hA hB hd hsep X C hEq]
   unfold separatedSylvesterSolution
@@ -146,16 +153,17 @@ omit [CompleteSpace Er] [CompleteSpace Fr] in
 /-- Complexification commutes with the bounded Sylvester operator. -/
 private theorem complexify_sylvesterOperator
     (A : Fr →L[ℝ] Fr) (B : Er →L[ℝ] Er) (X : Er →L[ℝ] Fr) :
-    complexify (sylvesterOperator A B X) =
-      sylvesterOperator (complexify A) (complexify B) (complexify X) := by
-  simp [sylvesterOperator, complexify_comp, complexify_sub]
+    complexify (ContinuousLinearMap.sylvesterOperator A B X) =
+      ContinuousLinearMap.sylvesterOperator (complexify A) (complexify B) (complexify X) := by
+  simp [ContinuousLinearMap.sylvesterOperator, complexify_comp, complexify_sub]
 
 omit [CompleteSpace Er] [CompleteSpace Fr] in
 /-- A bounded real Sylvester equation complexifies exactly. -/
 private theorem complexify_sylvesterEquation
     {A : Fr →L[ℝ] Fr} {B : Er →L[ℝ] Er} {X C : Er →L[ℝ] Fr}
-    (hEq : sylvesterOperator A B X = C) :
-    sylvesterOperator (complexify A) (complexify B) (complexify X) = complexify C := by
+    (hEq : ContinuousLinearMap.sylvesterOperator A B X = C) :
+    ContinuousLinearMap.sylvesterOperator (complexify A) (complexify B) (complexify X) =
+      complexify C := by
   rw [← complexify_sylvesterOperator, hEq]
 
 /-- **The universal `π/2` Sylvester estimate in every finite Ky Fan gauge**, on arbitrary
@@ -167,10 +175,10 @@ complexification of a real operator has literally the same approximation-number 
 theorem kyFan_sylvester_le_of_generalSeparation_real
     {A : Fr →L[ℝ] Fr} {B : Er →L[ℝ] Er}
     {X C : Er →L[ℝ] Fr}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
-    (hEq : sylvesterOperator A B X = C) (k : ℕ) :
+    (hEq : ContinuousLinearMap.sylvesterOperator A B X = C) (k : ℕ) :
     d * X.kyFanGauge k ≤ (Real.pi / 2) * C.kyFanGauge k := by
   have hfan := kyFan_sylvester_le_of_generalSeparation_complex
     ((complexify_isSymmetric_iff A).2 hA) ((complexify_isSymmetric_iff B).2 hB) hd
@@ -201,10 +209,10 @@ theorem idealGauge_sylvester_le_of_generalSeparation_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     {A : Fr →L[ℝ] Fr} {B : Er →L[ℝ] Er}
     {X C : Er →L[ℝ] Fr}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d)
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
-    (hEq : sylvesterOperator A B X = C)
+    (hEq : ContinuousLinearMap.sylvesterOperator A B X = C)
     (hC : N.Mem C) :
     N.Mem X ∧ d * N.gauge X ≤ (Real.pi / 2) * N.gauge C := by
   have hc : (0 : ℝ) < Real.pi / 2 := by positivity
@@ -216,7 +224,7 @@ theorem idealGauge_sylvester_le_of_generalSeparation_real
     rw [kyFanApproximationGauge_smul, Real.norm_eq_abs, abs_of_pos hc]
     exact kyFan_sylvester_le_of_generalSeparation_real hA hB hd hsep hEq k
   obtain ⟨hX, hg⟩ :=
-    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hd hCscaled hfan
+    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hd hCscaled hfan
   refine ⟨hX, ?_⟩
   have hhom : N.gauge ((Real.pi / 2 : ℝ) • C) = (Real.pi / 2) * N.gauge C := by
     have h := N.toSymmetricOperatorIdealFamily.gaugeReal_smul (Real.pi / 2 : ℝ) hC
@@ -227,5 +235,5 @@ end RealIdeal
 
 end
 
-end DavisKahanExt
+end DavisKahan.Sylvester
 end TauCeti

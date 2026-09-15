@@ -26,7 +26,7 @@ Part (ii) is the single-index estimate
 which replaces every `cos²θᵢ` by the largest one.  Part (iii) keeps the *whole*
 cosine sequence, weight by weight, and can therefore not be derived from part
 (ii)'s conclusion.  What the two clauses genuinely share is the earlier Weyl
-step, `theorem8_1_upperSandwichApproximation_source`:
+step, `theorem8_1_upperSandwichApproximation`:
 
   `aₙ(A₁ - α) ≤ aₙ(C₁⋆ (Λ₁ - α) C₁)`,
 
@@ -73,7 +73,7 @@ symmetric gauge is a function of a finite sequence.
 ## Both blocks
 
 The paper's "with a similar relation for `Λ₀`" is
-`theorem8_1_lowerWeightedWeakMajorization_source` and its symmetric-gauge
+`theorem8_1_lowerWeightedWeakMajorization` and its symmetric-gauge
 corollary, proved below by the same two-link chain against the mirrored objects
 `lowerBlockShift` and `lowerCosineBlock` of `Section8PartII.lean`.
 
@@ -112,11 +112,11 @@ The proof is the two-step chain
   `a(S)  ≺w  a(C₁⋆ M C₁)  ≺w  (i ↦ aᵢ(M) aᵢ(C₁)²)`,
 
 whose first link is the pointwise Weyl step of part (i)
-(`theorem8_1_upperSandwichApproximation_source`, packaged by
+(`theorem8_1_upperSandwichApproximation`, packaged by
 `FiniteVector.WeaklyMajorized.of_pointwise`) and whose second link is the
 generic sandwich majorization for a positive middle factor.  The middle factor
 is positive by `theorem8_1_perturbedUpperBlockShift_nonneg`. -/
-theorem theorem8_1_upperWeightedWeakMajorization_source [FiniteDimensional ℂ H]
+theorem theorem8_1_upperWeightedWeakMajorization [FiniteDimensional ℂ H]
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -161,7 +161,7 @@ theorem theorem8_1_upperWeightedWeakMajorization_source [FiniteDimensional ℂ H
       (fun i => (ContinuousLinearMap.adjoint (cosineBlock P Q) ∘L
         upperBlockShift (A + K) Q alpha ∘L
         cosineBlock P Q).approximationNumber_nonneg _)
-      (fun i => theorem8_1_upperSandwichApproximation_source A K P hdelta hA hK
+      (fun i => theorem8_1_upperSandwichApproximation A K P hdelta hA hK
         hAP hPlow hPhigh hKP hKPperp (i : ℕ))
   -- Link two: the generic positive-sandwich weak majorization.
   exact hstep1.trans
@@ -176,7 +176,7 @@ Immediate from the weak majorization above and Fan dominance
 (`FiniteSymmetricGauge.mono_weaklyMajorized`): a symmetric gauge is monotone
 under weak majorization, so no convexity, permutation-invariance or dominance
 argument has to be repeated here. -/
-theorem theorem8_1_upperSymmetricGaugeRepulsion_source [FiniteDimensional ℂ H]
+theorem theorem8_1_upperSymmetricGaugeRepulsion [FiniteDimensional ℂ H]
     (Phi : FiniteSymmetricGauge (Module.finrank ℂ H))
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -195,7 +195,7 @@ theorem theorem8_1_upperSymmetricGaugeRepulsion_source [FiniteDimensional ℂ H]
             (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
               (hA.add hK)) alpha)).approximationNumber (i : ℕ) ^ 2) :=
   Phi.mono_weaklyMajorized
-    (theorem8_1_upperWeightedWeakMajorization_source A K P hdelta hA hK hAP
+    (theorem8_1_upperWeightedWeakMajorization A K P hdelta hA hK hAP
       hPlow hPhigh hKP hKPperp)
 
 /-! ### The lower block
@@ -203,7 +203,7 @@ theorem theorem8_1_upperSymmetricGaugeRepulsion_source [FiniteDimensional ℂ H]
 The printed "with a similar relation for `Λ₀`" is the same two-link chain, run
 through the mirrored objects of `Section8PartII.lean`.  Under the reflection
 `A ↦ -A`, `α ↦ -(α + δ)` the upper data becomes the lower data, so no new
-majorization theorem appears here: `theorem8_1_lowerSandwichApproximation_source`
+majorization theorem appears here: `theorem8_1_lowerSandwichApproximation`
 replaces its upper namesake and everything else is unchanged. -/
 
 /-- **Davis--Kahan 1970, Theorem 8.1(iii), lower block: the weak-majorization
@@ -211,13 +211,13 @@ core.**
 
   `a((α + δ) - A₀)  ≺w  (i ↦ aᵢ((α + δ) - Λ₀) · aᵢ(C₀)²)`,
 
-the printed lower companion of `theorem8_1_upperWeightedWeakMajorization_source`.
+the printed lower companion of `theorem8_1_upperWeightedWeakMajorization`.
 Same two links: the pointwise lower Weyl step of part (i), packaged by
 `FiniteVector.WeaklyMajorized.of_pointwise`, then the generic positive-sandwich
 weak majorization with `theorem8_1_perturbedLowerBlockShift_nonneg` supplying
 positivity of the middle factor.  No `‖C₀‖²` relaxation is used: the whole cosine
 sequence is retained, weight by weight. -/
-theorem theorem8_1_lowerWeightedWeakMajorization_source [FiniteDimensional ℂ H]
+theorem theorem8_1_lowerWeightedWeakMajorization [FiniteDimensional ℂ H]
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -263,7 +263,7 @@ theorem theorem8_1_lowerWeightedWeakMajorization_source [FiniteDimensional ℂ H
       (fun i => (ContinuousLinearMap.adjoint (lowerCosineBlock P Q) ∘L
         lowerBlockShift (A + K) Q alpha delta ∘L
         lowerCosineBlock P Q).approximationNumber_nonneg _)
-      (fun i => theorem8_1_lowerSandwichApproximation_source A K P hdelta hA hK
+      (fun i => theorem8_1_lowerSandwichApproximation A K P hdelta hA hK
         hAP hPlow hPhigh hKP hKPperp (i : ℕ))
   -- Link two: the generic positive-sandwich weak majorization.
   exact hstep1.trans
@@ -276,7 +276,7 @@ every-symmetric-gauge form.**
 
 Immediate from the lower weak majorization and Fan dominance, exactly as in the
 upper block. -/
-theorem theorem8_1_lowerSymmetricGaugeRepulsion_source [FiniteDimensional ℂ H]
+theorem theorem8_1_lowerSymmetricGaugeRepulsion [FiniteDimensional ℂ H]
     (Phi : FiniteSymmetricGauge (Module.finrank ℂ H))
     (A K : H →L[ℂ] H) (P : Submodule ℂ H) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -295,7 +295,7 @@ theorem theorem8_1_lowerSymmetricGaugeRepulsion_source [FiniteDimensional ℂ H]
             (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
               (hA.add hK)) alpha)).approximationNumber (i : ℕ) ^ 2) :=
   Phi.mono_weaklyMajorized
-    (theorem8_1_lowerWeightedWeakMajorization_source A K P hdelta hA hK hAP
+    (theorem8_1_lowerWeightedWeakMajorization A K P hdelta hA hK hAP
       hPlow hPhigh hKP hKPperp)
 
 end Section8

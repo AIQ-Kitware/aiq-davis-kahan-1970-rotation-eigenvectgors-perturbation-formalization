@@ -6,6 +6,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.SpectralTheory.SelfAdjointBorelCalculus
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+
 /-!
 # Finite spectral-step calculus
 
@@ -31,7 +32,9 @@ they are until those clear.
 -/
 
 namespace TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Sylvester
+
+open TauCeti.DavisKahanExt
 
 open DavisKahan.Foundation
 
@@ -95,7 +98,7 @@ theorem bounded_indicator_const (s : Set ℝ) (c : ℂ) :
 
 /-- The calculus of a single scaled indicator is the scaled spectral projection. -/
 theorem boundedSelfAdjointBorelCalculusC_indicator_smul
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) (c : ℂ)
     (hm : Measurable (Set.indicator s fun _ => c))
     (hb : ∃ C : ℝ, ∀ x, ‖Set.indicator s (fun _ => c) x‖ ≤ C) :
@@ -122,7 +125,7 @@ theorem boundedSelfAdjointBorelCalculusC_indicator_smul
 
 /-- The bounded calculus is additive over a finite step function. -/
 theorem boundedSelfAdjointBorelCalculusC_finiteStep
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {n : ℕ} (cell : Fin n → Set ℝ)
     (hcell : ∀ i, MeasurableSet (cell i)) (rep : Fin n → ℝ) :
     boundedSelfAdjointBorelCalculusC A hA
@@ -167,7 +170,7 @@ theorem boundedSelfAdjointBorelCalculusC_finiteStep
 /-- Two measurable spectral projections depend only on the intersection of the
 sets with the real spectrum. -/
 theorem spectralPVM_proj_congr_of_inter_spectrum_eq
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {s t : Set ℝ} (hs : MeasurableSet s) (ht : MeasurableSet t)
     (hst : s ∩ realSpectrum A = t ∩ realSpectrum A) :
     boundedSelfAdjointSpectralProjection A hA s hs =
@@ -188,7 +191,7 @@ theorem spectralPVM_proj_congr_of_inter_spectrum_eq
 /-- Pairwise disjoint measurable cells give pairwise orthogonal spectral
 projections. -/
 theorem spectralProjection_pairwise_orthogonal
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {n : ℕ} (cell : Fin n → Set ℝ)
     (hcell : ∀ i, MeasurableSet (cell i))
     (hdisj : Set.PairwiseDisjoint Set.univ cell) :
@@ -238,7 +241,7 @@ theorem pvm_proj_iUnion_fin
 
 /-- A finite disjoint spectral cover sums to the identity. -/
 theorem spectralProjection_finset_sum_eq_id
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {n : ℕ} (cell : Fin n → Set ℝ)
     (hcell : ∀ i, MeasurableSet (cell i))
     (hdisj : Set.PairwiseDisjoint Set.univ cell)
@@ -261,7 +264,7 @@ theorem spectralProjection_finset_sum_eq_id
 /-- Left multiplication by a spectral block selects its own coefficient from a
 finite spectral step. -/
 theorem spectralProjection_select_left
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {n : ℕ} (cell : Fin n → Set ℝ)
     (hcell : ∀ i, MeasurableSet (cell i))
     (rep : Fin n → ℂ)
@@ -283,7 +286,7 @@ theorem spectralProjection_select_left
 
 /-- Right multiplication by a spectral block selects its own coefficient. -/
 theorem spectralProjection_select_right
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {n : ℕ} (cell : Fin n → Set ℝ)
     (hcell : ∀ i, MeasurableSet (cell i))
     (rep : Fin n → ℂ)
@@ -377,7 +380,7 @@ theorem measurable_chosenFiniteStepSymbol {n : ℕ}
 
 /-- The exact finite-step Borel identity required by the Sylvester file. -/
 theorem boundedSelfAdjointBorelCalculus_eq_finset_sum_indicator [Nontrivial H]
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {n : ℕ} (cell : Fin n → Set ℝ)
     (hcell : ∀ i, MeasurableSet (cell i))
     (hdisj : Set.PairwiseDisjoint Set.univ cell)
@@ -420,5 +423,5 @@ theorem boundedSelfAdjointBorelCalculus_eq_finset_sum_indicator [Nontrivial H]
     boundedSelfAdjointBorelCalculusC_finiteStep A hA cell hcell rep]
 
 end
-end DavisKahanExt
+end DavisKahan.Sylvester
 end TauCeti

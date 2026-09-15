@@ -5,17 +5,17 @@ Authors: Jon Crall, Claude Opus 5
 -/
 import DavisKahan.Geometry.Polar.DirectRotationSquare
 import DavisKahan.SpectralTheory.Complexification.FormTransport
-import ForTauCeti.Analysis.InnerProductSpace.Complexification.FunctionalCalculus
+import ForTauCeti.Analysis.InnerProductSpace.ModulusTransport
 
 /-!
 # The direct rotation of two **real** closed subspaces
 
 Standing assumption 1 of Davis--Kahan 1970 is that the Hilbert space is "real or
-complex", and Section 3 is written at that generality.  The repository's Section 3
-development is built over `ℂ`, because the polar decomposition it runs on is
-supplied by Mathlib's continuous functional calculus, which is registered on
-Hilbert-space operators only over `ℂ`.  That is a *representation* restriction,
-not a mathematical one, and this module removes it in arbitrary dimension.
+complex", and Section 3 is written at that generality.  The repository's original Section 3
+construction was developed over `ℂ` and then descended through real complexification.  The
+canonical bounded modulus and polar decomposition are now available directly over arbitrary
+`RCLike` fields; this module retains the real-complexification identities needed by the
+source-facing real development.
 
 ## The descent, and why it is available
 
@@ -80,10 +80,8 @@ lives in a `ℂ`-only section, so the real case is proved here from the same
 scalar-generic ingredient. -/
 theorem IsUniformlyAcuteReal.symm {U V : Submodule ℝ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (h : IsUniformlyAcute U V) : IsUniformlyAcute V U := by
-  show subspaceGap V U < 1
-  rw [subspaceGap, Submodule.projectionGap_comm]
-  exact h
+    (h : IsUniformlyAcute U V) : IsUniformlyAcute V U :=
+  (Submodule.projectionGap_comm V U).trans_lt h
 
 omit [CompleteSpace E] in
 /-- Acuteness of a real pair passes to the complexified pair. -/
@@ -96,8 +94,8 @@ theorem isUniformlyAcute_complexifySubmodule (h : IsUniformlyAcute U V) :
 /-- The canonical pre-polar intertwiner `P_V P_U + P_Vᗮ P_Uᗮ` of a **real**
 pair. -/
 def canonicalIntertwinerR : E →L[ℝ] E :=
-  projection V * projection U +
-    complementaryProjection V * complementaryProjection U
+  V.starProjection * U.starProjection +
+    (Vᗮ).starProjection * (Uᗮ).starProjection
 
 omit [CompleteSpace E] in
 /-- The complexified real intertwiner is the intertwiner of the complexified
@@ -130,9 +128,9 @@ theorem conjugateOperator_spectraCanonicalIntertwiner_complexifySubmodule :
 conjugation. -/
 theorem conjugateOperator_spectraCanonicalAbsoluteValue_complexifySubmodule :
     conjugateOperator
-        (spectraOperatorAbsoluteValue
+        (ContinuousLinearMap.modulus
           (spectraCanonicalIntertwiner (complexifySubmodule U) (complexifySubmodule V))) =
-      spectraOperatorAbsoluteValue
+      ContinuousLinearMap.modulus
         (spectraCanonicalIntertwiner (complexifySubmodule U) (complexifySubmodule V)) :=
   conjugateOperator_modulus_of_fixed
     (conjugateOperator_spectraCanonicalIntertwiner_complexifySubmodule U V)
@@ -140,7 +138,7 @@ theorem conjugateOperator_spectraCanonicalAbsoluteValue_complexifySubmodule :
 /-- The positive Halmos cosine `|S|` of a **real** pair. -/
 def canonicalAbsoluteValueR : E →L[ℝ] E :=
   realPartOperator
-    (spectraOperatorAbsoluteValue
+    (ContinuousLinearMap.modulus
       (spectraCanonicalIntertwiner (complexifySubmodule U) (complexifySubmodule V)))
 
 /-- The complexified real Halmos cosine is the modulus of the complexified
@@ -148,7 +146,7 @@ intertwiner. -/
 @[simp]
 theorem complexify_canonicalAbsoluteValueR :
     complexify (canonicalAbsoluteValueR U V) =
-      spectraOperatorAbsoluteValue
+      ContinuousLinearMap.modulus
         (spectraCanonicalIntertwiner (complexifySubmodule U) (complexifySubmodule V)) :=
   complexify_realPartOperator
     (conjugateOperator_spectraCanonicalAbsoluteValue_complexifySubmodule U V)
@@ -252,7 +250,7 @@ omit [CompleteSpace E] in
 onto the complexified subspace. -/
 @[simp]
 theorem complexify_projection :
-    complexify (projection U) = projection (complexifySubmodule U) :=
+    complexify (U.starProjection) = Submodule.starProjection (complexifySubmodule U) :=
   (starProjection_complexifySubmodule U).symm
 
 omit [CompleteSpace E] in
@@ -260,8 +258,8 @@ omit [CompleteSpace E] in
 complementary projection of the complexified subspace. -/
 @[simp]
 theorem complexify_complementaryProjection :
-    complexify (complementaryProjection U) =
-      complementaryProjection (complexifySubmodule U) :=
+    complexify ((Uᗮ).starProjection) =
+      Submodule.starProjection ((complexifySubmodule U)ᗮ) :=
   (starProjection_complexifySubmodule_orthogonal U).symm
 
 /-- Complexification carries an orthogonal operator to a unitary one. -/
@@ -360,8 +358,8 @@ theorem directRotationR_injective (hacute : IsUniformlyAcute U V) :
 
 /-- **The real direct rotation intertwines the two orthogonal projections.** -/
 theorem directRotationR_intertwines (hacute : IsUniformlyAcute U V) :
-    directRotationR U V hacute * projection U =
-      projection V * directRotationR U V hacute := by
+    directRotationR U V hacute * U.starProjection =
+      V.starProjection * directRotationR U V hacute := by
   refine complexify_injective ?_
   rw [complexify_mul, complexify_mul, complexify_directRotationR,
     complexify_projection, complexify_projection]
@@ -369,8 +367,8 @@ theorem directRotationR_intertwines (hacute : IsUniformlyAcute U V) :
 
 /-- The real direct rotation intertwines the complementary projections. -/
 theorem directRotationR_intertwines_complementary (hacute : IsUniformlyAcute U V) :
-    directRotationR U V hacute * complementaryProjection U =
-      complementaryProjection V * directRotationR U V hacute := by
+    directRotationR U V hacute * (Uᗮ).starProjection =
+      (Vᗮ).starProjection * directRotationR U V hacute := by
   refine complexify_injective ?_
   rw [complexify_mul, complexify_mul, complexify_directRotationR,
     complexify_complementaryProjection, complexify_complementaryProjection]
@@ -379,8 +377,8 @@ theorem directRotationR_intertwines_complementary (hacute : IsUniformlyAcute U V
 /-- Conjugating the source projection by the real direct rotation gives the
 target projection. -/
 theorem directRotationR_conjugates_projection (hacute : IsUniformlyAcute U V) :
-    directRotationR U V hacute * projection U * star (directRotationR U V hacute) =
-      projection V := by
+    directRotationR U V hacute * U.starProjection * star (directRotationR U V hacute) =
+      V.starProjection := by
   refine complexify_injective ?_
   rw [complexify_mul, complexify_mul, complexify_star, complexify_directRotationR,
     complexify_projection, complexify_projection]
@@ -469,8 +467,8 @@ theorem directRotationR_add_star (hacute : IsUniformlyAcute U V) :
 /-- **The source diagonal block of the real direct rotation is the positive
 Halmos cosine.**  Proposition 3.1's block computation, over `ℝ`. -/
 theorem projection_mul_directRotationR_mul_projection (hacute : IsUniformlyAcute U V) :
-    projection U * directRotationR U V hacute * projection U =
-      canonicalAbsoluteValueR U V * projection U := by
+    U.starProjection * directRotationR U V hacute * U.starProjection =
+      canonicalAbsoluteValueR U V * U.starProjection := by
   refine complexify_injective ?_
   rw [complexify_mul, complexify_mul, complexify_mul, complexify_directRotationR,
     complexify_canonicalAbsoluteValueR, complexify_projection]
@@ -480,8 +478,8 @@ theorem projection_mul_directRotationR_mul_projection (hacute : IsUniformlyAcute
 Halmos cosine. -/
 theorem complementaryProjection_mul_directRotationR_mul_complementaryProjection
     (hacute : IsUniformlyAcute U V) :
-    complementaryProjection U * directRotationR U V hacute * complementaryProjection U =
-      canonicalAbsoluteValueR U V * complementaryProjection U := by
+    (Uᗮ).starProjection * directRotationR U V hacute * (Uᗮ).starProjection =
+      canonicalAbsoluteValueR U V * (Uᗮ).starProjection := by
   refine complexify_injective ?_
   rw [complexify_mul, complexify_mul, complexify_mul, complexify_directRotationR,
     complexify_canonicalAbsoluteValueR, complexify_complementaryProjection]
@@ -636,7 +634,7 @@ theorem directRotationR_unique_of_diagonalBlocks_pos (hacute : IsUniformlyAcute 
 /-! #### The converse: the real direct rotation *has* positive diagonal blocks
 
 The complex converse `eq_spectraDirectRotation_iff_diagonalBlocks_pos` reads the sign of the
-blocks off `spectraOperatorAbsoluteValue_nonneg`.  Over `ℝ` the block condition is
+blocks off `ContinuousLinearMap.modulus_nonneg`.  Over `ℝ` the block condition is
 `IsPositive` of the compression, which carries symmetry as well, so the descent is of
 *operator positivity* and not of a pointwise sign: `isPositive_of_complexify` below reflects
 both halves, and the compression step is then elementary. -/
@@ -679,13 +677,13 @@ private theorem isPositive_starProjection_compression {A : E →L[ℝ] E}
 
 /-- **The real Halmos cosine `|S|` is a positive operator.**
 
-Descended from `spectraOperatorAbsoluteValue_nonneg` on the complexification. -/
+Descended from `ContinuousLinearMap.modulus_nonneg` on the complexification. -/
 theorem isPositive_canonicalAbsoluteValueR :
     (canonicalAbsoluteValueR U V).IsPositive := by
   refine isPositive_of_complexify ?_
   rw [complexify_canonicalAbsoluteValueR]
   exact (ContinuousLinearMap.nonneg_iff_isPositive _).mp
-    (spectraOperatorAbsoluteValue_nonneg _)
+    (ContinuousLinearMap.modulus_nonneg _)
 
 /-- Rewriting a diagonal block of the real direct rotation as a compression of the Halmos
 cosine.  Multiplying `P A P = |S| P` on the left by the idempotent `P` replaces the loose

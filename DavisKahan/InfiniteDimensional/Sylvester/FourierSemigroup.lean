@@ -14,6 +14,9 @@ import Mathlib.MeasureTheory.Integral.ExpDecay
 import Mathlib.Topology.MetricSpace.ProperSpace.Real
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Fourier and semigroup formulas for bounded Sylvester equations
 
@@ -43,7 +46,9 @@ Bochner dominated convergence.
 -/
 
 namespace TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Sylvester
+
+open TauCeti.DavisKahanExt
 
 open DavisKahan.Foundation
 
@@ -200,7 +205,7 @@ theorem commute_semigroup (A : H →L[ℂ] H) (t : ℝ) :
 
 /-- Self-adjoint generators give unitary exponentials. -/
 theorem unitaryGroup_mem_unitary (A : H →L[ℂ] H)
-    (hA : IsSelfAdjointOperator A) (t : ℝ) :
+    (hA : A.IsSymmetric) (t : ℝ) :
     unitaryGroup A t ∈ unitary (H →L[ℂ] H) := by
   have hsa : IsSelfAdjoint ((t : ℂ) • A) :=
     IsSelfAdjoint.smul (Complex.conj_ofReal t)
@@ -212,7 +217,7 @@ theorem unitaryGroup_mem_unitary (A : H →L[ℂ] H)
 
 /-- The inverse of `exp(i t A)` is `exp(-i t A)`. -/
 theorem unitaryGroup_neg_mul (A : H →L[ℂ] H)
-    (_hA : IsSelfAdjointOperator A) (t : ℝ) :
+    (_hA : A.IsSymmetric) (t : ℝ) :
     unitaryGroup A (-t) ∘L unitaryGroup A t = 1 ∧
       unitaryGroup A t ∘L unitaryGroup A (-t) = 1 := by
   have hsum1 := unitaryGroup_add A (-t) t
@@ -221,7 +226,7 @@ theorem unitaryGroup_neg_mul (A : H →L[ℂ] H)
 
 /-- Every unitary group element is a contraction. -/
 theorem norm_unitaryGroup_le_one (A : H →L[ℂ] H)
-    (hA : IsSelfAdjointOperator A) (t : ℝ) :
+    (hA : A.IsSymmetric) (t : ℝ) :
     ‖unitaryGroup A t‖ ≤ 1 := by
   refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one (fun x => ?_)
   rw [one_mul]
@@ -230,7 +235,7 @@ theorem norm_unitaryGroup_le_one (A : H →L[ℂ] H)
 
 /-- On a nonzero Hilbert space every unitary group element has norm one. -/
 theorem norm_unitaryGroup [Nontrivial H] (A : H →L[ℂ] H)
-    (hA : IsSelfAdjointOperator A) (t : ℝ) :
+    (hA : A.IsSymmetric) (t : ℝ) :
     ‖unitaryGroup A t‖ = 1 := by
   exact CStarRing.norm_coe_unitary
     (⟨unitaryGroup A t, unitaryGroup_mem_unitary A hA t⟩ : unitary (H →L[ℂ] H))
@@ -239,8 +244,8 @@ theorem norm_unitaryGroup [Nontrivial H] (A : H →L[ℂ] H)
 theorem norm_unitary_left_right
     {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
     [CompleteSpace E]
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
-    (B : E →L[ℂ] E) (hB : IsSelfAdjointOperator B)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
+    (B : E →L[ℂ] E) (hB : B.IsSymmetric)
     (t : ℝ) (C : E →L[ℂ] H) :
     ‖unitaryGroup A t ∘L C ∘L unitaryGroup B (-t)‖ = ‖C‖ := by
   let UA := unitaryGroup A t
@@ -333,51 +338,6 @@ section SpectrumBridge
 variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
   [CompleteSpace H]
 
-/-- The identification of the ambient space with the top submodule, as a
-continuous linear map. -/
-noncomputable def topInclusion : H →L[ℂ] (⊤ : Submodule ℂ H) :=
-  (ContinuousLinearMap.id ℂ H).codRestrict ⊤ fun _ => Submodule.mem_top
-
-/-- Conjugation by the top-submodule identification is an algebra
-equivalence between endomorphisms of `⊤` and of the ambient space. -/
-noncomputable def topConjAlgEquiv :
-    ((⊤ : Submodule ℂ H) →L[ℂ] (⊤ : Submodule ℂ H)) ≃ₐ[ℂ] (H →L[ℂ] H) where
-  toFun S := (⊤ : Submodule ℂ H).subtypeL ∘L S ∘L topInclusion
-  invFun T := topInclusion ∘L T ∘L (⊤ : Submodule ℂ H).subtypeL
-  left_inv S := by ext x; rfl
-  right_inv T := by ext x; rfl
-  map_add' S₁ S₂ := by ext x; rfl
-  map_mul' S₁ S₂ := by ext x; rfl
-  commutes' c := by ext x; rfl
-
-omit [CompleteSpace H] in
-/-- Restricting to `⊤` and transporting back recovers the original operator. -/
-@[simp] theorem topConjAlgEquiv_restrict (T : H →L[ℂ] H)
-    (hU : InvariantFor T ⊤) :
-    topConjAlgEquiv (T.restrict hU) = T := by
-  ext x
-  rfl
-
-omit [CompleteSpace H] in
-/-- The actual restriction to the top submodule has the original
-Banach-algebra spectrum. -/
-theorem spectrum_restrict_top (T : H →L[ℂ] H) (hU : InvariantFor T ⊤) :
-    spectrum ℂ (T.restrict hU) = spectrum ℂ T := by
-  conv_rhs => rw [← topConjAlgEquiv_restrict T hU]
-  exact (AlgEquiv.spectrum_eq topConjAlgEquiv (T.restrict hU)).symm
-
-omit [CompleteSpace H] in
-/-- The restricted spectrum at the top submodule is the real spectrum. -/
-theorem restrictedSpectrum_top_eq (T : H →L[ℂ] H) :
-    restrictedSpectrum T ⊤ = realSpectrum T := by
-  ext r
-  constructor
-  · rintro ⟨hU, hr⟩
-    exact (spectrum_restrict_top T hU).subset hr
-  · intro hr
-    exact ⟨fun x _ => Submodule.mem_top,
-      (spectrum_restrict_top T fun x _ => Submodule.mem_top).symm.subset hr⟩
-
 /-- The real spectrum of a bounded complex operator is compact. -/
 theorem realSpectrum_isCompact (T : H →L[ℂ] H) :
     IsCompact (realSpectrum T) := by
@@ -398,7 +358,7 @@ variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
 The representatives are actual points of the original spectrum.  This is the
 feature that preserves any cross-gap when two such resolutions are formed. -/
 structure FiniteSpectralStep (A : H →L[ℂ] H)
-    (hA : IsSelfAdjointOperator A) where
+    (hA : A.IsSymmetric) where
   n : ℕ
   cell : Fin n → Set ℝ
   measurable_cell : ∀ i, MeasurableSet (cell i)
@@ -413,7 +373,7 @@ structure FiniteSpectralStep (A : H →L[ℂ] H)
 
 /-- Operator represented by a finite spectral step. -/
 noncomputable def FiniteSpectralStep.operator
-    {A : H →L[ℂ] H} {hA : IsSelfAdjointOperator A}
+    {A : H →L[ℂ] H} {hA : A.IsSymmetric}
     (S : FiniteSpectralStep A hA) : H →L[ℂ] H :=
   ∑ i, (S.representative i : ℂ) •
     boundedSelfAdjointSpectralProjection A hA (S.cell i)
@@ -421,7 +381,7 @@ noncomputable def FiniteSpectralStep.operator
 
 /-- The spectral cells sum to the identity on the spectrum. -/
 theorem FiniteSpectralStep.sum_projection_eq_one
-    {A : H →L[ℂ] H} {hA : IsSelfAdjointOperator A}
+    {A : H →L[ℂ] H} {hA : A.IsSymmetric}
     (S : FiniteSpectralStep A hA) :
     ∑ i, boundedSelfAdjointSpectralProjection A hA (S.cell i)
       (S.measurable_cell i) = 1 :=
@@ -431,7 +391,7 @@ theorem FiniteSpectralStep.sum_projection_eq_one
 /-- A spectral step approximates its generator in operator norm by the cell
 radius. -/
 theorem FiniteSpectralStep.norm_operator_sub_le
-    {A : H →L[ℂ] H} {hA : IsSelfAdjointOperator A}
+    {A : H →L[ℂ] H} {hA : A.IsSymmetric}
     (S : FiniteSpectralStep A hA) :
     ‖S.operator - A‖ ≤ S.diameter_le := by
   rcases subsingleton_or_nontrivial H with hsub | hnon
@@ -482,8 +442,8 @@ theorem FiniteSpectralStep.norm_operator_sub_le
 
 /-- Finite spectral steps are self-adjoint operators. -/
 theorem FiniteSpectralStep.operator_isSelfAdjoint
-    {A : H →L[ℂ] H} {hA : IsSelfAdjointOperator A}
-    (S : FiniteSpectralStep A hA) : IsSelfAdjointOperator S.operator := by
+    {A : H →L[ℂ] H} {hA : A.IsSymmetric}
+    (S : FiniteSpectralStep A hA) : S.operator.IsSymmetric := by
   apply ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
   show star S.operator = S.operator
   rw [FiniteSpectralStep.operator, star_sum]
@@ -496,7 +456,7 @@ theorem FiniteSpectralStep.operator_isSelfAdjoint
 
 /-- Norm bound for a finite spectral step in terms of its generator. -/
 theorem FiniteSpectralStep.norm_operator_le
-    {A : H →L[ℂ] H} {hA : IsSelfAdjointOperator A}
+    {A : H →L[ℂ] H} {hA : A.IsSymmetric}
     (S : FiniteSpectralStep A hA) :
     ‖S.operator‖ ≤ ‖A‖ + S.diameter_le := by
   have hsub := S.norm_operator_sub_le
@@ -509,7 +469,7 @@ theorem FiniteSpectralStep.norm_operator_le
 /-- Every bounded self-adjoint operator has finite spectral steps with
 arbitrarily small cells and representatives in its own spectrum. -/
 theorem exists_finiteSpectralStep
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     {ε : ℝ} (hε : 0 < ε) :
     ∃ S : FiniteSpectralStep A hA, S.diameter_le ≤ ε := by
   classical
@@ -554,15 +514,17 @@ theorem finiteSpectralStep_representatives_separated
     {K : Type v} [NormedAddCommGroup K] [InnerProductSpace ℂ K]
     [CompleteSpace K]
     {A : H →L[ℂ] H} {B : K →L[ℂ] K}
-    {hA : IsSelfAdjointOperator A} {hB : IsSelfAdjointOperator B}
+    {hA : A.IsSymmetric} {hB : B.IsSymmetric}
     {d : ℝ} (hsep : SpectraSeparated A ⊤ B ⊤ d)
     (SA : FiniteSpectralStep A hA) (SB : FiniteSpectralStep B hB)
     (i : Fin SA.n) (j : Fin SB.n) :
     d ≤ |SA.representative i - SB.representative j| := by
   obtain ⟨hInvA, hInvB, hgap⟩ := hsep
   exact hgap _
-    ⟨hInvA, (spectrum_restrict_top A hInvA).symm.subset (SA.representative_mem i)⟩ _
-    ⟨hInvB, (spectrum_restrict_top B hInvB).symm.subset (SB.representative_mem j)⟩
+    ⟨hInvA, (ContinuousLinearMap.spectrum_restrict_top A hInvA).symm.subset (SA.representative_mem
+      i)⟩ _
+    ⟨hInvB, (ContinuousLinearMap.spectrum_restrict_top B hInvB).symm.subset (SB.representative_mem
+      j)⟩
 
 end SpectralStepApproximation
 
@@ -575,7 +537,7 @@ variable {F : Type v} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
 
 /-- Finite spectral block evaluation of the unitary group. -/
 theorem unitaryGroup_finiteSpectralStep
-    {A : F →L[ℂ] F} {hA : IsSelfAdjointOperator A}
+    {A : F →L[ℂ] F} {hA : A.IsSymmetric}
     (S : FiniteSpectralStep A hA) (t : ℝ) :
     unitaryGroup S.operator t =
       ∑ i, Complex.exp (((t * S.representative i : ℝ) : ℂ) * Complex.I) •
@@ -593,7 +555,7 @@ theorem unitaryGroup_finiteSpectralStep
 spectral steps. -/
 theorem finiteSpectralStep_reconstruction
     {A : F →L[ℂ] F} {B : E →L[ℂ] E}
-    {hA : IsSelfAdjointOperator A} {hB : IsSelfAdjointOperator B}
+    {hA : A.IsSymmetric} {hB : B.IsSymmetric}
     {d : ℝ} (hd : 0 < d) (hsep : SpectraSeparated A ⊤ B ⊤ d)
     (SA : FiniteSpectralStep A hA) (SB : FiniteSpectralStep B hB)
     (X : E →L[ℂ] F) :
@@ -674,8 +636,8 @@ theorem tendsto_unitary_orbit
 theorem tendsto_separated_integral
     {An : ℕ → F →L[ℂ] F} {Bn : ℕ → E →L[ℂ] E} {Cn : ℕ → E →L[ℂ] F}
     {A0 : F →L[ℂ] F} {B0 : E →L[ℂ] E} {C0 : E →L[ℂ] F}
-    (hAn : ∀ n, IsSelfAdjointOperator (An n))
-    (hBn : ∀ n, IsSelfAdjointOperator (Bn n))
+    (hAn : ∀ n, (An n).IsSymmetric)
+    (hBn : ∀ n, (Bn n).IsSymmetric)
     {M : ℝ} (hM : ∀ n, ‖Cn n‖ ≤ M)
     (hA : Tendsto An atTop (nhds A0)) (hB : Tendsto Bn atTop (nhds B0))
     (hC : Tendsto Cn atTop (nhds C0))
@@ -722,7 +684,7 @@ theorem tendsto_separated_integral
 /-- Exact separated-spectrum reconstruction on complex Hilbert spaces. -/
 theorem separatedSylvester_reconstruction_complex
     {A : F →L[ℂ] F} {B : E →L[ℂ] E}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d) (hsep : SpectraSeparated A ⊤ B ⊤ d)
     (X C : E →L[ℂ] F)
     (hEq : A ∘L X - X ∘L B = C) :
@@ -789,7 +751,7 @@ theorem separatedSylvester_reconstruction_complex
 /-- The integral in the separated reconstruction is integrable. -/
 theorem separatedSylvester_integrable_complex
     {A : F →L[ℂ] F} {B : E →L[ℂ] E}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d) (C : E →L[ℂ] F) :
     Integrable fun t : ℝ => separatedSylvesterMultiplier d hd t •
       (unitaryGroup A t ∘L C ∘L unitaryGroup B (-t)) := by
@@ -813,7 +775,7 @@ unitary orbits converge pointwise, and the reciprocal kernel supplies an
 integrable dominating function. -/
 theorem spectral_step_integral_right_inverse
     {A : F →L[ℂ] F} {B : E →L[ℂ] E}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} (hd : 0 < d) (hsep : SpectraSeparated A ⊤ B ⊤ d)
     (C : E →L[ℂ] F) :
     A ∘L (∫ t : ℝ, separatedSylvesterMultiplier d hd t •
@@ -912,7 +874,7 @@ premise is exposed so callers can localize any normalization or sign error to
 the one-dimensional Fourier identity. -/
 theorem spectralMultiplier_ext
     {A : F →L[ℂ] F} {B : E →L[ℂ] E}
-    (hA : IsSelfAdjointOperator A) (hB : IsSelfAdjointOperator B)
+    (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {d : ℝ} {hd : 0 < d}
     (hsep : SpectraSeparated A ⊤ B ⊤ d)
     {C : E →L[ℂ] F}
@@ -936,5 +898,5 @@ end LimitReconstruction
 
 end
 
-end DavisKahanExt
+end DavisKahan.Sylvester
 end TauCeti

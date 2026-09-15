@@ -21,7 +21,7 @@ The constant is one: the estimate is `δ * gauge X ≤ gauge C`, with no loss.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
 open scoped Topology
@@ -474,6 +474,6 @@ theorem mem_and_gauge_le_of_boundedLeft_exteriorRight
   have hkey := mul_le_mul_of_nonneg_left hgauge hρδ.le
   rw [← mul_assoc, mul_inv_cancel₀ hρδ.ne', one_mul] at hkey
   linarith
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

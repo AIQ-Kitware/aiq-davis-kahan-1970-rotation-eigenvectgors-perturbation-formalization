@@ -10,7 +10,7 @@ public import Mathlib.Topology.Algebra.Module.FiniteDimension
 public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.Adjoint
 public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.FiniteDimensional
 public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.MinMax
-public import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+public import ForTauCeti.Analysis.InnerProductSpace.KyFan
 
 /-!
 # Approximation-number foundation and scalar-specific analytic endpoints
@@ -475,29 +475,29 @@ theorem kyFanApproximationGauge_comp_strongProjection_tendsto_complex
 end KyFanStrongCutoff
 
 /-- The rectangular Ky Fan sum is bounded by the approximation-number gauge. -/
-theorem rectangularKyFanSum_le_kyFanApproximationGauge
+theorem kyFanSum_le_kyFanApproximationGauge
     {E₀ : Type vE0} {F₀ : Type vF0}
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀]
     [FiniteDimensional 𝕜 E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace 𝕜 F₀]
     [FiniteDimensional 𝕜 F₀]
     (k : ℕ) (A : E₀ →ₗ[𝕜] F₀) :
-    TauCeti.RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k A ≤
+    TauCeti.kyFanSum k A ≤
       kyFanApproximationGauge k A.toContinuousLinearMap :=
-  (ContinuousLinearMap.rectangularKyFanSum_eq_kyFanGauge k A).le
+  (ContinuousLinearMap.kyFanSum_eq_kyFanGauge k A).le
 
 /-- In finite dimensions the two agree: the rectangular Ky Fan sum *is* the
 approximation-number gauge. -/
-theorem rectangularKyFanSum_eq_kyFanApproximationGauge
+theorem kyFanSum_eq_kyFanApproximationGauge
     {E₀ : Type vE0} {F₀ : Type vF0}
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀]
     [FiniteDimensional 𝕜 E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace 𝕜 F₀]
     [FiniteDimensional 𝕜 F₀]
     (k : ℕ) (A : E₀ →ₗ[𝕜] F₀) :
-    TauCeti.RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k A =
+    TauCeti.kyFanSum k A =
       kyFanApproximationGauge k A.toContinuousLinearMap :=
-  ContinuousLinearMap.rectangularKyFanSum_eq_kyFanGauge k A
+  ContinuousLinearMap.kyFanSum_eq_kyFanGauge k A
 
 /-- Subadditivity of the Ky Fan gauge in finite dimensions. -/
 theorem kyFanApproximationGauge_add_le_finiteDimensional
@@ -710,7 +710,7 @@ The two orthonormal families `x` and `y` are hypotheses, not conclusions: they s
 The min--max lower bound `hlb` is what turns the ambient approximation numbers into
 approximation numbers of a *finite-dimensional* restriction; the finite-dimensional
 rectangular Ky Fan principle
-`exists_orthonormal_re_sum_inner_map_eq_rectangularKyFanSum` then attains them exactly, and
+`exists_orthonormal_re_sum_inner_map_eq_kyFanSum` then attains them exactly, and
 the compression is transported back along the inclusion and the projection, which are
 isometric on the vectors involved. -/
 theorem exists_orthonormal_kyFanApproximationGauge_sub_le_re_sum_inner
@@ -803,11 +803,11 @@ theorem exists_orthonormal_kyFanApproximationGauge_sub_le_re_sum_inner
       = kyFanApproximationGauge k (K ∘L W.subtypeL) :=
     kyFanApproximationGauge_orthogonalProjectionOnto_comp_eq W' (K ∘L W.subtypeL) hKW k
   obtain ⟨u', v', hu', hv', heq⟩ :=
-    RectangularUnitarilyInvariantSeminorm.exists_orthonormal_re_sum_inner_map_eq_rectangularKyFanSum
+    TauCeti.exists_orthonormal_re_sum_inner_map_eq_kyFanSum
       K'.toLinearMap hkW hkW'
-  have hbridge : RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k K'.toLinearMap
+  have hbridge : TauCeti.kyFanSum k K'.toLinearMap
       = kyFanApproximationGauge k K' :=
-    rectangularKyFanSum_eq_kyFanApproximationGauge k K'.toLinearMap
+    kyFanSum_eq_kyFanApproximationGauge k K'.toLinearMap
   refine ⟨fun i => (u' i : F), fun i => (v' i : E), ?_, ?_, ?_⟩
   · rw [orthonormal_iff_ite] at hu' ⊢
     intro i j

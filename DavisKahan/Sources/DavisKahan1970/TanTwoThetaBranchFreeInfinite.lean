@@ -7,6 +7,10 @@ import DavisKahan.DoubleAngle.TanTwoThetaApproximatePair
 import DavisKahan.Sources.DavisKahan1970.Ideals.SpectralSelection
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.SubspaceSingularTransport
 
+open TauCeti.DavisKahan.ExactSinTheta
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The branch-free `tan 2Θ` theorem with an *arbitrary* trial subspace
 
@@ -54,7 +58,8 @@ case is obtained by complexification in
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.TanTwoTheta
+
 
 open scoped InnerProductSpace
 open DavisKahan.ExactSinTheta
@@ -511,12 +516,12 @@ theorem absTanTwoTheta_offDiagonal_mem_and_gauge_le_of_invariantSubspace
       hHUperp hTmem hTzero hUb hUa hinv hab tanTwoTheta π htan k
     linarith
   obtain ⟨hmem, hgauge⟩ :=
-    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hδ hHmem hscaled
+    mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hδ hHmem hscaled
   exact ⟨hmem, by linarith⟩
 
 end Main
 
 end
 
-end DavisKahanTheory
+end DavisKahan.TanTwoTheta
 end TauCeti

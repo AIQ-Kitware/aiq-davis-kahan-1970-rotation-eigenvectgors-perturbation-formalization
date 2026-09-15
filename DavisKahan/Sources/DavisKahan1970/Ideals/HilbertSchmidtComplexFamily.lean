@@ -7,6 +7,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.OperatorIdeal.UnitarilyInvariant.FamilyCore
 import DavisKahan.Sources.DavisKahan1970.Ideals.HilbertSchmidtBasis
 import DavisKahan.Sources.DavisKahan1970.Ideals.HilbertSchmidtTensor
+import DavisKahan.Sources.DavisKahan1970.Ideals.HilbertSchmidtApproximationNorm
 import ForTauCeti.Analysis.InnerProductSpace.HilbertSchmidt.Conjugation
 import ForTauCeti.Analysis.InnerProductSpace.Sylvester.Group
 import ForTauCeti.Analysis.InnerProductSpace.Sylvester.SpectralGap
@@ -45,135 +46,135 @@ variable {E F G H : Type v}
   [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
 /-- Addition preserves the paper Hilbert--Schmidt class. -/
-theorem isPaperHilbertSchmidt_add_complex
+theorem approximationNumberEnergy_ne_top_add_complex
     {A B : E →L[ℂ] F}
-    (hA : IsPaperHilbertSchmidt A)
-    (hB : IsPaperHilbertSchmidt B) :
-    IsPaperHilbertSchmidt (A + B) := by
-  let zA := paperHilbertSchmidtTensor A hA
-  let zB := paperHilbertSchmidtTensor B hB
-  have hrepr : ofLp (paperHSBasis _) (zA + zB) = A + B := by
+    (hA : approximationNumberEnergy A ≠ ⊤)
+    (hB : approximationNumberEnergy B ≠ ⊤) :
+    approximationNumberEnergy (A + B) ≠ ⊤ := by
+  let zA := hilbertSchmidtTensor A hA
+  let zB := hilbertSchmidtTensor B hB
+  have hrepr : ofLp (hSBasis _) (zA + zB) = A + B := by
     rw [ofLp_add]
-    rw [toOperator_paperHilbertSchmidtTensor,
-      toOperator_paperHilbertSchmidtTensor]
+    rw [toOperator_hilbertSchmidtTensor,
+      toOperator_hilbertSchmidtTensor]
   rw [← hrepr]
-  exact isPaperHilbertSchmidt_toOperator (zA + zB)
+  exact approximationNumberEnergy_ne_top_toOperator (zA + zB)
 
 /-- The canonical tensor of a sum is the sum of the canonical tensors. -/
-theorem paperHilbertSchmidtTensor_add
+theorem hilbertSchmidtTensor_add
     {A B : E →L[ℂ] F}
-    (hA : IsPaperHilbertSchmidt A)
-    (hB : IsPaperHilbertSchmidt B) :
-    paperHilbertSchmidtTensor (A + B)
-        (isPaperHilbertSchmidt_add_complex hA hB) =
-      paperHilbertSchmidtTensor A hA +
-        paperHilbertSchmidtTensor B hB := by
-  apply ofLp_injective (paperHSBasis _)
-  rw [toOperator_paperHilbertSchmidtTensor,
+    (hA : approximationNumberEnergy A ≠ ⊤)
+    (hB : approximationNumberEnergy B ≠ ⊤) :
+    hilbertSchmidtTensor (A + B)
+        (approximationNumberEnergy_ne_top_add_complex hA hB) =
+      hilbertSchmidtTensor A hA +
+        hilbertSchmidtTensor B hB := by
+  apply ofLp_injective (hSBasis _)
+  rw [toOperator_hilbertSchmidtTensor,
     ofLp_add,
-    toOperator_paperHilbertSchmidtTensor,
-    toOperator_paperHilbertSchmidtTensor]
+    toOperator_hilbertSchmidtTensor,
+    toOperator_hilbertSchmidtTensor]
 
 /-- The paper Hilbert--Schmidt norm satisfies the triangle inequality. -/
-theorem paperHilbertSchmidtNorm_add_le_complex
+theorem hilbertSchmidtNorm_add_le_complex
     {A B : E →L[ℂ] F}
-    (hA : IsPaperHilbertSchmidt A)
-    (hB : IsPaperHilbertSchmidt B) :
-    paperHilbertSchmidtNorm (A + B) ≤
-      paperHilbertSchmidtNorm A + paperHilbertSchmidtNorm B := by
-  let hAB := isPaperHilbertSchmidt_add_complex hA hB
-  rw [← norm_paperHilbertSchmidtTensor (A + B) hAB,
-    paperHilbertSchmidtTensor_add hA hB,
-    ← norm_paperHilbertSchmidtTensor A hA,
-    ← norm_paperHilbertSchmidtTensor B hB]
+    (hA : approximationNumberEnergy A ≠ ⊤)
+    (hB : approximationNumberEnergy B ≠ ⊤) :
+    ContinuousLinearMap.hilbertSchmidtNorm (A + B) ≤
+      ContinuousLinearMap.hilbertSchmidtNorm A + ContinuousLinearMap.hilbertSchmidtNorm B := by
+  let hAB := approximationNumberEnergy_ne_top_add_complex hA hB
+  rw [← norm_hilbertSchmidtTensor (A + B) hAB,
+    hilbertSchmidtTensor_add hA hB,
+    ← norm_hilbertSchmidtTensor A hA,
+    ← norm_hilbertSchmidtTensor B hB]
   exact norm_add_le _ _
 
 /-- A zero paper Hilbert--Schmidt norm forces the represented operator to
 vanish. -/
-theorem paperHilbertSchmidtNorm_eq_zero
-    {A : E →L[ℂ] F} (hA : IsPaperHilbertSchmidt A)
-    (hzero : paperHilbertSchmidtNorm A = 0) : A = 0 := by
-  let z := paperHilbertSchmidtTensor A hA
+theorem hilbertSchmidtNorm_eq_zero
+    {A : E →L[ℂ] F} (hA : approximationNumberEnergy A ≠ ⊤)
+    (hzero : ContinuousLinearMap.hilbertSchmidtNorm A = 0) : A = 0 := by
+  let z := hilbertSchmidtTensor A hA
   have hzNorm : ‖z‖ = 0 := by
-    rw [norm_paperHilbertSchmidtTensor]
+    rw [norm_hilbertSchmidtTensor]
     exact hzero
-  have hz : paperHilbertSchmidtTensor A hA = 0 := norm_eq_zero.mp hzNorm
-  have hrepr := toOperator_paperHilbertSchmidtTensor A hA
+  have hz : hilbertSchmidtTensor A hA = 0 := norm_eq_zero.mp hzNorm
+  have hrepr := toOperator_hilbertSchmidtTensor A hA
   rw [hz, ofLp_zero] at hrepr
   exact hrepr.symm
 
 /-- Subtraction preserves the paper Hilbert--Schmidt class. -/
-theorem isPaperHilbertSchmidt_sub
+theorem approximationNumberEnergy_ne_top_sub
     {A B : E →L[ℂ] F}
-    (hA : IsPaperHilbertSchmidt A)
-    (hB : IsPaperHilbertSchmidt B) :
-    IsPaperHilbertSchmidt (A - B) := by
+    (hA : approximationNumberEnergy A ≠ ⊤)
+    (hB : approximationNumberEnergy B ≠ ⊤) :
+    approximationNumberEnergy (A - B) ≠ ⊤ := by
   rw [sub_eq_add_neg]
-  exact isPaperHilbertSchmidt_add_complex hA ((isPaperHilbertSchmidt_neg_iff B).2 hB)
+  exact approximationNumberEnergy_ne_top_add_complex hA ((approximationNumberEnergy_ne_top_neg_iff B).2 hB)
 
 /-- The canonical tensor respects subtraction. -/
-theorem paperHilbertSchmidtTensor_sub
+theorem hilbertSchmidtTensor_sub
     {A B : E →L[ℂ] F}
-    (hA : IsPaperHilbertSchmidt A)
-    (hB : IsPaperHilbertSchmidt B) :
-    paperHilbertSchmidtTensor (A - B) (isPaperHilbertSchmidt_sub hA hB) =
-      paperHilbertSchmidtTensor A hA -
-        paperHilbertSchmidtTensor B hB := by
-  apply ofLp_injective (paperHSBasis _)
-  rw [toOperator_paperHilbertSchmidtTensor,
+    (hA : approximationNumberEnergy A ≠ ⊤)
+    (hB : approximationNumberEnergy B ≠ ⊤) :
+    hilbertSchmidtTensor (A - B) (approximationNumberEnergy_ne_top_sub hA hB) =
+      hilbertSchmidtTensor A hA -
+        hilbertSchmidtTensor B hB := by
+  apply ofLp_injective (hSBasis _)
+  rw [toOperator_hilbertSchmidtTensor,
     ofLp_sub,
-    toOperator_paperHilbertSchmidtTensor,
-    toOperator_paperHilbertSchmidtTensor]
+    toOperator_hilbertSchmidtTensor,
+    toOperator_hilbertSchmidtTensor]
 
 /-- A sequence Cauchy in the paper square norm converges to a paper
 Hilbert--Schmidt operator in that norm. -/
-theorem paperHilbertSchmidt_complete_complex
+theorem hilbertSchmidt_complete_complex
     (A : ℕ → E →L[ℂ] F)
-    (hA : ∀ n, IsPaperHilbertSchmidt (A n))
+    (hA : ∀ n, approximationNumberEnergy (A n) ≠ ⊤)
     (hcauchy : ∀ ε : ℝ, 0 < ε → ∃ N, ∀ m n,
       N ≤ m → N ≤ n →
-        paperHilbertSchmidtNorm (A m - A n) < ε) :
-    ∃ L : E →L[ℂ] F, IsPaperHilbertSchmidt L ∧
+        ContinuousLinearMap.hilbertSchmidtNorm (A m - A n) < ε) :
+    ∃ L : E →L[ℂ] F, approximationNumberEnergy L ≠ ⊤ ∧
       ∀ ε : ℝ, 0 < ε → ∃ N, ∀ n, N ≤ n →
-        paperHilbertSchmidtNorm (A n - L) < ε := by
-  let z : ℕ → lp (fun _ : PaperHSIndex E => F) 2 :=
-    fun n => paperHilbertSchmidtTensor (A n) (hA n)
+        ContinuousLinearMap.hilbertSchmidtNorm (A n - L) < ε := by
+  let z : ℕ → lp (fun _ : HSIndex E => F) 2 :=
+    fun n => hilbertSchmidtTensor (A n) (hA n)
   have hzCauchy : CauchySeq z := by
     rw [Metric.cauchySeq_iff]
     intro ε hε
     obtain ⟨N, hN⟩ := hcauchy ε hε
     refine ⟨N, ?_⟩
     intro m hm n hn
-    have hsub : IsPaperHilbertSchmidt (A m - A n) :=
-      isPaperHilbertSchmidt_sub (hA m) (hA n)
-    have hcanon : paperHilbertSchmidtTensor (A m - A n) hsub = z m - z n := by
-      apply ofLp_injective (paperHSBasis _)
-      rw [toOperator_paperHilbertSchmidtTensor,
+    have hsub : approximationNumberEnergy (A m - A n) ≠ ⊤ :=
+      approximationNumberEnergy_ne_top_sub (hA m) (hA n)
+    have hcanon : hilbertSchmidtTensor (A m - A n) hsub = z m - z n := by
+      apply ofLp_injective (hSBasis _)
+      rw [toOperator_hilbertSchmidtTensor,
         ofLp_sub,
-        toOperator_paperHilbertSchmidtTensor,
-        toOperator_paperHilbertSchmidtTensor]
+        toOperator_hilbertSchmidtTensor,
+        toOperator_hilbertSchmidtTensor]
     have hnorm : ‖z m - z n‖ =
-        paperHilbertSchmidtNorm (A m - A n) := by
-      rw [← hcanon, norm_paperHilbertSchmidtTensor]
+        ContinuousLinearMap.hilbertSchmidtNorm (A m - A n) := by
+      rw [← hcanon, norm_hilbertSchmidtTensor]
     simpa only [dist_eq_norm, hnorm] using hN m n hm hn
   obtain ⟨zlim, hzlim⟩ := cauchySeq_tendsto_of_complete hzCauchy
-  let L : E →L[ℂ] F := ofLp (paperHSBasis _) zlim
-  have hL : IsPaperHilbertSchmidt L :=
-    isPaperHilbertSchmidt_toOperator zlim
+  let L : E →L[ℂ] F := ofLp (hSBasis _) zlim
+  have hL : approximationNumberEnergy L ≠ ⊤ :=
+    approximationNumberEnergy_ne_top_toOperator zlim
   refine ⟨L, hL, ?_⟩
   intro ε hε
   obtain ⟨N, hN⟩ := (Metric.tendsto_atTop.1 hzlim) ε hε
   refine ⟨N, ?_⟩
   intro n hn
-  have hsub : IsPaperHilbertSchmidt (A n - L) :=
-    isPaperHilbertSchmidt_sub (hA n) hL
-  have hcanon : paperHilbertSchmidtTensor (A n - L) hsub = z n - zlim := by
-    apply ofLp_injective (paperHSBasis _)
-    rw [toOperator_paperHilbertSchmidtTensor,
+  have hsub : approximationNumberEnergy (A n - L) ≠ ⊤ :=
+    approximationNumberEnergy_ne_top_sub (hA n) hL
+  have hcanon : hilbertSchmidtTensor (A n - L) hsub = z n - zlim := by
+    apply ofLp_injective (hSBasis _)
+    rw [toOperator_hilbertSchmidtTensor,
       ofLp_sub,
-      toOperator_paperHilbertSchmidtTensor]
-  have hnorm : paperHilbertSchmidtNorm (A n - L) = ‖z n - zlim‖ := by
-    rw [← norm_paperHilbertSchmidtTensor (A n - L) hsub, hcanon]
+      toOperator_hilbertSchmidtTensor]
+  have hnorm : ContinuousLinearMap.hilbertSchmidtNorm (A n - L) = ‖z n - zlim‖ := by
+    rw [← norm_hilbertSchmidtTensor (A n - L) hsub, hcanon]
   rw [hnorm, ← dist_eq_norm]
   exact hN n hn
 
@@ -183,55 +184,52 @@ noncomputable def hilbertSchmidtComplex :
   SymmetricOperatorIdealFamily.ofCore <| by
   classical
   refine
-    { Mem := fun T => IsPaperHilbertSchmidt T
-      gauge := fun T => paperHilbertSchmidtNorm T
+    { Mem := fun T => approximationNumberEnergy T ≠ ⊤
+      gauge := fun T => ContinuousLinearMap.hilbertSchmidtNorm T
       zero_mem := by
         intro E F _ _ _ _ _ _
-        unfold IsPaperHilbertSchmidt
-        rw [paperHilbertSchmidtEnergy_zero]
+        rw [approximationNumberEnergy_zero]
         exact ENNReal.zero_ne_top
       add_mem := by
         intro E F _ _ _ _ _ _ A B hA hB
-        exact isPaperHilbertSchmidt_add_complex hA hB
+        exact approximationNumberEnergy_ne_top_add_complex hA hB
       smul_mem := by
         intro E F _ _ _ _ _ _ c A hA
         by_cases hc : c = 0
         · subst c
-          simpa using (show IsPaperHilbertSchmidt (0 : E →L[ℂ] F) from by
-            unfold IsPaperHilbertSchmidt
-            rw [paperHilbertSchmidtEnergy_zero]
-            exact ENNReal.zero_ne_top)
-        · exact (isPaperHilbertSchmidt_smul_iff c hc A).2 hA
+          simp
+        · exact (approximationNumberEnergy_ne_top_smul_iff c hc A).2 hA
       adjoint_mem := by
         intro E F _ _ _ _ _ _ A hA
-        exact (isPaperHilbertSchmidt_adjoint_iff A).2 hA
+        exact (approximationNumberEnergy_ne_top_adjoint_iff A).2 hA
       comp_mem := by
         intro E F G H _ _ _ _ _ _ _ _ _ _ _ _ L A R hA
-        exact hA.comp L R
+        exact approximationNumberEnergy_ne_top_comp hA L R
       gauge_nonneg := by
         intro E F _ _ _ _ _ _ A hA
-        exact paperHilbertSchmidtNorm_nonneg A
+        exact ContinuousLinearMap.hilbertSchmidtNorm_nonneg A
       gauge_zero := by
         intro E F _ _ _ _ _ _
-        exact paperHilbertSchmidtNorm_zero
+        exact ContinuousLinearMap.hilbertSchmidtNorm_zero
       gauge_add_le := by
         intro E F _ _ _ _ _ _ A B hA hB
-        exact paperHilbertSchmidtNorm_add_le_complex hA hB
+        exact hilbertSchmidtNorm_add_le_complex hA hB
       gauge_smul := by
         intro E F _ _ _ _ _ _ c A hA
-        exact paperHilbertSchmidtNorm_smul c A hA
+        exact ContinuousLinearMap.hilbertSchmidtNorm_smul c A
       gauge_adjoint := by
         intro E F _ _ _ _ _ _ A hA
-        exact paperHilbertSchmidtNorm_adjoint A
+        exact ContinuousLinearMap.hilbertSchmidtNorm_adjoint A
       gauge_comp_le := by
         intro E F G H _ _ _ _ _ _ _ _ _ _ _ _ L A R hA
-        exact paperHilbertSchmidtNorm_comp_le L hA R
+        exact ContinuousLinearMap.hilbertSchmidtNorm_comp_le L
+          ((isHilbertSchmidt_iff_approximationNumberEnergy_ne_top A).2 hA) R
       opNorm_le_gauge := by
         intro E F _ _ _ _ _ _ A hA
-        exact opNorm_le_paperHilbertSchmidtNorm hA
+        exact opNorm_le_hilbertSchmidtNorm hA
       gauge_complete := by
         intro E F _ _ _ _ _ _ A hA hcauchy
-        exact paperHilbertSchmidt_complete_complex A hA hcauchy }
+        exact hilbertSchmidt_complete_complex A hA hcauchy }
 
 end
 

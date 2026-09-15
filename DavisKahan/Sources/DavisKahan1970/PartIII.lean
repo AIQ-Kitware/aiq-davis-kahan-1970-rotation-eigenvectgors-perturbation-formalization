@@ -51,7 +51,7 @@ Those developments must not be inferred merely from the quartet aliases below.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 /-! ## Sections 3--4: direct rotation foundation -/
 
@@ -175,7 +175,7 @@ alias projector_difference_opNorm :=
 
 /-- The sharp projector-difference theorem for canonical spectral subspaces. -/
 alias spectralProjector_difference_opNorm :=
-  opNorm_spectralSubspace_sub_le
+  opNorm_pointSpectralSubspace_sub_le
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

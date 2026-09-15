@@ -42,10 +42,10 @@ theorem finite_proposition4_1_singularValues
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : TauCeti.IsAcute U V)
     (W : E ≃ₗᵢ[𝕜] E) (hmap : U.map W.toLinearMap = V) (n : ℕ) :
-    ((LinearMap.id - (DavisKahanTheory.directRotation U V hacute).toLinearMap) ∘ₗ
+    ((LinearMap.id - (DavisKahan.FiniteDimensional.directRotation U V hacute).toLinearMap) ∘ₗ
         TauCeti.projection U).singularValues n ≤
       ((LinearMap.id - W.toLinearMap) ∘ₗ TauCeti.projection U).singularValues n :=
-  DavisKahanTheory.singularValues_restrictedDisplacement_le U V hacute W hmap n
+  DavisKahan.FiniteDimensional.singularValues_restrictedDisplacement_le U V hacute W hmap n
 
 /-- Finite-dimensional Proposition 4.1 rewritten with the same approximation
 singular values used by the infinite-dimensional ideal framework. -/
@@ -55,7 +55,7 @@ theorem finite_proposition4_1_approximationSingularValue
     (hacute : TauCeti.IsAcute U V)
     (W : E ≃ₗᵢ[𝕜] E) (hmap : U.map W.toLinearMap = V) (n : ℕ) :
     approximationSingularValue n
-        (((LinearMap.id - (DavisKahanTheory.directRotation U V hacute).toLinearMap) ∘ₗ
+        (((LinearMap.id - (DavisKahan.FiniteDimensional.directRotation U V hacute).toLinearMap) ∘ₗ
           TauCeti.projection U).toContinuousLinearMap) ≤
       approximationSingularValue n
         (((LinearMap.id - W.toLinearMap) ∘ₗ
@@ -72,7 +72,7 @@ theorem finite_restrictedDisplacementDominance
     (hacute : TauCeti.IsAcute U V)
     (W : E ≃ₗᵢ[𝕜] E) (hmap : U.map W.toLinearMap = V) :
     RestrictedDisplacementApproximationDominance
-      (((LinearMap.id - (DavisKahanTheory.directRotation U V hacute).toLinearMap) ∘ₗ
+      (((LinearMap.id - (DavisKahan.FiniteDimensional.directRotation U V hacute).toLinearMap) ∘ₗ
         TauCeti.projection U).toContinuousLinearMap)
       (((LinearMap.id - W.toLinearMap) ∘ₗ
         TauCeti.projection U).toContinuousLinearMap) where
@@ -82,29 +82,29 @@ theorem finite_restrictedDisplacementDominance
 /-- Finite-dimensional Corollary 4.1 for every ordinary square
 unitarily-invariant norm. -/
 theorem finite_corollary4_1_uiNorm
-    (N : UnitarilyInvariantSeminorm 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : TauCeti.IsAcute U V)
     (W : E ≃ₗᵢ[𝕜] E) (hmap : U.map W.toLinearMap = V) :
-    N ((LinearMap.id - (DavisKahanTheory.directRotation U V hacute).toLinearMap) ∘ₗ
+    N ((LinearMap.id - (DavisKahan.FiniteDimensional.directRotation U V hacute).toLinearMap) ∘ₗ
         TauCeti.projection U) ≤
       N ((LinearMap.id - W.toLinearMap) ∘ₗ TauCeti.projection U) :=
-  DavisKahanTheory.directRotation_minimizes_restrictedDisplacement_uiNorm
+  DavisKahan.FiniteDimensional.directRotation_minimizes_restrictedDisplacement_uiNorm
     N U V hacute W hmap
 
 /-- Finite-dimensional Proposition 4.3: the direct rotation minimizes every
 unitarily-invariant norm of the positive displacement square. -/
 theorem finite_proposition4_3_uiNorm
-    (N : UnitarilyInvariantSeminorm 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : TauCeti.IsAcute U V)
     (W : E ≃ₗᵢ[𝕜] E) (hmap : U.map W.toLinearMap = V) :
-    N (DavisKahanTheory.displacementSquare
-      (DavisKahanTheory.directRotation U V hacute).toLinearMap) ≤
-      N (DavisKahanTheory.displacementSquare W.toLinearMap) :=
-  DavisKahanTheory.directRotation_minimizes_displacementSquare_uiNorm
+    N (DavisKahan.FiniteDimensional.displacementSquare
+      (DavisKahan.FiniteDimensional.directRotation U V hacute).toLinearMap) ≤
+      N (DavisKahan.FiniteDimensional.displacementSquare W.toLinearMap) :=
+  DavisKahan.FiniteDimensional.directRotation_minimizes_displacementSquare_uiNorm
     N U V hacute W hmap
 
 /-- Finite-dimensional Proposition 4.2 in the compiled full-basis energy form.
@@ -117,9 +117,9 @@ theorem finite_proposition4_2_fullBasisEnergy
     (hacute : TauCeti.IsAcute U V)
     (b : OrthonormalBasis (Fin n) 𝕜 E)
     (W : E ≃ₗᵢ[𝕜] E) (hmap : U.map W.toLinearMap = V) :
-    ∑ i, ‖DavisKahanTheory.directRotation U V hacute (b i) - b i‖ ^ 2 ≤
+    ∑ i, ‖DavisKahan.FiniteDimensional.directRotation U V hacute (b i) - b i‖ ^ 2 ≤
       ∑ i, ‖W (b i) - b i‖ ^ 2 :=
-  DavisKahanTheory.directRotation_minimizes_sum_sq_basis_angles
+  DavisKahan.FiniteDimensional.directRotation_minimizes_sum_sq_basis_angles
     U V hacute b W hmap
 
 end Section4

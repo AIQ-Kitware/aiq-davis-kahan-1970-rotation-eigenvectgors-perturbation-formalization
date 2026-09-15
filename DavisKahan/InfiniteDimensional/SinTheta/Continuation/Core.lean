@@ -8,6 +8,9 @@ import DavisKahan.InfiniteDimensional.SpectraBridge.DirectRotationAPI
 import DavisKahan.SpectralTheory.ResolventOperator
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Spectral projection continuation and branch selection
 
@@ -135,7 +138,7 @@ resolvent-set and norm hypotheses automatically. -/
 theorem norm_resolventOperator_operatorPath_sub_le_of_spectral_distance
     (A H : Hc →L[ℂ] Hc) (z : ℂ) (delta : ℝ) (hdelta : 0 < delta)
     (I : Set ℝ)
-    (hself : ∀ t ∈ I, IsSelfAdjointOperator (operatorPath A H t))
+    (hself : ∀ t ∈ I, (operatorPath A H t).IsSymmetric)
     (hsep : ∀ t ∈ I, ∀ lam ∈ realSpectrum (operatorPath A H t),
       delta ≤ ‖z - (lam : ℂ)‖)
     {t u : ℝ} (ht : t ∈ I) (hu : u ∈ I) :
@@ -210,7 +213,7 @@ private theorem projection_apply_idempotent
 onto its fixed-point/range subspace. -/
 private theorem projection_fixedSpace_eq
     (P : H →L[ℂ] H) (hP : IsOrthogonalProjection P) :
-    projection (projectionFixedSpace P) = P := by
+    Submodule.starProjection (projectionFixedSpace P) = P := by
   ext x
   apply (projectionFixedSpace P).eq_starProjection_of_mem_of_inner_eq_zero
   · rw [mem_projectionFixedSpace_iff]
@@ -232,15 +235,15 @@ theorem range_equiv_of_projection_norm_lt_one
     (P Q : H →L[ℂ] H)
     (hP : IsOrthogonalProjection P) (hQ : IsOrthogonalProjection Q)
     (hclose : ‖P - Q‖ < 1) :
-    ∃ W : H →L[ℂ] H, IsUnitaryOperator W ∧ W ∘L P = Q ∘L W := by
+    ∃ W : H →L[ℂ] H, TauCeti.LinearPMap.IsUnitaryOperator W ∧ W ∘L P = Q ∘L W := by
   let U : Submodule ℂ H := projectionFixedSpace P
   let V : Submodule ℂ H := projectionFixedSpace Q
-  have hPU : projection U = P := by
+  have hPU : U.starProjection = P := by
     simpa only [U] using projection_fixedSpace_eq P hP
-  have hQV : projection V = Q := by
+  have hQV : V.starProjection = Q := by
     simpa only [V] using projection_fixedSpace_eq Q hQ
   have hacute : IsUniformlyAcute U V := by
-    change ‖projection U - projection V‖ < 1
+    change ‖U.starProjection - V.starProjection‖ < 1
     rw [hPU, hQV]
     exact hclose
   let W : H →L[ℂ] H := complexDirectRotation U V hacute

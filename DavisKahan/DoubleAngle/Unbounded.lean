@@ -5,13 +5,16 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.SpectralTheory.ReflectionRestriction
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Reflection geometry for the unbounded sine-two-theta theorem
 
 The two norm identities that let the reflection construction be read as a statement about
 the complex sine-two-angle operator: reflecting the orthogonal complement of `U` through `V`
 turns the overlap block `U.starProjection ∘L (Uᗮ.map V.reflection).starProjection` — and its
-`subtypeL` presentation — into `sinTwoAngleOperatorC U V`, up to nothing.
+`subtypeL` presentation — into `directedSinTwoAngleOperatorC U V`, up to nothing.
 
 The theorems that use them live in `DavisKahan.DoubleAngle.UnboundedIdeal`, which is also
 where the operator-norm forms now live.  They were proved here until 2026-07-28, at which
@@ -28,7 +31,6 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan
 
-open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 
@@ -44,7 +46,7 @@ theorem norm_starProjection_reflectedComplementary_eq_sinTwoAngle
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     ‖U.starProjection ∘L
         (Uᗮ.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)).starProjection‖ =
-      ‖sinTwoAngleOperatorC U V‖ := by
+      ‖directedSinTwoAngleOperatorC U V‖ := by
   let W := U.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)
   have hperpProjection :
       Wᗮ.starProjection =
@@ -75,10 +77,10 @@ theorem norm_starProjection_reflectedComplementary_eq_sinTwoAngle
         ← ContinuousLinearMap.star_eq_adjoint,
         (isSelfAdjoint_starProjection Wᗮ).star_eq,
         (isSelfAdjoint_starProjection U).star_eq]
-    _ = directedGap U W := rfl
-    _ = subspaceGap U W :=
+    _ = U.directedProjectionGap W := rfl
+    _ = U.projectionGap W :=
       (subspaceGap_eq_directedGap_reflection U V).symm
-    _ = ‖sinTwoAngleOperatorC U V‖ :=
+    _ = ‖directedSinTwoAngleOperatorC U V‖ :=
       subspaceGap_map_reflection_eq_norm_sinTwoAngle U V
 
 /-- The complementary overlap with the reflected complementary subspace is
@@ -89,7 +91,7 @@ theorem norm_reflectedComplementaryOverlap_eq_sinTwoAngle
     [CompleteSpace U] :
     ‖U.subtypeL.adjoint ∘L
         (Uᗮ.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H)).subtypeL‖ =
-      ‖sinTwoAngleOperatorC U V‖ := by
+      ‖directedSinTwoAngleOperatorC U V‖ := by
   rw [norm_adjoint_subtypeL_comp_subtypeL_eq U
     (Uᗮ.map (V.reflection.toLinearEquiv : H →ₗ[ℂ] H))]
   exact norm_starProjection_reflectedComplementary_eq_sinTwoAngle U V

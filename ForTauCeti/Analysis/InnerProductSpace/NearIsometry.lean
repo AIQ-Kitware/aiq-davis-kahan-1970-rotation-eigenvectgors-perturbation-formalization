@@ -21,7 +21,8 @@ public import Mathlib.Analysis.InnerProductSpace.Spectrum
 /-! # A near-isometry is close to a genuine isometry (via the polar factorization)
 
 A linear map `M` on a finite-dimensional real inner product space whose quadratic form
-`x ↦ ⟪M x, M x⟫` is uniformly `δ`-close to `x ↦ ⟪x, x⟫` (with `δ < 1`) factors as `M = W ∘ S`
+`x ↦ ⟪M x, M x⟫` is uniformly `δ`-close to `x ↦ ⟪x, x⟫` (with `δ < 1`)
+factors as `M = W ∘ S`
 with `W` a linear isometry equivalence and `S` a square root of the Gram operator `Mᵀ ∘ M`
 that moves no vector by more than `δ`.  In particular `M` lies within `δ` of the genuine
 isometry `W`: `‖M x - W x‖ ≤ δ * ‖x‖`.
@@ -29,24 +30,27 @@ isometry `W`: `‖M x - W x‖ ≤ δ * ‖x‖`.
 The factorization is the *polar decomposition* `M = W |M|`: `S = (Mᵀ M)^(1/2)` is built
 directly from the orthonormal eigenbasis of the Gram operator
 (`LinearMap.IsSymmetric.eigenvectorBasis`), and `W = M ∘ S⁻¹`.  So the proof uses neither the
-continuous functional calculus nor a singular value decomposition — which is the point of
-having a real, finite-dimensional development at all, since Mathlib registers the continuous
-functional calculus on Hilbert-space operators only over `ℂ`.
+continuous functional calculus nor a singular value decomposition.  This keeps the
+finite-dimensional proof elementary and independent of the bounded-operator
+functional-calculus route.
 
 Exposing the factorization, rather than only the estimate, is what makes the constant sharp.
 Because `W` is an isometry and `M x = W (S x)`,
 
   `‖M x - W x‖ = ‖W (S x) - W x‖ = ‖S x - x‖`,
 
-so the operator estimate *is* the scalar estimate `|√μ - 1| ≤ |μ - 1| ≤ δ` on the eigenvalues
+so the operator estimate *is* the scalar estimate `|√μ - 1| ≤ |μ - 1| ≤ δ` on the
+eigenvalues
 `μ` of the Gram operator (`TauCeti.Real.abs_sqrt_sub_one_le_abs_sub_one`), with no loss.
-Estimating instead through `M ∘ (1 - S⁻¹)` — the route that gives the constant `2 * δ` — pays
+Estimating instead through `M ∘ (1 - S⁻¹)` — the route that gives the constant `2 * δ` —
+pays
 an avoidable `‖M‖ ≤ √(1 + δ)` factor and needs `δ ≤ 1 / 2`.
 
 ## Main results
 
 * `TauCeti.LinearMap.exists_linearIsometryEquiv_comp_polarFactor`: the polar factorization
-  `M = W ∘ S` with `S ∘ S = Mᵀ ∘ M`, `S` symmetric, and `‖S x - x‖ ≤ δ * ‖x‖`.  This is the
+  `M = W ∘ S` with `S ∘ S = Mᵀ ∘ M`, `S` symmetric, and
+  `‖S x - x‖ ≤ δ * ‖x‖`.  This is the
   primary statement; the estimates below are corollaries of it.
 * `TauCeti.LinearMap.exists_linearIsometryEquiv_norm_sub_apply_le` and
   `TauCeti.ContinuousLinearMap.exists_linearIsometryEquiv_norm_sub_apply_le`: the sharp
@@ -58,19 +62,15 @@ an avoidable `‖M‖ ≤ √(1 + δ)` factor and needs `δ ≤ 1 / 2`.
   the form quoted by the downstream paper development and by the challenge comparator; both
   are now one-line corollaries.
 
-## Design note: why an existential here and a definition over `ℂ`
+## Design note: why retain the finite-dimensional factorization
 
-`ForTauCeti/Analysis/InnerProductSpace/PolarIsometry.lean` defines the polar isometry
-*canonically*, as `ContinuousLinearMap.polarIsometryOfIsUnitModulus M = M ∘L Ring.inverse |M|`,
-for arbitrary complex Hilbert spaces and with the same sharp constant; that is the general
-theorem and the
-canonical object.  It cannot be stated over `ℝ` because it needs the operator square root
-`|M| = (M⋆ M)^(1/2)`, which Mathlib provides only through the continuous functional calculus,
-i.e. only over `ℂ`.  Rather than leave the real case with a bare existential, the statement
-here returns the factorization data and pins `S` down by `S ∘ S = Mᵀ ∘ M` together with
-symmetry — the two properties that characterize `S` as the modulus of `M` — so the "canonical
-object" is recoverable from the statement.  If a real operator square root is added upstream,
-this file should be replaced by a specialization of the complex development.
+`ForTauCeti/Analysis/InnerProductSpace/Polar/Isometry.lean` defines the canonical bounded polar
+isometry `ContinuousLinearMap.polarIsometryOfIsUnitModulus M = M ∘L Ring.inverse |M|` over an
+arbitrary `RCLike` field and proves the same sharp estimate without a finite-dimensionality
+assumption.  The theorem here is retained because its conclusion exposes the finite spectral
+factorization data directly: it returns `W` and `S`, with `S ∘ S = Mᵀ ∘ M`, symmetry of `S`,
+and the pointwise square-root estimate.  Downstream finite-dimensional arguments use those
+witnesses, while callers that only need the canonical bounded factor can use `Polar/Isometry.lean`.
 
 ## Scalars: what is open, and what it would cost
 
@@ -128,7 +128,8 @@ private noncomputable def diagonal (b : OrthonormalBasis (Fin d) ℝ E) (c : Fin
     E →ₗ[ℝ] E :=
   b.toBasis.constr ℝ fun j => c j • b j
 
-private theorem diagonal_basis (b : OrthonormalBasis (Fin d) ℝ E) (c : Fin d → ℝ) (k : Fin d) :
+private theorem diagonal_basis (b : OrthonormalBasis (Fin d) ℝ E) (c : Fin d → ℝ)
+    (k : Fin d) :
     diagonal b c (b k) = c k • b k := by
   have := b.toBasis.constr_basis ℝ (fun j => c j • b j) k
   rwa [OrthonormalBasis.coe_toBasis] at this
@@ -166,7 +167,9 @@ private theorem repr_diagonal (b : OrthonormalBasis (Fin d) ℝ E) (c : Fin d �
 
 private theorem isSymmetric_diagonal (b : OrthonormalBasis (Fin d) ℝ E) (c : Fin d → ℝ) :
     (diagonal b c).IsSymmetric := by
-  have key : ∀ u v : E, ⟪diagonal b c u, v⟫_ℝ = ∑ k : Fin d, c k * b.repr u k * b.repr v k := by
+  have key :
+      ∀ u v : E, ⟪diagonal b c u, v⟫_ℝ =
+        ∑ k : Fin d, c k * b.repr u k * b.repr v k := by
     intro u v
     conv_lhs => rw [← b.sum_repr v]
     rw [inner_sum]
@@ -220,7 +223,9 @@ variable {d : ℕ}
 /-- A linear map that preserves the inner products *between the vectors of an orthonormal
 basis* preserves all inner products.  Bilinearity does the rest. -/
 private theorem inner_map_eq_of_inner_basis (b : OrthonormalBasis (Fin d) ℝ E)
-    {W : E →ₗ[ℝ] E} (hW : ∀ j k : Fin d, ⟪W (b j), W (b k)⟫_ℝ = ⟪b j, b k⟫_ℝ) (x y : E) :
+    {W : E →ₗ[ℝ] E}
+    (hW : ∀ j k : Fin d, ⟪W (b j), W (b k)⟫_ℝ = ⟪b j, b k⟫_ℝ)
+    (x y : E) :
     ⟪W x, W y⟫_ℝ = ⟪x, y⟫_ℝ := by
   conv_lhs => rw [← b.sum_repr x, ← b.sum_repr y]
   conv_rhs => rw [← b.sum_repr x, ← b.sum_repr y]
@@ -289,7 +294,8 @@ private theorem inner_basis_of_smul_inv_sqrt {M W : E →ₗ[ℝ] E} {d : ℕ}
     exact (Real.sq_sqrt (le_of_lt (hμpos j))).symm
   · rw [ite_eq_right hjk, b.inner_eq_zero hjk, mul_zero, mul_zero]
 
-/-- An eigenvalue of the Gram operator `Mᵀ ∘ M` at a **unit** eigenvector lies within `δ` of `1`.
+/-- An eigenvalue of the Gram operator `Mᵀ ∘ M` at a **unit** eigenvector lies within
+`δ` of `1`.
 
 This is the quantitative heart of `exists_linearIsometryEquiv_comp_polarFactor`: the hypothesis
 says `M` distorts every quadratic form by at most `δ`, and on an eigenvector that distortion *is*
@@ -312,7 +318,8 @@ all lie within `δ` of `1` — hence are positive, since `δ < 1`.
 This is the entire spectral input to `exists_linearIsometryEquiv_comp_polarFactor`: everything
 after it is the construction of `S = (Mᵀ M)^(1/2)` and `W = M ∘ S⁻¹` from this data. -/
 private theorem exists_orthonormalBasis_gram (M : E →ₗ[ℝ] E) {δ : ℝ} (hδ : δ < 1)
-    (hM : ∀ x : E, |⟪M x, M x⟫_ℝ - ⟪x, x⟫_ℝ| ≤ δ * ⟪x, x⟫_ℝ) {d : ℕ} (hd : finrank ℝ E = d) :
+    (hM : ∀ x : E, |⟪M x, M x⟫_ℝ - ⟪x, x⟫_ℝ| ≤ δ * ⟪x, x⟫_ℝ)
+    {d : ℕ} (hd : finrank ℝ E = d) :
     ∃ (b : OrthonormalBasis (Fin d) ℝ E) (μ : Fin d → ℝ),
       (∀ k, ⟪b k, b k⟫_ℝ = 1) ∧ (∀ k, (M.adjoint * M) (b k) = μ k • b k) ∧
         (∀ k, |μ k - 1| ≤ δ) ∧ ∀ k, 0 < μ k := by
@@ -339,7 +346,8 @@ Preserving inner products gives an isometry, hence injectivity; finite dimension
 to surjectivity, which is the only place `exists_linearIsometryEquiv_comp_polarFactor` needs
 `E` to be finite-dimensional beyond the eigenbasis. -/
 private theorem exists_linearIsometryEquiv_coe_eq {W : E →ₗ[ℝ] E}
-    (hW : ∀ x y : E, ⟪W x, W y⟫_ℝ = ⟪x, y⟫_ℝ) : ∃ U : E ≃ₗᵢ[ℝ] E, ∀ x, U x = W x := by
+    (hW : ∀ x y : E, ⟪W x, W y⟫_ℝ = ⟪x, y⟫_ℝ) :
+    ∃ U : E ≃ₗᵢ[ℝ] E, ∀ x, U x = W x := by
   have hcoe : ⇑(W.isometryOfInner hW) = ⇑W := W.coe_isometryOfInner hW
   have hsurj : Function.Surjective (W.isometryOfInner hW) := by
     rw [hcoe]
@@ -349,7 +357,8 @@ private theorem exists_linearIsometryEquiv_coe_eq {W : E →ₗ[ℝ] E}
 
 /-- **Polar factorization of a near-isometry.**  If the quadratic form of a linear map `M` on a
 finite-dimensional real inner product space is uniformly `δ`-close to the identity quadratic
-form (`|⟪M x, M x⟫ - ⟪x, x⟫| ≤ δ * ⟪x, x⟫`, with `δ < 1`), then `M` factors as `M = W ∘ S`
+form (`|⟪M x, M x⟫ - ⟪x, x⟫| ≤ δ * ⟪x, x⟫`, with `δ < 1`), then `M` factors
+as `M = W ∘ S`
 where
 
 * `W` is a linear isometry equivalence of `E`,
@@ -357,7 +366,8 @@ where
 * `S` moves no vector by more than `δ`: `‖S x - x‖ ≤ δ * ‖x‖`.
 
 `S` is built from the orthonormal eigenbasis of the Gram operator `Mᵀ ∘ M`, rescaling the
-`k`-th eigenvector by `√(μ k)`; `W = M ∘ S⁻¹` is an isometry because `⟪M b_j, M b_k⟫ = μ_j δ_jk`
+`k`-th eigenvector by `√(μ k)`; `W = M ∘ S⁻¹` is an isometry because
+`⟪M b_j, M b_k⟫ = μ_j δ_jk`
 on that basis.  Since the two stated properties of `S` determine it (a symmetric square root of
 `Mᵀ M` that is close to the identity is *the* positive square root), this statement exposes the
 canonical polar factor rather than an arbitrary witness — see the module docstring for why the
@@ -458,7 +468,8 @@ namespace ContinuousLinearMap
 hypothesis, by Cauchy--Schwarz. -/
 private theorem abs_inner_sub_le_of_norm_adjoint_mul_self_sub_one_le (M : E →L[ℝ] E) {δ : ℝ}
     (hM : ‖ContinuousLinearMap.adjoint M * M - 1‖ ≤ δ) (x : E) :
-    |⟪(M : E →ₗ[ℝ] E) x, (M : E →ₗ[ℝ] E) x⟫_ℝ - ⟪x, x⟫_ℝ| ≤ δ * ⟪x, x⟫_ℝ := by
+    |⟪(M : E →ₗ[ℝ] E) x, (M : E →ₗ[ℝ] E) x⟫_ℝ - ⟪x, x⟫_ℝ| ≤
+      δ * ⟪x, x⟫_ℝ := by
   have hid : ⟪(ContinuousLinearMap.adjoint M * M - 1) x, x⟫_ℝ
       = ⟪(M : E →ₗ[ℝ] E) x, (M : E →ₗ[ℝ] E) x⟫_ℝ - ⟪x, x⟫_ℝ := by
     rw [sub_apply, mul_apply_eq_comp, one_apply_eq_self, inner_sub_left,
@@ -474,16 +485,18 @@ private theorem abs_inner_sub_le_of_norm_adjoint_mul_self_sub_one_le (M : E →L
     _ = δ * ⟪x, x⟫_ℝ := by rw [real_inner_self_eq_norm_mul_norm]; ring
 
 /-- **The sharp near-isometry estimate, operator-norm form.**  If a continuous linear map `M` on
-a finite-dimensional real inner product space satisfies `‖Mᵀ M - 1‖ ≤ δ` with `δ < 1`, then `M`
+a finite-dimensional real inner product space satisfies `‖Mᵀ M - 1‖ ≤ δ` with `δ < 1`,
+then `M`
 lies within `δ` of a genuine linear isometry equivalence.
 
 See `ContinuousLinearMap.norm_sub_polarIsometryOfIsUnitModulus_le` in
-`ForTauCeti/Analysis/InnerProductSpace/PolarIsometry.lean` for the version over arbitrary
-complex Hilbert spaces, which additionally names the isometry. -/
+`ForTauCeti/Analysis/InnerProductSpace/Polar/Isometry.lean` for the version over arbitrary
+`RCLike` Hilbert spaces, which additionally names the isometry. -/
 theorem exists_linearIsometryEquiv_norm_sub_apply_le (M : E →L[ℝ] E) {δ : ℝ} (hδ : δ < 1)
     (hM : ‖ContinuousLinearMap.adjoint M * M - 1‖ ≤ δ) :
     ∃ W : E ≃ₗᵢ[ℝ] E, ∀ x : E, ‖M x - W x‖ ≤ δ * ‖x‖ := by
-  obtain ⟨W, hW⟩ := LinearMap.exists_linearIsometryEquiv_norm_sub_apply_le (M : E →ₗ[ℝ] E) hδ
+  obtain ⟨W, hW⟩ :=
+    LinearMap.exists_linearIsometryEquiv_norm_sub_apply_le (M : E →ₗ[ℝ] E) hδ
     (abs_inner_sub_le_of_norm_adjoint_mul_self_sub_one_le M hM)
   exact ⟨W, fun x => by simpa using hW x⟩
 

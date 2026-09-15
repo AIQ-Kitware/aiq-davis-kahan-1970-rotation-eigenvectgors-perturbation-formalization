@@ -9,6 +9,8 @@ import ForTauCeti.Analysis.InnerProductSpace.BorelCalculus.AlmostInvariant
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.PrescribedSequence
 import ForTauCeti.Analysis.SpecialFunctions.TanArcsin
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Theorem 6.3 with an infinite-dimensional trial space
 
@@ -57,7 +59,7 @@ open scoped InnerProductSpace BigOperators
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactTanTheta
+namespace TanTheta
 
 open ExactSinTheta
 open Module (finrank)
@@ -272,8 +274,8 @@ theorem exists_finiteDimensional_superset_leak
   have hTsa : IsSelfAdjoint T :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hT
   have hMsa : IsSelfAdjoint (theorem63Compression T Z) := by
-    simpa [theorem63Compression, DavisKahanExt.compressOperator] using
-      DavisKahanExt.isSelfAdjoint_compressOperator hTsa Z
+    simpa [theorem63Compression, DavisKahan.Sylvester.compressOperator] using
+      DavisKahan.Sylvester.isSelfAdjoint_compressOperator hTsa Z
   have : FiniteDimensional ℂ (F₀.comap Z.subtype) :=
     LinearEquiv.finiteDimensional (Submodule.comapSubtypeEquivOfLe hF₀Z).symm
   obtain ⟨F', hF'fin, hF₀'F', hleak'⟩ :=
@@ -654,8 +656,8 @@ theorem theorem6_3_infiniteTrial_of_formBounds
     (hResidual : N.Mem (theorem63Residual T Z)) :
     N.Mem tanTheta0 ∧
       delta * N.gauge tanTheta0 ≤ N.gauge (theorem63Residual T Z) := by
-  refine ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta
-    hResidual fun k => ?_
+  refine ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le
+    N.toFanDominantIdealFamily hdelta hResidual fun k => ?_
   have hcore := theorem6_3_all_kyFan_core_infiniteTrial T V Z hT hV hdelta
     hCompressionUpper hUnwantedLower k
   have hKyTan : kyFanApproximationGauge k tanTheta0 =
@@ -773,7 +775,7 @@ instance binder, but `theorem63DirectedSineBlock` does not depend on it and neit
 does the body, so the two definitions unfold to one another.  Consequently the
 finite-dimensional trial hypothesis is not part of what the source condition *says*; it
 only restricts where the condition can be *stated*.  This is what lets
-`theorem6_3_infiniteTrial_source_ideal` below subsume the finite-trial source facade. -/
+`theorem6_3_infiniteTrial_ideal` below subsume the finite-trial source facade. -/
 theorem hasTheorem63DirectedTangentApproximationNumbers_iff_infinite
     (Z V : Submodule ℂ H) [Z.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     [FiniteDimensional ℂ Z] (tanTheta0 : Z →L[ℂ] H) :
@@ -791,7 +793,7 @@ quantified over exactly as the paper quantifies it ("let `sin Θ₀` be *any* op
 singular values are the same as those of `E₀*F₁`"), and the conclusion is
 `δ ‖tan Θ₀‖ ≤ ‖R‖` in every Fan-dominant unitarily invariant ideal family.
 
-Unlike `theorem6_3_generalizedTanTheta_source_ideal`, the trial coordinate space carries
+Unlike `theorem6_3_generalizedTanTheta_ideal`, the trial coordinate space carries
 **no** finite-dimensionality typeclass: `[CompleteSpace Z]` is the only structure
 assumed, and it already follows from `[Z.HasOrthogonalProjection]` with `H` complete.
 
@@ -801,7 +803,7 @@ core holds at every relative dimension.  The strict-dimension binder in the fini
 chain was already inert — `theorem6_3_generalizedTanTheta_of_formBounds` binds it as
 `_hStrictDimension` and never uses it.  Dropping an unused hypothesis strengthens the
 statement; it does not narrow it. -/
-theorem theorem6_3_infiniteTrial_source_ideal
+theorem theorem6_3_infiniteTrial_ideal
     (N : ExactSinTheta.KyFanDominantIdealFamily (𝕜 := ℂ))
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
     (V Z : Submodule ℂ H) [V.HasOrthogonalProjection] [Z.HasOrthogonalProjection]
@@ -821,28 +823,28 @@ theorem theorem6_3_infiniteTrial_source_ideal
   have hTsa : IsSelfAdjoint T :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hT
   have hMsa : IsSelfAdjoint (theorem63Compression T Z) := by
-    simpa [theorem63Compression, DavisKahanExt.compressOperator] using
-      DavisKahanExt.isSelfAdjoint_compressOperator hTsa Z
+    simpa [theorem63Compression, DavisKahan.Sylvester.compressOperator] using
+      DavisKahan.Sylvester.isSelfAdjoint_compressOperator hTsa Z
   have hCompressionUpper : ∀ z : Z,
       RCLike.re ⟪theorem63Compression T Z z, z⟫_ℂ ≤ alpha * ‖z‖ ^ 2 := by
     intro z
-    refine SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+    refine SpectralOrder.re_inner_le_of_spectrum_subset_Iic
       (theorem63Compression T Z) hMsa ?_ z
     intro r hr
     exact (hCompressionSpectrum hr).2
   have hUnwantedLower : ∀ y ∈ Vᗮ,
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ := fun y hy =>
-    SpectralOrder.Complex.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
+    SpectralOrder.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
       hT (hV.orthogonalComplement).1 hUnwantedSpectrum hy
   exact theorem6_3_infiniteTrial_of_formBounds N T hT V Z hV hdelta
     hCompressionUpper hUnwantedLower tanTheta0 htan hResidual
 
 /-- The finite-trial source facade
-`theorem6_3_generalizedTanTheta_source_ideal` is subsumed: its
+`theorem6_3_generalizedTanTheta_ideal` is subsumed: its
 `[FiniteDimensional ℂ Z]` instance and its strict-rank hypothesis are both discardable,
 and its tangent hypothesis is definitionally the arbitrary-trial one.  Stating that
 collapse as a theorem keeps it machine-checked rather than asserted in prose. -/
-theorem theorem6_3_generalizedTanTheta_source_ideal_of_infiniteTrial
+theorem theorem6_3_generalizedTanTheta_ideal_of_infiniteTrial
     (N : ExactSinTheta.KyFanDominantIdealFamily (𝕜 := ℂ))
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
     (V Z : Submodule ℂ H) [V.HasOrthogonalProjection]
@@ -860,7 +862,7 @@ theorem theorem6_3_generalizedTanTheta_source_ideal_of_infiniteTrial
     (hResidual : N.Mem (theorem63Residual T Z)) :
     N.Mem tanTheta0 ∧
       delta * N.gauge tanTheta0 ≤ N.gauge (theorem63Residual T Z) :=
-  theorem6_3_infiniteTrial_source_ideal N T hT V Z hV hbetaalpha hdelta
+  theorem6_3_infiniteTrial_ideal N T hT V Z hV hbetaalpha hdelta
     hCompressionSpectrum hUnwantedSpectrum tanTheta0 htan hResidual
 
 /-- **Theorem 6.3 at ideal-gauge scope and arbitrary trial dimension, in the source's
@@ -888,22 +890,22 @@ theorem theorem6_3_infiniteTrial_spectral_exists
   have hTsa : IsSelfAdjoint T :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hT
   have hMsa : IsSelfAdjoint (theorem63Compression T Z) := by
-    simpa [theorem63Compression, DavisKahanExt.compressOperator] using
-      DavisKahanExt.isSelfAdjoint_compressOperator hTsa Z
+    simpa [theorem63Compression, DavisKahan.Sylvester.compressOperator] using
+      DavisKahan.Sylvester.isSelfAdjoint_compressOperator hTsa Z
   have hCompressionUpper : ∀ z : Z,
       RCLike.re ⟪theorem63Compression T Z z, z⟫_ℂ ≤ alpha * ‖z‖ ^ 2 := by
     intro z
-    refine SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+    refine SpectralOrder.re_inner_le_of_spectrum_subset_Iic
       (theorem63Compression T Z) hMsa ?_ z
     intro r hr
     exact (hCompressionSpectrum hr).2
   have hUnwantedLower : ∀ y ∈ Vᗮ,
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ := fun y hy =>
-    SpectralOrder.Complex.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
+    SpectralOrder.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
       hT (hV.orthogonalComplement).1 hUnwantedSpectrum hy
   exact theorem6_3_infiniteTrial_of_formBounds_exists N T hT V Z hV hdelta
     hCompressionUpper hUnwantedLower hResidual
 
-end ExactTanTheta
+end TanTheta
 end DavisKahan
 end TauCeti

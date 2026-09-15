@@ -8,6 +8,8 @@ import DavisKahan.SinTheta.Unbounded.SpectrumGap
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Constructions
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Bounded-perturbation adapter for the unbounded sine-theta theorem
 
@@ -57,12 +59,12 @@ theorem toLinearPMap_addBounded_eq_perturbedOp
   intro x hx hy
   rfl
 
-/-- Bounded Kato--Rellich for the DK closed-operator wrapper, proved through
-its canonical `LinearPMap` representation. -/
+/-- Bounded Kato--Rellich: a bounded self-adjoint perturbation of a self-adjoint
+partial map is self-adjoint on the same domain. -/
 theorem addBounded_isSelfAdjoint
     (A : H →ₗ.[𝕜] H)
     (hA : IsSelfAdjoint A)
-    (V : H →L[𝕜] H) (hV : IsSelfAdjointOperator V) :
+    (V : H →L[𝕜] H) (hV : V.IsSymmetric) :
     _root_.IsSelfAdjoint (TauCeti.LinearPMap.addBounded A V) := by
   have hV' : _root_.IsSelfAdjoint V :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hV
@@ -141,7 +143,7 @@ self-adjoint restricted operators, their domain-aware intertwining maps, and
 the interval/exterior spectral hypotheses. -/
 theorem sinTheta_addBounded_opNorm_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (A₀ : F →ₗ.[ℂ] F) (hA₀ : IsSelfAdjoint A₀)
     (Λ₁ : G →ₗ.[ℂ] G) (hΛ₁ : IsSelfAdjoint Λ₁)
     (X : F →L[ℂ] H) (F₁ : G →L[ℂ] H)
@@ -177,7 +179,7 @@ theorem sinTheta_addBounded_opNorm_of_spectrum_gap
 `sinTheta_addBounded_opNorm_of_spectrum_gap`. -/
 theorem sinTheta_addBounded_opNorm_of_spectrum_gap_isometric
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (A₀ : F →ₗ.[ℂ] F) (hA₀ : IsSelfAdjoint A₀)
     (Λ₁ : G →ₗ.[ℂ] G) (hΛ₁ : IsSelfAdjoint Λ₁)
     (X : F →L[ℂ] H) (F₁ : G →L[ℂ] H)
@@ -204,7 +206,7 @@ theorem sinTheta_addBounded_opNorm_of_spectrum_gap_isometric
 perturbed spectral-range Stone generators. -/
 noncomputable def spectralBoundedPerturbationSinThetaData
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (B T : Set ℝ) (hB : MeasurableSet B) (hT : MeasurableSet T) :
     UnboundedSinThetaData (𝕜 := ℂ) (E := H)
       (F := selfAdjointSpectralSubspace A hA B hB)
@@ -230,7 +232,7 @@ only spectral localization facts about the two canonical restricted
 operators. -/
 theorem sinTheta_addBounded_spectralSubspaces_opNorm_of_spectrum_gap
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (B T : Set ℝ) (hB : MeasurableSet B) (hT : MeasurableSet T)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hA₀low : TauCeti.LinearPMap.SemiboundedBelow
@@ -272,7 +274,7 @@ spectral sets selecting the exact and perturbed subspaces; the spectral
 localization of their Stone generators is discharged internally. -/
 theorem sinTheta_addBounded_spectralSubspaces_opNorm_of_intervalExterior
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (V : H →L[ℂ] H) (hV : IsSelfAdjointOperator V)
+    (V : H →L[ℂ] H) (hV : V.IsSymmetric)
     (B T : Set ℝ) (hB : MeasurableSet B) (hT : MeasurableSet T)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBsub : B ⊆ Set.Icc β α)

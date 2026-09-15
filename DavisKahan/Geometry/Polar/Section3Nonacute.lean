@@ -5,9 +5,15 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 
 import DavisKahan.Geometry.Polar.Section3Elementary
-import DavisKahan.Geometry.Polar.PolarIsometryFinal
 import DavisKahan.Geometry.Polar.PolarIntertwining
 import ForTauCeti.Analysis.Normed.Operator.LinearIsometry
+import ForTauCeti.Analysis.RCLike.ScalarTransportFunctionalCalculus
+
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+  ContinuousLinearMap.instStarOrderedRingRCLike
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Nonacute direct rotations from crossed-defect data
@@ -29,6 +35,7 @@ namespace TauCeti
 namespace DavisKahan
 
 
+
 noncomputable section
 
 universe u
@@ -37,37 +44,27 @@ variable {𝕜 : Type*} [RCLike 𝕜]
 variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
   [CompleteSpace H]
 
-/-! The scalar-action and continuous-functional-calculus hypotheses under which
-the bounded polar decomposition of
-`ForTauCeti/Analysis/InnerProductSpace/Polar/PartialIsometry.lean` is available.
-Typeclass inference discharges all three at `𝕜 = ℂ`, and at `𝕜 = ℝ` through
-`ContinuousLinearMap.instContinuousFunctionalCalculusRealIsSelfAdjoint`, so no
-consumer supplies anything. -/
-variable [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint]
-
-attribute [local instance] ContinuousLinearMap.instStarOrderedRingRCLike
 
 variable (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
   [V.HasOrthogonalProjection]
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)] in
+omit [CompleteSpace H] in
 private theorem projection_mul_projection_eq_zero_of_le_orthogonal
     (K L : Submodule 𝕜 H) [K.HasOrthogonalProjection]
     [L.HasOrthogonalProjection] (hKL : K ≤ Lᗮ) :
-    projection L * projection K = 0 := by
+    L.starProjection * K.starProjection = 0 := by
   ext x
-  have hxK : projection K x ∈ K := K.starProjection_apply_mem x
-  have hxOrth : projection K x ∈ Lᗮ := hKL hxK
+  have hxK : K.starProjection x ∈ K := K.starProjection_apply_mem x
+  have hxOrth : K.starProjection x ∈ Lᗮ := hKL hxK
   rw [mul_apply_eq_comp, zero_apply,
     Submodule.starProjection_apply_eq_zero_iff]
   exact hxOrth
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)] in
+omit [CompleteSpace H] in
 private theorem projection_mul_projection_eq_zero_of_ge_orthogonal
     (K L : Submodule 𝕜 H) [K.HasOrthogonalProjection]
     [L.HasOrthogonalProjection] (hKL : K ≤ Lᗮ) :
-    projection K * projection L = 0 := by
+    K.starProjection * L.starProjection = 0 := by
   have hLK : L ≤ Kᗮ := by
     intro x hx y hy
     exact inner_eq_zero_symm.mp (hKL hy x hx)
@@ -87,11 +84,11 @@ noncomputable instance crossedDefectSum_hasOrthogonalProjection :
 
 /-- Projection onto the crossed-defect block. -/
 noncomputable def crossedDefectProjection : H →L[𝕜] H :=
-  projection (crossedDefectSum U V)
+  Submodule.starProjection (crossedDefectSum U V)
 
 /-- Projection onto the regular block complementary to the crossed defects. -/
 noncomputable def regularProjection : H →L[𝕜] H :=
-  complementaryProjection (crossedDefectSum U V)
+  Submodule.starProjection ((crossedDefectSum U V)ᗮ)
 
 /-- Inclusion--transport--projection operator from the source defect to the
 target defect. -/
@@ -118,9 +115,7 @@ noncomputable def crossedDefectQuarterTurn
     H →L[𝕜] H :=
   sourceToTargetDefect U V J - targetToSourceDefect U V J
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)]
-  [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
+omit [CompleteSpace H] in
 @[simp]
 private theorem ofEq_orthogonalProjectionOnto
     {K L : Submodule 𝕜 H} [K.HasOrthogonalProjection]
@@ -155,8 +150,6 @@ noncomputable def orthogonalCrossedDefectEquiv
         simp only [halmosSourceDefect, halmosTargetDefect,
           Submodule.orthogonal_orthogonal]))
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The crossed defect map on a source vector. -/
 @[simp]
 theorem sourceToTargetDefect_apply_source
@@ -166,8 +159,6 @@ theorem sourceToTargetDefect_apply_source
   simp [sourceToTargetDefect,
     Submodule.orthogonalProjectionOnto_mem_subspace_eq_self]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The crossed defect map on a target vector. -/
 @[simp]
 theorem targetToSourceDefect_apply_target
@@ -177,8 +168,6 @@ theorem targetToSourceDefect_apply_target
   simp [targetToSourceDefect,
     Submodule.orthogonalProjectionOnto_mem_subspace_eq_self]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The source-to-target defect annihilates target vectors -- the *crossed* half of the name, and
 what makes the two defects act on complementary summands. -/
 @[simp]
@@ -192,8 +181,6 @@ theorem sourceToTargetDefect_apply_target
   simp [sourceToTargetDefect,
     Submodule.orthogonalProjectionOnto_eq_zero_iff.mpr hy]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The target-to-source defect annihilates source vectors. -/
 @[simp]
 theorem targetToSourceDefect_apply_source
@@ -205,8 +192,6 @@ theorem targetToSourceDefect_apply_source
   simp [targetToSourceDefect,
     Submodule.orthogonalProjectionOnto_eq_zero_iff.mpr hx]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The quarter turn sends a source vector to its target-side defect. -/
 @[simp]
 theorem crossedDefectQuarterTurn_apply_source
@@ -215,8 +200,6 @@ theorem crossedDefectQuarterTurn_apply_source
     crossedDefectQuarterTurn U V J (x : H) = (J x : H) := by
   simp [crossedDefectQuarterTurn]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The quarter turn sends a target vector to the negative of its source-side defect; the sign is
 what makes it a quarter turn rather than a reflection. -/
 @[simp]
@@ -226,8 +209,6 @@ theorem crossedDefectQuarterTurn_apply_target
     crossedDefectQuarterTurn U V J (y : H) = -(J.symm y : H) := by
   simp [crossedDefectQuarterTurn]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The quarter-turn vanishes on the regular block. -/
 theorem crossedDefectQuarterTurn_apply_regular
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V)
@@ -242,8 +223,6 @@ theorem crossedDefectQuarterTurn_apply_regular
     Submodule.orthogonalProjectionOnto_eq_zero_iff.mpr hxS,
     Submodule.orthogonalProjectionOnto_eq_zero_iff.mpr hxT]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The two directional defect transports are adjoints. -/
 theorem star_sourceToTargetDefect
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
@@ -258,8 +237,6 @@ theorem star_sourceToTargetDefect
     ← Submodule.inner_orthogonalProjectionOnto_eq_of_mem_right,
     LinearIsometryEquiv.inner_map_eq_flip]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The crossed-defect quarter-turn is skew-adjoint. -/
 theorem star_crossedDefectQuarterTurn
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
@@ -271,8 +248,6 @@ theorem star_crossedDefectQuarterTurn
   rw [h2]
   abel
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- Reversing the ordered pair and the chosen crossed-defect isometry negates
 the defect quarter turn. -/
 theorem crossedDefectQuarterTurn_swap
@@ -284,8 +259,6 @@ theorem crossedDefectQuarterTurn_swap
   simp [crossedDefectQuarterTurn, sourceToTargetDefect, targetToSourceDefect,
     swapCrossedDefectEquiv, halmosSourceDefect, halmosTargetDefect]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- Initial and final projection of the defect quarter-turn. -/
 theorem star_crossedDefectQuarterTurn_mul_self
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
@@ -306,7 +279,7 @@ theorem star_crossedDefectQuarterTurn_mul_self
     crossedDefectQuarterTurn_apply_regular U V J hr
   have hQx : crossedDefectQuarterTurn U V J x =
       (J ⟨s, hs⟩ : H) - (J.symm ⟨t, ht⟩ : H) := by
-    simp only [hxr, map_add, map_add, hQr, add_zero,
+    simp only [hxr, map_add, hQr, add_zero,
       show crossedDefectQuarterTurn U V J s = (J ⟨s, hs⟩ : H) from
         crossedDefectQuarterTurn_apply_source U V J ⟨s, hs⟩,
       show crossedDefectQuarterTurn U V J t = -(J.symm ⟨t, ht⟩ : H) from
@@ -328,37 +301,37 @@ theorem star_crossedDefectQuarterTurn_mul_self
   rw [mul_apply_eq_comp, star_crossedDefectQuarterTurn,
     neg_apply, hQQx, neg_neg, hproj]
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)] in
+omit [CompleteSpace H] in
 /-- The canonical intertwiner vanishes on the source defect. -/
 theorem canonicalIntertwiner_apply_sourceDefect_eq_zero
     (x : halmosSourceDefect U V) :
     spectraCanonicalIntertwiner U V (x : H) = 0 := by
   obtain ⟨hPx, hQperpx⟩ := mem_halmosSourceDefect.mp x.property
-  have hP : projection U (x : H) = x :=
+  have hP : U.starProjection (x : H) = x :=
     Submodule.starProjection_eq_self_iff.mpr hPx
-  have hQ : projection V (x : H) = 0 :=
+  have hQ : V.starProjection (x : H) = 0 :=
     (Submodule.starProjection_apply_eq_zero_iff _).mpr hQperpx
-  have hPc : complementaryProjection U (x : H) = 0 := by
-    simp [complementaryProjection, hP]
+  have hPc : (Uᗮ).starProjection (x : H) = 0 := by
+    simp [hP]
   simp [spectraCanonicalIntertwiner, hP, hQ, hPc]
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)] in
+omit [CompleteSpace H] in
 /-- The canonical intertwiner vanishes on the target defect. -/
 theorem canonicalIntertwiner_apply_targetDefect_eq_zero
     (x : halmosTargetDefect U V) :
     spectraCanonicalIntertwiner U V (x : H) = 0 := by
   obtain ⟨hPperpx, hQx⟩ := mem_halmosTargetDefect.mp x.property
-  have hP : projection U (x : H) = 0 :=
+  have hP : U.starProjection (x : H) = 0 :=
     (Submodule.starProjection_apply_eq_zero_iff _).mpr hPperpx
-  have hPc : complementaryProjection U (x : H) = x := by
-    simp [complementaryProjection, hP]
-  have hQc : complementaryProjection V (x : H) = 0 := by
-    have hQ : projection V (x : H) = x :=
+  have hPc : (Uᗮ).starProjection (x : H) = x := by
+    simp [hP]
+  have hQc : (Vᗮ).starProjection (x : H) = 0 := by
+    have hQ : V.starProjection (x : H) = x :=
       Submodule.starProjection_eq_self_iff.mpr hQx
-    simp [complementaryProjection, hQ]
+    simp [hQ]
   simp [spectraCanonicalIntertwiner, hP, hPc, hQc]
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)] in
+omit [CompleteSpace H] in
 /-- The kernel of the canonical intertwiner is exactly the crossed-defect sum. -/
 theorem ker_canonicalIntertwiner_eq_crossedDefectSum :
     LinearMap.ker (spectraCanonicalIntertwiner U V).toLinearMap =
@@ -368,13 +341,13 @@ theorem ker_canonicalIntertwiner_eq_crossedDefectSum :
   · intro hx
     have hzero := congrArg (fun y => ‖y‖ * ‖y‖) hx
     have horth :
-        ⟪projection V (projection U x),
-          complementaryProjection V (complementaryProjection U x)⟫_𝕜 = 0 := by
+        ⟪V.starProjection (U.starProjection x),
+          (Vᗮ).starProjection ((Uᗮ).starProjection x)⟫_𝕜 = 0 := by
       exact Submodule.inner_right_of_mem_orthogonal
         (V.starProjection_apply_mem _) (Vᗮ.starProjection_apply_mem _)
     have hsumzero :
-        projection V (projection U x) = 0 ∧
-        complementaryProjection V (complementaryProjection U x) = 0 := by
+        V.starProjection (U.starProjection x) = 0 ∧
+        (Vᗮ).starProjection ((Uᗮ).starProjection x) = 0 := by
       have hsquares :=
         norm_add_sq_eq_norm_sq_add_norm_sq_of_inner_eq_zero _ _ horth
       rw [spectraCanonicalIntertwiner, ContinuousLinearMap.coe_coe,
@@ -385,8 +358,8 @@ theorem ker_canonicalIntertwiner_eq_crossedDefectSum :
           (by simpa using hzero)
         |>.imp (fun h => by simpa [mul_self_eq_zero] using h)
                (fun h => by simpa [mul_self_eq_zero] using h)
-    let s : H := projection U x
-    let t : H := complementaryProjection U x
+    let s : H := U.starProjection x
+    let t : H := (Uᗮ).starProjection x
     have hsU : s ∈ U := U.starProjection_apply_mem x
     have hsVperp : s ∈ Vᗮ :=
       (Submodule.starProjection_apply_eq_zero_iff _).mp hsumzero.1
@@ -411,31 +384,30 @@ theorem ker_canonicalIntertwiner_eq_crossedDefectSum :
       canonicalIntertwiner_apply_targetDefect_eq_zero U V ⟨t, ht⟩, add_zero]
 
 /-- The polar initial space is the regular block. -/
-theorem polarRange_canonicalIntertwiner_eq_regular :
-    polarRange
-        (spectraCanonicalIntertwiner U V) =
+theorem polarInitial_canonicalIntertwiner_eq_regular :
+    (spectraCanonicalIntertwiner U V).polarInitial =
       (crossedDefectSum U V)ᗮ := by
-  have hker : LinearMap.ker (absOp
-      (spectraCanonicalIntertwiner U V)).toLinearMap = crossedDefectSum U V := by
+  have hker : LinearMap.ker ((spectraCanonicalIntertwiner U V).modulus).toLinearMap =
+      crossedDefectSum U V := by
     rw [← ker_canonicalIntertwiner_eq_crossedDefectSum U V]
     ext y
     simp only [LinearMap.mem_ker, ContinuousLinearMap.coe_coe]
     constructor
     · intro hy
-      have hn := norm_absOp_apply
+      have hn := ContinuousLinearMap.norm_modulus_apply
         (spectraCanonicalIntertwiner U V) y
       rw [hy, norm_zero, eq_comm, norm_eq_zero] at hn
       exact hn
     · intro hy
-      have hn := norm_absOp_apply
+      have hn := ContinuousLinearMap.norm_modulus_apply
         (spectraCanonicalIntertwiner U V) y
       rw [hy, norm_zero, norm_eq_zero] at hn
       exact hn
-  simp only [polarRange, ContinuousLinearMap.polarInitial,
+  simp only [ContinuousLinearMap.polarInitial,
     ← Submodule.orthogonal_orthogonal_eq_closure,
     ContinuousLinearMap.orthogonal_range,
     ← ContinuousLinearMap.star_eq_adjoint,
-    (absOp_isSelfAdjoint
+    (ContinuousLinearMap.modulus_isSelfAdjoint
       (spectraCanonicalIntertwiner U V)).star_eq,
     hker]
 
@@ -443,21 +415,17 @@ theorem polarRange_canonicalIntertwiner_eq_regular :
 theorem canonicalPolarFactor_apply_crossedDefect_eq_zero
     {x : H} (hx : x ∈ crossedDefectSum U V) :
     spectraCanonicalPolarFactor U V x = 0 := by
-  have hxperp : x ∈ (polarRange
-      (spectraCanonicalIntertwiner U V))ᗮ := by
-    rw [polarRange_canonicalIntertwiner_eq_regular U V]
+  have hxperp : x ∈ (spectraCanonicalIntertwiner U V).polarInitialᗮ := by
+    rw [polarInitial_canonicalIntertwiner_eq_regular U V]
     exact Submodule.le_orthogonal_orthogonal (crossedDefectSum U V) hx
-  rw [spectraCanonicalPolarFactor, spectraPolarIsometry_eq_polarPartial]
+  rw [spectraCanonicalPolarFactor]
   exact ContinuousLinearMap.polarPartial_eq_zero_of_mem_orthogonal _ hxperp
 
-omit [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] [Algebra ℝ (H →L[𝕜] H)]
-  [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)] in
 /-- The final range of the canonical intertwiner is the regular block. -/
-theorem polarFinalRange_canonicalIntertwiner_eq_regular :
-    polarFinalRange
-        (spectraCanonicalIntertwiner U V) =
+theorem polarFinal_canonicalIntertwiner_eq_regular :
+    (spectraCanonicalIntertwiner U V).polarFinal =
       (crossedDefectSum U V)ᗮ := by
-  simp only [polarFinalRange, ContinuousLinearMap.polarFinal,
+  simp only [ContinuousLinearMap.polarFinal,
     ← Submodule.orthogonal_orthogonal_eq_closure,
     ContinuousLinearMap.orthogonal_range,
     ← ContinuousLinearMap.star_eq_adjoint,
@@ -475,28 +443,24 @@ theorem canonicalPolarFactor_initial_final_projection :
     spectraCanonicalPolarFactor U V *
         star (spectraCanonicalPolarFactor U V) = regularProjection U V := by
   constructor
-  · have h := polarIsometry_adjoint_comp_self
+  · have h := ContinuousLinearMap.adjoint_comp_polarPartial
       (spectraCanonicalIntertwiner U V)
-    simp only [polarRange_canonicalIntertwiner_eq_regular U V] at h
+    simp only [polarInitial_canonicalIntertwiner_eq_regular U V] at h
     rw [ContinuousLinearMap.star_eq_adjoint]
     exact h
-  · have h := polarIsometry_comp_adjoint_self
+  · have h := ContinuousLinearMap.polarPartial_comp_adjoint
       (spectraCanonicalIntertwiner U V)
-    simp only [polarFinalRange_canonicalIntertwiner_eq_regular U V] at h
+    simp only [polarFinal_canonicalIntertwiner_eq_regular U V] at h
     rw [ContinuousLinearMap.star_eq_adjoint]
     exact h
 
 /-- The polar factor maps the regular block into itself. -/
 theorem canonicalPolarFactor_mem_regular (x : H) :
     spectraCanonicalPolarFactor U V x ∈ (crossedDefectSum U V)ᗮ := by
-  rw [← polarFinalRange_canonicalIntertwiner_eq_regular U V]
-  exact polarPartial_mem_finalRange
-    (spectraCanonicalIntertwiner U V)
-    ((polarRange
-      (spectraCanonicalIntertwiner U V)).orthogonalProjectionOnto x)
+  rw [← polarFinal_canonicalIntertwiner_eq_regular U V,
+    ContinuousLinearMap.polarFinal_eq_range_polarPartial]
+  exact ⟨x, rfl⟩
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- **The crossed quarter-turn lands in the crossed defect sum.**
 
 Its two summands are the images of the source and target defect projections.
@@ -548,8 +512,6 @@ theorem canonicalPolarFactor_orthogonal_defectQuarterTurn
     simpa [star_mul] using h
   exact ⟨hfirst, hsecond, hthird, hfourth⟩
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The quarter-turn has the same initial and final defect projection. -/
 theorem crossedDefectQuarterTurn_mul_star_self
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
@@ -563,8 +525,8 @@ theorem crossedDefectQuarterTurn_mul_star_self
 /-- The canonical polar factor intertwines the two projections without an
 acuteness assumption. -/
 theorem canonicalPolarFactor_intertwines_general :
-    spectraCanonicalPolarFactor U V * projection U =
-      projection V * spectraCanonicalPolarFactor U V := by
+    spectraCanonicalPolarFactor U V * U.starProjection =
+      V.starProjection * spectraCanonicalPolarFactor U V := by
   simpa [ContinuousLinearMap.mul_def] using
     canonicalPolarFactor_intertwines_from_polar U V
 
@@ -572,12 +534,12 @@ theorem canonicalPolarFactor_intertwines_general :
 crossed defects are exactly the kernel of `C`, hence of `|C|`. -/
 theorem canonicalAbsoluteValue_apply_crossedDefect_eq_zero
     {x : H} (hx : x ∈ crossedDefectSum U V) :
-    spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) x = 0 := by
+    ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) x = 0 := by
   have hCx : spectraCanonicalIntertwiner U V x = 0 := by
     have hmem : x ∈ LinearMap.ker (spectraCanonicalIntertwiner U V).toLinearMap := by
       rw [ker_canonicalIntertwiner_eq_crossedDefectSum]; exact hx
     exact hmem
-  have hnorm := norm_spectraOperatorAbsoluteValue_apply (spectraCanonicalIntertwiner U V) x
+  have hnorm := ContinuousLinearMap.norm_modulus_apply (spectraCanonicalIntertwiner U V) x
   rw [hCx, norm_zero] at hnorm
   exact norm_eq_zero.mp hnorm
 
@@ -591,22 +553,22 @@ The difference `D := W + W⋆ - 2|C|` is self-adjoint, maps everything into
 `ker |C|`, and vanishes on `ker |C|`, so `D² = 0` and hence `D = 0`. -/
 theorem polarFactor_add_star_eq_two_absoluteValue :
     spectraCanonicalPolarFactor U V + star (spectraCanonicalPolarFactor U V) =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) +
-        spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := by
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) +
+        ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := by
   set C := spectraCanonicalIntertwiner U V with hCdef
-  set A := spectraOperatorAbsoluteValue C with hAdef
+  set A := ContinuousLinearMap.modulus C with hAdef
   set W := spectraCanonicalPolarFactor U V with hWdef
-  have hAsa : IsSelfAdjoint A := spectraOperatorAbsoluteValue_isSelfAdjoint C
+  have hAsa : IsSelfAdjoint A := ContinuousLinearMap.modulus_isSelfAdjoint C
   have hWA : W * A = C := by
     rw [ContinuousLinearMap.mul_def]; exact spectraCanonicalPolarFactor_decomposition U V
-  have hAA : A * A = star C * C := spectraOperatorAbsoluteValue_mul_self C
+  have hAA : A * A = star C * C := ContinuousLinearMap.modulus_mul_self_eq_star_mul_self C
   have hAsW : A * star W = star C := by
     have h : star (W * A) = star C := by rw [hWA]
     rwa [star_mul, hAsa.star_eq] at h
   obtain ⟨hWstarW, hWWstar⟩ := canonicalPolarFactor_initial_final_projection U V
   -- `A` vanishes on the crossed block, so `A · P_reg = A`.
   have hRegCross1 : regularProjection U V + crossedDefectProjection U V = 1 := by
-    simp only [regularProjection, crossedDefectProjection, complementaryProjection]
+    simp only [regularProjection, crossedDefectProjection]
     rw [Submodule.starProjection_orthogonal']
     abel
   have hAcrossProj : A * crossedDefectProjection U V = 0 := by
@@ -631,7 +593,7 @@ theorem polarFactor_add_star_eq_two_absoluteValue :
       _ = W * (A * A) := by rw [mul_assoc]
       _ = W * (star C * C) := by rw [hAA]
   have hcommAW : Commute A W :=
-    commute_spectraOperatorAbsoluteValue_of_commute_star_mul_self C W hcomm
+    ContinuousLinearMap.commute_modulus_of_commute_star_mul_self C W hcomm
   have hAW : A * W = C := hcommAW.eq.trans hWA
   have hsum1 : C + star C = A * (W + star W) := by rw [mul_add, hAW, hAsW]
   have hsum2 : star C * C + star C * C = A * (A + A) := by rw [mul_add, hAA]
@@ -648,7 +610,7 @@ theorem polarFactor_add_star_eq_two_absoluteValue :
     have hWz : W z = 0 := canonicalPolarFactor_apply_crossedDefect_eq_zero U V hz
     have hAz : A z = 0 := canonicalAbsoluteValue_apply_crossedDefect_eq_zero U V hz
     have hreg : regularProjection U V z = 0 := by
-      simp only [regularProjection, complementaryProjection]
+      simp only [regularProjection]
       exact (Submodule.starProjection_apply_eq_zero_iff _).mpr
         (Submodule.le_orthogonal_orthogonal _ hz)
     have hWsWz : W (star W z) = 0 := by
@@ -667,7 +629,7 @@ theorem polarFactor_add_star_eq_two_absoluteValue :
       have h := congrArg (fun T : H →L[𝕜] H => T y) hAD
       simpa only [mul_apply_eq_comp, zero_apply] using h
     have hCEy : C (E y) = 0 := by
-      have hn := norm_spectraOperatorAbsoluteValue_apply C (E y)
+      have hn := ContinuousLinearMap.norm_modulus_apply C (E y)
       rw [hAEy, norm_zero] at hn
       exact norm_eq_zero.mp hn.symm
     have hEycross : E y ∈ crossedDefectSum U V := by
@@ -685,9 +647,9 @@ theorem polarFactor_add_star_eq_two_absoluteValue :
 vector: a direct consequence of `W + W⋆ = 2|C|`. -/
 theorem re_inner_polarFactor_eq_absoluteValue (u : H) :
     RCLike.re ⟪spectraCanonicalPolarFactor U V u, u⟫_𝕜 =
-      RCLike.re ⟪spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) u, u⟫_𝕜 := by
+      RCLike.re ⟪ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) u, u⟫_𝕜 := by
   set W := spectraCanonicalPolarFactor U V with hWdef
-  set A := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) with hAdef
+  set A := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) with hAdef
   have hWsW : W + star W = A + A := polarFactor_add_star_eq_two_absoluteValue U V
   have hkey : ⟪(W + star W) u, u⟫_𝕜 = ⟪(A + A) u, u⟫_𝕜 := by rw [hWsW]
   rw [add_apply, add_apply,
@@ -705,23 +667,23 @@ polar factor.  On the source block, `re⟪x, P W P x⟫ = re⟪P x, |C| (P x)⟫
 because `W + W⋆ = 2|C|` and `|C| ≥ 0`. -/
 theorem canonicalPolarFactor_sourceCompression_nonnegative (x : H) :
     0 ≤ RCLike.re
-      ⟪x, (projection U * spectraCanonicalPolarFactor U V * projection U) x⟫_𝕜 := by
+      ⟪x, (U.starProjection * spectraCanonicalPolarFactor U V * U.starProjection) x⟫_𝕜 := by
   rw [re_inner_projection_compression U (spectraCanonicalPolarFactor U V) x,
-    re_inner_polarFactor_eq_absoluteValue U V (projection U x)]
+    re_inner_polarFactor_eq_absoluteValue U V (U.starProjection x)]
   have hnonneg : (0 : H →L[𝕜] H) ≤
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) :=
-    spectraOperatorAbsoluteValue_nonneg _
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) :=
+    ContinuousLinearMap.modulus_nonneg _
   exact ((ContinuousLinearMap.nonneg_iff_isPositive _).mp hnonneg).re_inner_nonneg_left
-    (projection U x)
+    (U.starProjection x)
 
 /-- Positivity of the complementary diagonal compression. -/
 theorem canonicalPolarFactor_complementCompression_nonnegative (x : H) :
     0 ≤ RCLike.re
-      ⟪x, (complementaryProjection U * spectraCanonicalPolarFactor U V *
-        complementaryProjection U) x⟫_𝕜 := by
+      ⟪x, ((Uᗮ).starProjection * spectraCanonicalPolarFactor U V *
+        (Uᗮ).starProjection) x⟫_𝕜 := by
   have hswap : spectraCanonicalPolarFactor Uᗮ Vᗮ = spectraCanonicalPolarFactor U V := by
     have hI : spectraCanonicalIntertwiner Uᗮ Vᗮ = spectraCanonicalIntertwiner U V := by
-      simp only [spectraCanonicalIntertwiner, complementaryProjection,
+      simp only [spectraCanonicalIntertwiner,
         Submodule.orthogonal_orthogonal]
       abel
     unfold spectraCanonicalPolarFactor
@@ -735,46 +697,44 @@ Since `W + W⋆ = 2|C|` and `|C|` commutes with `P` (its Gram operator does, and
 diagonal for `P`, so the off-diagonal block of `W` is the negative adjoint of
 the opposite off-diagonal block. -/
 theorem canonicalPolarFactor_crossed_blocks_general :
-    complementaryProjection U * spectraCanonicalPolarFactor U V * projection U =
-      -star (projection U * spectraCanonicalPolarFactor U V *
-        complementaryProjection U) := by
+    (Uᗮ).starProjection * spectraCanonicalPolarFactor U V * U.starProjection =
+      -star (U.starProjection * spectraCanonicalPolarFactor U V *
+        (Uᗮ).starProjection) := by
   set W := spectraCanonicalPolarFactor U V with hWdef
-  set A := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) with hAdef
-  have hcommAP : Commute A (projection U) :=
-    commute_spectraOperatorAbsoluteValue_of_commute_star_mul_self _ _
+  set A := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) with hAdef
+  have hcommAP : Commute A (U.starProjection) :=
+    ContinuousLinearMap.commute_modulus_of_commute_star_mul_self _ _
       (commute_projection_spectraCanonicalIntertwiner_star_mul_self U V).symm
-  have hP'P : complementaryProjection U * projection U = 0 := by
-    rw [show complementaryProjection U = 1 - projection U from
+  have hP'P : (Uᗮ).starProjection * U.starProjection = 0 := by
+    rw [show (Uᗮ).starProjection = 1 - U.starProjection from
         Submodule.starProjection_orthogonal' U, sub_mul, one_mul,
       U.isIdempotentElem_starProjection, sub_self]
-  have hP'AP : complementaryProjection U * A * projection U = 0 := by
+  have hP'AP : (Uᗮ).starProjection * A * U.starProjection = 0 := by
     rw [mul_assoc, hcommAP.eq, ← mul_assoc, hP'P, zero_mul]
-  have hRHS : star (projection U * W * complementaryProjection U) =
-      complementaryProjection U * star W * projection U := by
+  have hRHS : star (U.starProjection * W * (Uᗮ).starProjection) =
+      (Uᗮ).starProjection * star W * U.starProjection := by
     rw [star_mul, star_mul, (isSelfAdjoint_starProjection U).star_eq,
       (isSelfAdjoint_starProjection Uᗮ).star_eq, ← mul_assoc]
   rw [hRHS]
-  have hsum : complementaryProjection U * W * projection U +
-      complementaryProjection U * star W * projection U = 0 := by
-    calc complementaryProjection U * W * projection U +
-          complementaryProjection U * star W * projection U
-        = complementaryProjection U * (W + star W) * projection U := by
+  have hsum : (Uᗮ).starProjection * W * U.starProjection +
+      (Uᗮ).starProjection * star W * U.starProjection = 0 := by
+    calc (Uᗮ).starProjection * W * U.starProjection +
+          (Uᗮ).starProjection * star W * U.starProjection
+        = (Uᗮ).starProjection * (W + star W) * U.starProjection := by
           rw [mul_add, add_mul]
-      _ = complementaryProjection U * (A + A) * projection U := by
+      _ = (Uᗮ).starProjection * (A + A) * U.starProjection := by
           rw [polarFactor_add_star_eq_two_absoluteValue U V]
-      _ = complementaryProjection U * A * projection U +
-            complementaryProjection U * A * projection U := by rw [mul_add, add_mul]
+      _ = (Uᗮ).starProjection * A * U.starProjection +
+            (Uᗮ).starProjection * A * U.starProjection := by rw [mul_add, add_mul]
       _ = 0 := by rw [hP'AP, add_zero]
   exact eq_neg_of_add_eq_zero_left hsum
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The defect quarter-turn has the paper crossed-block relation. -/
 theorem crossedDefectQuarterTurn_crossed_blocks
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
-    complementaryProjection U * crossedDefectQuarterTurn U V J * projection U =
-      -star (projection U * crossedDefectQuarterTurn U V J *
-        complementaryProjection U) := by
+    (Uᗮ).starProjection * crossedDefectQuarterTurn U V J * U.starProjection =
+      -star (U.starProjection * crossedDefectQuarterTurn U V J *
+        (Uᗮ).starProjection) := by
   rw [star_mul, star_mul,
     (isSelfAdjoint_starProjection U).star_eq,
     (isSelfAdjoint_starProjection Uᗮ).star_eq,
@@ -851,8 +811,8 @@ modulus of the canonical intertwiner. -/
 theorem nonacuteDirectRotation_add_star_eq_two_absoluteValue
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
     nonacuteDirectRotation U V J + star (nonacuteDirectRotation U V J) =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) +
-        spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) := by
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) +
+        ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) := by
   rw [nonacuteDirectRotation, star_add,
     star_crossedDefectQuarterTurn U V J]
   rw [← polarFactor_add_star_eq_two_absoluteValue U V]
@@ -863,10 +823,10 @@ quadratic form of the canonical positive cosine. -/
 theorem re_inner_nonacuteDirectRotation_eq_absoluteValue
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) (x : H) :
     RCLike.re ⟪nonacuteDirectRotation U V J x, x⟫_𝕜 =
-      RCLike.re ⟪spectraOperatorAbsoluteValue
+      RCLike.re ⟪ContinuousLinearMap.modulus
         (spectraCanonicalIntertwiner U V) x, x⟫_𝕜 := by
   let W := nonacuteDirectRotation U V J
-  let A := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+  let A := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   have hsum : W + star W = A + A := by
     simpa [W, A] using nonacuteDirectRotation_add_star_eq_two_absoluteValue U V J
   have hkey : ⟪(W + star W) x, x⟫_𝕜 = ⟪(A + A) x, x⟫_𝕜 := by rw [hsum]
@@ -880,9 +840,7 @@ theorem re_inner_nonacuteDirectRotation_eq_absoluteValue
   rw [map_add, map_add, hreStar] at hre
   linarith
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)]
-  [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
+omit [CompleteSpace H] in
 private theorem add_self_cancel_nonacute
     {a b : H →L[𝕜] H} (h : a + a = b + b) : a = b := by
   let twoUnit : 𝕜ˣ := Units.mk0 2 (by norm_num)
@@ -895,9 +853,9 @@ canonical intertwiner. -/
 theorem nonacuteDirectRotation_comm_absoluteValue
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
     Commute (nonacuteDirectRotation U V J)
-      (spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)) := by
+      (ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)) := by
   let W := nonacuteDirectRotation U V J
-  let A := spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)
+  let A := ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)
   have hunit : W ∈ unitary (H →L[𝕜] H) :=
     nonacuteDirectRotation_mem_unitary U V J
   have hsum : W + star W = A + A := by
@@ -914,23 +872,21 @@ theorem nonacuteDirectRotation_comm_absoluteValue
   rw [commute_iff_eq]
   exact add_self_cancel_nonacute hleft
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The defect quarter-turn intertwines the source and target projections. -/
 theorem crossedDefectQuarterTurn_intertwines
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
-    crossedDefectQuarterTurn U V J * projection U =
-      projection V * crossedDefectQuarterTurn U V J := by
+    crossedDefectQuarterTurn U V J * U.starProjection =
+      V.starProjection * crossedDefectQuarterTurn U V J := by
   ext x
   let s := (halmosSourceDefect U V).orthogonalProjectionOnto x
   let t := (halmosTargetDefect U V).orthogonalProjectionOnto x
-  have hVJs : projection V (J s : H) = J s :=
+  have hVJs : V.starProjection (J s : H) = J s :=
     Submodule.starProjection_eq_self_iff.mpr (J s).property.2
-  have hVJt : projection V (J.symm t : H) = 0 :=
+  have hVJt : V.starProjection (J.symm t : H) = 0 :=
     (Submodule.starProjection_apply_eq_zero_iff _).mpr (J.symm t).property.2
-  have hpS : (halmosSourceDefect U V).orthogonalProjectionOnto (projection U x) = s :=
+  have hpS : (halmosSourceDefect U V).orthogonalProjectionOnto (U.starProjection x) = s :=
     Submodule.orthogonalProjectionOnto_starProjection_of_le inf_le_left x
-  have hpT : (halmosTargetDefect U V).orthogonalProjectionOnto (projection U x) = 0 := by
+  have hpT : (halmosTargetDefect U V).orthogonalProjectionOnto (U.starProjection x) = 0 := by
     rw [Submodule.orthogonalProjectionOnto_eq_zero_iff]
     exact Submodule.orthogonal_le inf_le_left
       (Submodule.le_orthogonal_orthogonal U (U.starProjection_apply_mem x))
@@ -940,8 +896,8 @@ theorem crossedDefectQuarterTurn_intertwines
 /-- The completed nonacute rotation intertwines the two projections. -/
 theorem nonacuteDirectRotation_intertwines
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
-    nonacuteDirectRotation U V J * projection U =
-      projection V * nonacuteDirectRotation U V J := by
+    nonacuteDirectRotation U V J * U.starProjection =
+      V.starProjection * nonacuteDirectRotation U V J := by
   rw [nonacuteDirectRotation, add_mul, mul_add,
     canonicalPolarFactor_intertwines_general,
     crossedDefectQuarterTurn_intertwines]
@@ -950,27 +906,27 @@ theorem nonacuteDirectRotation_intertwines
 theorem nonacuteDirectRotation_compressions_nonnegative
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
     (∀ x : H, 0 ≤ RCLike.re
-      ⟪x, (projection U * nonacuteDirectRotation U V J * projection U) x⟫_𝕜) ∧
+      ⟪x, (U.starProjection * nonacuteDirectRotation U V J * U.starProjection) x⟫_𝕜) ∧
     (∀ x : H, 0 ≤ RCLike.re
-      ⟪x, (complementaryProjection U * nonacuteDirectRotation U V J *
-        complementaryProjection U) x⟫_𝕜) := by
+      ⟪x, ((Uᗮ).starProjection * nonacuteDirectRotation U V J *
+        (Uᗮ).starProjection) x⟫_𝕜) := by
   constructor
   · intro x
     rw [nonacuteDirectRotation, mul_add, add_mul]
     have hdefectZero :
-        projection U * crossedDefectQuarterTurn U V J * projection U = 0 := by
+        U.starProjection * crossedDefectQuarterTurn U V J * U.starProjection = 0 := by
       ext y
       simp only [mul_apply_eq_comp, zero_apply]
       have hpT : (halmosTargetDefect U V).orthogonalProjectionOnto
-          (projection U y) = 0 := by
+          (U.starProjection y) = 0 := by
         rw [Submodule.orthogonalProjectionOnto_eq_zero_iff]
         exact Submodule.orthogonal_le inf_le_left
           (Submodule.le_orthogonal_orthogonal U (U.starProjection_apply_mem y))
-      have hval : crossedDefectQuarterTurn U V J (projection U y) =
+      have hval : crossedDefectQuarterTurn U V J (U.starProjection y) =
           (J ((halmosSourceDefect U V).orthogonalProjectionOnto
-            (projection U y)) : H) -
+            (U.starProjection y)) : H) -
           (J.symm ((halmosTargetDefect U V).orthogonalProjectionOnto
-            (projection U y)) : H) := by
+            (U.starProjection y)) : H) := by
         simp only [crossedDefectQuarterTurn, sourceToTargetDefect,
           targetToSourceDefect, sub_apply,
           ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply,
@@ -984,19 +940,19 @@ theorem nonacuteDirectRotation_compressions_nonnegative
   · intro x
     rw [nonacuteDirectRotation, mul_add, add_mul]
     have hdefectZero :
-        complementaryProjection U * crossedDefectQuarterTurn U V J *
-          complementaryProjection U = 0 := by
+        (Uᗮ).starProjection * crossedDefectQuarterTurn U V J *
+          (Uᗮ).starProjection = 0 := by
       ext y
       simp only [mul_apply_eq_comp, zero_apply]
       have hpS : (halmosSourceDefect U V).orthogonalProjectionOnto
-          (complementaryProjection U y) = 0 := by
+          ((Uᗮ).starProjection y) = 0 := by
         rw [Submodule.orthogonalProjectionOnto_eq_zero_iff]
         exact Submodule.orthogonal_le inf_le_left (Uᗮ.starProjection_apply_mem y)
-      have hval : crossedDefectQuarterTurn U V J (complementaryProjection U y) =
+      have hval : crossedDefectQuarterTurn U V J ((Uᗮ).starProjection y) =
           (J ((halmosSourceDefect U V).orthogonalProjectionOnto
-            (complementaryProjection U y)) : H) -
+            ((Uᗮ).starProjection y)) : H) -
           (J.symm ((halmosTargetDefect U V).orthogonalProjectionOnto
-            (complementaryProjection U y)) : H) := by
+            ((Uᗮ).starProjection y)) : H) := by
         simp only [crossedDefectQuarterTurn, sourceToTargetDefect,
           targetToSourceDefect, sub_apply,
           ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply,
@@ -1012,10 +968,10 @@ theorem nonacuteDirectRotation_compressions_nonnegative
 /-- The crossed blocks of the nonacute construction are skew-adjoint. -/
 theorem nonacuteDirectRotation_crossed_blocks
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
-    complementaryProjection U * nonacuteDirectRotation U V J * projection U =
-      -star (projection U * nonacuteDirectRotation U V J *
-        complementaryProjection U) := by
-  simp only [nonacuteDirectRotation, mul_add, add_mul, mul_add, add_mul,
+    (Uᗮ).starProjection * nonacuteDirectRotation U V J * U.starProjection =
+      -star (U.starProjection * nonacuteDirectRotation U V J *
+        (Uᗮ).starProjection) := by
+  simp only [nonacuteDirectRotation, mul_add, add_mul,
     star_add, neg_add]
   congr 1
   · exact canonicalPolarFactor_crossed_blocks_general U V
@@ -1023,9 +979,9 @@ theorem nonacuteDirectRotation_crossed_blocks
 
 /-- The explicit nonacute construction satisfies the paper's direct-rotation
 predicate. -/
-theorem nonacuteDirectRotation_isPaperDirectRotation
+theorem nonacuteDirectRotation_isDirectRotation
     (J : halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) :
-    IsPaperDirectRotation U V (nonacuteDirectRotation U V J) := by
+    IsDirectRotation U V (nonacuteDirectRotation U V J) := by
   refine
     { unitary_mem := nonacuteDirectRotation_mem_unitary U V J
       intertwines := nonacuteDirectRotation_intertwines U V J
@@ -1052,12 +1008,12 @@ theorem nonacuteDirectRotation_injective :
   simpa [nonacuteDirectRotation, hpolar] using hx
 
 /-- Constructive half of Davis--Kahan Proposition 3.2. -/
-theorem exists_paperDirectRotation_of_crossedDefectsEquivalent
+theorem exists_directRotation_of_crossedDefectsEquivalent
     (hdefect : CrossedDefectsEquivalent U V) :
-    ∃ T : H →L[𝕜] H, IsPaperDirectRotation U V T := by
+    ∃ T : H →L[𝕜] H, IsDirectRotation U V T := by
   rcases hdefect with ⟨J⟩
   exact ⟨nonacuteDirectRotation U V J,
-    nonacuteDirectRotation_isPaperDirectRotation U V J⟩
+    nonacuteDirectRotation_isDirectRotation U V J⟩
 
 /-- A positive operator that has vanishing quadratic form at a vector
 annihilates that vector: write `S = √S · √S`, so `⟪x, S x⟫ = ‖√S x‖²`. -/
@@ -1074,73 +1030,65 @@ private theorem apply_eq_zero_of_nonneg_inner_self_eq_zero
   have hRx : CFC.sqrt S x = 0 := inner_self_eq_zero.mp (hkey.trans hx)
   rw [← hRR, mul_apply_eq_comp, hRx, map_zero]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The adjoint of an intertwiner intertwines the swapped projections. -/
 private theorem starIntertwines_of_intertwines
-    {T : H →L[𝕜] H} (hint : T * projection U = projection V * T) :
-    projection U * star T = star T * projection V := by
+    {T : H →L[𝕜] H} (hint : T * U.starProjection = V.starProjection * T) :
+    U.starProjection * star T = star T * V.starProjection := by
   have h := congrArg star hint
   rwa [star_mul, star_mul, (isSelfAdjoint_starProjection U).star_eq,
     (isSelfAdjoint_starProjection V).star_eq] at h
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- A paper direct rotation conjugates the source projection to the target projection. -/
-theorem paperDirectRotation_conjugates_projection
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) :
-    T * projection U * star T = projection V := by
+theorem directRotation_conjugates_projection
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) :
+    T * U.starProjection * star T = V.starProjection := by
   calc
-    T * projection U * star T = (projection V * T) * star T := by
+    T * U.starProjection * star T = (V.starProjection * T) * star T := by
       rw [hT.intertwines]
-    _ = projection V * (T * star T) := by rw [mul_assoc]
-    _ = projection V := by rw [hT.unitary_mem.2, mul_one]
+    _ = V.starProjection * (T * star T) := by rw [mul_assoc]
+    _ = V.starProjection := by rw [hT.unitary_mem.2, mul_one]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- A paper direct rotation also conjugates the complementary source projection to the
 complementary target projection. -/
-theorem paperDirectRotation_conjugates_complementaryProjection
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) :
-    T * complementaryProjection U * star T = complementaryProjection V := by
-  have hinter : T * complementaryProjection U = complementaryProjection V * T := by
-    rw [show complementaryProjection U = 1 - projection U from
+theorem directRotation_conjugates_complementaryProjection
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) :
+    T * (Uᗮ).starProjection * star T = (Vᗮ).starProjection := by
+  have hinter : T * (Uᗮ).starProjection = (Vᗮ).starProjection * T := by
+    rw [show (Uᗮ).starProjection = 1 - U.starProjection from
       Submodule.starProjection_orthogonal' U]
-    rw [show complementaryProjection V = 1 - projection V from
+    rw [show (Vᗮ).starProjection = 1 - V.starProjection from
       Submodule.starProjection_orthogonal' V]
     rw [mul_sub, sub_mul, mul_one, one_mul, hT.intertwines]
   calc
-    T * complementaryProjection U * star T =
-        (complementaryProjection V * T) * star T := by rw [hinter]
-    _ = complementaryProjection V * (T * star T) := by rw [mul_assoc]
-    _ = complementaryProjection V := by rw [hT.unitary_mem.2, mul_one]
+    T * (Uᗮ).starProjection * star T =
+        ((Vᗮ).starProjection * T) * star T := by rw [hinter]
+    _ = (Vᗮ).starProjection * (T * star T) := by rw [mul_assoc]
+    _ = (Vᗮ).starProjection := by rw [hT.unitary_mem.2, mul_one]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- A paper direct rotation is **accretive**: `re⟪z, T z⟫ ≥ 0`.  The two diagonal
 `U`-blocks are the nonnegative compressions; the two off-diagonal blocks are
 adjoint-negatives of each other (crossed blocks), so their real parts cancel. -/
-theorem re_inner_paperDirectRotation_nonneg
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) (z : H) :
+theorem re_inner_directRotation_nonneg
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) (z : H) :
     0 ≤ RCLike.re ⟪z, T z⟫_𝕜 := by
-  have hsplit : T = projection U * T * projection U
-      + projection U * T * complementaryProjection U
-      + complementaryProjection U * T * projection U
-      + complementaryProjection U * T * complementaryProjection U := by
-    have hPP : projection U + complementaryProjection U = 1 := by
-      rw [show complementaryProjection U = 1 - projection U from
+  have hsplit : T = U.starProjection * T * U.starProjection
+      + U.starProjection * T * (Uᗮ).starProjection
+      + (Uᗮ).starProjection * T * U.starProjection
+      + (Uᗮ).starProjection * T * (Uᗮ).starProjection := by
+    have hPP : U.starProjection + (Uᗮ).starProjection = 1 := by
+      rw [show (Uᗮ).starProjection = 1 - U.starProjection from
         Submodule.starProjection_orthogonal' U]; abel
-    calc T = (projection U + complementaryProjection U) * T *
-          (projection U + complementaryProjection U) := by rw [hPP, one_mul, mul_one]
+    calc T = (U.starProjection + (Uᗮ).starProjection) * T *
+          (U.starProjection + (Uᗮ).starProjection) := by rw [hPP, one_mul, mul_one]
       _ = _ := by noncomm_ring
-  have key : ⟪z, T z⟫_𝕜 = ⟪z, (projection U * T * projection U) z⟫_𝕜
-      + ⟪z, (projection U * T * complementaryProjection U) z⟫_𝕜
-      + ⟪z, (complementaryProjection U * T * projection U) z⟫_𝕜
-      + ⟪z, (complementaryProjection U * T * complementaryProjection U) z⟫_𝕜 := by
+  have key : ⟪z, T z⟫_𝕜 = ⟪z, (U.starProjection * T * U.starProjection) z⟫_𝕜
+      + ⟪z, (U.starProjection * T * (Uᗮ).starProjection) z⟫_𝕜
+      + ⟪z, ((Uᗮ).starProjection * T * U.starProjection) z⟫_𝕜
+      + ⟪z, ((Uᗮ).starProjection * T * (Uᗮ).starProjection) z⟫_𝕜 := by
     conv_lhs => rw [hsplit]
     simp only [add_apply, inner_add_right]
-  have h2 : RCLike.re ⟪z, (complementaryProjection U * T * projection U) z⟫_𝕜
-      = - RCLike.re ⟪z, (projection U * T * complementaryProjection U) z⟫_𝕜 := by
+  have h2 : RCLike.re ⟪z, ((Uᗮ).starProjection * T * U.starProjection) z⟫_𝕜
+      = - RCLike.re ⟪z, (U.starProjection * T * (Uᗮ).starProjection) z⟫_𝕜 := by
     rw [hT.crossed_blocks, neg_apply, inner_neg_right, map_neg]
     congr 1
     rw [ContinuousLinearMap.star_eq_adjoint, ContinuousLinearMap.adjoint_inner_right]
@@ -1150,11 +1098,9 @@ theorem re_inner_paperDirectRotation_nonneg
   have hd2 := hT.complement_compression_nonnegative z
   linarith
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- The Hermitian part of a paper direct rotation is a positive operator. -/
-theorem paperDirectRotation_add_star_nonneg
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) :
+theorem directRotation_add_star_nonneg
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) :
     (0 : H →L[𝕜] H) ≤ T + star T := by
   have hSA : IsSelfAdjoint (T + star T) := by
     rw [isSelfAdjoint_iff, star_add, star_star]; abel
@@ -1166,19 +1112,19 @@ theorem paperDirectRotation_add_star_nonneg
   have e2 : RCLike.re ⟪star T x, x⟫_𝕜 = RCLike.re ⟪x, T x⟫_𝕜 := by
     rw [ContinuousLinearMap.star_eq_adjoint, ContinuousLinearMap.adjoint_inner_left]
   rw [e1, e2]
-  have := re_inner_paperDirectRotation_nonneg U V T hT x
+  have := re_inner_directRotation_nonneg U V T hT x
   linarith
 
 /-- A paper direct rotation maps the source defect into the target defect.
 Both `⟪x, T x⟫` and `⟪x, T⋆ x⟫` vanish (by intertwining), so `(T + T⋆) x = 0` by
 positivity; hence `T x = -T⋆ x ∈ Uᗮ`. -/
-theorem paperDirectRotation_mapsto_targetDefect
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) {x : H}
+theorem directRotation_mapsto_targetDefect
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) {x : H}
     (hx : x ∈ halmosSourceDefect U V) :
     T x ∈ halmosTargetDefect U V := by
   obtain ⟨hxU, hxVp⟩ := mem_halmosSourceDefect.mp hx
   have hTxV : T x ∈ V := by
-    have hPx : projection U x = x := Submodule.starProjection_eq_self_iff.mpr hxU
+    have hPx : U.starProjection x = x := Submodule.starProjection_eq_self_iff.mpr hxU
     have h := congrArg (fun f : H →L[𝕜] H => f x) hT.intertwines
     simp only [mul_apply_eq_comp, hPx] at h
     exact Submodule.starProjection_eq_self_iff.mp h.symm
@@ -1190,7 +1136,7 @@ theorem paperDirectRotation_mapsto_targetDefect
     exact (Submodule.starProjection_apply_eq_zero_iff _).mp h
   have hHx : (T + star T) x = 0 := by
     refine apply_eq_zero_of_nonneg_inner_self_eq_zero
-      (paperDirectRotation_add_star_nonneg U V T hT) ?_
+      (directRotation_add_star_nonneg U V T hT) ?_
     rw [add_apply, inner_add_right,
       Submodule.inner_left_of_mem_orthogonal hTxV hxVp,
       Submodule.inner_right_of_mem_orthogonal hxU hsTxUp, add_zero]
@@ -1203,8 +1149,8 @@ theorem paperDirectRotation_mapsto_targetDefect
 
 /-- Dually, the adjoint of a paper direct rotation maps the target defect into
 the source defect. -/
-theorem paperDirectRotation_star_mapsto_sourceDefect
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) {y : H}
+theorem directRotation_star_mapsto_sourceDefect
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) {y : H}
     (hy : y ∈ halmosTargetDefect U V) :
     star T y ∈ halmosSourceDefect U V := by
   obtain ⟨hyUp, hyV⟩ := mem_halmosTargetDefect.mp hy
@@ -1221,7 +1167,7 @@ theorem paperDirectRotation_star_mapsto_sourceDefect
     exact (Submodule.starProjection_apply_eq_zero_iff _).mp h.symm
   have hHy : (T + star T) y = 0 := by
     refine apply_eq_zero_of_nonneg_inner_self_eq_zero
-      (paperDirectRotation_add_star_nonneg U V T hT) ?_
+      (directRotation_add_star_nonneg U V T hT) ?_
     rw [add_apply, inner_add_right,
       Submodule.inner_right_of_mem_orthogonal hyV hTyVp,
       Submodule.inner_left_of_mem_orthogonal hsTyU hyUp, add_zero]
@@ -1235,13 +1181,13 @@ theorem paperDirectRotation_star_mapsto_sourceDefect
 /-- On the source crossed defect, every paper direct rotation agrees with the
 negative of its adjoint.  This is the quarter-turn identity used in the proof
 of Davis--Kahan Proposition 3.2. -/
-theorem paperDirectRotation_apply_sourceDefect_eq_neg_star
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) {x : H}
+theorem directRotation_apply_sourceDefect_eq_neg_star
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) {x : H}
     (hx : x ∈ halmosSourceDefect U V) :
     T x = - star T x := by
   obtain ⟨hxU, hxVp⟩ := mem_halmosSourceDefect.mp hx
   have hTxV : T x ∈ V := by
-    have hPx : projection U x = x := Submodule.starProjection_eq_self_iff.mpr hxU
+    have hPx : U.starProjection x = x := Submodule.starProjection_eq_self_iff.mpr hxU
     have h := congrArg (fun f : H →L[𝕜] H => f x) hT.intertwines
     simp only [mul_apply_eq_comp, hPx] at h
     exact Submodule.starProjection_eq_self_iff.mp h.symm
@@ -1253,7 +1199,7 @@ theorem paperDirectRotation_apply_sourceDefect_eq_neg_star
     exact (Submodule.starProjection_apply_eq_zero_iff _).mp h
   have hHx : (T + star T) x = 0 := by
     refine apply_eq_zero_of_nonneg_inner_self_eq_zero
-      (paperDirectRotation_add_star_nonneg U V T hT) ?_
+      (directRotation_add_star_nonneg U V T hT) ?_
     rw [add_apply, inner_add_right,
       Submodule.inner_left_of_mem_orthogonal hTxV hxVp,
       Submodule.inner_right_of_mem_orthogonal hxU hsTxUp, add_zero]
@@ -1261,8 +1207,8 @@ theorem paperDirectRotation_apply_sourceDefect_eq_neg_star
 
 /-- On the target crossed defect, the adjoint of every paper direct rotation
 agrees with the negative of the rotation. -/
-theorem paperDirectRotation_star_apply_targetDefect_eq_neg
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) {y : H}
+theorem directRotation_star_apply_targetDefect_eq_neg
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) {y : H}
     (hy : y ∈ halmosTargetDefect U V) :
     star T y = - T y := by
   obtain ⟨hyUp, hyV⟩ := mem_halmosTargetDefect.mp hy
@@ -1279,7 +1225,7 @@ theorem paperDirectRotation_star_apply_targetDefect_eq_neg
     exact (Submodule.starProjection_apply_eq_zero_iff _).mp h.symm
   have hHy : (T + star T) y = 0 := by
     refine apply_eq_zero_of_nonneg_inner_self_eq_zero
-      (paperDirectRotation_add_star_nonneg U V T hT) ?_
+      (directRotation_add_star_nonneg U V T hT) ?_
     rw [add_apply, inner_add_right,
       Submodule.inner_right_of_mem_orthogonal hyV hTyVp,
       Submodule.inner_left_of_mem_orthogonal hsTyU hyUp, add_zero]
@@ -1287,8 +1233,8 @@ theorem paperDirectRotation_star_apply_targetDefect_eq_neg
 
 /-- Every paper direct rotation squares to minus the identity on the source
 crossed defect. -/
-theorem paperDirectRotation_sq_apply_sourceDefect
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) {x : H}
+theorem directRotation_sq_apply_sourceDefect
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) {x : H}
     (hx : x ∈ halmosSourceDefect U V) :
     T (T x) = -x := by
   have hstar : T (star T x) = x := by
@@ -1296,17 +1242,17 @@ theorem paperDirectRotation_sq_apply_sourceDefect
     simpa [mul_apply_eq_comp] using h
   calc
     T (T x) = T (-star T x) := by
-      rw [paperDirectRotation_apply_sourceDefect_eq_neg_star U V T hT hx]
+      rw [directRotation_apply_sourceDefect_eq_neg_star U V T hT hx]
     _ = -T (star T x) := by rw [map_neg]
     _ = -x := by rw [hstar]
 
 /-- Every paper direct rotation squares to minus the identity on the target
 crossed defect. -/
-theorem paperDirectRotation_sq_apply_targetDefect
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) {y : H}
+theorem directRotation_sq_apply_targetDefect
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) {y : H}
     (hy : y ∈ halmosTargetDefect U V) :
     T (T y) = -y := by
-  have hrel := paperDirectRotation_star_apply_targetDefect_eq_neg U V T hT hy
+  have hrel := directRotation_star_apply_targetDefect_eq_neg U V T hT hy
   have hTy : T y = -star T y := by
     rw [hrel, neg_neg]
   have hstar : T (star T y) = y := by
@@ -1319,11 +1265,11 @@ theorem paperDirectRotation_sq_apply_targetDefect
 
 /-- A paper direct rotation restricts to a linear isometric equivalence between
 the two crossed defects. -/
-noncomputable def crossedDefectEquivOfPaperDirectRotation
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) :
+noncomputable def crossedDefectEquivOfDirectRotation
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) :
     halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V where
-  toFun x := ⟨T x, paperDirectRotation_mapsto_targetDefect U V T hT x.property⟩
-  invFun y := ⟨star T y, paperDirectRotation_star_mapsto_sourceDefect U V T hT y.property⟩
+  toFun x := ⟨T x, directRotation_mapsto_targetDefect U V T hT x.property⟩
+  invFun y := ⟨star T y, directRotation_star_mapsto_sourceDefect U V T hT y.property⟩
   left_inv x := by
     apply Subtype.ext
     have hunit := hT.unitary_mem
@@ -1347,19 +1293,19 @@ noncomputable def crossedDefectEquivOfPaperDirectRotation
     exact Unitary.norm_map ⟨T, hunit⟩ x
 
 /-- Necessity half of Davis--Kahan Proposition 3.2. -/
-theorem crossedDefectsEquivalent_of_exists_paperDirectRotation
-    (h : ∃ T : H →L[𝕜] H, IsPaperDirectRotation U V T) :
+theorem crossedDefectsEquivalent_of_exists_directRotation
+    (h : ∃ T : H →L[𝕜] H, IsDirectRotation U V T) :
     CrossedDefectsEquivalent U V := by
   rcases h with ⟨T, hT⟩
-  exact ⟨crossedDefectEquivOfPaperDirectRotation U V T hT⟩
+  exact ⟨crossedDefectEquivOfDirectRotation U V T hT⟩
 
 /-- Davis--Kahan Proposition 3.2 in constructive Hilbert-dimension form. -/
 theorem proposition3_2_completed :
-    (∃ T : H →L[𝕜] H, IsPaperDirectRotation U V T) ↔
+    (∃ T : H →L[𝕜] H, IsDirectRotation U V T) ↔
       CrossedDefectsEquivalent U V := by
   constructor
-  · exact crossedDefectsEquivalent_of_exists_paperDirectRotation U V
-  · exact exists_paperDirectRotation_of_crossedDefectsEquivalent U V
+  · exact crossedDefectsEquivalent_of_exists_directRotation U V
+  · exact exists_directRotation_of_crossedDefectsEquivalent U V
 
 /-- Explicit injective parameterization of all constructed extensions. -/
 theorem proposition3_2_parameterization_completed
@@ -1367,12 +1313,12 @@ theorem proposition3_2_parameterization_completed
     ∃ build :
         (halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) →
           H →L[𝕜] H,
-      (∀ J, IsPaperDirectRotation U V (build J)) ∧
+      (∀ J, IsDirectRotation U V (build J)) ∧
       Function.Injective build := by
   refine ⟨nonacuteDirectRotation U V, ?_,
     nonacuteDirectRotation_injective U V⟩
   intro J
-  exact nonacuteDirectRotation_isPaperDirectRotation U V J
+  exact nonacuteDirectRotation_isDirectRotation U V J
 
 end
 

@@ -7,6 +7,8 @@ import DavisKahan.Sources.DavisKahan1970.SinTwoThetaAmbient
 import DavisKahan.Sources.DavisKahan1970.SineTheta.TrialReflection
 import DavisKahan.DoubleAngle.UnboundedIdealFormGap
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The unbounded directed half of the `sin 2Θ` theorem, at the printed residual
 
@@ -61,6 +63,7 @@ open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -68,14 +71,6 @@ universe v
 
 variable {H : Type v} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
   [CompleteSpace H]
-
-/-- A subspace admitting an orthogonal projection inside a complete ambient
-space is itself complete.  `local instance` does not propagate through imports,
-so it is reinstalled here. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionDirectedResidual
-    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace ℂ G] [CompleteSpace G]
-    (U : Submodule ℂ G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 
 section MainEstimate
@@ -118,7 +113,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_spectrumGap_k
   have hk : 0 < k := Nat.pos_of_ne_zero hk0
   have hSsa : IsSelfAdjoint (trialOffDiagonalPart V M R) :=
     isSelfAdjoint_trialOffDiagonalPart
-  have hDsa : IsSelfAdjointOperator ((-2 : ℂ) • trialOffDiagonalPart V M R) := by
+  have hDsa : ((-2 : ℂ) • trialOffDiagonalPart V M R).IsSymmetric := by
     refine ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp ?_
     rw [IsSelfAdjoint, star_smul, hSsa.star_eq]
     norm_num
@@ -128,8 +123,8 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_spectrumGap_k
     hBlow hBhigh hBcomplSpec (reflectionOperator_mem_domain hVdom)
     (trialReflection_intertwines hA hVdom hres)
     (KyFanDominantIdealFamily.kyFan_mem (𝕜 := ℂ) k hk _)
-  rw [KyFanDominantIdealFamily.toSymmetric_gaugeReal,
-    KyFanDominantIdealFamily.toSymmetric_gaugeReal,
+  rw [FanDominantIdealFamily.toSymmetric_gaugeReal,
+    FanDominantIdealFamily.toSymmetric_gaugeReal,
     KyFanDominantIdealFamily.kyFan_gauge,
     KyFanDominantIdealFamily.kyFan_gauge] at hraw
   -- flip the block to the orientation of the doubling identity
@@ -270,7 +265,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_kyFan_complex
     (hVdom : ∀ v : V, (v : H) ∈ A.domain)
     (hres : ∀ v : V, A ⟨(v : H), hVdom v⟩ = R v + ((M v : V) : H))
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : DavisKahan.ExactSinTheta.FormBoundedSylvesterGap
+    (hgap : DavisKahan.Sylvester.FormBoundedSylvesterGap
       (selfAdjointSpectralRestriction A hA B hB)
       (selfAdjointSpectralRestriction A hA Bᶜ hB.compl) δ) :
     ∀ k : ℕ,
@@ -284,7 +279,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_kyFan_complex
   have hk : 0 < k := Nat.pos_of_ne_zero hk0
   have hSsa : IsSelfAdjoint (trialOffDiagonalPart V M R) :=
     isSelfAdjoint_trialOffDiagonalPart
-  have hDsa : IsSelfAdjointOperator ((-2 : ℂ) • trialOffDiagonalPart V M R) := by
+  have hDsa : ((-2 : ℂ) • trialOffDiagonalPart V M R).IsSymmetric := by
     refine ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp ?_
     rw [IsSelfAdjoint, star_smul, hSsa.star_eq]
     norm_num
@@ -374,7 +369,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_symmetricNorm
     (hVdom : ∀ v : V, (v : H) ∈ A.domain)
     (hres : ∀ v : V, A ⟨(v : H), hVdom v⟩ = R v + ((M v : V) : H))
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : DavisKahan.ExactSinTheta.FormBoundedSylvesterGap
+    (hgap : DavisKahan.Sylvester.FormBoundedSylvesterGap
       (selfAdjointSpectralRestriction A hA B hB)
       (selfAdjointSpectralRestriction A hA Bᶜ hB.compl) δ)
     (hRmem : N.Mem R) :
@@ -430,7 +425,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_kyFa
     (hVdom : ∀ v : V, (v : H) ∈ A.domain)
     (hres : ∀ v : V, A ⟨(v : H), hVdom v⟩ = R v + ((M v : V) : H))
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : DavisKahan.ExactSinTheta.FormBoundedSylvesterGap
+    (hgap : DavisKahan.Sylvester.FormBoundedSylvesterGap
       (TauCeti.LinearPMap.reducingRestriction A U hred)
       (TauCeti.LinearPMap.reducingRestriction A Uᗮ hred.orthogonal) δ) :
     ∀ k : ℕ,
@@ -444,7 +439,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_kyFa
   have hk : 0 < k := Nat.pos_of_ne_zero hk0
   have hSsa : IsSelfAdjoint (trialOffDiagonalPart V M R) :=
     isSelfAdjoint_trialOffDiagonalPart
-  have hDsa : IsSelfAdjointOperator ((-2 : ℂ) • trialOffDiagonalPart V M R) := by
+  have hDsa : ((-2 : ℂ) • trialOffDiagonalPart V M R).IsSymmetric := by
     refine ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp ?_
     rw [IsSelfAdjoint, star_smul, hSsa.star_eq]
     norm_num
@@ -519,7 +514,14 @@ unbounded self-adjoint operator, at every source unitarily invariant norm and at
 an arbitrary reducing subspace.**
 
 `δ N(sin 2Θ₀) ≤ 2 N(R)` with the printed residual and the printed factor two.
-The trial subspace need only reduce `A`; nothing selects it spectrally. -/
+`hred` is about `U`, the subspace whose two reducing restrictions the gap `δ`
+separates; `U` is not required to be a spectral projector, which is what Section 1
+of the source assumes.  The trial subspace `V` is assumed only to lie inside
+`dom A` and to carry the residual, and it reduces nothing.
+
+The conclusion is on the proof's own block `sinTwoThetaIdealBlock U V`;
+`sinTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_complex` restates
+it on the paper's trial-side angle `Angle.directedSinTwoAngleOperator V U`. -/
 theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A)
@@ -528,7 +530,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_symm
     (hVdom : ∀ v : V, (v : H) ∈ A.domain)
     (hres : ∀ v : V, A ⟨(v : H), hVdom v⟩ = R v + ((M v : V) : H))
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : DavisKahan.ExactSinTheta.FormBoundedSylvesterGap
+    (hgap : DavisKahan.Sylvester.FormBoundedSylvesterGap
       (TauCeti.LinearPMap.reducingRestriction A U hred)
       (TauCeti.LinearPMap.reducingRestriction A Uᗮ hred.orthogonal) δ)
     (hRmem : N.Mem R) :

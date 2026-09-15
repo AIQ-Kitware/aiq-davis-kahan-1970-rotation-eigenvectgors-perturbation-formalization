@@ -6,6 +6,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 
 import DavisKahan.Sources.DavisKahan1970.Section9.All
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Dependency audit for the Section 9 numerical example
 
@@ -20,23 +23,23 @@ namespace Section9
 
 /-! ## Paper-facing real source-model audit -/
 
-#check real_freeBeam_operator_source
-#check real_freeBeam_spectrum_source
-#check real_freeBeam_positive_spectrum_source
+#check real_freeBeam_operator_isSelfAdjoint_and_graphClosure
+#check real_freeBeam_spectrum_decomposition
+#check real_freeBeam_positive_spectrum_eq_characteristicFourthPowers
 #check real_freeBeam_trial_le_domain
 #check real_freeBeam_operator_apply_trial
-#check real_freeBeam_zero_mode_source
-#check real_freeBeam_finiteData_source
-#check real_freeBeam_trial_and_perturbation_source
+#check real_freeBeam_zero_eigenspace_eq_beamTrial
+#check real_freeBeam_finiteDataCertificate
+#check real_freeBeam_trial_and_perturbation
 
-#print axioms real_freeBeam_operator_source
-#print axioms real_freeBeam_spectrum_source
-#print axioms real_freeBeam_positive_spectrum_source
+#print axioms real_freeBeam_operator_isSelfAdjoint_and_graphClosure
+#print axioms real_freeBeam_spectrum_decomposition
+#print axioms real_freeBeam_positive_spectrum_eq_characteristicFourthPowers
 #print axioms real_freeBeam_trial_le_domain
 #print axioms real_freeBeam_operator_apply_trial
-#print axioms real_freeBeam_zero_mode_source
-#print axioms real_freeBeam_finiteData_source
-#print axioms real_freeBeam_trial_and_perturbation_source
+#print axioms real_freeBeam_zero_eigenspace_eq_beamTrial
+#print axioms real_freeBeam_finiteDataCertificate
+#print axioms real_freeBeam_trial_and_perturbation
 
 /-! ## Real analytic implementation audit -/
 

@@ -26,7 +26,7 @@ an ordered graph-Sylvester formulation.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 open Module (finrank)
@@ -45,8 +45,8 @@ the exact subspace is contained in `[α + δ, ∞)`. -/
 def TanThetaIntervalGap (A : E →ₗ[𝕜] E) (U : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] (X : F →ₗᵢ[𝕜] E)
     (β α δ : ℝ) : Prop :=
-  SpectrumIn (compression A X) ⊤ (Set.Icc β α) ∧
-    SpectrumIn A Uᗮ (Set.Ici (α + δ))
+  PointSpectrumIn (compression A X) ⊤ (Set.Icc β α) ∧
+    PointSpectrumIn A Uᗮ (Set.Ici (α + δ))
 
 /-- The paper's interval hypotheses force the trial and exact subspaces to be
 transverse.  Thus the tangent has no `π/2` pole; this is a conclusion, not an
@@ -69,17 +69,17 @@ theorem isTransverse_of_tanThetaIntervalGap
   have hTopRed : IsInvariant (compression A X) ⊤ := by
     intro z _
     exact Submodule.mem_top
-  have hMspec : SpectrumIn (compression A X) ⊤ (Set.Iic α) := by
+  have hMspec : PointSpectrumIn (compression A X) ⊤ (Set.Iic α) := by
     intro lam hlam
     exact (hgap.1 hlam).2
   have hMupper :
       RCLike.re ⟪compression A X y, y⟫_𝕜 ≤ α * ‖y‖ ^ 2 :=
-    re_inner_le_of_spectrumIn (isSymmetric_compression hA X)
-      hTopRed hMspec Submodule.mem_top
+    upperFormBound_of_pointSpectrumIn (isSymmetric_compression hA X)
+      hTopRed hMspec y Submodule.mem_top
   have hAlower :
       (α + δ) * ‖X.toLinearMap y‖ ^ 2 ≤
         RCLike.re ⟪A (X.toLinearMap y), X.toLinearMap y⟫_𝕜 :=
-    le_re_inner_of_spectrumIn hA hUperpRed hgap.2 hxyUperp
+    lowerFormBound_of_pointSpectrumIn hA hUperpRed hgap.2 (X.toLinearMap y) hxyUperp
   have hinner :
       RCLike.re ⟪compression A X y, y⟫_𝕜 =
         RCLike.re ⟪A (X.toLinearMap y), X.toLinearMap y⟫_𝕜 := by
@@ -460,17 +460,17 @@ theorem tanThetaResidualWitness_scalar
         adjoint_apply_sinTheta_leftSingularVector U X hσzero
     have hMupper : RCLike.re ⟪M v, v⟫_𝕜 ≤ α := by
       have hTopRed : IsInvariant M ⊤ := fun z _ => Submodule.mem_top
-      have hspec : SpectrumIn M ⊤ (Set.Iic α) := by
+      have hspec : PointSpectrumIn M ⊤ (Set.Iic α) := by
         intro lam hlam
         exact (hgap.1 hlam).2
       have hbound : RCLike.re ⟪M v, v⟫_𝕜 ≤ α * ‖v‖ ^ 2 :=
-        re_inner_le_of_spectrumIn (isSymmetric_compression hA X)
-          hTopRed hspec Submodule.mem_top
+        upperFormBound_of_pointSpectrumIn (isSymmetric_compression hA X)
+          hTopRed hspec v Submodule.mem_top
       simpa [hvnorm] using hbound
     have hAlower : α + δ ≤ RCLike.re ⟪A y, y⟫_𝕜 := by
       have hUperpRed : IsInvariant A Uᗮ := isInvariant_orthogonal_of_isSymmetric hA hU
       have hbound : (α + δ) * ‖y‖ ^ 2 ≤ RCLike.re ⟪A y, y⟫_𝕜 :=
-        le_re_inner_of_spectrumIn hA hUperpRed hgap.2 hyUperp
+        lowerFormBound_of_pointSpectrumIn hA hUperpRed hgap.2 y hyUperp
       simpa [hynorm] using hbound
     have hSyl := LinearMap.congr_fun
       (sylvester_sinThetaEmbedding_eq_projectedResidual hA hU X M) v
@@ -556,8 +556,8 @@ private theorem kyFan_tanTheta0_ritzResidual_le_of_le_finrank
     (htan : tanTheta0.singularValues =
       principalTangents (approximateSubspace X) U)
     {k : ℕ} (hk : k ≤ finrank 𝕜 F) :
-    δ * RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k tanTheta0 ≤
-      RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k
+    δ * TauCeti.kyFanSum k tanTheta0 ≤
+      TauCeti.kyFanSum k
         (ritzResidual A X) := by
   let S := sinThetaEmbedding U X
   let castIndex : Fin k → Fin (finrank 𝕜 F) := fun i => Fin.castLE hk i
@@ -576,10 +576,10 @@ private theorem kyFan_tanTheta0_ritzResidual_le_of_le_finrank
     simpa [castIndex] using
       (orthonormal_iff_ite.mp (rightSingularBasis S).orthonormal
         (castIndex i) (castIndex j))
-  have hsum := RectangularUnitarilyInvariantSeminorm.sum_le_rectangularKyFanSum_of_orthonormal
+  have hsum := TauCeti.sum_le_kyFanSum_of_orthonormal
     hk hu hv (fun i =>
       tanThetaResidualWitness_scalar hA hU X hδ hgap tanTheta0 htan (castIndex i))
-  unfold RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum
+  unfold TauCeti.kyFanSum
   rw [Finset.mul_sum]
   exact hsum
 
@@ -603,17 +603,15 @@ theorem kyFan_tanTheta0_ritzResidual_le
     (tanTheta0 : F →ₗ[𝕜] E)
     (htan : tanTheta0.singularValues =
       principalTangents (approximateSubspace X) U) (k : ℕ) :
-    δ * RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k tanTheta0 ≤
-      RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k
+    δ * TauCeti.kyFanSum k tanTheta0 ≤
+      TauCeti.kyFanSum k
         (ritzResidual A X) := by
   by_cases hk : k ≤ finrank 𝕜 F
   · exact kyFan_tanTheta0_ritzResidual_le_of_le_finrank hA hU X hδ hgap
       tanTheta0 htan hk
   · have hk' : finrank 𝕜 F ≤ k := Nat.le_of_not_ge hk
-    rw [RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum_eq_finrank_of_finrank_le
-          tanTheta0 hk',
-      RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum_eq_finrank_of_finrank_le
-          (ritzResidual A X) hk']
+    rw [TauCeti.kyFanSum_eq_of_finrank_le hk' tanTheta0,
+      TauCeti.kyFanSum_eq_of_finrank_le hk' (ritzResidual A X)]
     exact kyFan_tanTheta0_ritzResidual_le_of_le_finrank hA hU X hδ hgap
       tanTheta0 htan le_rfl
 
@@ -627,7 +625,7 @@ As in the paper, `tanTheta0` may be any rectangular operator whose singular
 values are the principal tangents.  The spectral assumptions themselves force
 transversality. -/
 theorem tanTheta0_ritzResidual_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
@@ -637,12 +635,12 @@ theorem tanTheta0_ritzResidual_le
       principalTangents (approximateSubspace X) U) :
     δ * N tanTheta0 ≤ N (ritzResidual A X) := by
   have hprefix : ∀ k,
-      RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k
+      TauCeti.kyFanSum k
           (((δ : ℝ) : 𝕜) • tanTheta0) ≤
-        RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum k
+        TauCeti.kyFanSum k
           (ritzResidual A X) := by
     intro k
-    rw [RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum_real_smul
+    rw [TauCeti.kyFanSum_real_smul
       k tanTheta0 hδ.le]
     exact kyFan_tanTheta0_ritzResidual_le hA hU X hβα hδ hgap
       tanTheta0 htan k
@@ -658,7 +656,7 @@ setup of Sections 1--2 of Davis--Kahan.  The Ritz choice
 The tangent sequence is directed from the trial space `range X` toward the
 exact invariant subspace `U`. -/
 theorem davisKahan1970_tanTheta0_ritzResidual_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) (_hrank : finrank 𝕜 F = finrank 𝕜 U)
@@ -677,7 +675,7 @@ has smaller dimension than the exact invariant subspace being approximated.
 All other assumptions and the conclusion are identical to the source theorem
 in the finite-dimensional setting. -/
 theorem davisKahan1970_generalizedTanTheta0_ritzResidual_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) (_hrank : finrank 𝕜 F < finrank 𝕜 U)
@@ -692,7 +690,7 @@ theorem davisKahan1970_generalizedTanTheta0_ritzResidual_le
 /-- The exact theorem also records explicitly that no principal tangent has a
 pole. -/
 theorem tanTheta0_ritzResidual_le_and_isTransverse
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
@@ -705,5 +703,5 @@ theorem tanTheta0_ritzResidual_le_and_isTransverse
   exact ⟨isTransverse_of_tanThetaIntervalGap hA hU X hδ hgap,
     tanTheta0_ritzResidual_le N hA hU X hβα hδ hgap tanTheta0 htan⟩
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

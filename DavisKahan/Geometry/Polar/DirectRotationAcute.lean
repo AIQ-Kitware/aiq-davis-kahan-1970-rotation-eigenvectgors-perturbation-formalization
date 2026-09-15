@@ -4,6 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 5
 -/
 import DavisKahan.Geometry.Polar.Section3Nonacute
+import ForTauCeti.Analysis.RCLike.ScalarTransportFunctionalCalculus
+
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+  ContinuousLinearMap.instStarOrderedRingRCLike
 
 /-!
 # The direct rotation at Davis--Kahan's printed acuteness hypothesis
@@ -76,19 +81,14 @@ noncomputable section
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
   [CompleteSpace H]
-variable [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint]
 
-attribute [local instance] ContinuousLinearMap.instStarOrderedRingRCLike
 
 variable (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
   [V.HasOrthogonalProjection]
 
 /-! ## Acuteness as triviality of the kernel -/
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] [U.HasOrthogonalProjection]
-  [V.HasOrthogonalProjection] in
+omit [CompleteSpace H] [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] in
 /-- **Printed Definition 3.2 kills the crossed-defect block.**  The two crossed
 defects of the Halmos decomposition *are* the two crossed intersections, so the
 paper's acute case is exactly the vanishing of their orthogonal sum. -/
@@ -97,8 +97,7 @@ theorem crossedDefectSum_eq_bot (hUV : U ⊓ Vᗮ = ⊥) (hVU : Uᗮ ⊓ V = ⊥
   show (U ⊓ Vᗮ) ⊔ (Uᗮ ⊓ V) = ⊥
   rw [hUV, hVU, bot_sup_eq]
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
+omit [CompleteSpace H] in
 /-- **The canonical intertwiner of an acute pair is injective.**  This is the
 paper's `Null(C₀) = Null(C₀⋆) = 0`, in the single-operator form. -/
 theorem ker_spectraCanonicalIntertwiner_eq_bot
@@ -107,8 +106,6 @@ theorem ker_spectraCanonicalIntertwiner_eq_bot
   rw [ker_canonicalIntertwiner_eq_crossedDefectSum,
     crossedDefectSum_eq_bot U V hUV hVU]
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- In the acute case the regular block is everything. -/
 theorem regularProjection_eq_one (hUV : U ⊓ Vᗮ = ⊥) (hVU : Uᗮ ⊓ V = ⊥) :
     regularProjection U V = 1 := by
@@ -125,13 +122,13 @@ has the same pointwise norms as the intertwiner. -/
 theorem ker_spectraCanonicalAbsoluteValue_eq_bot
     (hUV : U ⊓ Vᗮ = ⊥) (hVU : Uᗮ ⊓ V = ⊥) :
     LinearMap.ker
-        (spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)).toLinearMap
+        (ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)).toLinearMap
       = ⊥ := by
   rw [Submodule.eq_bot_iff]
   intro x hx
-  have hax : spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) x = 0 := hx
+  have hax : ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) x = 0 := hx
   have hnorm :=
-    norm_spectraOperatorAbsoluteValue_apply (spectraCanonicalIntertwiner U V) x
+    ContinuousLinearMap.norm_modulus_apply (spectraCanonicalIntertwiner U V) x
   rw [hax, norm_zero, eq_comm, norm_eq_zero] at hnorm
   have hmem : x ∈ LinearMap.ker (spectraCanonicalIntertwiner U V).toLinearMap := hnorm
   rw [ker_spectraCanonicalIntertwiner_eq_bot U V hUV hVU] at hmem
@@ -152,8 +149,6 @@ theorem spectraCanonicalPolarFactor_mem_unitary
   rw [regularProjection_eq_one U V hUV hVU] at h1 h2
   exact Unitary.mem_iff.mpr ⟨h1, h2⟩
 
-omit [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] in
 /-- Right cancellation of a self-adjoint operator with trivial kernel: such an
 operator has dense range, and a bounded map vanishing on it vanishes. -/
 private theorem eq_of_mul_right_cancel_of_ker_eq_bot
@@ -187,13 +182,13 @@ acuteness makes `|S|` injective, hence of dense range.  The compiled
 `IsUniformlyAcute` version cancels an invertible `|S|` instead. -/
 theorem projection_mul_spectraCanonicalPolarFactor_mul_projection
     (hUV : U ⊓ Vᗮ = ⊥) (hVU : Uᗮ ⊓ V = ⊥) :
-    projection U * spectraCanonicalPolarFactor U V * projection U =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) * projection U := by
+    U.starProjection * spectraCanonicalPolarFactor U V * U.starProjection =
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) * U.starProjection := by
   set S : H →L[𝕜] H := spectraCanonicalIntertwiner U V with hSdef
-  set A : H →L[𝕜] H := spectraOperatorAbsoluteValue S with hAdef
+  set A : H →L[𝕜] H := ContinuousLinearMap.modulus S with hAdef
   set W : H →L[𝕜] H := spectraCanonicalPolarFactor U V with hWdef
-  set P : H →L[𝕜] H := projection U with hPdef
-  set Q : H →L[𝕜] H := projection V with hQdef
+  set P : H →L[𝕜] H := U.starProjection with hPdef
+  set Q : H →L[𝕜] H := V.starProjection with hQdef
   have hWA : W * A = S := by
     rw [ContinuousLinearMap.mul_def]
     exact spectraCanonicalPolarFactor_decomposition U V
@@ -219,7 +214,7 @@ theorem projection_mul_spectraCanonicalPolarFactor_mul_projection
         = V.starProjection * (U.starProjection * U.starProjection) +
             Vᗮ.starProjection * (Uᗮ.starProjection * U.starProjection) := by noncomm_ring
       _ = V.starProjection * U.starProjection := by rw [hP, hPcP, mul_zero, add_zero]
-  have hAA : A * A = star S * S := spectraOperatorAbsoluteValue_mul_self S
+  have hAA : A * A = star S * S := ContinuousLinearMap.modulus_mul_self_eq_star_mul_self S
   have hGram : star S * S * P = P * Q * P := by
     rw [mul_assoc, hSP, star_spectraCanonicalIntertwiner]
     show (U.starProjection * V.starProjection +
@@ -234,7 +229,7 @@ theorem projection_mul_spectraCanonicalPolarFactor_mul_projection
       _ = U.starProjection * V.starProjection * U.starProjection := by
             rw [hQi, hQcQ, mul_zero, zero_mul, add_zero]
   refine eq_of_mul_right_cancel_of_ker_eq_bot
-    (spectraOperatorAbsoluteValue_isSelfAdjoint S)
+    (ContinuousLinearMap.modulus_isSelfAdjoint S)
     (ker_spectraCanonicalAbsoluteValue_eq_bot U V hUV hVU) ?_
   calc P * W * P * A = P * W * (A * P) := by rw [hAP.eq, mul_assoc, mul_assoc]
     _ = P * (W * A) * P := by noncomm_ring
@@ -244,9 +239,7 @@ theorem projection_mul_spectraCanonicalPolarFactor_mul_projection
     _ = A * A * P := by rw [hAA]
     _ = A * P * A := by rw [mul_assoc, mul_assoc, hAP.eq]
 
-omit [CompleteSpace H] [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint] [U.HasOrthogonalProjection]
-  [V.HasOrthogonalProjection] in
+omit [CompleteSpace H] [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] in
 /-- A compression of a positive operator is positive. -/
 private theorem isPositive_starProjection_compression {A : H →L[𝕜] H}
     (hA : A.IsPositive) (K : Submodule 𝕜 H) [K.HasOrthogonalProjection] :
@@ -275,23 +268,23 @@ theorem isPositive_projection_mul_spectraCanonicalPolarFactor_mul_projection
     (hUV : U ⊓ Vᗮ = ⊥) (hVU : Uᗮ ⊓ V = ⊥) :
     (U.starProjection * spectraCanonicalPolarFactor U V * U.starProjection).IsPositive := by
   have hblk := projection_mul_spectraCanonicalPolarFactor_mul_projection U V hUV hVU
-  have hAP : Commute (spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V))
-      (projection U) := spectraCanonicalAbsoluteValue_commute_projection U V
+  have hAP : Commute (ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V))
+      (U.starProjection) := spectraCanonicalAbsoluteValue_commute_projection U V
   have hPP : U.starProjection * U.starProjection = U.starProjection :=
     U.isIdempotentElem_starProjection
-  have hpos : (spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V)).IsPositive :=
+  have hpos : (ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V)).IsPositive :=
     (ContinuousLinearMap.nonneg_iff_isPositive _).mp
-      (spectraOperatorAbsoluteValue_nonneg _)
+      (ContinuousLinearMap.modulus_nonneg _)
   have hcomp := isPositive_starProjection_compression hpos U
   have hrw : U.starProjection *
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) * U.starProjection =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) * U.starProjection := by
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) * U.starProjection =
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) * U.starProjection := by
     calc U.starProjection *
-          spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) * U.starProjection
-        = spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) *
+          ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) * U.starProjection
+        = ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) *
             (U.starProjection * U.starProjection) := by
           rw [← hAP.eq]; noncomm_ring
-      _ = spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) *
+      _ = ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) *
             U.starProjection := by rw [hPP]
   rw [hblk, ← hrw]
   exact hcomp
@@ -302,7 +295,7 @@ and acuteness of the pair is symmetric under the swap. -/
 theorem complementaryProjection_mul_spectraCanonicalPolarFactor_mul_complementaryProjection
     (hUV : U ⊓ Vᗮ = ⊥) (hVU : Uᗮ ⊓ V = ⊥) :
     Uᗮ.starProjection * spectraCanonicalPolarFactor U V * Uᗮ.starProjection =
-      spectraOperatorAbsoluteValue (spectraCanonicalIntertwiner U V) * Uᗮ.starProjection := by
+      ContinuousLinearMap.modulus (spectraCanonicalIntertwiner U V) * Uᗮ.starProjection := by
   have hI : spectraCanonicalIntertwiner Uᗮ Vᗮ = spectraCanonicalIntertwiner U V :=
     spectraCanonicalIntertwiner_orthogonal U V
   have hW : spectraCanonicalPolarFactor Uᗮ Vᗮ = spectraCanonicalPolarFactor U V := by

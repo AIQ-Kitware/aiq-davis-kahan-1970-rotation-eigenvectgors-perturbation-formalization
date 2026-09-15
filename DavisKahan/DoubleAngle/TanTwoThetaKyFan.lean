@@ -3,9 +3,10 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Fable 5
 -/
+import DavisKahan.DoubleAngle.ScalarDoubleAngleTangent
 import ForTauCeti.Analysis.InnerProductSpace.Singular.System
 import ForTauCeti.Analysis.InnerProductSpace.KyFan
-import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm
 
 /-!
 # The `tan 2Θ` theorem for every unitarily invariant norm
@@ -59,27 +60,14 @@ finite-dimensional because it consumes the intrinsic singular-system layer.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
+open TauCeti.DavisKahan.TanTwoTheta
 open Module _root_.TauCeti.LinearMap
 open scoped InnerProductSpace
 
 variable {𝕜 E : Type*} [RCLike 𝕜]
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [FiniteDimensional 𝕜 E]
-
-/-- The double-angle tangent of a single-angle tangent value:
-`tan 2θ = 2 tan θ / (1 - tan² θ)`. -/
-noncomputable def doubleAngleTangent (t : ℝ) : ℝ := 2 * t / (1 - t ^ 2)
-
-/-- The double-angle tangent vanishes at zero. -/
-@[simp] theorem doubleAngleTangent_zero : doubleAngleTangent 0 = 0 := by
-  simp [doubleAngleTangent]
-
-/-- The double-angle tangent is nonnegative on the admissible range. -/
-theorem doubleAngleTangent_nonneg {t : ℝ} (h0 : 0 ≤ t) (h1 : t < 1) :
-    0 ≤ doubleAngleTangent t := by
-  have h1t : (0 : ℝ) < 1 - t ^ 2 := by nlinarith
-  exact div_nonneg (by linarith) h1t.le
 
 omit [FiniteDimensional 𝕜 E] in
 /-- A symmetric operator with an invariant subspace leaves the orthogonal
@@ -258,7 +246,7 @@ end Scalar
 
 section KyFan
 
-open RectangularUnitarilyInvariantSeminorm
+open UnitarilyInvariantSeminorm
 
 variable {A H T : E →ₗ[𝕜] E} {U : Submodule 𝕜 E} [U.HasOrthogonalProjection]
   {a b : ℝ}
@@ -277,7 +265,7 @@ private theorem sum_doubleAngleTangent_le_of_ne_zero
     (S : Finset (Fin (finrank 𝕜 E)))
     (hSne : ∀ x ∈ S, T.singularValues (x : ℕ) ≠ 0) :
     (b - a) * ∑ x ∈ S, doubleAngleTangent (T.singularValues (x : ℕ)) ≤
-      2 * rectangularKyFanSum S.card H := by
+      2 * kyFanSum S.card H := by
   classical
   have hmn : S.card ≤ finrank 𝕜 E := by
     calc S.card ≤ Finset.univ.card := Finset.card_le_univ S
@@ -309,7 +297,7 @@ private theorem sum_doubleAngleTangent_le_of_ne_zero
     have h := doubleAngleTangent_scalar hA hH hAU hHU hHUperp hTmem hTzero
       hUb hUa hinv hT1 (hSprop j)
     linarith
-  have hwitness := sum_le_rectangularKyFanSum_of_orthonormal
+  have hwitness := sum_le_kyFanSum_of_orthonormal
     (A := H) hmn hww huu hscalar
   have hsum : ∑ x ∈ S, doubleAngleTangent (T.singularValues (x : ℕ)) =
       ∑ j : Fin S.card, doubleAngleTangent
@@ -325,7 +313,7 @@ private theorem sum_doubleAngleTangent_le_of_ne_zero
           (T.singularValues ((e j : Fin (finrank 𝕜 E)) : ℕ)) := by
         rw [hsum, Finset.mul_sum, Finset.mul_sum]
         exact Finset.sum_congr rfl fun j _ => by ring
-    _ ≤ 2 * rectangularKyFanSum S.card H := by linarith
+    _ ≤ 2 * kyFanSum S.card H := by linarith
 
 private theorem kyFan_tanTwoTheta0_offDiagonal_le_of_le_finrank
     (hA : A.IsSymmetric) (hH : H.IsSymmetric)
@@ -340,8 +328,8 @@ private theorem kyFan_tanTwoTheta0_offDiagonal_le_of_le_finrank
     (htan : ∀ j : ℕ, tanTwoTheta0.singularValues j =
       doubleAngleTangent (T.singularValues j))
     {k : ℕ} (hk : k ≤ finrank 𝕜 E) :
-    (b - a) * rectangularKyFanSum k tanTwoTheta0 ≤
-      2 * rectangularKyFanSum k H := by
+    (b - a) * kyFanSum k tanTwoTheta0 ≤
+      2 * kyFanSum k H := by
   classical
   set S : Finset (Fin (finrank 𝕜 E)) := Finset.univ.filter
     (fun j : Fin (finrank 𝕜 E) =>
@@ -359,11 +347,11 @@ private theorem kyFan_tanTwoTheta0_offDiagonal_le_of_le_finrank
         Finset.card_le_card_of_injOn (fun x => (x : ℕ)) hmaps
           fun x _ y _ h => Fin.val_injective h
       _ = k := Finset.card_range k
-  have hLHS : rectangularKyFanSum k tanTwoTheta0 =
+  have hLHS : kyFanSum k tanTwoTheta0 =
       ∑ x ∈ S, doubleAngleTangent (T.singularValues (x : ℕ)) := by
-    have h1 : rectangularKyFanSum k tanTwoTheta0 =
+    have h1 : kyFanSum k tanTwoTheta0 =
         ∑ i : Fin k, doubleAngleTangent (T.singularValues (i : ℕ)) := by
-      unfold rectangularKyFanSum
+      unfold kyFanSum
       exact Finset.sum_congr rfl fun i _ => htan (i : ℕ)
     have h2 := sum_filter_lt_eq_sum_fin (n := finrank 𝕜 E) hk
       (fun j => doubleAngleTangent (T.singularValues j))
@@ -377,8 +365,8 @@ private theorem kyFan_tanTwoTheta0_offDiagonal_le_of_le_finrank
       rw [hzero, doubleAngleTangent_zero] at hx
       exact hx rfl
     rw [h1, ← h2, h3]
-  have hmono : rectangularKyFanSum S.card H ≤ rectangularKyFanSum k H := by
-    unfold rectangularKyFanSum
+  have hmono : kyFanSum S.card H ≤ kyFanSum k H := by
+    unfold kyFanSum
     rw [Fin.sum_univ_eq_sum_range (fun i => H.singularValues i) S.card,
       Fin.sum_univ_eq_sum_range (fun i => H.singularValues i) k]
     exact Finset.sum_le_sum_of_subset_of_nonneg
@@ -406,13 +394,13 @@ theorem kyFan_doubleAngleTangent_offDiagonal_le
     (k : ℕ) :
     (b - a) * ∑ j ∈ Finset.range k,
         doubleAngleTangent (T.singularValues j) ≤
-      2 * rectangularKyFanSum k H := by
+      2 * kyFanSum k H := by
   classical
   -- reduce to `k ≤ finrank` since both sides freeze past the dimension
   suffices hcase : ∀ m : ℕ, m ≤ finrank 𝕜 E →
       (b - a) * ∑ j ∈ Finset.range m,
           doubleAngleTangent (T.singularValues j) ≤
-        2 * rectangularKyFanSum m H by
+        2 * kyFanSum m H by
     by_cases hk : k ≤ finrank 𝕜 E
     · exact hcase k hk
     · have hk' : finrank 𝕜 E ≤ k := Nat.le_of_not_ge hk
@@ -428,7 +416,7 @@ theorem kyFan_doubleAngleTangent_offDiagonal_le
           by_contra hlt
           exact hj (Finset.mem_range.mpr (Nat.lt_of_not_ge hlt))
         rw [T.singularValues_of_finrank_le hjge, doubleAngleTangent_zero]
-      rw [hsum, rectangularKyFanSum_eq_finrank_of_finrank_le H hk']
+      rw [hsum, TauCeti.kyFanSum_eq_of_finrank_le hk' H]
       exact hcase (finrank 𝕜 E) le_rfl
   intro m hm
   set S : Finset (Fin (finrank 𝕜 E)) := Finset.univ.filter
@@ -467,8 +455,8 @@ theorem kyFan_doubleAngleTangent_offDiagonal_le
       rw [hzero, doubleAngleTangent_zero] at hx
       exact hx rfl
     rw [h1, ← h2, h3]
-  have hmono : rectangularKyFanSum S.card H ≤ rectangularKyFanSum m H := by
-    unfold rectangularKyFanSum
+  have hmono : kyFanSum S.card H ≤ kyFanSum m H := by
+    unfold kyFanSum
     rw [Fin.sum_univ_eq_sum_range (fun i => H.singularValues i) S.card,
       Fin.sum_univ_eq_sum_range (fun i => H.singularValues i) m]
     exact Finset.sum_le_sum_of_subset_of_nonneg
@@ -498,14 +486,14 @@ theorem kyFan_tanTwoTheta0_offDiagonal_le
     (htan : ∀ j : ℕ, tanTwoTheta0.singularValues j =
       doubleAngleTangent (T.singularValues j))
     (k : ℕ) :
-    (b - a) * rectangularKyFanSum k tanTwoTheta0 ≤
-      2 * rectangularKyFanSum k H := by
+    (b - a) * kyFanSum k tanTwoTheta0 ≤
+      2 * kyFanSum k H := by
   by_cases hk : k ≤ finrank 𝕜 E
   · exact kyFan_tanTwoTheta0_offDiagonal_le_of_le_finrank hA hH hAU hHU
       hHUperp hTmem hTzero hUb hUa hinv hT1 tanTwoTheta0 htan hk
   · have hk' : finrank 𝕜 E ≤ k := Nat.le_of_not_ge hk
-    rw [rectangularKyFanSum_eq_finrank_of_finrank_le tanTwoTheta0 hk',
-      rectangularKyFanSum_eq_finrank_of_finrank_le H hk']
+    rw [TauCeti.kyFanSum_eq_of_finrank_le hk' tanTwoTheta0,
+      TauCeti.kyFanSum_eq_of_finrank_le hk' H]
     exact kyFan_tanTwoTheta0_offDiagonal_le_of_le_finrank hA hH hAU hHU
       hHUperp hTmem hTzero hUb hUa hinv hT1 tanTwoTheta0 htan le_rfl
 
@@ -516,7 +504,7 @@ invariant norm** (finite-dimensional graph-coordinate form).
 singular values are the double-angle tangents of the principal angles
 between `U` and the perturbed invariant graph subspace. -/
 theorem tanTwoTheta0_offDiagonal_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 E E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (hA : A.IsSymmetric) (hH : H.IsSymmetric)
     (hAU : ∀ x ∈ U, A x ∈ U)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
@@ -532,11 +520,11 @@ theorem tanTwoTheta0_offDiagonal_le
     (b - a) * N tanTwoTheta0 ≤ 2 * N H := by
   have hba : (0 : ℝ) ≤ b - a := sub_nonneg.mpr hab
   have hprefix : ∀ k,
-      rectangularKyFanSum k (((b - a : ℝ) : 𝕜) • tanTwoTheta0) ≤
-        rectangularKyFanSum k (((2 : ℝ) : 𝕜) • H) := by
+      kyFanSum k (((b - a : ℝ) : 𝕜) • tanTwoTheta0) ≤
+        kyFanSum k (((2 : ℝ) : 𝕜) • H) := by
     intro k
-    rw [rectangularKyFanSum_real_smul k tanTwoTheta0 hba,
-      rectangularKyFanSum_real_smul k H (by norm_num : (0 : ℝ) ≤ 2)]
+    rw [kyFanSum_real_smul k tanTwoTheta0 hba,
+      kyFanSum_real_smul k H (by norm_num : (0 : ℝ) ≤ 2)]
     exact kyFan_tanTwoTheta0_offDiagonal_le hA hH hAU hHU hHUperp hTmem
       hTzero hUb hUa hinv hT1 tanTwoTheta0 htan k
   have hN := N.apply_le_of_kyFanSum_le hprefix
@@ -552,5 +540,5 @@ theorem tanTwoTheta0_offDiagonal_le
 
 end KyFan
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

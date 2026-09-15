@@ -6,6 +6,8 @@ Authors: Jon Crall, GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.Riccati.ContinuationWitnessEffectiveBlocks
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Oriented effective blocks of a continuation-selected branch
 
@@ -127,7 +129,7 @@ theorem subspaceCoordinateAnalysis_comp_synthesis
 of the ambient operator. -/
 theorem subspaceCoordinate_conjugation_eq_blockOperator
     (T : H →L[ℂ] H) (U : Submodule ℂ H) [U.HasOrthogonalProjection]
-    (hT : IsSelfAdjointOperator T) :
+    (hT : T.IsSymmetric) :
     subspaceCoordinateAnalysis U ∘L T ∘L subspaceCoordinateSynthesis U =
       blockOperator (subspaceBlockOperatorData T U hT) := by
   let : CompleteSpace U :=
@@ -153,7 +155,7 @@ theorem subspaceCoordinate_conjugation_eq_blockOperator
 same complex spectrum. -/
 theorem spectrum_subspaceBlockOperatorData
     (T : H →L[ℂ] H) (U : Submodule ℂ H) [U.HasOrthogonalProjection]
-    (hT : IsSelfAdjointOperator T) :
+    (hT : T.IsSymmetric) :
     spectrum ℂ T = spectrum ℂ (blockOperator (subspaceBlockOperatorData T U hT)) := by
   let : CompleteSpace U :=
     (U.isComplete_coe_of_hasOrthogonalProjection).completeSpace_coe
@@ -164,7 +166,7 @@ theorem spectrum_subspaceBlockOperatorData
       (subspaceCoordinateAnalysis U) (subspaceCoordinateSynthesis U)
       (subspaceCoordinateAnalysis_comp_synthesis U)
       (subspaceCoordinateSynthesis_comp_analysis U)
-  have he : e.conjAlgEquiv T =
+  have he : e.conjContinuousAlgEquiv.toAlgEquiv T =
       blockOperator (subspaceBlockOperatorData T U hT) := by
     ext z
     change subspaceCoordinateAnalysis U
@@ -175,15 +177,15 @@ theorem spectrum_subspaceBlockOperatorData
       (subspaceCoordinate_conjugation_eq_blockOperator T U hT)
     simpa only [ContinuousLinearMap.comp_apply] using h
   calc
-    spectrum ℂ T = spectrum ℂ (e.conjAlgEquiv T) :=
-      (AlgEquiv.spectrum_eq e.conjAlgEquiv T).symm
+    spectrum ℂ T = spectrum ℂ (e.conjContinuousAlgEquiv.toAlgEquiv T) :=
+      (AlgEquiv.spectrum_eq e.conjContinuousAlgEquiv.toAlgEquiv T).symm
     _ = spectrum ℂ (blockOperator (subspaceBlockOperatorData T U hT)) :=
       congrArg (spectrum ℂ) he
 
 /-- Reduction kills the upper-right cross block. -/
 theorem subspaceBlockOperatorData_B01_eq_zero_of_reduces
     (T : H →L[ℂ] H) (U : Submodule ℂ H) [U.HasOrthogonalProjection]
-    (hT : IsSelfAdjointOperator T) (hred : Reduces T U) :
+    (hT : T.IsSymmetric) (hred : T.Reduces U) :
     (subspaceBlockOperatorData T U hT).B01 = 0 := by
   apply ContinuousLinearMap.ext
   intro w
@@ -195,7 +197,7 @@ theorem subspaceBlockOperatorData_B01_eq_zero_of_reduces
 /-- Reduction kills the lower-left cross block. -/
 theorem subspaceBlockOperatorData_B10_eq_zero_of_reduces
     (T : H →L[ℂ] H) (U : Submodule ℂ H) [U.HasOrthogonalProjection]
-    (hT : IsSelfAdjointOperator T) (hred : Reduces T U) :
+    (hT : T.IsSymmetric) (hred : T.Reduces U) :
     (subspaceBlockOperatorData T U hT).B10 = 0 := by
   apply ContinuousLinearMap.ext
   intro u
@@ -209,7 +211,7 @@ theorem subspaceBlockOperatorData_B10_eq_zero_of_reduces
 the direct sum of the two ambient compressions. -/
 theorem blockOperator_subspaceBlockOperatorData_eq_blockDiagonal_of_reduces
     (T : H →L[ℂ] H) (U : Submodule ℂ H) [U.HasOrthogonalProjection]
-    (hT : IsSelfAdjointOperator T) (hred : Reduces T U) :
+    (hT : T.IsSymmetric) (hred : T.Reduces U) :
     blockOperator (subspaceBlockOperatorData T U hT) =
       blockDiagonalOperator (compressOperator U T) (compressOperator Uᗮ T) := by
   let : CompleteSpace U :=
@@ -228,7 +230,7 @@ theorem blockOperator_subspaceBlockOperatorData_eq_blockDiagonal_of_reduces
 any reducing orthogonal decomposition. -/
 theorem realSpectrum_eq_union_compressions_of_reduces
     (T : H →L[ℂ] H) (U : Submodule ℂ H) [U.HasOrthogonalProjection]
-    (hT : IsSelfAdjointOperator T) (hred : Reduces T U) :
+    (hT : T.IsSymmetric) (hred : T.Reduces U) :
     realSpectrum T =
       realSpectrum (compressOperator U T) ∪
         realSpectrum (compressOperator Uᗮ T) := by
@@ -308,7 +310,7 @@ noncomputable def targetEffectiveBlock1
 /-- The target selected spectral subspace reduces the perturbed operator. -/
 theorem targetSelectedSpectralSubspace_reduces
     (C : SpectralContinuationWitness A V s) :
-    Reduces (A + V) C.targetSelectedSpectralSubspace := by
+    ContinuousLinearMap.Reduces (A + V) C.targetSelectedSpectralSubspace := by
   unfold targetSelectedSpectralSubspace
   exact boundedSelfAdjointSpectralSubspace_reduces (A + V)
     C.targetSeparatingContour.selfAdjoint s

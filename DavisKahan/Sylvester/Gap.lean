@@ -55,7 +55,7 @@ it is; each name says how its ordered configurations are given.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
 
@@ -129,6 +129,7 @@ variable {E' F' : Type v}
   [NormedAddCommGroup E'] [InnerProductSpace 𝕜 E'] [CompleteSpace E']
   [NormedAddCommGroup F'] [InnerProductSpace 𝕜 F']
 
+omit [CompleteSpace E] [CompleteSpace F] [CompleteSpace E'] in
 /-- The interval/exterior configuration is invariant under conjugating the left
 block by a unitary. -/
 theorem RealSpectrumIntervalExteriorGap.unitaryConj_left
@@ -138,6 +139,7 @@ theorem RealSpectrumIntervalExteriorGap.unitaryConj_left
   rw [RealSpectrumIntervalExteriorGap, TauCeti.LinearPMap.realSpectrum_unitaryConj]
   exact h
 
+omit [CompleteSpace E] [CompleteSpace F] in
 /-- The interval/exterior configuration is invariant under conjugating the right
 block by a unitary. -/
 theorem RealSpectrumIntervalExteriorGap.unitaryConj_right
@@ -147,6 +149,7 @@ theorem RealSpectrumIntervalExteriorGap.unitaryConj_right
   rw [RealSpectrumIntervalExteriorGap, TauCeti.LinearPMap.realSpectrum_unitaryConj]
   exact h
 
+omit [CompleteSpace E] [CompleteSpace F] [CompleteSpace E'] in
 /-- **The form-bounded gap is invariant under a unitary conjugation of the left
 block**, in every configuration. -/
 theorem FormBoundedSylvesterGap.unitaryConj_left
@@ -163,6 +166,7 @@ theorem FormBoundedSylvesterGap.unitaryConj_left
       exact .leftBelowRightAbove c
         (TauCeti.LinearPMap.semiboundedAbove_unitaryConj_of W hA) hB
 
+omit [CompleteSpace E] [CompleteSpace F] in
 /-- **The form-bounded gap is invariant under a unitary conjugation of the right
 block**, in every configuration. -/
 theorem FormBoundedSylvesterGap.unitaryConj_right
@@ -188,6 +192,7 @@ submodules but distinct *types*, so the restrictions are not interchangeable by
 `rw`.  `HasOrthogonalProjection`, `CompleteSpace` and `ReducesSubspace` are all
 `Prop`s, so substituting the subspace equality identifies everything else. -/
 
+omit [CompleteSpace E] in
 /-- The gap survives renaming the right-hand reducing subspace. -/
 theorem FormBoundedSylvesterGap.reducingRestriction_congr_right
     {G : Type v} [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
@@ -203,6 +208,7 @@ theorem FormBoundedSylvesterGap.reducingRestriction_congr_right
       (TauCeti.LinearPMap.reducingRestriction A q hq) δ := by
   subst h; exact hgap
 
+omit [CompleteSpace E] in
 /-- The gap survives renaming the left-hand reducing subspace. -/
 theorem FormBoundedSylvesterGap.reducingRestriction_congr_left
     {G : Type v} [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
@@ -218,6 +224,6 @@ theorem FormBoundedSylvesterGap.reducingRestriction_congr_left
       (TauCeti.LinearPMap.reducingRestriction A q hq) X δ := by
   subst h; exact hgap
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

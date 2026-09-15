@@ -6,13 +6,15 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 
 import DavisKahan.Specialized.FreeBeam.BeamTangent
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Section 9, equation (9.8): unconditional beam statement
 
 The historical route to (9.8) cites Weinberger and Lehmann.  The arrowhead
 lower-root half is formalized in `WeinbergerComparison`; the angle half requires
 coupled variational information and must not be reconstructed from independent
-scalar eigenvalue lower bounds (see `naive_second_scalar_lower_bound_tripwire`).
+scalar eigenvalue lower bounds (see `secondScalarLowerBound_angleBound_counterexample`).
 
 For the *statement actually printed in (9.8)*, no such external detour is
 needed: the repository already proves the subsequent, sharper Davis--Kahan

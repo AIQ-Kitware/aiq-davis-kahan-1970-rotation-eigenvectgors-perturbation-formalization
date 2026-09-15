@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, GPT-5.6 Thinking
 -/
 import ForTauCeti.Analysis.InnerProductSpace.Complexification.Basic
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 
 /-!
 # Complexification of real closed subspaces
@@ -273,9 +275,9 @@ omit [CompleteSpace E] in
 theorem subspaceGap_complexifySubmodule
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    TauCeti.DavisKahan.subspaceGap (complexifySubmodule U)
+    Submodule.projectionGap (complexifySubmodule U)
         (complexifySubmodule V) =
-      TauCeti.DavisKahan.subspaceGap U V :=
+      U.projectionGap V :=
   projectionGap_complexifySubmodule U V
 
 omit [CompleteSpace E] in
@@ -283,9 +285,9 @@ omit [CompleteSpace E] in
 theorem directedGap_complexifySubmodule
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    TauCeti.DavisKahan.directedGap (complexifySubmodule U)
+    Submodule.directedProjectionGap (complexifySubmodule U)
         (complexifySubmodule V) =
-      TauCeti.DavisKahan.directedGap U V :=
+      U.directedProjectionGap V :=
   directedProjectionGap_complexifySubmodule U V
 
 omit [CompleteSpace E] in

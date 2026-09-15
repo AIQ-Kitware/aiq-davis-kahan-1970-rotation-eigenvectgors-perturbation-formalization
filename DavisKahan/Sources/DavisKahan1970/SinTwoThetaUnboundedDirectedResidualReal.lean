@@ -10,6 +10,8 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.SubspaceSingularTranspo
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.HeterogeneousRepresentative
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNormLaws
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The unbounded directed half of the `sin 2Θ` theorem over a REAL Hilbert space
 
@@ -67,6 +69,7 @@ open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.DavisKahan.RealSpectralRestriction
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -74,14 +77,6 @@ universe v
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
-
-/-- A subspace admitting an orthogonal projection inside a complete ambient
-space is itself complete.  `local instance` does not propagate through imports,
-so it is reinstalled here. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionDirectedResidualReal
-    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace ℝ G] [CompleteSpace G]
-    (U : Submodule ℝ G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 section MainEstimate
 
@@ -120,7 +115,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_kyFan_real
   have hDsa' : IsSelfAdjoint ((-2 : ℝ) • trialOffDiagonalPart V M R) := by
     rw [IsSelfAdjoint, star_smul, hSsa.star_eq]
     norm_num
-  have hDsa : IsSelfAdjointOperator ((-2 : ℝ) • trialOffDiagonalPart V M R) :=
+  have hDsa : ((-2 : ℝ) • trialOffDiagonalPart V M R).IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hDsa'
   have hraw := sinTwoTheta_reflectionResidual_block_gauge_real A hA B hB
     (KyFanDominantIdealFamily.kyFan (𝕜 := ℝ) k hk)
@@ -269,8 +264,9 @@ The real mirror of the reducing endpoints in
 unbounded self-adjoint operator over a REAL Hilbert space, Ky Fan form, at an
 arbitrary reducing subspace.**
 
-`δ · kyFan_k (sin 2Θ₀) ≤ 2 · kyFan_k R` with the printed factor two and the
-trial subspace assumed only to reduce `A`. -/
+`δ · kyFan_k (sin 2Θ₀) ≤ 2 · kyFan_k R` with the printed factor two, and with
+`hred` about `U`, the gap-carrying subspace, rather than about the trial subspace
+`V`, which is assumed only to lie inside `dom A`. -/
 theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_kyFan_real
     (hA : IsSelfAdjoint A)
     {U : Submodule ℝ E} [U.HasOrthogonalProjection]
@@ -293,7 +289,7 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_kyFa
   have hDsa' : IsSelfAdjoint ((-2 : ℝ) • trialOffDiagonalPart V M R) := by
     rw [IsSelfAdjoint, star_smul, hSsa.star_eq]
     norm_num
-  have hDsa : IsSelfAdjointOperator ((-2 : ℝ) • trialOffDiagonalPart V M R) :=
+  have hDsa : ((-2 : ℝ) • trialOffDiagonalPart V M R).IsSymmetric :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hDsa'
   have hraw := sinTwoTheta_reflectionResidual_block_gauge_reducing_real hA hred
     (KyFanDominantIdealFamily.kyFan (𝕜 := ℝ) k hk)
@@ -360,8 +356,13 @@ theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_kyFa
 unbounded self-adjoint operator over a REAL Hilbert space, at every source
 unitarily invariant norm and at an arbitrary reducing subspace.**
 
-`δ N(sin 2Θ₀) ≤ 2 N(R)` with the printed residual and the printed factor two;
-nothing selects the trial subspace spectrally. -/
+`δ N(sin 2Θ₀) ≤ 2 N(R)` with the printed residual and the printed factor two.
+`hred` is about `U`, the gap-carrying subspace, which is not required to be a
+spectral projector; the trial subspace `V` is assumed only to lie inside `dom A`.
+
+The conclusion is on the proof's own block;
+`sinTwoTheta_directed_unboundedResidual_reducing_symmetricNorming_real` restates it
+on the paper's trial-side angle. -/
 theorem sinTwoTheta_directed_unboundedResidual_blockRepresentative_reducing_symmetricNorming_real
     (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A)

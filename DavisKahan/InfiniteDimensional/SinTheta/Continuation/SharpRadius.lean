@@ -5,6 +5,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.SharpThreshold
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Sharp off-diagonal enclosure radius
 

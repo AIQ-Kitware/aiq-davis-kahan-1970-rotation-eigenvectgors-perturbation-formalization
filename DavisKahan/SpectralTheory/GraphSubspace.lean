@@ -10,6 +10,9 @@ import Mathlib.Analysis.Normed.Ring.Units
 import Mathlib.Topology.Algebra.Module.LinearPMap
 import Mathlib.Topology.MetricSpace.Antilipschitz
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Graph subspaces and angular operators
 
@@ -96,7 +99,7 @@ closure adds nothing. -/
 noncomputable def graphSubspace (U : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] (X : E →L[𝕜] E) : Submodule 𝕜 E :=
   (LinearMap.range
-    (projection U + X ∘L projection U).toLinearMap).topologicalClosure
+    (U.starProjection + X ∘L U.starProjection).toLinearMap).topologicalClosure
 
 /-- The graph of a bounded operator is orthogonally complemented, being closed. -/
 noncomputable instance graphSubspace_hasOrthogonalProjection
@@ -114,18 +117,18 @@ theorem graphSubspace_eq_range (U : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] {X : E →L[𝕜] E}
     (hX : IsAngularOperator U X) :
     graphSubspace U X =
-      LinearMap.range (projection U + X ∘L projection U).toLinearMap := by
-  have hPX : ∀ y, projection U (X y) = 0 := fun y => by
+      LinearMap.range (U.starProjection + X ∘L U.starProjection).toLinearMap := by
+  have hPX : ∀ y, U.starProjection (X y) = 0 := fun y => by
     simpa using ContinuousLinearMap.ext_iff.mp hX.2 y
-  have hidem : ∀ x, projection U (projection U x) = projection U x := fun x =>
+  have hidem : ∀ x, U.starProjection (U.starProjection x) = U.starProjection x := fun x =>
     Submodule.starProjection_eq_self_iff.mpr (U.starProjection_apply_mem x)
-  set T : E →L[𝕜] E := projection U + X ∘L projection U with hT
-  have hPT : ∀ x, projection U (T x) = projection U x := by
+  set T : E →L[𝕜] E := U.starProjection + X ∘L U.starProjection with hT
+  have hPT : ∀ x, U.starProjection (T x) = U.starProjection x := by
     intro x
     simp only [hT, add_apply,
       ContinuousLinearMap.comp_apply, map_add]
     rw [hidem, hPX, add_zero]
-  have hTP : ∀ x, T (projection U x) = T x := by
+  have hTP : ∀ x, T (U.starProjection x) = T x := by
     intro x
     simp only [hT, add_apply,
       ContinuousLinearMap.comp_apply]
@@ -134,16 +137,16 @@ theorem graphSubspace_eq_range (U : Submodule 𝕜 E)
       IsClosed ((LinearMap.range T.toLinearMap : Submodule 𝕜 E) : Set E) := by
     rw [← isSeqClosed_iff_isClosed]
     intro seq y hseq hlim
-    have hfix : ∀ n, seq n = T (projection U (seq n)) := by
+    have hfix : ∀ n, seq n = T (U.starProjection (seq n)) := by
       intro n
       obtain ⟨x, hx⟩ := LinearMap.mem_range.mp (hseq n)
       have hx' : T x = seq n := hx
       rw [← hx', hPT, hTP]
     have hlim2 : Filter.Tendsto seq Filter.atTop
-        (nhds (T (projection U y))) := by
+        (nhds (T (U.starProjection y))) := by
       refine Filter.Tendsto.congr (fun n => (hfix n).symm) ?_
-      exact ((T ∘L projection U).continuous.tendsto y).comp hlim
-    exact ⟨projection U y, (tendsto_nhds_unique hlim hlim2).symm⟩
+      exact ((T ∘L U.starProjection).continuous.tendsto y).comp hlim
+    exact ⟨U.starProjection y, (tendsto_nhds_unique hlim hlim2).symm⟩
   refine le_antisymm ?_ (Submodule.le_topologicalClosure _)
   exact Submodule.topologicalClosure_minimal _ le_rfl hclosed
 
@@ -157,9 +160,9 @@ orthogonal projection onto the graph subspace
 noncomputable def graphProjectionFormula
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (X : E →L[𝕜] E) : E →L[𝕜] E :=
-  (projection U + X * projection U) *
-    Ring.inverse (1 + star (X * projection U) * (X * projection U)) *
-    star (projection U + X * projection U)
+  (U.starProjection + X * U.starProjection) *
+    Ring.inverse (1 + star (X * U.starProjection) * (X * U.starProjection)) *
+    star (U.starProjection + X * U.starProjection)
 
 /-! ### Basic consequences of `IsAngularOperator`
 
@@ -172,40 +175,40 @@ variable {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] {X : E →L[𝕜] E}
 
 /-- `X` maps into `Uᗮ`, so its adjoint kills `U`. -/
 theorem star_mul_projection_of_isAngularOperator (hX : IsAngularOperator U X) :
-    star X * projection U = 0 := by
-  have hPX : projection U * X = 0 := hX.2
+    star X * U.starProjection = 0 := by
+  have hPX : U.starProjection * X = 0 := hX.2
   have h := congrArg star hPX
   rwa [star_mul, (isSelfAdjoint_starProjection U).star_eq, star_zero] at h
 
 /-- Dually, `P` fixes the range of `X⋆`. -/
 theorem projection_mul_star_of_isAngularOperator (hX : IsAngularOperator U X) :
-    projection U * star X = star X := by
-  have hXP : X * projection U = X := hX.1
+    U.starProjection * star X = star X := by
+  have hXP : X * U.starProjection = X := hX.1
   have h := congrArg star hXP
   rwa [star_mul, (isSelfAdjoint_starProjection U).star_eq] at h
 
 /-- The graph denominator `1 + X⋆X` commutes with `P`. -/
 theorem projection_commute_one_add_star_mul_self_of_isAngularOperator
     (hX : IsAngularOperator U X) :
-    projection U * (1 + star X * X) = (1 + star X * X) * projection U := by
-  have hXP : X * projection U = X := hX.1
+    U.starProjection * (1 + star X * X) = (1 + star X * X) * U.starProjection := by
+  have hXP : X * U.starProjection = X := hX.1
   rw [mul_add, add_mul, mul_one, one_mul]
   congr 1
-  calc projection U * (star X * X) = (projection U * star X) * X := by rw [mul_assoc]
+  calc U.starProjection * (star X * X) = (U.starProjection * star X) * X := by rw [mul_assoc]
     _ = star X * X := by rw [projection_mul_star_of_isAngularOperator hX]
-    _ = star X * (X * projection U) := by rw [hXP]
-    _ = (star X * X) * projection U := by rw [mul_assoc]
+    _ = star X * (X * U.starProjection) := by rw [hXP]
+    _ = (star X * X) * U.starProjection := by rw [mul_assoc]
 
 /-- The graph parametrisation `A = P + X` has `A⋆A = (1 + X⋆X) P`. -/
 theorem star_mul_self_of_isAngularOperator (hX : IsAngularOperator U X) :
-    star (projection U + X) * (projection U + X) =
-      (1 + star X * X) * projection U := by
-  have hPP : projection U * projection U = projection U :=
+    star (U.starProjection + X) * (U.starProjection + X) =
+      (1 + star X * X) * U.starProjection := by
+  have hPP : U.starProjection * U.starProjection = U.starProjection :=
     (U.isIdempotentElem_starProjection).eq
-  have hXP : X * projection U = X := hX.1
-  have hPX : projection U * X = 0 := hX.2
-  simp only [star_add, (isSelfAdjoint_starProjection U).star_eq, add_mul, mul_add, mul_add,
-    hPP, hPX, star_mul_projection_of_isAngularOperator hX, add_mul, one_mul,
+  have hXP : X * U.starProjection = X := hX.1
+  have hPX : U.starProjection * X = 0 := hX.2
+  simp only [star_add, (isSelfAdjoint_starProjection U).star_eq, add_mul, mul_add,
+    hPP, hPX, star_mul_projection_of_isAngularOperator hX, one_mul,
     mul_assoc, hXP, add_zero, zero_add]
 
 /-- Projection onto a graph subspace in terms of the angular operator.
@@ -220,8 +223,8 @@ characterization of the orthogonal projection finishes the proof. -/
 theorem projection_graphSubspace_formula
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (X : E →L[𝕜] E) (hX : IsAngularOperator U X) :
-    projection (graphSubspace U X) = graphProjectionFormula U X := by
-  set P : E →L[𝕜] E := projection U with hPdef
+    Submodule.starProjection (graphSubspace U X) = graphProjectionFormula U X := by
+  set P : E →L[𝕜] E := U.starProjection with hPdef
   have hXP : X * P = X := hX.1
   have hPX : P * X = 0 := hX.2
   have hPP : P * P = P := (U.isIdempotentElem_starProjection).eq
@@ -295,9 +298,9 @@ Pythagoras estimate then pins the full difference at the common value. -/
 theorem norm_projection_sub_projection_graphSubspace
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (X : E →L[𝕜] E) (hX : IsAngularOperator U X) :
-    ‖projection U - projection (graphSubspace U X)‖
+    ‖U.starProjection - Submodule.starProjection (graphSubspace U X)‖
       = ‖X‖ / Real.sqrt (1 + ‖X‖ ^ 2) := by
-  set P : E →L[𝕜] E := projection U with hPdef
+  set P : E →L[𝕜] E := U.starProjection with hPdef
   have hXP : X * P = X := hX.1
   have hPX : P * X = 0 := hX.2
   have hPP : P * P = P := (U.isIdempotentElem_starProjection).eq
@@ -311,7 +314,7 @@ theorem norm_projection_sub_projection_graphSubspace
   have hN : N = 1 + star X * X := by rw [hNdef, hXP]
   set M : E →L[𝕜] E := 1 + X * star X with hMdef
   set R' : E →L[𝕜] E := Ring.inverse M with hR'def
-  have hQF : projection (graphSubspace U X) = A * R * star A :=
+  have hQF : Submodule.starProjection (graphSubspace U X) = A * R * star A :=
     projection_graphSubspace_formula U X hX
   -- units and inverses
   have hNunit : IsUnit N := by
@@ -480,7 +483,7 @@ theorem norm_projection_sub_projection_graphSubspace
       rw [← hnorm_sq_eq (X * R * star A), hT2sq, h1R'norm, hgsq]
     exact (sq_eq_sq₀ (norm_nonneg _) hg0).mp hsq
   -- identify the blocks with `P (1 - Q)` and `(1 - P) Q`
-  set Q : E →L[𝕜] E := projection (graphSubspace U X) with hQdef
+  set Q : E →L[𝕜] E := Submodule.starProjection (graphSubspace U X) with hQdef
   have hQQ : ∀ x, Q (Q x) = Q x := fun x =>
     Submodule.starProjection_eq_self_iff.mpr
       ((graphSubspace U X).starProjection_apply_mem x)
@@ -573,7 +576,7 @@ operator is `‖X‖ / √(1 + ‖X‖ ^ 2)`. -/
 theorem subspaceGap_graphSubspace
     (U : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     (X : E →L[𝕜] E) (hX : IsAngularOperator U X) :
-    subspaceGap U (graphSubspace U X) = ‖X‖ / Real.sqrt (1 + ‖X‖ ^ 2) :=
+    U.projectionGap (graphSubspace U X) = ‖X‖ / Real.sqrt (1 + ‖X‖ ^ 2) :=
   norm_projection_sub_projection_graphSubspace U X hX
 
 
@@ -584,17 +587,17 @@ injective.  The estimate is the elementary gap argument
 private theorem acute_coordinate_injective
     (U V : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) :
-    ∀ v, v ∈ V → projection U v = 0 → v = 0 := by
+    ∀ v, v ∈ V → U.starProjection v = 0 → v = 0 := by
   intro v hv hPv
-  have hQv : projection V v = v :=
+  have hQv : V.starProjection v = v :=
     Submodule.starProjection_eq_self_iff.mpr hv
-  have hgap : ‖projection U - projection V‖ < 1 := hacute
-  have hpoint : ‖v‖ ≤ ‖projection U - projection V‖ * ‖v‖ := by
-    have heq : (projection U - projection V) v = -v := by
+  have hgap : ‖U.starProjection - V.starProjection‖ < 1 := hacute
+  have hpoint : ‖v‖ ≤ ‖U.starProjection - V.starProjection‖ * ‖v‖ := by
+    have heq : (U.starProjection - V.starProjection) v = -v := by
       rw [sub_apply, hPv, hQv, zero_sub]
-    calc ‖v‖ = ‖(projection U - projection V) v‖ := by rw [heq, norm_neg]
-      _ ≤ ‖projection U - projection V‖ * ‖v‖ :=
-        (projection U - projection V).le_opNorm v
+    calc ‖v‖ = ‖(U.starProjection - V.starProjection) v‖ := by rw [heq, norm_neg]
+      _ ≤ ‖U.starProjection - V.starProjection‖ * ‖v‖ :=
+        (U.starProjection - V.starProjection).le_opNorm v
   by_contra hv0
   have hnv : 0 < ‖v‖ := norm_pos_iff.mpr hv0
   nlinarith
@@ -604,9 +607,9 @@ near-identity compression `P_U P_V P_U + P_{U^perp}`. -/
 private noncomputable def acuteAngularOperator
     (U V : Submodule 𝕜 E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (_hacute : IsUniformlyAcute U V) : E →L[𝕜] E :=
-  (1 - projection U) * projection V *
-    Ring.inverse (projection U * projection V * projection U + (1 - projection U)) *
-    projection U
+  (1 - U.starProjection) * V.starProjection *
+    Ring.inverse (U.starProjection * V.starProjection * U.starProjection + (1 - U.starProjection)) *
+    U.starProjection
 
 /-- Algebraic properties of the acute angular operator. -/
 private theorem acuteAngularOperator_spec
@@ -614,9 +617,9 @@ private theorem acuteAngularOperator_spec
     [V.HasOrthogonalProjection] (hacute : IsUniformlyAcute U V) :
     IsAngularOperator U (acuteAngularOperator U V hacute) ∧
       V = LinearMap.range
-        (projection U + acuteAngularOperator U V hacute ∘L projection U).toLinearMap := by
-  set P : E →L[𝕜] E := projection U with hPdef
-  set Q : E →L[𝕜] E := projection V with hQdef
+        (U.starProjection + acuteAngularOperator U V hacute ∘L U.starProjection).toLinearMap := by
+  set P : E →L[𝕜] E := U.starProjection with hPdef
+  set Q : E →L[𝕜] E := V.starProjection with hQdef
   have hPP : P * P = P := (U.isIdempotentElem_starProjection).eq
   set T : E →L[𝕜] E := P * Q * P + (1 - P) with hTdef
   set R : E →L[𝕜] E := Ring.inverse T with hRdef
@@ -684,7 +687,7 @@ private theorem acuteAngularOperator_spec
   have hXP : ((1 - P) * Q * R * P) * P = (1 - P) * Q * R * P := by
     rw [mul_assoc, hPP]
   have hPX : P * ((1 - P) * Q * R * P) = 0 := by
-    simp only [← mul_assoc, ← mul_assoc, ← mul_assoc, hP1P, zero_mul, zero_mul, zero_mul]
+    simp only [← mul_assoc, hP1P, zero_mul]
   -- the parametrized graph map collapses to `Q R P`
   have hsum : P + (1 - P) * Q * R * P = Q * R * P := by
     rw [one_sub_mul, sub_mul, sub_mul, hPQRP]
@@ -724,7 +727,7 @@ theorem acute_iff_exists_bounded_angularOperator (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     IsUniformlyAcute U V ↔
       ∃ X : E →L[𝕜] E, IsAngularOperator U X ∧
-        V = LinearMap.range (projection U + X ∘L projection U).toLinearMap := by
+        V = LinearMap.range (U.starProjection + X ∘L U.starProjection).toLinearMap := by
   constructor
   · intro hacute
     obtain ⟨hang, hrange⟩ := acuteAngularOperator_spec U V hacute
@@ -741,7 +744,7 @@ theorem acute_iff_exists_bounded_angularOperator (U V : Submodule 𝕜 E)
       calc ‖X‖ = Real.sqrt (‖X‖ ^ 2) := (Real.sqrt_sq (norm_nonneg X)).symm
         _ < Real.sqrt (1 + ‖X‖ ^ 2) :=
             Real.sqrt_lt_sqrt (by positivity) (by linarith)
-    have hkey : subspaceGap U (graphSubspace U X) < 1 := by
+    have hkey : U.projectionGap (graphSubspace U X) < 1 := by
       rw [subspaceGap_graphSubspace U X hXang]
       exact hlt
     exact hkey
@@ -754,38 +757,38 @@ theorem existsUnique_angularOperator
       IsAngularOperator U X ∧ graphSubspace U X = V := by
   obtain ⟨X, hXang, hXrange⟩ :=
     (acute_iff_exists_bounded_angularOperator U V).mp hacute
-  have hidem : ∀ x, projection U (projection U x) = projection U x := fun x =>
+  have hidem : ∀ x, U.starProjection (U.starProjection x) = U.starProjection x := fun x =>
     Submodule.starProjection_eq_self_iff.mpr (U.starProjection_apply_mem x)
   refine ⟨X, ⟨hXang, ?_⟩, ?_⟩
   · rw [graphSubspace_eq_range U hXang]
     exact hXrange.symm
   · rintro Y ⟨hYang, hYgraph⟩
-    have hPX : ∀ y, projection U (X y) = 0 := fun y => by
+    have hPX : ∀ y, U.starProjection (X y) = 0 := fun y => by
       simpa using ContinuousLinearMap.ext_iff.mp hXang.2 y
-    have hPY : ∀ y, projection U (Y y) = 0 := fun y => by
+    have hPY : ∀ y, U.starProjection (Y y) = 0 := fun y => by
       simpa using ContinuousLinearMap.ext_iff.mp hYang.2 y
     have hranges :
-        LinearMap.range (projection U + Y ∘L projection U).toLinearMap =
-          LinearMap.range (projection U + X ∘L projection U).toLinearMap := by
+        LinearMap.range (U.starProjection + Y ∘L U.starProjection).toLinearMap =
+          LinearMap.range (U.starProjection + X ∘L U.starProjection).toLinearMap := by
       rw [← graphSubspace_eq_range U hYang, hYgraph, hXrange]
-    have key : ∀ x, Y (projection U x) = X (projection U x) := by
+    have key : ∀ x, Y (U.starProjection x) = X (U.starProjection x) := by
       intro x
-      have hmem : projection U x + Y (projection U x) ∈
-          LinearMap.range (projection U + X ∘L projection U).toLinearMap := by
+      have hmem : U.starProjection x + Y (U.starProjection x) ∈
+          LinearMap.range (U.starProjection + X ∘L U.starProjection).toLinearMap := by
         rw [← hranges]
         exact ⟨x, rfl⟩
       obtain ⟨w, hw⟩ := hmem
-      have hw' : projection U w + X (projection U w) =
-          projection U x + Y (projection U x) := hw
-      have happ := congrArg (fun z => projection U z) hw'
+      have hw' : U.starProjection w + X (U.starProjection w) =
+          U.starProjection x + Y (U.starProjection x) := hw
+      have happ := congrArg (fun z => U.starProjection z) hw'
       simp only [map_add, hidem, hPX, hPY, add_zero] at happ
       rw [happ] at hw'
       exact (add_left_cancel hw').symm
     ext x
     calc
-      Y x = Y (projection U x) := by
+      Y x = Y (U.starProjection x) := by
         rw [← ContinuousLinearMap.comp_apply, hYang.1]
-      _ = X (projection U x) := key x
+      _ = X (U.starProjection x) := key x
       _ = X x := by rw [← ContinuousLinearMap.comp_apply, hXang.1]
 
 /-- Tangent of the maximal angle is the angular-operator norm.  The gap to

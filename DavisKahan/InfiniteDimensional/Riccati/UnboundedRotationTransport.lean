@@ -53,7 +53,7 @@ noncomputable def unboundedGraphRotation (X : E0 →L[ℂ] E1) :
 
 /-- The canonical graph rotation is norm preserving and onto. -/
 theorem unboundedGraphRotation_unitary (X : E0 →L[ℂ] E1) :
-    IsUnitaryOperator (unboundedGraphRotation X) := by
+    TauCeti.LinearPMap.IsUnitaryOperator (unboundedGraphRotation X) := by
   exact complexDirectRotation_unitary
     (unboundedBlockGraph (0 : E0 →L[ℂ] E1))
     (unboundedBlockGraph X)
@@ -66,7 +66,7 @@ theorem unboundedGraphRotation_ker_bot_range_top
     LinearMap.ker (unboundedGraphRotation X).toLinearMap = ⊥ ∧
       LinearMap.range (unboundedGraphRotation X).toLinearMap = ⊤ := by
   let W := unboundedGraphRotation X
-  have hW : IsUnitaryOperator W := unboundedGraphRotation_unitary X
+  have hW : TauCeti.LinearPMap.IsUnitaryOperator W := unboundedGraphRotation_unitary X
   constructor
   · rw [LinearMap.ker_eq_bot]
     intro x y hxy
@@ -99,9 +99,9 @@ noncomputable def unboundedGraphRotationEquiv (X : E0 →L[ℂ] E1) :
 
 /-- The equivalence underlying the graph rotation remains unitary. -/
 theorem unboundedGraphRotationEquiv_unitary (X : E0 →L[ℂ] E1) :
-    IsUnitaryOperator
+    TauCeti.LinearPMap.IsUnitaryOperator
       (unboundedGraphRotationEquiv X).toContinuousLinearMap := by
-  change IsUnitaryOperator (unboundedGraphRotation X)
+  change TauCeti.LinearPMap.IsUnitaryOperator (unboundedGraphRotation X)
   exact unboundedGraphRotation_unitary X
 
 /-- The graph-rotation equivalence intertwines the coordinate projection with
@@ -109,12 +109,12 @@ the projection onto the graph of `X`. -/
 theorem unboundedGraphRotationEquiv_intertwines_projection
     (X : E0 →L[ℂ] E1) :
     (unboundedGraphRotationEquiv X).toContinuousLinearMap ∘L
-        projection (unboundedBlockGraph (0 : E0 →L[ℂ] E1)) =
-      projection (unboundedBlockGraph X) ∘L
+        Submodule.starProjection (unboundedBlockGraph (0 : E0 →L[ℂ] E1)) =
+      Submodule.starProjection (unboundedBlockGraph X) ∘L
         (unboundedGraphRotationEquiv X).toContinuousLinearMap := by
   change unboundedGraphRotation X ∘L
-        projection (unboundedBlockGraph (0 : E0 →L[ℂ] E1)) =
-      projection (unboundedBlockGraph X) ∘L unboundedGraphRotation X
+        Submodule.starProjection (unboundedBlockGraph (0 : E0 →L[ℂ] E1)) =
+      Submodule.starProjection (unboundedBlockGraph X) ∘L unboundedGraphRotation X
   exact complexDirectRotation_intertwines
     (unboundedBlockGraph (0 : E0 →L[ℂ] E1))
     (unboundedBlockGraph X)

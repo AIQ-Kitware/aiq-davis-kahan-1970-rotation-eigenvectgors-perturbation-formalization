@@ -7,6 +7,8 @@ import DavisKahan.SpectralTheory.ResolventOperator
 import Mathlib.MeasureTheory.Integral.CurveIntegral.Basic
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Proof-carrying contours for spectral continuation
 
@@ -132,7 +134,7 @@ structure SpectralSeparatingContour
   /-- Piecewise-`C1` closed geometric contour. -/
   geometric : PiecewiseC1ClosedContour
   /-- Self-adjointness of the operator whose spectrum is separated. -/
-  selfAdjoint : IsSelfAdjointOperator A
+  selfAdjoint : A.IsSymmetric
   /-- Measurability required by the Borel spectral projection. -/
   measurable_selected : MeasurableSet s
   /-- Quantitative contour-to-spectrum margin. -/

@@ -7,6 +7,11 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol
 import DavisKahan.TanTheta.Theorem63InfiniteTrial
 import DavisKahan.TanTheta.Theorem63Unbounded
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Theorem 6.3 for an unbounded operator and an arbitrary trial space
 
@@ -20,7 +25,7 @@ argument already existed separately:
 
 The finite-projector passage only uses bounded trial-block data: the self-adjoint Ritz
 compression, the residual, and the action on the trial space.  Those are precisely the
-fields of `Theorem63TrialData`, including for an `UnboundedTrialBlock`.  This module lifts
+fields of `Theorem63TrialData`, including for an `BoundedCompressionTrialBlock`.  This module lifts
 the Appendix argument to that data abstraction and then instantiates it at the unbounded
 trial block.
 
@@ -32,7 +37,7 @@ open scoped InnerProductSpace BigOperators
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactTanTheta
+namespace TanTheta
 
 open ExactSinTheta
 open TanTheta
@@ -534,8 +539,8 @@ theorem ideal_of_formBounds_infinite
     (htan : HasTheorem63DirectedTangentApproximationNumbersInfinite Z V tanTheta0)
     (hResidual : N.Mem data.residual) :
     N.Mem tanTheta0 ∧ delta * N.gauge tanTheta0 ≤ N.gauge data.residual := by
-  refine ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta
-    hResidual fun k => ?_
+  refine ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le
+    N.toFanDominantIdealFamily hdelta hResidual fun k => ?_
   have hcore := data.all_kyFan_core_of_formBounds_infinite hdelta hMupper hcross k
   have hKyTan : kyFanApproximationGauge k tanTheta0 =
       ∑ n ∈ Finset.range k, Real.tan (Real.arcsin
@@ -589,7 +594,7 @@ theorem theorem6_3_unbounded_infiniteTrial_ideal_exists_of_reducing
     (N : ExactSinTheta.KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hVdom : ∀ x : A.domain, Vᗮ.starProjection ((x : H)) ∈ A.domain)
@@ -615,7 +620,7 @@ theorem theorem6_3_unbounded_infiniteTrial_ideal_of_reducing
     (N : ExactSinTheta.KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hVdom : ∀ x : A.domain, Vᗮ.starProjection ((x : H)) ∈ A.domain)
@@ -641,7 +646,7 @@ theorem theorem6_3_unbounded_infiniteTrial_ideal_exists
     (N : ExactSinTheta.KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hgap : TauCeti.LinearPMap.specProjection hA (Set.Ioo alpha (alpha + delta))
       measurableSet_Ioo = 0)
@@ -669,7 +674,7 @@ theorem theorem6_3_unbounded_infiniteTrial_ideal
     (N : ExactSinTheta.KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {alpha delta : ℝ} (hdelta : 0 < delta)
     (hgap : TauCeti.LinearPMap.specProjection hA (Set.Ioo alpha (alpha + delta))
       measurableSet_Ioo = 0)
@@ -686,6 +691,6 @@ theorem theorem6_3_unbounded_infiniteTrial_ideal
   exact data.ideal_of_formBounds_infinite N hdelta hCompression
     (crossed_lower_of_spectralGap A hA D hgap) tanTheta0 htan hResidual
 
-end ExactTanTheta
+end TanTheta
 end DavisKahan
 end TauCeti

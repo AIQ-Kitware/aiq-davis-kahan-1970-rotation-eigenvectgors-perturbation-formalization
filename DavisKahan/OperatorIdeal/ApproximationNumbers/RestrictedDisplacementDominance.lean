@@ -5,6 +5,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 
 import DavisKahan.OperatorIdeal.ApproximationNumbers.ScalarGeneric
+import DavisKahan.Sylvester.ScalarTransport
+import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.ScalarTransport
 
 /-!
 # Approximation-number dominance for restricted displacements
@@ -47,7 +49,7 @@ theorem kyFanApproximationGauge_le_of_approximationSingularValue_le
 /-- Correct infinite-dimensional ideal-dominance bridge for Corollary 4.1.
 The stronger family contains precisely the missing monotonicity principle. -/
 theorem mem_and_gauge_le_of_approximationSingularValue_le
-    (N : KyFanDominantIdealFamily (𝕜 := 𝕜))
+    (N : FanDominantIdealFamily (𝕜 := 𝕜))
     {A B : E →L[𝕜] F}
     (hB : N.Mem B)
     (h : ∀ n, approximationSingularValue n A ≤
@@ -69,7 +71,7 @@ structure RestrictedDisplacementApproximationDominance
 /-- Corollary 4.1 follows formally from a Proposition 4.1 certificate for every
 Fan-dominant ideal family. -/
 theorem restrictedDisplacement_idealGauge_le
-    (N : KyFanDominantIdealFamily (𝕜 := 𝕜))
+    (N : FanDominantIdealFamily (𝕜 := 𝕜))
     {A B : E →L[𝕜] F}
     (D : RestrictedDisplacementApproximationDominance A B)
     (hB : N.Mem B) :
@@ -89,7 +91,6 @@ theorem restrictedDisplacement_opNorm_le
 omit [CompleteSpace E] [CompleteSpace F] in
 /-- Every fixed positive Ky Fan gauge is a direct specialization. -/
 theorem restrictedDisplacement_kyFan_le
-    [ContinuousLinearMap.HasMinMaxLowerBoundEverywhere.{u, v} 𝕜]
     {A B : E →L[𝕜] F}
     (D : RestrictedDisplacementApproximationDominance A B)
     (k : ℕ) :

@@ -8,7 +8,12 @@ import DavisKahan.InfiniteDimensional.DoubleAngle
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaAmbient
 import ForTauCeti.Analysis.InnerProductSpace.DoubleAngle.ReflectionBlocks
 import ForTauCeti.Analysis.InnerProductSpace.DoubleAngle.UnboundedPole
-import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder.Complex
+import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # The branch-free ambient half of Davis--Kahan `tan 2Theta`
@@ -33,6 +38,7 @@ open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -40,11 +46,6 @@ universe v
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
   [CompleteSpace E]
-
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionTanTwoThetaReflection
-    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace ℂ G] [CompleteSpace G]
-    (U : Submodule ℂ G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 omit [CompleteSpace E] in
 private theorem comp_eq_mul_reflection (f g : E →L[ℂ] E) : f ∘L g = f * g := rfl
@@ -59,29 +60,29 @@ omit [CompleteSpace E] in
 private theorem projectionBlock_lower_reflection
     {U : Submodule ℂ E} [U.HasOrthogonalProjection]
     (K : E →L[ℂ] E) :
-    paperProjectionBlock Uᗮ U K =
+    projectionBlock Uᗮ U K =
       (1 - U.starProjection) * K * U.starProjection := by
-  rw [paperProjectionBlock, Submodule.starProjection_orthogonal',
+  rw [projectionBlock, Submodule.starProjection_orthogonal',
     comp_eq_mul_reflection, comp_eq_mul_reflection, mul_assoc]
 
 omit [CompleteSpace E] in
 private theorem projectionBlock_upper_reflection
     {U : Submodule ℂ E} [U.HasOrthogonalProjection]
     (K : E →L[ℂ] E) :
-    paperProjectionBlock Uᗮᗮ Uᗮ K =
+    projectionBlock Uᗮᗮ Uᗮ K =
       U.starProjection * K * (1 - U.starProjection) := by
   have hUperp : Uᗮᗮ = U := Submodule.orthogonal_orthogonal U
-  rw [paperProjectionBlock]
+  rw [projectionBlock]
   simp only [hUperp, Submodule.starProjection_orthogonal', comp_eq_mul_reflection]
   rw [mul_assoc]
 
 private theorem kyFan_lowerBlock_eq_upperBlock_reflection
     {U : Submodule ℂ E} [U.HasOrthogonalProjection]
     (K : E →L[ℂ] E) (hK : IsSelfAdjoint K) (k : ℕ) :
-    kyFanApproximationGauge k (paperProjectionBlock Uᗮ U K) =
-      kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ K) := by
-  have hadj : paperProjectionBlock Uᗮᗮ Uᗮ K =
-      (paperProjectionBlock Uᗮ U K).adjoint := by
+    kyFanApproximationGauge k (projectionBlock Uᗮ U K) =
+      kyFanApproximationGauge k (projectionBlock Uᗮᗮ Uᗮ K) := by
+  have hadj : projectionBlock Uᗮᗮ Uᗮ K =
+      (projectionBlock Uᗮ U K).adjoint := by
     rw [projectionBlock_upper_reflection, projectionBlock_lower_reflection]
     show _ = star _
     simp only [star_mul, star_sub, star_one,
@@ -93,9 +94,9 @@ omit [CompleteSpace E] in
 private theorem projectionBlock_diagonalPair_lower_reflection
     (U : Submodule ℂ E) [U.HasOrthogonalProjection]
     (K : E →L[ℂ] E) :
-    paperProjectionBlock Uᗮ U (paperDiagonalPair Uᗮ U K) =
-      paperProjectionBlock Uᗮ U K := by
-  unfold paperProjectionBlock paperDiagonalPair
+    projectionBlock Uᗮ U (diagonalPair Uᗮ U K) =
+      projectionBlock Uᗮ U K := by
+  unfold projectionBlock diagonalPair
   simp only [Submodule.orthogonal_orthogonal,
     Submodule.starProjection_orthogonal', comp_eq_mul_reflection]
   have hp := starProjection_idem_reflection U
@@ -176,7 +177,7 @@ end ReflectionRing
 /-- The signed doubled cosine `1 - 2(P_V-P_U)^2`. -/
 def signedCosTwo (U V : Submodule ℂ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] : E →L[ℂ] E :=
-  1 - 2 * (paperProjectorDifference U V * paperProjectorDifference U V)
+  1 - 2 * (projectorDifference U V * projectorDifference U V)
 
 omit [CompleteSpace E] in
 /-- The signed doubled cosine commutes with the projection onto `U`. -/
@@ -185,19 +186,19 @@ theorem signedCosTwo_comm_starProjection
     signedCosTwo U V * U.starProjection = U.starProjection * signedCosTwo U V := by
   have hsq := proj_comm_sq_reflection
     (starProjection_idem_reflection U)
-    (paperProjectorDifference_anticommutator (U := U) (V := V))
+    (projectorDifference_anticommutator (U := U) (V := V))
   unfold signedCosTwo
   rw [mul_sub, sub_mul, mul_one, one_mul]
   have htwo :
-      (2 * (paperProjectorDifference U V * paperProjectorDifference U V)) *
+      (2 * (projectorDifference U V * projectorDifference U V)) *
           U.starProjection =
-        2 * ((paperProjectorDifference U V * paperProjectorDifference U V) *
+        2 * ((projectorDifference U V * projectorDifference U V) *
           U.starProjection) := by noncomm_ring
   have htwo' :
       U.starProjection *
-          (2 * (paperProjectorDifference U V * paperProjectorDifference U V)) =
+          (2 * (projectorDifference U V * projectorDifference U V)) =
         2 * (U.starProjection *
-          (paperProjectorDifference U V * paperProjectorDifference U V)) := by
+          (projectorDifference U V * projectorDifference U V)) := by
     rw [show (2 : E →L[ℂ] E) = 1 + 1 from (one_add_one_eq_two).symm]
     noncomm_ring
   rw [htwo, htwo', hsq]
@@ -222,7 +223,7 @@ orthogonal projections. -/
 theorem signedCosTwo_selfAdjoint
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     IsSelfAdjoint (signedCosTwo U V) := by
-  have hD := isSelfAdjoint_paperProjectorDifference (U := U) (V := V)
+  have hD := isSelfAdjoint_projectorDifference (U := U) (V := V)
   unfold signedCosTwo
   rw [IsSelfAdjoint, star_sub, star_one, star_mul, star_mul,
     star_ofNat, hD.star_eq]
@@ -240,7 +241,7 @@ theorem diagonalPart_reflection_eq_reflection_mul_signedCosTwo
     Submodule.reflectionOperator_eq_two_smul_sub_id U,
     Submodule.reflectionOperator_eq_two_smul_sub_id V]
   simp only [two_smul, Submodule.starProjection_orthogonal', comp_eq_mul_reflection]
-  rw [paperProjectorDifference, ← ContinuousLinearMap.one_def]
+  rw [projectorDifference, ← ContinuousLinearMap.one_def]
   have hp := starProjection_idem_reflection U
   have hq := starProjection_idem_reflection V
   simp only [two_mul, mul_add, add_mul, mul_sub, sub_mul, one_mul, mul_one,
@@ -279,18 +280,18 @@ private theorem coe_compressOperator_apply_of_maps
   rw [compressOperator_eq_restrict_of_invariant K U hK]
   rfl
 
-private theorem coe_paperBlockCompression_apply_of_maps
+private theorem coe_blockCompression_apply_of_maps
     {Ω Γ : Submodule ℂ E} [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K : E →L[ℂ] E) (hK : ∀ x ∈ Γ, K x ∈ Ω) (x : Γ) :
-    ((paperBlockCompression Ω Γ K x : Ω) : E) = K (x : E) := by
-  rw [paperBlockCompression, Submodule.adjoint_subtypeL]
+    ((blockCompression Ω Γ K x : Ω) : E) = K (x : E) := by
+  rw [blockCompression, Submodule.adjoint_subtypeL]
   exact Submodule.starProjection_eq_self_iff.mpr (hK (x : E) x.property)
 
-private theorem paperBlockCompression_adjoint_of_selfAdjoint
+private theorem blockCompression_adjoint_of_selfAdjoint
     {Ω Γ : Submodule ℂ E} [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K : E →L[ℂ] E) (hK : IsSelfAdjoint K) :
-    (paperBlockCompression Ω Γ K).adjoint = paperBlockCompression Γ Ω K := by
-  unfold paperBlockCompression
+    (blockCompression Ω Γ K).adjoint = blockCompression Γ Ω K := by
+  unfold blockCompression
   rw [ContinuousLinearMap.adjoint_comp, ContinuousLinearMap.adjoint_comp,
     ContinuousLinearMap.adjoint_adjoint, hK.adjoint_eq,
     ContinuousLinearMap.comp_assoc]
@@ -298,8 +299,8 @@ private theorem paperBlockCompression_adjoint_of_selfAdjoint
 omit [CompleteSpace E] in
 private theorem tanRep_maps_U
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    {x : E} (hx : x ∈ U) : paperTanTwoBlockRepresentative U V x ∈ Uᗮ := by
-  rw [paperTanTwoBlockRepresentative, paperDiagonalPair]
+    {x : E} (hx : x ∈ U) : tanTwoBlockRepresentative U V x ∈ Uᗮ := by
+  rw [tanTwoBlockRepresentative, diagonalPair]
   simp only [ContinuousLinearMap.comp_apply, add_apply]
   have hxU : U.starProjection x = x := Submodule.starProjection_eq_self_iff.mpr hx
   have hxPerp : Uᗮ.starProjection x = 0 :=
@@ -310,8 +311,8 @@ private theorem tanRep_maps_U
 omit [CompleteSpace E] in
 private theorem tanRep_maps_Uperp
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    {x : E} (hx : x ∈ Uᗮ) : paperTanTwoBlockRepresentative U V x ∈ U := by
-  rw [paperTanTwoBlockRepresentative, paperDiagonalPair]
+    {x : E} (hx : x ∈ Uᗮ) : tanTwoBlockRepresentative U V x ∈ U := by
+  rw [tanTwoBlockRepresentative, diagonalPair]
   simp only [ContinuousLinearMap.comp_apply, add_apply]
   have hxU : U.starProjection x = 0 := (U.starProjection_apply_eq_zero_iff).mpr hx
   have hxPerp : Uᗮ.starProjection x = x :=
@@ -319,25 +320,25 @@ private theorem tanRep_maps_Uperp
   rw [hxU, map_zero, map_zero, hxPerp, zero_add]
   have hUU : Uᗮᗮ = U := Submodule.orthogonal_orthogonal U
   simpa only [hUU] using U.starProjection_apply_mem
-    ((2 * (paperProjectorDifference U V * paperDoubleSecant U V)) x)
+    ((2 * (projectorDifference U V * doubleSecant U V)) x)
 
 private theorem signedCosBlock_isUnit
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     IsUnit (compressOperator U (signedCosTwo U V)) := by
   let N := signedCosTwo U V
-  let R := paperDoubleSecant U V
-  have hinv := isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero hcos
+  let R := doubleSecant U V
+  have hinv := isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero hcos
   have hNR : N * R = 1 := Ring.mul_inverse_cancel _ hinv
   have hRN : R * N = 1 := Ring.inverse_mul_cancel _ hinv
   have hNcomm := signedCosTwo_comm_starProjection (U := U) (V := V)
   have hcommBase : U.starProjection *
-        (1 - 2 * (paperProjectorDifference U V * paperProjectorDifference U V)) =
-      (1 - 2 * (paperProjectorDifference U V * paperProjectorDifference U V)) *
+        (1 - 2 * (projectorDifference U V * projectorDifference U V)) =
+      (1 - 2 * (projectorDifference U V * projectorDifference U V)) *
         U.starProjection := by
     simpa only [signedCosTwo] using hNcomm.symm
   have hRcomm : R * U.starProjection = U.starProjection * R := by
-    simpa only [R, paperDoubleSecant] using
+    simpa only [R, doubleSecant] using
       (inverse_comm_reflection hinv hcommBase).symm
   have hNU : ∀ x ∈ U, N x ∈ U := fun x hx =>
     maps_mem_of_comm_starProjection N hNcomm hx
@@ -363,21 +364,21 @@ private theorem signedCosBlock_isUnit
 
 private theorem signedCosBlockOrthogonal_isUnit
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     IsUnit (compressOperator Uᗮ (signedCosTwo U V)) := by
   let N := signedCosTwo U V
-  let R := paperDoubleSecant U V
-  have hinv := isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero hcos
+  let R := doubleSecant U V
+  have hinv := isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero hcos
   have hNR : N * R = 1 := Ring.mul_inverse_cancel _ hinv
   have hRN : R * N = 1 := Ring.inverse_mul_cancel _ hinv
   have hNcomm := signedCosTwo_comm_starProjection (U := U) (V := V)
   have hcommBase : U.starProjection *
-        (1 - 2 * (paperProjectorDifference U V * paperProjectorDifference U V)) =
-      (1 - 2 * (paperProjectorDifference U V * paperProjectorDifference U V)) *
+        (1 - 2 * (projectorDifference U V * projectorDifference U V)) =
+      (1 - 2 * (projectorDifference U V * projectorDifference U V)) *
         U.starProjection := by
     simpa only [signedCosTwo] using hNcomm.symm
   have hRcomm : R * U.starProjection = U.starProjection * R := by
-    simpa only [R, paperDoubleSecant] using
+    simpa only [R, doubleSecant] using
       (inverse_comm_reflection hinv hcommBase).symm
   have hNU : ∀ x ∈ Uᗮ, N x ∈ Uᗮ := fun x hx =>
     maps_mem_orthogonal_of_comm_starProjection N hNcomm hx
@@ -404,22 +405,22 @@ private theorem signedCosBlockOrthogonal_isUnit
 /-- The signed-cosine/tangent Pythagorean identity in the ambient algebra. -/
 private theorem signedCosTwo_sq_mul_one_add_tanRep_sq
     {U V : Submodule ℂ E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     signedCosTwo U V * signedCosTwo U V *
-        (1 + paperTanTwoBlockRepresentative U V * paperTanTwoBlockRepresentative U V) = 1 := by
-  let D := paperProjectorDifference U V
+        (1 + tanTwoBlockRepresentative U V * tanTwoBlockRepresentative U V) = 1 := by
+  let D := projectorDifference U V
   let S := D * D
   let N := signedCosTwo U V
-  let R := paperDoubleSecant U V
-  let L := paperTanTwoBlockRepresentative U V
-  have hinv := isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero hcos
+  let R := doubleSecant U V
+  let L := tanTwoBlockRepresentative U V
+  have hinv := isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero hcos
   have hNR : N * R = 1 := Ring.mul_inverse_cancel _ hinv
   have hN2R2 : (N * N) * (R * R) = 1 := by
     calc
       (N * N) * (R * R) = N * (N * R) * R := by noncomm_ring
       _ = N * R := by noncomm_ring [hNR]
       _ = 1 := hNR
-  have hLsq := paperTanTwoBlockRepresentative_mul_self hinv
+  have hLsq := tanTwoBlockRepresentative_mul_self hinv
   have hNP : (N * N) * (S - S * S) = (S - S * S) * (N * N) := by
     dsimp [N, signedCosTwo, S]
     noncomm_ring
@@ -429,7 +430,7 @@ private theorem signedCosTwo_sq_mul_one_add_tanRep_sq
       show (4 : E →L[ℂ] E) = 1 + 1 + 1 + 1 by norm_num]
     noncomm_ring
   rw [show L * L = 4 * ((S - S * S) * (R * R)) by
-    simpa only [L, S, D, paperProjectorDifference_sq] using hLsq]
+    simpa only [L, S, D, projectorDifference_sq] using hLsq]
   calc
     N * N * (1 + 4 * ((S - S * S) * (R * R))) =
         N * N + 4 * ((N * N) * ((S - S * S) * (R * R))) := by
@@ -465,7 +466,7 @@ private theorem bounded_reflection_equation_on_U
   let C : E →L[ℂ] E := U.diagonalPart Z
   let S : E →L[ℂ] E := U.offDiagonalPart Z
   have hAsym := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
-  have hAred : A.Reduces U := reduces_orthogonalComplement hAsym hAU
+  have hAred : A.Reduces U := ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAsym hAU
   have hAUperp : ∀ y ∈ Uᗮ, A y ∈ Uᗮ := hAred.2
   have hCU : C x ∈ U := by
     dsimp [C]
@@ -537,17 +538,17 @@ private theorem reflection_block_data
     (hUhigh : ∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ)
     (hUperpLow : ∀ x ∈ Uᗮ, RCLike.re ⟪A x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     ∀ k : ℕ,
       (b - a) * kyFanApproximationGauge k
-          (paperBlockCompression Uᗮ U (paperTanTwoBlockRepresentative U V)) ≤
-        2 * kyFanApproximationGauge k (paperBlockCompression Uᗮ U H) := by
+          (blockCompression Uᗮ U (tanTwoBlockRepresentative U V)) ≤
+        2 * kyFanApproximationGauge k (blockCompression Uᗮ U H) := by
   let N : E →L[ℂ] E := signedCosTwo U V
-  let L : E →L[ℂ] E := paperTanTwoBlockRepresentative U V
+  let L : E →L[ℂ] E := tanTwoBlockRepresentative U V
   let A0 : U →L[ℂ] U := compressOperator U A
   let A1 : Uᗮ →L[ℂ] Uᗮ := compressOperator Uᗮ A
-  let B : U →L[ℂ] Uᗮ := paperBlockCompression Uᗮ U H
-  let T : U →L[ℂ] Uᗮ := paperBlockCompression Uᗮ U L
+  let B : U →L[ℂ] Uᗮ := blockCompression Uᗮ U H
+  let T : U →L[ℂ] Uᗮ := blockCompression Uᗮ U L
   let C0 : U →L[ℂ] U := compressOperator U N
   let C1 : Uᗮ →L[ℂ] Uᗮ := compressOperator Uᗮ N
   have hNcomm := signedCosTwo_comm_starProjection (U := U) (V := V)
@@ -559,7 +560,7 @@ private theorem reflection_block_data
   have hLUperp : ∀ x ∈ Uᗮ, L x ∈ U := fun x hx => tanRep_maps_Uperp (U := U) (V := V) hx
   have hAred : A.Reduces U := by
     have hs := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
-    exact reduces_orthogonalComplement hs hAU
+    exact ContinuousLinearMap.IsSymmetric.reduces_of_invariant hs hAU
   have hAUperp : ∀ x ∈ Uᗮ, A x ∈ Uᗮ := hAred.2
   have hA0sa : IsSelfAdjoint A0 := by
     dsimp [A0]
@@ -594,11 +595,11 @@ private theorem reflection_block_data
       exact coe_compressOperator_apply_of_maps A hAUperp x
     simpa [Submodule.coe_norm, Submodule.coe_inner, hcoe] using h
   have hLsa : IsSelfAdjoint L := by
-    have hinv := isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero hcos
-    simpa only [L] using isSelfAdjoint_paperTanTwoBlockRepresentative hinv
-  have hTadj : T.adjoint = paperBlockCompression U Uᗮ L := by
+    have hinv := isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero hcos
+    simpa only [L] using isSelfAdjoint_tanTwoBlockRepresentative hinv
+  have hTadj : T.adjoint = blockCompression U Uᗮ L := by
     dsimp [T]
-    exact paperBlockCompression_adjoint_of_selfAdjoint L hLsa
+    exact blockCompression_adjoint_of_selfAdjoint L hLsa
   have hglobal := signedCosTwo_sq_mul_one_add_tanRep_sq (U := U) (V := V) hcos
   have hgram0 : C0.adjoint ∘L C0 ∘L (1 + T.adjoint ∘L T) = 1 := by
     rw [hC0sa.adjoint_eq]
@@ -611,13 +612,13 @@ private theorem reflection_block_data
     simp only [mul_apply_eq_comp, add_apply, one_apply_eq_self] at happ
     have hTx : ((T x : Uᗮ) : E) = L (x : E) := by
       dsimp [T]
-      exact coe_paperBlockCompression_apply_of_maps L hLU x
+      exact coe_blockCompression_apply_of_maps L hLU x
     have hTTx : ((T.adjoint (T x) : U) : E) = L (L (x : E)) := by
       rw [hTadj]
       calc
-        (((paperBlockCompression U Uᗮ L) (T x) : U) : E) =
+        (((blockCompression U Uᗮ L) (T x) : U) : E) =
             L ((T x : Uᗮ) : E) :=
-          coe_paperBlockCompression_apply_of_maps L hLUperp (T x)
+          coe_blockCompression_apply_of_maps L hLUperp (T x)
         _ = L (L (x : E)) := congrArg L hTx
     have harg : (((x + T.adjoint (T x) : U) : E)) =
         (x : E) + L (L (x : E)) := by
@@ -653,13 +654,13 @@ private theorem reflection_block_data
     simp only [mul_apply_eq_comp, add_apply, one_apply_eq_self] at happ
     have hTadjx : ((T.adjoint x : U) : E) = L (x : E) := by
       rw [hTadj]
-      exact coe_paperBlockCompression_apply_of_maps L hLUperp x
+      exact coe_blockCompression_apply_of_maps L hLUperp x
     have hTTadjx : ((T (T.adjoint x) : Uᗮ) : E) = L (L (x : E)) := by
       calc
         ((T (T.adjoint x) : Uᗮ) : E) =
             L ((T.adjoint x : U) : E) := by
           dsimp [T]
-          exact coe_paperBlockCompression_apply_of_maps L hLU (T.adjoint x)
+          exact coe_blockCompression_apply_of_maps L hLU (T.adjoint x)
         _ = L (L (x : E)) := congrArg L hTadjx
     have harg : (((x + T (T.adjoint x) : Uᗮ) : E)) =
         (x : E) + L (L (x : E)) := by
@@ -693,27 +694,28 @@ private theorem reflection_block_data
     have hAsym := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
     have hAHsa := hA.add hH
     have hAHsym := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hAHsa
-    have hVred : (A + H).Reduces V := reduces_orthogonalComplement hAHsym hAplusH_V
-    have hcommZ := reflectionOperator_comm_of_reduces (A + H) V hVred
+    have hVred : (A + H).Reduces V :=
+      ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAHsym hAplusH_V
+    have hcommZ := Submodule.reflectionOperator_comm_of_reduces (A + H) V hVred
     -- Reduce the projected reflection identity to the explicit `N * L` blocks.
-    have hinv := isUnit_one_sub_two_mul_paperProjectorDifference_sq_of_cos_two_ne_zero hcos
+    have hinv := isUnit_one_sub_two_mul_projectorDifference_sq_of_cos_two_ne_zero hcos
     have hp := starProjection_idem_reflection U
-    have hkey := paperProjectorDifference_anticommutator (U := U) (V := V)
+    have hkey := projectorDifference_anticommutator (U := U) (V := V)
     have hQ : V.starProjection =
-        paperProjectorDifference U V + U.starProjection := by
-      rw [paperProjectorDifference]
+        projectorDifference U V + U.starProjection := by
+      rw [projectorDifference]
       abel
     have hD2p :
         U.starProjection *
-            (paperProjectorDifference U V * paperProjectorDifference U V) =
-          (paperProjectorDifference U V * paperProjectorDifference U V) *
+            (projectorDifference U V * projectorDifference U V) =
+          (projectorDifference U V * projectorDifference U V) *
             U.starProjection :=
       proj_comm_sq_reflection hp hkey
-    have hNR : signedCosTwo U V * paperDoubleSecant U V = 1 := by
-      unfold signedCosTwo paperDoubleSecant
+    have hNR : signedCosTwo U V * doubleSecant U V = 1 := by
+      unfold signedCosTwo doubleSecant
       exact Ring.mul_inverse_cancel _ hinv
-    have hND : signedCosTwo U V * paperProjectorDifference U V =
-        paperProjectorDifference U V * signedCosTwo U V := by
+    have hND : signedCosTwo U V * projectorDifference U V =
+        projectorDifference U V * signedCosTwo U V := by
       unfold signedCosTwo
       noncomm_ring
     have hNP : signedCosTwo U V * U.starProjection =
@@ -730,70 +732,70 @@ private theorem reflection_block_data
           noncomm_ring
     have hXlower :
         signedCosTwo U V *
-            ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection) =
-          ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection) *
+            ((1 - U.starProjection) * projectorDifference U V * U.starProjection) =
+          ((1 - U.starProjection) * projectorDifference U V * U.starProjection) *
             signedCosTwo U V := by
       calc
         signedCosTwo U V *
-              ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection) =
+              ((1 - U.starProjection) * projectorDifference U V * U.starProjection) =
             (signedCosTwo U V * (1 - U.starProjection)) *
-              paperProjectorDifference U V * U.starProjection := by
+              projectorDifference U V * U.starProjection := by
           noncomm_ring
         _ = ((1 - U.starProjection) * signedCosTwo U V) *
-              paperProjectorDifference U V * U.starProjection := by rw [hNq]
+              projectorDifference U V * U.starProjection := by rw [hNq]
         _ = (1 - U.starProjection) *
-              (signedCosTwo U V * paperProjectorDifference U V) * U.starProjection := by
+              (signedCosTwo U V * projectorDifference U V) * U.starProjection := by
           noncomm_ring
         _ = (1 - U.starProjection) *
-              (paperProjectorDifference U V * signedCosTwo U V) * U.starProjection := by
+              (projectorDifference U V * signedCosTwo U V) * U.starProjection := by
           rw [hND]
-        _ = (1 - U.starProjection) * paperProjectorDifference U V *
+        _ = (1 - U.starProjection) * projectorDifference U V *
               (signedCosTwo U V * U.starProjection) := by
           noncomm_ring
-        _ = (1 - U.starProjection) * paperProjectorDifference U V *
+        _ = (1 - U.starProjection) * projectorDifference U V *
               (U.starProjection * signedCosTwo U V) := by rw [hNP]
-        _ = ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection) *
+        _ = ((1 - U.starProjection) * projectorDifference U V * U.starProjection) *
               signedCosTwo U V := by
           noncomm_ring
     have hXupper :
         signedCosTwo U V *
-            (U.starProjection * paperProjectorDifference U V * (1 - U.starProjection)) =
-          (U.starProjection * paperProjectorDifference U V * (1 - U.starProjection)) *
+            (U.starProjection * projectorDifference U V * (1 - U.starProjection)) =
+          (U.starProjection * projectorDifference U V * (1 - U.starProjection)) *
             signedCosTwo U V := by
       calc
         signedCosTwo U V *
-              (U.starProjection * paperProjectorDifference U V * (1 - U.starProjection)) =
+              (U.starProjection * projectorDifference U V * (1 - U.starProjection)) =
             (signedCosTwo U V * U.starProjection) *
-              paperProjectorDifference U V * (1 - U.starProjection) := by
+              projectorDifference U V * (1 - U.starProjection) := by
           noncomm_ring
         _ = (U.starProjection * signedCosTwo U V) *
-              paperProjectorDifference U V * (1 - U.starProjection) := by rw [hNP]
+              projectorDifference U V * (1 - U.starProjection) := by rw [hNP]
         _ = U.starProjection *
-              (signedCosTwo U V * paperProjectorDifference U V) * (1 - U.starProjection) := by
+              (signedCosTwo U V * projectorDifference U V) * (1 - U.starProjection) := by
           noncomm_ring
         _ = U.starProjection *
-              (paperProjectorDifference U V * signedCosTwo U V) * (1 - U.starProjection) := by
+              (projectorDifference U V * signedCosTwo U V) * (1 - U.starProjection) := by
           rw [hND]
-        _ = U.starProjection * paperProjectorDifference U V *
+        _ = U.starProjection * projectorDifference U V *
               (signedCosTwo U V * (1 - U.starProjection)) := by
           noncomm_ring
-        _ = U.starProjection * paperProjectorDifference U V *
+        _ = U.starProjection * projectorDifference U V *
               ((1 - U.starProjection) * signedCosTwo U V) := by rw [hNq]
-        _ = (U.starProjection * paperProjectorDifference U V * (1 - U.starProjection)) *
+        _ = (U.starProjection * projectorDifference U V * (1 - U.starProjection)) *
               signedCosTwo U V := by
           noncomm_ring
     have hXcomm :
         signedCosTwo U V *
-            ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection +
-              U.starProjection * paperProjectorDifference U V *
+            ((1 - U.starProjection) * projectorDifference U V * U.starProjection +
+              U.starProjection * projectorDifference U V *
                 (1 - U.starProjection)) =
-          ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection +
-              U.starProjection * paperProjectorDifference U V *
+          ((1 - U.starProjection) * projectorDifference U V * U.starProjection +
+              U.starProjection * projectorDifference U V *
                 (1 - U.starProjection)) * signedCosTwo U V := by
       rw [mul_add, add_mul, hXlower, hXupper]
     have hoff : U.offDiagonalPart V.reflectionOperator =
-        2 * ((1 - U.starProjection) * paperProjectorDifference U V * U.starProjection +
-          U.starProjection * paperProjectorDifference U V *
+        2 * ((1 - U.starProjection) * projectorDifference U V * U.starProjection +
+          U.starProjection * projectorDifference U V *
             (1 - U.starProjection)) := by
       rw [Submodule.offDiagonalPart_eq, Submodule.diagonalPart_eq,
         Submodule.reflectionOperator_eq_two_smul_sub_id V]
@@ -801,35 +803,35 @@ private theorem reflection_block_data
       rw [hQ, ← ContinuousLinearMap.one_def]
       noncomm_ring [hp]
     have hNL : N * L = U.offDiagonalPart V.reflectionOperator := by
-      change signedCosTwo U V * paperTanTwoBlockRepresentative U V =
+      change signedCosTwo U V * tanTwoBlockRepresentative U V =
         U.offDiagonalPart V.reflectionOperator
-      rw [paperTanTwoBlockRepresentative_eq hinv, hoff]
+      rw [tanTwoBlockRepresentative_eq hinv, hoff]
       calc
         signedCosTwo U V *
-              (2 * (((1 - U.starProjection) * paperProjectorDifference U V *
+              (2 * (((1 - U.starProjection) * projectorDifference U V *
                     U.starProjection +
-                  U.starProjection * paperProjectorDifference U V *
-                    (1 - U.starProjection)) * paperDoubleSecant U V)) =
+                  U.starProjection * projectorDifference U V *
+                    (1 - U.starProjection)) * doubleSecant U V)) =
             2 * ((signedCosTwo U V *
-                ((1 - U.starProjection) * paperProjectorDifference U V *
+                ((1 - U.starProjection) * projectorDifference U V *
                     U.starProjection +
-                  U.starProjection * paperProjectorDifference U V *
-                    (1 - U.starProjection))) * paperDoubleSecant U V) := by
+                  U.starProjection * projectorDifference U V *
+                    (1 - U.starProjection))) * doubleSecant U V) := by
               noncomm_ring
-        _ = 2 * ((((1 - U.starProjection) * paperProjectorDifference U V *
+        _ = 2 * ((((1 - U.starProjection) * projectorDifference U V *
                     U.starProjection +
-                  U.starProjection * paperProjectorDifference U V *
+                  U.starProjection * projectorDifference U V *
                     (1 - U.starProjection)) * signedCosTwo U V) *
-                  paperDoubleSecant U V) := by rw [hXcomm]
-        _ = 2 * (((1 - U.starProjection) * paperProjectorDifference U V *
+                  doubleSecant U V) := by rw [hXcomm]
+        _ = 2 * (((1 - U.starProjection) * projectorDifference U V *
                     U.starProjection +
-                  U.starProjection * paperProjectorDifference U V *
+                  U.starProjection * projectorDifference U V *
                     (1 - U.starProjection)) *
-                  (signedCosTwo U V * paperDoubleSecant U V)) := by
+                  (signedCosTwo U V * doubleSecant U V)) := by
               noncomm_ring
-        _ = 2 * ((1 - U.starProjection) * paperProjectorDifference U V *
+        _ = 2 * ((1 - U.starProjection) * projectorDifference U V *
                     U.starProjection +
-                  U.starProjection * paperProjectorDifference U V *
+                  U.starProjection * projectorDifference U V *
                     (1 - U.starProjection)) := by rw [hNR, mul_one]
     have hdiag : U.diagonalPart V.reflectionOperator =
         U.reflectionOperator * N := by
@@ -840,21 +842,21 @@ private theorem reflection_block_data
     have h0 : ((C1 (T (A0 x)) : Uᗮ) : E) = N (L (A (x : E))) := by
       dsimp [C1, T, A0]
       rw [coe_compressOperator_apply_of_maps N hNUperp,
-        coe_paperBlockCompression_apply_of_maps L hLU,
+        coe_blockCompression_apply_of_maps L hLU,
         coe_compressOperator_apply_of_maps A hAU]
     have h1 : ((A1 (C1 (T x)) : Uᗮ) : E) = A (N (L (x : E))) := by
       dsimp [A1, C1, T]
       rw [coe_compressOperator_apply_of_maps A hAUperp,
         coe_compressOperator_apply_of_maps N hNUperp,
-        coe_paperBlockCompression_apply_of_maps L hLU]
+        coe_blockCompression_apply_of_maps L hLU]
     have h2 : ((B (C0 x) : Uᗮ) : E) = H (N (x : E)) := by
       dsimp [B, C0]
-      rw [coe_paperBlockCompression_apply_of_maps H hHU,
+      rw [coe_blockCompression_apply_of_maps H hHU,
         coe_compressOperator_apply_of_maps N hNU]
     have h3 : ((C1 (B x) : Uᗮ) : E) = N (H (x : E)) := by
       dsimp [C1, B]
       rw [coe_compressOperator_apply_of_maps N hNUperp,
-        coe_paperBlockCompression_apply_of_maps H hHU]
+        coe_blockCompression_apply_of_maps H hHU]
     simp only [ContinuousLinearMap.comp_apply, sub_apply, add_apply]
     change ((C1 (T (A0 x)) : Uᗮ) : E) - ((A1 (C1 (T x)) : Uᗮ) : E) =
       ((B (C0 x) : Uᗮ) : E) + ((C1 (B x) : Uᗮ) : E)
@@ -886,11 +888,11 @@ private theorem cos_two_ne_zero_of_ordered_form_gap_offDiagonal
     (hUlow : ∀ x ∈ U, RCLike.re ⟪A x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hUperpHigh : ∀ x ∈ Uᗮ, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U) :
-    ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0 := by
+    ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0 := by
   let Ap : E →ₗ.[ℂ] E := A.toLinearMap.toPMap ⊤
   have hAred : A.Reduces U := by
     have hAsym := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
-    exact reduces_orthogonalComplement hAsym hAU
+    exact ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAsym hAU
   have hAUperp : ∀ x ∈ Uᗮ, A x ∈ Uᗮ := hAred.2
   have hred : TauCeti.LinearPMap.ReducesSubspace Ap U := by
     refine TauCeti.LinearPMap.ReducesSubspace.of_components ?_ ?_ ?_ ?_
@@ -917,10 +919,11 @@ private theorem cos_two_ne_zero_of_ordered_form_gap_offDiagonal
     exact Submodule.mem_top
   have hAHsa : IsSelfAdjoint (A + H) := hA.add hH
   have hAHsym := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hAHsa
-  have hVred : (A + H).Reduces V := reduces_orthogonalComplement hAHsym hAplusH_V
+  have hVred : (A + H).Reduces V :=
+    ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAHsym hAplusH_V
   have hcomm : V.reflectionOperator ∘L (A + H) =
       (A + H) ∘L V.reflectionOperator :=
-    reflectionOperator_comm_of_reduces (A + H) V hVred
+    Submodule.reflectionOperator_comm_of_reduces (A + H) V hVred
   have hZcomm : ∀ x : Ap.domain,
       Ap ⟨Z (x : E), hZdom x⟩ + H (Z (x : E)) =
         Z (Ap x) + Z (H (x : E)) := by
@@ -1005,7 +1008,7 @@ private theorem cos_two_ne_zero_of_ordered_form_gap_offDiagonal
     rw [← hdiagSq]
     exact hCC
   have hN : IsUnit N := ((Commute.refl N).isUnit_mul_iff.mp hNN).1
-  exact cos_two_ne_zero_of_isUnit_one_sub_two_mul_paperProjectorDifference_sq
+  exact cos_two_ne_zero_of_isUnit_one_sub_two_mul_projectorDifference_sq
     (by simpa only [N, signedCosTwo] using hN)
 
 /-- **Branch-free Section 7 directed-corner estimate, lower-residual form.** -/
@@ -1019,20 +1022,20 @@ theorem tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFa
     (hUhigh : ∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ)
     (hUperpLow : ∀ x ∈ Uᗮ, RCLike.re ⟪A x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     ∀ k : ℕ,
       (b - a) * kyFanApproximationGauge k
-          (paperProjectionBlock Uᗮ U
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
-        2 * kyFanApproximationGauge k (paperProjectionBlock Uᗮ U H) := by
+          (projectionBlock Uᗮ U
+            (2 * (projectorDifference U V * doubleSecant U V))) ≤
+        2 * kyFanApproximationGauge k (projectionBlock Uᗮ U H) := by
   intro k
   have h := reflection_block_data hA hH hAU hAplusH_V hab hUhigh hUperpLow
     hHU hHUperp hcos k
-  rw [← (paperProjectionBlock_same_compression Uᗮ U
-      (paperTanTwoBlockRepresentative U V)).kyFanApproximationGauge_eq k,
-    paperTanTwoBlockRepresentative] at h
+  rw [← (projectionBlock_same_compression Uᗮ U
+      (tanTwoBlockRepresentative U V)).kyFanApproximationGauge_eq k,
+    tanTwoBlockRepresentative] at h
   rw [projectionBlock_diagonalPair_lower_reflection U,
-    ← (paperProjectionBlock_same_compression Uᗮ U H).kyFanApproximationGauge_eq k] at h
+    ← (projectionBlock_same_compression Uᗮ U H).kyFanApproximationGauge_eq k] at h
   exact h
 
 /-- **Branch-free Section 7 directed-corner estimate for every source
@@ -1055,21 +1058,21 @@ theorem tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_symm
     (hUhigh : ∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ)
     (hUperpLow : ∀ x ∈ Uᗮ, RCLike.re ⟪A x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0)
-    (hRmem : N.Mem (paperProjectionBlock Uᗮ U H)) :
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0)
+    (hRmem : N.Mem (projectionBlock Uᗮ U H)) :
     N.Mem
-        (paperProjectionBlock Uᗮ U
-          (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ∧
+        (projectionBlock Uᗮ U
+          (2 * (projectorDifference U V * doubleSecant U V))) ∧
       (b - a) * N.gauge
-          (paperProjectionBlock Uᗮ U
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
-        2 * N.gauge (paperProjectionBlock Uᗮ U H) := by
+          (projectionBlock Uᗮ U
+            (2 * (projectorDifference U V * doubleSecant U V))) ≤
+        2 * N.gauge (projectionBlock Uᗮ U H) := by
   have hhalf : (0 : ℝ) < (b - a) / 2 := by linarith
   have hscaled : ∀ k : ℕ,
       (b - a) / 2 * kyFanApproximationGauge k
-          (paperProjectionBlock Uᗮ U
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
-        kyFanApproximationGauge k (paperProjectionBlock Uᗮ U H) := by
+          (projectionBlock Uᗮ U
+            (2 * (projectorDifference U V * doubleSecant U V))) ≤
+        kyFanApproximationGauge k (projectionBlock Uᗮ U H) := by
     intro k
     have h := tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex
       hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos k
@@ -1091,12 +1094,12 @@ theorem tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFa
     (hUhigh : ∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ)
     (hUperpLow : ∀ x ∈ Uᗮ, RCLike.re ⟪A x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     ∀ k : ℕ,
       (b - a) * kyFanApproximationGauge k
-          (paperProjectionBlock Uᗮ U
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
-        2 * kyFanApproximationGauge k (paperProjectionBlock Uᗮᗮ Uᗮ H) := by
+          (projectionBlock Uᗮ U
+            (2 * (projectorDifference U V * doubleSecant U V))) ≤
+        2 * kyFanApproximationGauge k (projectionBlock Uᗮᗮ Uᗮ H) := by
   intro k
   have h := tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex
     hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos k
@@ -1118,9 +1121,9 @@ theorem tanTwoTheta_ambient_bounded_branchFree_orderedForm_kyFan_complex
     (hUhigh : ∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ)
     (hUperpLow : ∀ x ∈ Uᗮ, RCLike.re ⟪A x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0) :
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0) :
     ∀ k : ℕ,
-      (b - a) * kyFanApproximationGauge k (paperAbsTanTwoAngleOperatorC U V) ≤
+      (b - a) * kyFanApproximationGauge k (absTanTwoAngleOperatorC U V) ≤
         2 * kyFanApproximationGauge k H := by
   exact tanTwoTheta_ambient_bounded_branchFree_kyFan_complex_of_corner hH hab hcos
     (tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex_upperCorner
@@ -1138,10 +1141,10 @@ theorem tanTwoTheta_ambient_bounded_branchFree_orderedForm_symmetricNorming_comp
     (hUhigh : ∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ)
     (hUperpLow : ∀ x ∈ Uᗮ, RCLike.re ⟪A x, x⟫_ℂ ≤ a * ‖x‖ ^ 2)
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V), Real.cos (2 * t) ≠ 0)
+    (hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V), Real.cos (2 * t) ≠ 0)
     (hHmem : N.Mem H) :
-    N.Mem (paperAbsTanTwoAngleOperatorC U V) ∧
-      (b - a) * N.gauge (paperAbsTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
+    N.Mem (absTanTwoAngleOperatorC U V) ∧
+      (b - a) * N.gauge (absTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
   exact tanTwoTheta_ambient_bounded_branchFree_symmetricNorming_complex_of_corner N hH hab hcos
     (tanTwoTheta_directed_boundedResidual_branchFree_blockRepresentative_kyFan_complex_upperCorner
       hA hH hAU hAplusH_V hab hUhigh hUperpLow hHU hHUperp hcos) hHmem
@@ -1172,17 +1175,17 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_sym
     (hA0spec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc β α)
     (hA1spec : spectrum ℝ (compressOperator Uᗮ A) ⊆ Set.Ici (α + δ))
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
-    (hRmem : N.Mem (paperProjectionBlock Uᗮ U H)) :
+    (hRmem : N.Mem (projectionBlock Uᗮ U H)) :
     N.Mem
-        (paperProjectionBlock Uᗮ U
-          (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ∧
+        (projectionBlock Uᗮ U
+          (2 * (projectorDifference U V * doubleSecant U V))) ∧
       δ * N.gauge
-          (paperProjectionBlock Uᗮ U
-            (2 * (paperProjectorDifference U V * paperDoubleSecant U V))) ≤
-        2 * N.gauge (paperProjectionBlock Uᗮ U H) := by
+          (projectionBlock Uᗮ U
+            (2 * (projectorDifference U V * doubleSecant U V))) ≤
+        2 * N.gauge (projectionBlock Uᗮ U H) := by
   have hAred : A.Reduces U := by
     have hAsym := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
-    exact reduces_orthogonalComplement hAsym hAU
+    exact ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAsym hAU
   have hAUperp : ∀ x ∈ Uᗮ, A x ∈ Uᗮ := hAred.2
   have hA0sa : IsSelfAdjoint (compressOperator U A) :=
     isSelfAdjoint_compressOperator hA U
@@ -1194,7 +1197,7 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_sym
       RCLike.re ⟪A x, x⟫_ℂ ≤ α * ‖x‖ ^ 2 := by
     intro x hx
     let xu : U := ⟨x, hx⟩
-    have h := TauCeti.SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+    have h := TauCeti.SpectralOrder.re_inner_le_of_spectrum_subset_Iic
       (compressOperator U A) hA0sa hA0upper xu
     have hcoe : ((compressOperator U A xu : U) : E) = A (x : E) :=
       coe_compressOperator_apply_of_maps A hAU xu
@@ -1203,13 +1206,13 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_sym
       (α + δ) * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ := by
     intro x hx
     let xu : Uᗮ := ⟨x, hx⟩
-    have h := TauCeti.SpectralOrder.Complex.le_re_inner_of_spectrum_subset_Ici
+    have h := TauCeti.SpectralOrder.le_re_inner_of_spectrum_subset_Ici
       (compressOperator Uᗮ A) hA1sa hA1spec xu
     have hcoe : ((compressOperator Uᗮ A xu : Uᗮ) : E) = A (x : E) :=
       coe_compressOperator_apply_of_maps A hAUperp xu
     simpa [Submodule.coe_norm, Submodule.coe_inner, hcoe] using h
   have hgap : α < α + δ := by linarith
-  have hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V),
+  have hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V),
       Real.cos (2 * t) ≠ 0 :=
     cos_two_ne_zero_of_ordered_form_gap_offDiagonal
       hA hH hAU hAplusH_V hgap hUlow hUperpHigh hHU hHUperp
@@ -1248,16 +1251,16 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_sym
     change -(H x) ∈ U
     exact U.neg_mem (hHUperp x hx)
   have hnegGap : -(α + δ) < -α := by linarith
-  have hRneg : paperProjectionBlock Uᗮ U (-H) =
-      -(paperProjectionBlock Uᗮ U H) := by
+  have hRneg : projectionBlock Uᗮ U (-H) =
+      -(projectionBlock Uᗮ U H) := by
     ext x
-    simp [paperProjectionBlock]
+    simp [projectionBlock]
   have hRnegExt :
-      N.extendedGauge (-(paperProjectionBlock Uᗮ U H)) =
-        N.extendedGauge (paperProjectionBlock Uᗮ U H) := by
-    have h := N.extendedGauge_smul (-1 : ℂ) (paperProjectionBlock Uᗮ U H)
+      N.extendedGauge (-(projectionBlock Uᗮ U H)) =
+        N.extendedGauge (projectionBlock Uᗮ U H) := by
+    have h := N.extendedGauge_smul (-1 : ℂ) (projectionBlock Uᗮ U H)
     simpa using h
-  have hRnegMem : N.Mem (paperProjectionBlock Uᗮ U (-H)) := by
+  have hRnegMem : N.Mem (projectionBlock Uᗮ U (-H)) := by
     rw [hRneg]
     unfold SymmetricNormingFunction.Mem at hRmem ⊢
     rwa [hRnegExt]
@@ -1269,8 +1272,8 @@ theorem tanTwoTheta_directed_boundedResidual_blockRepresentative_spectralGap_sym
       hHUNeg hHUperpNeg hcos hRnegMem
   refine ⟨hmem, ?_⟩
   have hRnegGauge :
-      N.gauge (-(paperProjectionBlock Uᗮ U H)) =
-        N.gauge (paperProjectionBlock Uᗮ U H) := by
+      N.gauge (-(projectionBlock Uᗮ U H)) =
+        N.gauge (projectionBlock Uᗮ U H) := by
     unfold SymmetricNormingFunction.gauge
     rw [hRnegExt]
   rw [hRneg, hRnegGauge] at hbound
@@ -1310,11 +1313,11 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_complex
     (hA1spec : spectrum ℝ (compressOperator Uᗮ A) ⊆ Set.Ici (α + δ))
     (hHU : ∀ x ∈ U, H x ∈ Uᗮ) (hHUperp : ∀ x ∈ Uᗮ, H x ∈ U)
     (hHmem : N.Mem H) :
-    N.Mem (paperTanTwoAngleOperatorC U V) ∧
-      δ * N.gauge (paperTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
+    N.Mem (tanTwoAngleOperatorC U V) ∧
+      δ * N.gauge (tanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
   have hAred : A.Reduces U := by
     have hAsym := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
-    exact reduces_orthogonalComplement hAsym hAU
+    exact ContinuousLinearMap.IsSymmetric.reduces_of_invariant hAsym hAU
   have hAUperp : ∀ x ∈ Uᗮ, A x ∈ Uᗮ := hAred.2
   have hA0sa : IsSelfAdjoint (compressOperator U A) :=
     isSelfAdjoint_compressOperator hA U
@@ -1326,7 +1329,7 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_complex
       RCLike.re ⟪A x, x⟫_ℂ ≤ α * ‖x‖ ^ 2 := by
     intro x hx
     let xu : U := ⟨x, hx⟩
-    have h := TauCeti.SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+    have h := TauCeti.SpectralOrder.re_inner_le_of_spectrum_subset_Iic
       (compressOperator U A) hA0sa hA0upper xu
     have hcoe : ((compressOperator U A xu : U) : E) = A (x : E) :=
       coe_compressOperator_apply_of_maps A hAU xu
@@ -1335,13 +1338,13 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_complex
       (α + δ) * ‖x‖ ^ 2 ≤ RCLike.re ⟪A x, x⟫_ℂ := by
     intro x hx
     let xu : Uᗮ := ⟨x, hx⟩
-    have h := TauCeti.SpectralOrder.Complex.le_re_inner_of_spectrum_subset_Ici
+    have h := TauCeti.SpectralOrder.le_re_inner_of_spectrum_subset_Ici
       (compressOperator Uᗮ A) hA1sa hA1spec xu
     have hcoe : ((compressOperator Uᗮ A xu : Uᗮ) : E) = A (x : E) :=
       coe_compressOperator_apply_of_maps A hAUperp xu
     simpa [Submodule.coe_norm, Submodule.coe_inner, hcoe] using h
   have hgap : α < α + δ := by linarith
-  have hcos : ∀ t ∈ spectrum ℝ (paperAngleOperatorC U V),
+  have hcos : ∀ t ∈ spectrum ℝ (angleOperatorC U V),
       Real.cos (2 * t) ≠ 0 :=
     cos_two_ne_zero_of_ordered_form_gap_offDiagonal
       hA hH hAU hAplusH_V hgap hUlow hUperpHigh hHU hHUperp
@@ -1393,30 +1396,30 @@ theorem tanTwoTheta_ambient_bounded_spectralGap_symmetricNorming_complex
       hAneg hHneg hAUneg hAplusH_V_neg hnegGap hUhighNeg hUperpLowNeg
       hHUNeg hHUperpNeg hcos hnegMem
   have habsBound' :
-      δ * N.gauge (paperAbsTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
+      δ * N.gauge (absTanTwoAngleOperatorC U V) ≤ 2 * N.gauge H := by
     calc
-    δ * N.gauge (paperAbsTanTwoAngleOperatorC U V) =
-        ((-α) - (-(α + δ))) * N.gauge (paperAbsTanTwoAngleOperatorC U V) := by ring
+    δ * N.gauge (absTanTwoAngleOperatorC U V) =
+        ((-α) - (-(α + δ))) * N.gauge (absTanTwoAngleOperatorC U V) := by ring
     _ ≤ 2 * N.gauge (-H) := habsBound
     _ = 2 * N.gauge H := by
       unfold SymmetricNormingFunction.gauge
       rw [hnegExt]
-  have habsMod : paperAbsTanTwoAngleOperatorC U V =
-      (paperTanTwoAngleOperatorC U V).modulus :=
-    paperAbsTanTwoAngleOperatorC_eq_modulus_paperTanTwoAngleOperatorC hcos
-  have hext : N.extendedGauge (paperAbsTanTwoAngleOperatorC U V) =
-      N.extendedGauge (paperTanTwoAngleOperatorC U V) := by
+  have habsMod : absTanTwoAngleOperatorC U V =
+      (tanTwoAngleOperatorC U V).modulus :=
+    absTanTwoAngleOperatorC_eq_modulus_directedTanTwoAngleOperatorC hcos
+  have hext : N.extendedGauge (absTanTwoAngleOperatorC U V) =
+      N.extendedGauge (tanTwoAngleOperatorC U V) := by
     calc
-      N.extendedGauge (paperAbsTanTwoAngleOperatorC U V) =
-          N.extendedGauge ((paperTanTwoAngleOperatorC U V).modulus) := by
+      N.extendedGauge (absTanTwoAngleOperatorC U V) =
+          N.extendedGauge ((tanTwoAngleOperatorC U V).modulus) := by
             rw [habsMod]
-      _ = N.extendedGauge (paperTanTwoAngleOperatorC U V) :=
-        normingFunction_modulus_eq N (paperTanTwoAngleOperatorC U V)
-  have htanMem : N.Mem (paperTanTwoAngleOperatorC U V) := by
+      _ = N.extendedGauge (tanTwoAngleOperatorC U V) :=
+        normingFunction_modulus_eq N (tanTwoAngleOperatorC U V)
+  have htanMem : N.Mem (tanTwoAngleOperatorC U V) := by
     unfold SymmetricNormingFunction.Mem at habsMem ⊢
     rwa [← hext]
-  have hgauge : N.gauge (paperAbsTanTwoAngleOperatorC U V) =
-      N.gauge (paperTanTwoAngleOperatorC U V) := by
+  have hgauge : N.gauge (absTanTwoAngleOperatorC U V) =
+      N.gauge (tanTwoAngleOperatorC U V) := by
     unfold SymmetricNormingFunction.gauge
     rw [hext]
   refine ⟨htanMem, ?_⟩

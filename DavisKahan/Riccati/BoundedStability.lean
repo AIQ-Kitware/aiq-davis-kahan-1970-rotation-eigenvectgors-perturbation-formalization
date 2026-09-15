@@ -5,6 +5,8 @@ Authors: Jon Crall, GPT 5.6 Thinking
 -/
 import DavisKahan.Riccati.BoundedCanonicalSolution
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # A posteriori stability for bounded Riccati equations
 
@@ -19,6 +21,7 @@ solution gives a directly reusable a posteriori estimate.
 
 namespace TauCeti
 namespace DavisKahanExt
+
 
 open DavisKahan
 

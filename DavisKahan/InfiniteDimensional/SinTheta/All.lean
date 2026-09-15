@@ -9,7 +9,7 @@ import DavisKahan.InfiniteDimensional.SinTheta.BoundedBorelProjectionComplex
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation
 import DavisKahan.InfiniteDimensional.SinTheta.General
 import DavisKahan.InfiniteDimensional.SinTheta.RCLikeSpectralBridge
-import DavisKahan.InfiniteDimensional.SinTheta.RestrictionCompat
+import DavisKahan.InfiniteDimensional.SinTheta.Restriction
 import DavisKahan.InfiniteDimensional.SinTheta.SpectralBridge
 
 /-! # `DavisKahan/InfiniteDimensional/SinTheta` -/

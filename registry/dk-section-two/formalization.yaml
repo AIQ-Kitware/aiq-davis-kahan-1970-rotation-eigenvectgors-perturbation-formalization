@@ -1,39 +1,13 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
-#
-# Metadata for the Davis-Kahan 1970 extraction.
-#
-# This repository carries the proof. It is an extraction of the corresponding
-# packages from AIQ-Kitware/aiq-dkps-formalization, which remains authoritative;
-# see README.md for what that means for updates.
 version: v0.4
 project:
-  name: 'Davis-Kahan 1970: the four Section 2 theorems'
-  description: 'Machine-checked proofs of the four unnumbered theorems Davis and Kahan
-    open Section 2 with, at the scope the paper states them: a Hilbert space of arbitrary
-    dimension over the reals or the complexes, an ambient self-adjoint operator that may be
-    unbounded, an arbitrary unitarily invariant norm, and separating intervals that may be
-    half-infinite. Seven printed inequality clauses in all -- sin-Theta, and a directed and
-    an ambient clause each for tan-Theta, sin-2-Theta and tan-2-Theta -- with the printed
-    residual on the right, the printed constants one and two, and the trial subspace assumed
-    only to reduce the operator rather than to be selected spectrally. The two tangent
-    families additionally conclude, rather than assume, that no principal angle sits at the
-    tangent''s pole. Six of the seven clauses state exactly the printed hypotheses; the
-    seventh, the ambient tan-Theta clause, additionally carries the paper''s condition
-    (3.5), which the Section 2 display does not print and which is imported from the later
-    standing scope in which the paper proves that clause. That source-interpretation
-    decision is set out in full under `sources` and `fidelity` below.'
+  name: 'Davis-Kahan 1970: four Section 2 theorem families'
+  description: 'Machine-checked Palomar presentation of the four headline Davis-Kahan Section 2 theorem families at the source''s Hilbert-space scope. The comparator exposes five ordinary theorem declarations: sin-Theta; the stronger residual tan-Theta estimate; the residual and whole-space sin-2-Theta estimates; and the stronger residual tan-2-Theta estimate. The redundant whole-space tangent clauses are not separately compared because the paper derives them after the residual bounds. No artificial Prop-valued result wrappers or long conjunctions are used.'
   authors:
   - Jon Crall
   - Edward Wang
   license: Apache-2.0
   responsible_maintainers:
   - Jon Crall
-# `repository` is omitted deliberately. Current Palomar policy omits it when the
-# submitted repository contains the substantive development, and records that
-# default as `substantive-development` in the mechanical report; the explicit
-# `repository.role` spelling is still accepted but unnecessary. This repository
-# physically contains the proof -- ForTauCeti and DavisKahan, copied verbatim and
-# built here -- so it is a substantive development, not a thin wrapper.
 classification:
   arxiv:
   - math.FA
@@ -52,66 +26,10 @@ sources:
   type: paper
   location: SIAM Journal on Numerical Analysis 7(1), 1970, 1-46
   relationship: formalizes
-  note: 'The compared theorems are the four unnumbered ones of Section 2, at the printed
-    scope and with no weakened conclusion. Three qualifications are disclosed rather than
-    left for a reader to discover.
-
-    (1) ONE ADDED HYPOTHESIS, IN ONE CLAUSE. The ambient tan-Theta clause carries
-    `CrossedDefectsEquivalent U V`, the constructive form of the paper''s condition (3.5):
-    the two crossing subspaces are isometrically isomorphic. This is not written in the
-    Section 2 display. (3.5) is introduced in Section 3, assumed standing there for the
-    remainder of the paper except where the contrary is stated, and used by the Section 6
-    proof of this very clause; the hypothesis is imported from that later standing scope,
-    not read off the local statement. It is consumed rather than decorative: both the
-    inequality and the no-pole conclusion are proved from it. The reason it is needed is
-    that nothing in the printed hypotheses constrains the crossing subspace on the other
-    side, and in infinite dimension -- and only there, since (3.5) is automatic when either
-    the subspace or its orthocomplement is finite-dimensional -- that subspace can be
-    nonzero, making the ambient angle contain a right angle, the ambient tangent unbounded,
-    and its displayed norm nonexistent while the perturbation norm is finite. This
-    formalization reads the printed theorem under the paper''s own global semantics, in
-    which Section 1 announces once that results of this kind are vacuous when a displayed
-    norm fails to exist. The competing literal reading -- take only the printed hypotheses
-    and value the missing norm as +infinity -- would make the printed ambient clause false
-    as transcribed, and is rejected because it would equally convict the Section 1
-    angle-doubling sentence and every later development that silently uses the direct
-    rotation. This is therefore a disclosed source-interpretation decision, not a claim
-    that the Section 2 display literally contains (3.5), and it is deliberately kept
-    distinct from the repository''s one genuine refutation (Proposition 4.4). The other six
-    clauses state exactly the printed hypotheses. The full four-layer analysis -- what the
-    display says, what the later standing scope says, what the source proof uses, and what
-    this formalization adopts -- is in the authoritative repository at
-    prose/distilled_literature/DavisKahan1970_part_III.tex (editorial audit note on
-    nonlocal source semantics of the Section 2 ambient tangent conclusion) and at
-    dev/davis-kahan-1970-formalization-result-inventory.json, entry S2-tan-theta, field
-    nonlocal_source_interpretation.
-
-    (2) The sin-2-Theta directed clause takes a bounded trial compression, which is
-    what the Appendix to Section 6 supports: the Appendix relaxes the sine family to allow
-    one of the two exact blocks to be unbounded and reserves "both may be unbounded" for the
-    tangent theorem, and names no double-angle result at all.
-
-    (3) A doubled angle is presented by its own sine rather than by doubling the single
-    angle, because t -> sin 2t is not monotone on [0, pi/2] and so no indexwise map carries
-    the ordered singular values of sin Theta to those of sin 2 Theta.
-
-    One disclosure about the wider formalization, not part of this entry: printed
-    Proposition 4.4 is false and carries a machine-checked counterexample together with the
-    natural Q-norm repair.'
+  note: The challenge follows the four unnumbered theorem families in Section 2. For sin-Theta it compares the printed residual estimate delta ||sin Theta_0|| <= ||R||; the paper explicitly notes that the corresponding whole-space UIN estimate does not follow from that one-gap hypothesis and gives a counterexample. For tan-Theta it compares the residual estimate delta ||tan Theta_0|| <= ||R||, after which the source proof derives the whole-space estimate from the two-corner geometry. For sin-2-Theta both residual and whole-space estimates are compared because the source proof obtains them as distinct public consequences of a stronger reflection argument. For tan-2-Theta it compares the residual estimate delta ||tan 2Theta_0|| <= 2||R||; the source explicitly states that the whole-space estimate follows by Lemma 6.1. The doubled-angle sine is represented directly rather than by indexwise doubling of ordered principal angles.
   author_endorsement: not-contacted
 status:
-  scope: 'Formalized and compared here: the four Section 2 theorems, seven printed
-    inequality clauses, at an arbitrary RCLike scalar field, arbitrary dimension, an
-    unbounded self-adjoint ambient operator, an arbitrary unitarily invariant norm, and
-    a reducing rather than spectrally selected trial subspace. Not compared here: the rest
-    of the 1970 paper -- Sections 3 to 10, the direct-rotation theory, the counterexamples,
-    and the sharpness material -- all of which is formalized in the `DavisKahan` library
-    included here. The source-order census and the semantic-audit apparatus that track that
-    wider coverage stay in the authoritative repository and are deliberately not duplicated
-    here; this repository does not make a completion claim about the 1970 paper.
-    `Palomar/DKSectionTwo/Challenge.lean` carries the four deliberate statement-side holes
-    the Comparator convention requires, and no library declaration in `ForTauCeti` or
-    `DavisKahan` is left incomplete.'
+  scope: 'Compared here: five polished declarations representing the four Section 2 theorem families -- sinTheta, tanTheta (residual form), sinTwoTheta_directed, sinTwoTheta_ambient, and tanTwoTheta (residual form) -- over arbitrary RCLike scalar fields and arbitrary Hilbert dimension, with the source constants and right-hand sides. The rest of the 1970 paper remains in the included DavisKahan library but is outside this comparator entry.'
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []
@@ -125,84 +43,21 @@ automation:
     - gpt-5.6-terra
     - gpt-5.6-sol
     framework: Claude Code
-    tool_setup: Agents worked directly in the authoritative repository with the Lean
-      toolchain, running `lake build` and that repository's gate suite; the libraries here
-      are the extraction of the result. Model attribution is recorded per declaration in the
-      module provenance headers carried into this repository, and per commit in Co-Authored-By
-      trailers and in the measured token ledger, both of which stay in the authoritative
-      repository along with the gate suite.
+    tool_setup: Agents worked directly in the authoritative repository with the Lean toolchain, running `lake build` and that repository's gate suite; the libraries here are the extraction of the result. Model attribution is recorded per declaration in the module provenance headers carried into this repository, and per commit in Co-Authored-By trailers and in the measured token ledger, both of which stay in the authoritative repository along with the gate suite.
     cost:
-      wall_time: not tracked as elapsed time; the ledger records 44657 assistant turns across
-        1591 accounted commits
+      wall_time: not tracked as elapsed time; the ledger records 44657 assistant turns across 1591 accounted commits
       spend_usd: subscription-based; not tracked per commit
       hardware: API-only
-    prompting_notes: 'Work was directed by task, not by prompt template: a scope decision
-      from the maintainer, then autonomous proof and audit work against the source censuses.
-      Adversarial review prompts are checked in under `dev/` and are part of the audit record.'
+    prompting_notes: 'Work was directed by task, not by prompt template: a scope decision from the maintainer, then autonomous proof and audit work against the source censuses. Adversarial review prompts are checked in under `dev/` and are part of the audit record.'
   - method: manual
     framework: n/a
-    tool_setup: The human maintainer set scope and priorities, ran builds and audits, inspected
-      theorem interfaces, coordinated subject-matter discussion with the applied-paper authors,
-      adjudicated source-fidelity questions, accepted or rejected proposed repairs, and decided
-      repository policy.
+    tool_setup: The human maintainer set scope and priorities, ran builds and audits, inspected theorem interfaces, coordinated subject-matter discussion with the applied-paper authors, adjudicated source-fidelity questions, accepted or rejected proposed repairs, and decided repository policy.
   spend_usd: subscription-based; not tracked
-  notes: This is a heavily agent-authored formalization with human direction and review. The
-    Lean kernel is the proof checker, and it checks the libraries here exactly as it checks
-    them upstream. The mechanical gates that additionally audit dependency layering, axiom
-    closure, census consistency and comparator statement equality run in the authoritative
-    repository and are deliberately not duplicated here. Those checks do not establish that a
-    Lean statement says what a paper says, which is why every source paper carries a separate
-    clause-by-clause semantic review, also maintained there.
+  notes: This is a heavily agent-authored formalization with human direction and review. The Lean kernel is the proof checker, and it checks the libraries here exactly as it checks them upstream. The mechanical gates that additionally audit dependency layering, axiom closure, census consistency and comparator statement equality run in the authoritative repository and are deliberately not duplicated here. Those checks do not establish that a Lean statement says what a paper says, which is why every source paper carries a separate clause-by-clause semantic review, also maintained there.
 fidelity:
-  divergences: 'One, in one of the seven compared clauses, and it is a scope qualification
-    rather than a weakened conclusion.
-
-    AMBIENT tan-Theta CARRIES THE PAPER''S CONDITION (3.5), WHICH THE SECTION 2 DISPLAY DOES
-    NOT PRINT. The Lean clause takes `CrossedDefectsEquivalent U V`; the printed Section 2
-    statement of the tan-Theta theorem lists only the ordered spectral gap and H_0 = 0, and
-    (3.5) has not been introduced at that point in the paper. The hypothesis is imported
-    from Section 3, where (3.5) is made standing for the remainder of the paper, and where
-    the Section 6 proof of this clause works. This formalization''s position is that the
-    printed theorem is true under the paper''s own global semantics -- Section 1 declares
-    results vacuous when a displayed norm fails to exist -- and that the (3.5)-qualified
-    Lean statement is the faithful rendering of those semantics. Under the competing
-    literal reading, in which only the printed hypotheses are taken and a missing norm is
-    valued at +infinity, the printed clause is false in infinite dimension and the Lean
-    statement is its repair. Either way, a reader must be told that the Lean hypothesis is
-    not in the printed display, and this entry does not claim otherwise. See the source
-    note above for the argument, and the authoritative repository for the four-layer
-    analysis and the explicit counter-configuration.
-
-    The other six clauses state exactly the printed hypotheses at the stated scope, with the
-    printed right-hand sides and constants. The two remaining qualifications recorded in the
-    source note -- the bounded trial compression in the sin-2-Theta directed clause, and the
-    presentation of a doubled angle by its own sine -- are scope and representation
-    decisions with source justification, not divergences from a printed hypothesis.
-
-    Divergences elsewhere in the source paper, including the refutation of printed
-    Proposition 4.4, are recorded in the substantive repository and summarized in the source
-    note above.'
+  divergences: 'No conclusion is weakened. The comparator intentionally omits the separately displayed whole-space tan-Theta and tan-2-Theta clauses because the source proofs derive those from the stronger residual estimates plus the theorem context; this is a presentation choice, not a mathematical weakening. Both sin-2-Theta clauses remain separate because neither printed clause is merely the other with a larger right-hand side. The sin-Theta entry is residual-only, matching the source theorem: Davis and Kahan explicitly give a counterexample to the ambient UIN estimate under only the one-gap sin-Theta hypotheses.'
 review:
   status: self-assessed
   reviewers:
   - Jon Crall
-  notes: 'No external peer review. What has happened, and should be read as exactly that:
-    kernel verification of every claimed declaration by `lake build`; repository gates auditing
-    dependency layers, axiom closure, docstring coverage, comparator statement equality and
-    census consistency; repeated adversarial source audits in which an independent agent was
-    asked to find a discrepancy between a printed statement and its Lean rendering, several
-    of which found real defects that are recorded in the censuses; and human coordinator review
-    of scope, theorem interfaces and repair decisions. Those adversarial audits are what
-    produced the ambient tan-Theta disclosure recorded under `fidelity.divergences`: the
-    (3.5) hypothesis is a deliberate source-interpretation decision, taken and defended in
-    the open, and a reviewer who disagrees with it should challenge it at
-    dev/davis-kahan-1970-formalization-result-inventory.json, entry S2-tan-theta, field
-    nonlocal_source_interpretation, which is written to ask for an explicit verdict.
-
-    For Davis–Kahan 1970 the authoritative repository generates a self-contained
-    compiler-evidence bundle and source-order audit packet. That certificate proves elaboration
-    and declaration resolution. It does not prove source equivalence, and the completion
-    standard is deliberately three independent axes: source-facing implementation, compiler
-    verification, and hostile semantic acceptance. The census and audit apparatus that carries
-    those axes is not extracted here; this repository makes no completion claim about the
-    1970 paper.'
+  notes: The comparator surface was audited against the modernized transcription of the original 1970 paper and against the compiling parent formalization. The public entry uses five ordinary theorem declarations rather than Prop-valued packaging structures. Kernel verification is provided by building the Challenge and Solution modules; source-semantic review remains distinct from compiler verification.

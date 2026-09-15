@@ -7,6 +7,8 @@ import DavisKahan.Geometry.Halmos.GenericReconstruction
 import ForTauCeti.Analysis.InnerProductSpace.CompactSelfAdjointClassification
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.PrescribedSequence
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan 1970, Corollary 3.1: the compact case
 
@@ -38,6 +40,7 @@ open scoped InnerProductSpace
 
 namespace TauCeti
 namespace DavisKahan
+
 
 open Module (finrank)
 open Module.End (eigenspace)
@@ -115,8 +118,8 @@ the half agrees with `P_U`, so the two compressions coincide.  This is the form
 in which the paper's compactness hypothesis reaches the angle operator. -/
 theorem genericCosineBlock_eq_compress_halmos :
     genericCosineBlock U V =
-      DavisKahanExt.compressOperator (genericLeftHalf U V)
-        (projection U ∘L projection V ∘L projection U) := by
+      DavisKahan.Sylvester.compressOperator (genericLeftHalf U V)
+        (U.starProjection ∘L V.starProjection ∘L U.starProjection) := by
   refine ContinuousLinearMap.ext fun m => ?_
   apply Subtype.ext
   have hmU : U.starProjection (m : H) = (m : H) :=
@@ -128,21 +131,21 @@ theorem genericCosineBlock_eq_compress_halmos :
     starProjection_genericLeftHalf_of_mem_generic U V hgen
   have hLHS : ((genericCosineBlock U V m : genericLeftHalf U V) : H) =
       (genericLeftHalf U V).starProjection (V.starProjection (m : H)) := by
-    simp [genericCosineBlock, DavisKahanExt.compressOperator]
-  have hRHS : ((DavisKahanExt.compressOperator (genericLeftHalf U V)
-      (projection U ∘L projection V ∘L projection U) m : genericLeftHalf U V) : H) =
+    simp [genericCosineBlock, DavisKahan.Sylvester.compressOperator]
+  have hRHS : ((DavisKahan.Sylvester.compressOperator (genericLeftHalf U V)
+      (U.starProjection ∘L V.starProjection ∘L U.starProjection) m : genericLeftHalf U V) : H) =
       (genericLeftHalf U V).starProjection
         (U.starProjection (V.starProjection (U.starProjection (m : H)))) := by
-    simp [DavisKahanExt.compressOperator]
+    simp [DavisKahan.Sylvester.compressOperator]
   rw [hLHS, hRHS, hmU, ← hMV,
     Submodule.starProjection_eq_self_iff.mpr
       ((genericLeftHalf U V).starProjection_apply_mem _)]
 
 /-- **The angle operator is compact** when `P_U P_V P_U` is. -/
 theorem isCompactOperator_genericCosineBlock
-    (hc : IsCompactOperator (projection U ∘L projection V ∘L projection U)) :
+    (hc : IsCompactOperator (U.starProjection ∘L V.starProjection ∘L U.starProjection)) :
     IsCompactOperator (genericCosineBlock U V) := by
-  rw [genericCosineBlock_eq_compress_halmos, DavisKahanExt.compressOperator]
+  rw [genericCosineBlock_eq_compress_halmos, DavisKahan.Sylvester.compressOperator]
   exact (hc.comp_clm (genericLeftHalf U V).subtypeL).clm_comp
     (genericLeftHalf U V).orthogonalProjectionOnto
 
@@ -208,7 +211,7 @@ theorem subtypeL_comp_genericCosineBlock_comp_orthogonalProjectionOnto
   have hcoe : ∀ m : genericLeftHalf U V,
       ((genericCosineBlock U V m : genericLeftHalf U V) : H) =
         (genericLeftHalf U V).starProjection (V.starProjection (m : H)) := fun m => by
-    simp [genericCosineBlock, DavisKahanExt.compressOperator]
+    simp [genericCosineBlock, DavisKahan.Sylvester.compressOperator]
   calc ((genericLeftHalf U V).subtypeL ∘L genericCosineBlock U V ∘L
           (genericLeftHalf U V).orthogonalProjectionOnto) x
       = (genericLeftHalf U V).starProjection
@@ -321,14 +324,6 @@ theorem finrank_eigenspace_eq_of_intertwiner
   rw [← hmap]
   exact hequiv.finrank_eq
 
-variable [Algebra ℝ (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)]
-  [IsScalarTower ℝ 𝕜 (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)]
-  [ContinuousFunctionalCalculus ℝ (genericLeftHalf U₁ V₁ →L[𝕜] genericLeftHalf U₁ V₁)
-    IsSelfAdjoint]
-variable [Algebra ℝ (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)]
-  [IsScalarTower ℝ 𝕜 (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)]
-  [ContinuousFunctionalCalculus ℝ (genericLeftHalf U₂ V₂ →L[𝕜] genericLeftHalf U₂ V₂)
-    IsSelfAdjoint]
 
 /-- **Davis--Kahan 1970, Corollary 3.1.**
 
@@ -340,8 +335,8 @@ This is Theorem 3.1 with the operator invariant replaced by numbers.  The
 replacement is legitimate precisely because compactness makes the angle operator
 one for which the eigenvalue list *is* a complete invariant. -/
 theorem pairOfSubspacesUnitaryEquivalent_iff_sameCompactAngleData
-    (hc₁ : IsCompactOperator (projection U₁ ∘L projection V₁ ∘L projection U₁))
-    (hc₂ : IsCompactOperator (projection U₂ ∘L projection V₂ ∘L projection U₂)) :
+    (hc₁ : IsCompactOperator (U₁.starProjection ∘L V₁.starProjection ∘L U₁.starProjection))
+    (hc₂ : IsCompactOperator (U₂.starProjection ∘L V₂.starProjection ∘L U₂.starProjection)) :
     PairOfSubspacesUnitaryEquivalent U₁ V₁ U₂ V₂ ↔
       SameCompactAngleData U₁ V₁ U₂ V₂ := by
   constructor

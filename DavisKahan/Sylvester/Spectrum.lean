@@ -6,14 +6,20 @@ Authors: Jon Crall, Claude Fable 5
 import ForTauCeti.Analysis.InnerProductSpace.ReducingSubspace
 import DavisKahan.Sylvester.ClosedSylvesterEquation
 import DavisKahan.OperatorIdeal.CanonicalRealView
-import DavisKahan.SpectralTheory.PartialMap.Basic
+import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Closed
+import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Constructions
+import DavisKahan.BoundedOperator.Problem
+import DavisKahan.SpectralTheory.AbstractSpectrum
 import DavisKahan.SpectralTheory.PartialMap.BoundedRealization
 import DavisKahan.Sylvester.Gap
 import DavisKahan.Sylvester.Unbounded.Neumann
 import ForTauCeti.Analysis.CStarAlgebra.SelfAdjointGapInverse
 import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
-import DavisKahan.BoundedOperator.Compat
-import DavisKahan.SpectralTheory.AbstractSpectrum
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # The genuine-spectrum Sylvester estimate and the general `sin Θ` theorem
@@ -66,7 +72,9 @@ is expected to follow by a norm-preserving complexification transfer.
 -/
 
 namespace TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Sylvester
+
+
 
 open DavisKahan.Foundation
 
@@ -241,7 +249,7 @@ theorem isSelfAdjoint_compressOperator
 omit [CompleteSpace E] in
 /-- The orthogonal complement of a reducing subspace is reducing. -/
 theorem _root_.ContinuousLinearMap.Reduces.orthogonalComplement {T : E →L[ℂ] E} {V : Submodule ℂ E}
-    [V.HasOrthogonalProjection] (hV : Reduces T V) : Reduces T Vᗮ := by
+    [V.HasOrthogonalProjection] (hV : T.Reduces V) : T.Reduces Vᗮ := by
   refine ⟨hV.2, ?_⟩
   intro y hy
   rw [Submodule.orthogonal_orthogonal] at hy ⊢
@@ -253,11 +261,11 @@ two diagonal compressions. -/
 theorem compress_sylvester_of_reduces
     {A B : E →L[ℂ] E} {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V) :
+    (hU : A.Reduces U) (hV : B.Reduces V) :
     compressOperator Vᗮ B ∘L (Vᗮ.orthogonalProjectionOnto ∘L U.subtypeL) -
         (Vᗮ.orthogonalProjectionOnto ∘L U.subtypeL) ∘L compressOperator U A =
       Vᗮ.orthogonalProjectionOnto ∘L (B - A) ∘L U.subtypeL := by
-  have hVperp : Reduces B Vᗮ := hV.orthogonalComplement
+  have hVperp : B.Reduces Vᗮ := hV.orthogonalComplement
   ext x
   simp only [ContinuousLinearMap.comp_apply, sub_apply,
     compressOperator, AddSubgroupClass.coe_sub, Submodule.subtypeL_apply,
@@ -316,12 +324,12 @@ theorem sinTheta_spectrum
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hVspec : ∀ x ∈ spectrum ℝ (compressOperator Vᗮ B),
       x ≤ a - d ∨ b + d ≤ x) :
-    d * directedGap U V ≤ ‖B - A‖ := by
+    d * U.directedProjectionGap V ≤ ‖B - A‖ := by
   have : CompleteSpace U :=
     (U.isComplete_coe_of_hasOrthogonalProjection).completeSpace_coe
   have : CompleteSpace (Vᗮ : Submodule ℂ E) :=
@@ -340,7 +348,7 @@ theorem sinTheta_spectrum
         = ‖Vᗮ.starProjection ((B - A) (x : E))‖ := rfl
       _ ≤ ‖(B - A) (x : E)‖ := Vᗮ.norm_starProjection_apply_le _
       _ ≤ ‖B - A‖ * ‖(x : E)‖ := (B - A).le_opNorm _
-  calc d * directedGap U V
+  calc d * U.directedProjectionGap V
       = d * ‖Vᗮ.orthogonalProjectionOnto ∘L U.subtypeL‖ := by
         rw [norm_crossCompression_eq]
         rfl
@@ -357,7 +365,7 @@ theorem sinTheta_spectrum_symmetric
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b a' b' d : ℝ} (hd : 0 < d) (hab : a ≤ b) (hab' : a' ≤ b')
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hVspec : ∀ x ∈ spectrum ℝ (compressOperator Vᗮ B),
@@ -365,20 +373,19 @@ theorem sinTheta_spectrum_symmetric
     (hVspec' : spectrum ℝ (compressOperator V B) ⊆ Set.Icc a' b')
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
       x ≤ a' - d ∨ b' + d ≤ x) :
-    d * subspaceGap U V ≤ ‖B - A‖ := by
-  have h1 : d * directedGap U V ≤ ‖B - A‖ :=
+    d * U.projectionGap V ≤ ‖B - A‖ := by
+  have h1 : d * U.directedProjectionGap V ≤ ‖B - A‖ :=
     sinTheta_spectrum hA hB hU hV hd hab hUspec hVspec
-  have h2 : d * directedGap V U ≤ ‖A - B‖ :=
+  have h2 : d * V.directedProjectionGap U ≤ ‖A - B‖ :=
     sinTheta_spectrum hB hA hV hU hd hab' hVspec' hUspec'
   rw [show A - B = -(B - A) by abel, norm_neg] at h2
-  have hmax : subspaceGap U V = max (directedGap U V) (directedGap V U) :=
+  have hmax : U.projectionGap V = max (U.directedProjectionGap V) (V.directedProjectionGap U) :=
     U.projectionGap_eq_max_directedProjectionGap V
   rw [hmax, mul_max_of_nonneg _ _ hd.le]
   exact max_le h1 h2
 
 section IdealScope
 
-open TauCeti.DavisKahan.ExactSinTheta
 
 universe v'
 
@@ -470,7 +477,7 @@ theorem sinTheta_spectrum_gauge
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hVspec : ∀ x ∈ spectrum ℝ (compressOperator Vᗮ B),
@@ -532,8 +539,7 @@ theorem starProjection_sub_eq_cross_sub_cross_adjoint
   rw [hadj, Submodule.starProjection_orthogonal' V,
     Submodule.starProjection_orthogonal' U]
   ext x
-  simp only [ContinuousLinearMap.comp_apply, sub_apply,
-    sub_apply, one_apply_eq_self, map_sub]
+  simp only [ContinuousLinearMap.comp_apply, sub_apply, one_apply_eq_self, map_sub]
   abel
 
 /-- **The symmetric two-sided bounded `sin Θ` theorem at unitary-invariant
@@ -547,7 +553,7 @@ theorem sinTheta_spectrum_gauge_symmetric
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b a' b' d : ℝ} (hd : 0 < d) (hab : a ≤ b) (hab' : a' ≤ b')
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hVspec : ∀ x ∈ spectrum ℝ (compressOperator Vᗮ B),
@@ -593,5 +599,5 @@ theorem sinTheta_spectrum_gauge_symmetric
 
 end SinThetaIdealScope
 
-end DavisKahanExt
+end DavisKahan.Sylvester
 end TauCeti

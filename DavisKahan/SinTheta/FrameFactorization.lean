@@ -3,13 +3,17 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 import DavisKahan.Sylvester.Bounded
 import DavisKahan.OperatorIdeal.CanonicalRealView
 import ForTauCeti.Analysis.InnerProductSpace.CoerciveUnit
 import Mathlib.Analysis.InnerProductSpace.StarOrder
 import Mathlib.Analysis.Normed.Group.Uniform
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Basic
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Infinite-dimensional lower-frame factorization

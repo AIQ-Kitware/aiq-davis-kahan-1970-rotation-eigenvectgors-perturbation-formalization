@@ -7,6 +7,8 @@ import DavisKahan.Sylvester.ShiftedInverseGauge
 import DavisKahan.OperatorIdeal.CanonicalRealView
 import DavisKahan.SinTheta.Unbounded.OpNorm
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Ideal-gauge `sin Θ` bound from a two-sided shifted inverse
 -/

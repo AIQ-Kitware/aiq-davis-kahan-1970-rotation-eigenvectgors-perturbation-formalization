@@ -95,6 +95,46 @@ theorem sameSpectralMultiplicity_iff_operatorUnitaryEquiv_real [CompleteSpace H�
   ⟨operatorUnitaryEquiv_of_sameSpectralMultiplicity_real A B,
     sameSpectralMultiplicity_of_operatorUnitaryEquiv_real A B hA⟩
 
+/-- **The functional calculus preserves the multiplicity invariant, over a real
+Hilbert space.**
+
+The real twin of `TauCeti.sameSpectralMultiplicity_cfc_iff`.  `f` and `g` are
+mutually inverse on the two spectra, so `cfc f` is a bijection between the two
+operators' multiplicity data and the equivalence transports both ways.
+
+It is written out rather than derived from the complex statement: the only
+obstruction to sharing is the missing `Algebra ℝ (H →L[𝕜] H)` instance, and the
+real classification pair above supplies everything the argument needs. -/
+theorem sameSpectralMultiplicity_cfc_iff_real [CompleteSpace H₁] [CompleteSpace H₂]
+    [TopologicalSpace.SeparableSpace H₁] [TopologicalSpace.SeparableSpace H₂]
+    {A : H₁ →L[ℝ] H₁} {B : H₂ →L[ℝ] H₂}
+    (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
+    (f g : ℝ → ℝ)
+    (hf : ContinuousOn f (spectrum ℝ A)) (hf' : ContinuousOn f (spectrum ℝ B))
+    (hgA : ContinuousOn g (spectrum ℝ (_root_.cfc f A)))
+    (hgA' : ContinuousOn g (f '' spectrum ℝ A))
+    (hgB' : ContinuousOn g (f '' spectrum ℝ B))
+    (hgfA : ∀ t ∈ spectrum ℝ A, g (f t) = t)
+    (hgfB : ∀ t ∈ spectrum ℝ B, g (f t) = t) :
+    SameSpectralMultiplicity A B ↔
+      SameSpectralMultiplicity (_root_.cfc f A) (_root_.cfc f B) := by
+  have hfA : IsSelfAdjoint (_root_.cfc f A) := cfc_predicate f A
+  have hfB : IsSelfAdjoint (_root_.cfc f B) := cfc_predicate f B
+  have hbackA : _root_.cfc g (_root_.cfc f A) = A :=
+    TauCeti.cfc_cfc_eq_self_of_leftInverse_real hA f g hf hgA' hgfA
+  have hbackB : _root_.cfc g (_root_.cfc f B) = B :=
+    TauCeti.cfc_cfc_eq_self_of_leftInverse_real hB f g hf' hgB' hgfB
+  constructor
+  · intro h
+    have hu := operatorUnitaryEquiv_of_sameSpectralMultiplicity_real A B h
+    exact sameSpectralMultiplicity_of_operatorUnitaryEquiv_real _ _ hfA
+      (hu.cfc_ofReal f hf hA)
+  · intro h
+    have hu := operatorUnitaryEquiv_of_sameSpectralMultiplicity_real _ _ h
+    have hback := hu.cfc_ofReal g hgA hfA
+    rw [hbackA, hbackB] at hback
+    exact sameSpectralMultiplicity_of_operatorUnitaryEquiv_real _ _ hA hback
+
 end RealSpectralRestriction
 end DavisKahan
 end TauCeti

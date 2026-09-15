@@ -8,6 +8,8 @@ import DavisKahan.OperatorIdeal.CanonicalRealView
 import DavisKahan.Sylvester.Spectrum
 import ForTauCeti.Analysis.OperatorIdeal.Family.OperatorNorm
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Trial residual and exact-range cross blocks
 
@@ -31,7 +33,6 @@ namespace BoundedOperator
 
 open scoped InnerProductSpace
 open TauCeti.DavisKahan.ExactSinTheta
-open DavisKahanExt
 open TauCeti.DavisKahan
 
 universe u

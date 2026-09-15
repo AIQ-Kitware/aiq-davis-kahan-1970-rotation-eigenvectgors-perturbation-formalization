@@ -6,6 +6,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.Sylvester.OrthogonalIdempotentExp
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
+
 /-!
 # Finite spectral-block Sylvester reconstruction
 
@@ -19,7 +20,9 @@ restated; names and namespace are unchanged.
 -/
 
 namespace TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Sylvester
+
+open TauCeti.DavisKahanExt
 
 open DavisKahan
 
@@ -353,5 +356,5 @@ theorem finiteDiagonal_sylvester_reconstruction
       rw [Finset.smul_sum]
 
 end
-end DavisKahanExt
+end DavisKahan.Sylvester
 end TauCeti

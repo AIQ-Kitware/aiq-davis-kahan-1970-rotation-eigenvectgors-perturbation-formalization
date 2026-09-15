@@ -163,7 +163,7 @@ coordinate datum selects the transverse graph branch. -/
 theorem tanTheta_unbounded_graphAngle_trialBlock
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
     {Z : Submodule ℂ H} [Z.HasOrthogonalProjection] [CompleteSpace Z]
-    (D : UnboundedTrialBlock A Z)
+    (D : BoundedCompressionTrialBlock A Z)
     {α β δ : ℝ} (hαβ : α ≤ β) (hδ : 0 < δ)
     (hZspec : ∀ x ∈ spectrum ℝ D.operator,
       x ≤ α - δ ∨ β + δ ≤ x)

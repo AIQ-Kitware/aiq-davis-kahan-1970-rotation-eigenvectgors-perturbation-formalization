@@ -8,6 +8,11 @@ import DavisKahan.TanTheta.Theorem63InfiniteTrial
 import DavisKahan.OperatorIdeal.ComplexificationApproximation
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.SingularValueTransport
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Directed Section 2 bounds over real Hilbert spaces
 
@@ -31,9 +36,10 @@ open TauCeti.DavisKahanExt
 open TauCeti.DavisKahan
 open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.DavisKahan.ExactSinTheta.ComplexificationApproximation
-open TauCeti.DavisKahan.ExactTanTheta
+open TauCeti.DavisKahan.TanTheta
 open TauCeti.RealComplexification
 open TauCeti.DavisKahan.Foundation.RealComplexification
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -41,12 +47,6 @@ universe v
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
-
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionDirectedReal
-    {k : Type*} [RCLike k] {G : Type v} [NormedAddCommGroup G]
-    [InnerProductSpace k G] [CompleteSpace G]
-    (Z : Submodule k G) [Z.HasOrthogonalProjection] : CompleteSpace Z :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection Z).completeSpace_coe
 
 /-! ## Real trial blocks and complexification transport -/
 
@@ -206,7 +206,7 @@ theorem theorem6_3_all_kyFan_core_infiniteTrial_real
     (complexify T) (complexifySubmodule V) (complexifySubmodule Z)
     hTC hVC hdelta
     (fun z => by
-      simpa [theorem63Compression, TauCeti.DavisKahanExt.compressOperator] using
+      simpa [theorem63Compression, TauCeti.DavisKahan.Sylvester.compressOperator] using
         re_inner_compressOperator_le Z T hCompressionUpper z)
     (fun y hy => by
       rw [← complexifySubmodule_orthogonal V] at hy
@@ -235,7 +235,7 @@ theorem approximationSingularValue_sineBlock_lt_one_infiniteTrial_real
     (complexify T) (complexifySubmodule V) (complexifySubmodule Z)
     hTC hVC hdelta
     (fun z => by
-      simpa [theorem63Compression, TauCeti.DavisKahanExt.compressOperator] using
+      simpa [theorem63Compression, TauCeti.DavisKahan.Sylvester.compressOperator] using
         re_inner_compressOperator_le Z T hCompressionUpper z)
     (fun y hy => by
       rw [← complexifySubmodule_orthogonal V] at hy
@@ -475,7 +475,7 @@ theorem tanTheta_directed_bounded_arbitraryDimension_symmetricNorming_real
 The hypotheses Davis and Kahan actually print are spectral placements, not quadratic-form
 bounds: the Rayleigh--Ritz compression has spectrum in `[β, α]` and the restriction to the
 unwanted exact subspace has spectrum in `[α + δ, ∞)`.  Over `ℂ` the conversion is
-`SpectralOrder.Complex`; the real conversion is `TauCeti.SpectralOrder.Real`, which proves the
+`SpectralOrder`; the real conversion is `TauCeti.SpectralOrder`, which proves the
 same two bridges by a Rayleigh shift because Mathlib has no `StarOrderedRing (E →L[ℝ] E)`. -/
 
 /-- **Real directed Theorem 6.3 at every source unitarily invariant norm, in the printed
@@ -487,7 +487,7 @@ the paper's norm class, with the tangent representative exhibited and its member
 concluded.  Real Hilbert space of arbitrary dimension, arbitrary closed real trial subspace.
 
 Grounded on `tanTheta_directed_bounded_symmetricNorming_real`; the spectral placement is converted to the
-form bounds by the two `TauCeti.SpectralOrder.Real` bridges, exactly as
+form bounds by the two `TauCeti.SpectralOrder` bridges, exactly as
 `tanTheta_directed_bounded_spectralGap_symmetricNorming_complex` uses their complex twins. -/
 theorem tanTheta_directed_bounded_spectralGap_symmetricNorming_real
     (N : SymmetricNormingFunction)
@@ -507,15 +507,13 @@ theorem tanTheta_directed_bounded_spectralGap_symmetricNorming_real
   have hTsym : T.IsSymmetric := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hT
   have hMsa : IsSelfAdjoint (compressOperatorReal Z T) :=
     isSelfAdjoint_compressOperator hT Z
-  have hMsym : (compressOperatorReal Z T).IsSymmetric :=
-    ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hMsa
   have hCompressionUpper : ∀ z : Z,
       ⟪compressOperatorReal Z T z, z⟫_ℝ ≤ alpha * ‖z‖ ^ 2 := fun z =>
-    SpectralOrder.Real.upperFormBoundOn_top_of_spectrum_subset_Iic
-      (compressOperatorReal Z T) hMsym
+    SpectralOrder.upperFormBoundOn_top_of_spectrum_subset_Iic
+      (compressOperatorReal Z T) hMsa
       (fun r hr => (hCompressionSpectrum hr).2) z Submodule.mem_top
   have hUnwantedLower : ∀ y ∈ Vᗮ, (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪T y, y⟫_ℝ :=
-    SpectralOrder.Real.lowerFormBoundOn_of_restriction_spectrum_subset_Ici
+    SpectralOrder.lowerFormBoundOn_of_restriction_spectrum_subset_Ici
       hTsym hV.2 hUnwantedSpectrum
   exact tanTheta_directed_bounded_symmetricNorming_real N T hT V Z hV hdelta hCompressionUpper
     hUnwantedLower hResidual
@@ -656,14 +654,14 @@ consequence.**
 standing assumption (3.5).  The ambient directed block `P_{V^⊥} P_U` factors through the
 trial block `P_{V^⊥} P_U|_U`, whose approximation singular values are already known to be
 strictly below one, and (3.5) identifies the symmetric gap with the directed one. -/
-theorem norm_paperSinAngleOperatorR_lt_one_of_crossedDefectsEquivalent
+theorem norm_sinAngleOperatorR_lt_one_of_crossedDefectsEquivalent
     (T : E →L[ℝ] E) (hT : IsSelfAdjoint T)
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hV : T.Reduces V) {alpha delta : ℝ} (hdelta : 0 < delta)
     (hCompressionUpper : ∀ z : U, ⟪compressOperatorReal U T z, z⟫_ℝ ≤ alpha * ‖z‖ ^ 2)
     (hUnwantedLower : ∀ y ∈ Vᗮ, (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪T y, y⟫_ℝ)
     (h35 : DavisKahan.CrossedDefectsEquivalent U V) :
-    ‖paperSinAngleOperatorR U V‖ < 1 := by
+    ‖sinAngleOperatorR U V‖ < 1 := by
   have hdirected := approximationSingularValue_sineBlock_lt_one_infiniteTrial_real
     T hT V U hV hdelta hCompressionUpper hUnwantedLower 0
   rw [approximationSingularValue_zero] at hdirected
@@ -678,7 +676,7 @@ theorem norm_paperSinAngleOperatorR_lt_one_of_crossedDefectsEquivalent
           mul_le_mul_of_nonneg_left U.orthogonalProjectionOnto_norm_le
             (ContinuousLinearMap.opNorm_nonneg (theorem63DirectedSineBlockReal U V))
       _ < 1 := by rwa [mul_one]
-  rw [norm_paperSinAngleOperatorR,
+  rw [norm_sinAngleOperatorR,
     DavisKahan.subspaceGap_eq_directedGap_of_crossedDefectsEquivalent
       U V h35]
   exact hnorm
@@ -699,12 +697,15 @@ theorem tanTheta_ambient_bounded_symmetricNorming_real_of_crossedDefects
     (hUnwantedLower : ∀ y ∈ Vᗮ, (alpha + delta) * ‖y‖ ^ 2 ≤ ⟪T y, y⟫_ℝ)
     (h35 : DavisKahan.CrossedDefectsEquivalent U V)
     (hMem : N.Mem (T - A)) :
-    N.Mem (paperTanAngleOperatorR U V) ∧
-      delta * N.gauge (paperTanAngleOperatorR U V) ≤ N.gauge (T - A) :=
-  tanTheta_ambient_bounded_symmetricNorming_real_of_transversality N hT hA hV hAU hdelta hCompressionUpper
-    hUnwantedLower
-    (norm_paperSinAngleOperatorR_lt_one_of_crossedDefectsEquivalent T hT U V hV hdelta
-      hCompressionUpper hUnwantedLower h35) hMem
+    ‖sinAngleOperatorR U V‖ < 1 ∧
+      N.Mem (tanAngleOperatorR U V) ∧
+      delta * N.gauge (tanAngleOperatorR U V) ≤ N.gauge (T - A) :=
+  ⟨norm_sinAngleOperatorR_lt_one_of_crossedDefectsEquivalent T hT U V hV hdelta
+      hCompressionUpper hUnwantedLower h35,
+    tanTheta_ambient_bounded_symmetricNorming_real_of_transversality N hT hA hV hAU hdelta hCompressionUpper
+      hUnwantedLower
+      (norm_sinAngleOperatorR_lt_one_of_crossedDefectsEquivalent T hT U V hV hdelta
+        hCompressionUpper hUnwantedLower h35) hMem⟩
 
 end
 end DavisKahan1970

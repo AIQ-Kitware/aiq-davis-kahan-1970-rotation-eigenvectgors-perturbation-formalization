@@ -6,7 +6,9 @@ Authors: Jon Crall
 import DavisKahan.Riccati.UnboundedReduction
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.GraphCore
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Sylvester
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 
 /-!
 # The complementary graph of a reducing Riccati selection

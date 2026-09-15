@@ -22,7 +22,7 @@ here.
 -/
 
 namespace TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Angle
 
 open DavisKahan
 namespace Real
@@ -47,37 +47,37 @@ noncomputable def sinAngleOperatorRC (U V : Submodule ℝ E)
   sinAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
 
 /-- Directed sine-angle operator for real subspaces in the complexification. -/
-noncomputable def sinAngleOperatorDirectedRC (U V : Submodule ℝ E)
+noncomputable def directedSinAngleOperatorRC (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     RealComplexification E →L[ℂ] RealComplexification E :=
-  sinAngleOperatorDirectedC (complexifySubmodule U) (complexifySubmodule V)
+  directedSinAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
 
 /-- Cosine-angle operator for real subspaces in the complexification. -/
-noncomputable def cosAngleOperatorRC (U V : Submodule ℝ E)
+noncomputable def directedCosAngleOperatorRC (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     RealComplexification E →L[ℂ] RealComplexification E :=
-  cosAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
+  directedCosAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
 
 /-- Sine of twice the real operator angle in the complexification. -/
-noncomputable def sinTwoAngleOperatorRC (U V : Submodule ℝ E)
+noncomputable def directedSinTwoAngleOperatorRC (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     RealComplexification E →L[ℂ] RealComplexification E :=
-  sinTwoAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
+  directedSinTwoAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
 
 /-- Tangent-angle operator for acute real subspaces, in the complexification. -/
-noncomputable def tanAngleOperatorRC (U V : Submodule ℝ E)
+noncomputable def directedTanAngleOperatorRC (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : TauCeti.DavisKahan.IsUniformlyAcute U V) :
     RealComplexification E →L[ℂ] RealComplexification E :=
-  tanAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
+  directedTanAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
     ((isUniformlyAcute_complexifySubmodule_iff U V).2 hacute)
 
 /-- Tangent of twice the angle for quarter-acute real subspaces. -/
-noncomputable def tanTwoAngleOperatorRC (U V : Submodule ℝ E)
+noncomputable def directedTanTwoAngleOperatorRC (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hquarter : TauCeti.DavisKahan.IsQuarterAcute U V) :
     RealComplexification E →L[ℂ] RealComplexification E :=
-  tanTwoAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
+  directedTanTwoAngleOperatorC (complexifySubmodule U) (complexifySubmodule V)
     ((isQuarterAcute_complexifySubmodule_iff U V).2 hquarter)
 
 /-- The real-subspace sine operator is positive. -/
@@ -96,7 +96,7 @@ theorem isSelfAdjoint_sinAngleOperatorRC (U V : Submodule ℝ E)
 original real projection gap. -/
 theorem norm_sinAngleOperatorRC (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinAngleOperatorRC U V‖ = TauCeti.DavisKahan.subspaceGap U V := by
+    ‖sinAngleOperatorRC U V‖ = U.projectionGap V := by
   rw [sinAngleOperatorRC, norm_sinAngleOperatorC]
   exact subspaceGap_complexifySubmodule U V
 
@@ -111,83 +111,83 @@ theorem norm_sinAngleOperatorRC_ofReal (U V : Submodule ℝ E)
     complexify_ofReal, LinearIsometry.norm_map]
 
 /-- The directed sine norm is the original real directed gap. -/
-theorem norm_sinAngleOperatorDirectedRC (U V : Submodule ℝ E)
+theorem norm_directedSinAngleOperatorRC (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinAngleOperatorDirectedRC U V‖ =
-      TauCeti.DavisKahan.directedGap U V := by
-  rw [sinAngleOperatorDirectedRC, norm_sinAngleOperatorDirectedC]
+    ‖directedSinAngleOperatorRC U V‖ =
+      U.directedProjectionGap V := by
+  rw [directedSinAngleOperatorRC, norm_directedSinAngleOperatorC]
   exact directedGap_complexifySubmodule U V
 
 /-- The cosine operator remains contractive for real subspaces. -/
-theorem norm_cosAngleOperatorRC_le_one (U V : Submodule ℝ E)
+theorem norm_directedCosAngleOperatorRC_le_one (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖cosAngleOperatorRC U V‖ ≤ 1 :=
-  norm_cosAngleOperatorC_le_one _ _
+    ‖directedCosAngleOperatorRC U V‖ ≤ 1 :=
+  norm_directedCosAngleOperatorC_le_one _ _
 
 /-- Operator Pythagoras for real subspaces, with the right side identified as
 the complexification of the original real projection. -/
-theorem sinAngleOperatorDirectedRC_sq_add_cosAngleOperatorRC_sq
+theorem directedSinAngleOperatorRC_sq_add_directedCosAngleOperatorRC_sq
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    sinAngleOperatorDirectedRC U V * sinAngleOperatorDirectedRC U V +
-        cosAngleOperatorRC U V * cosAngleOperatorRC U V =
+    directedSinAngleOperatorRC U V * directedSinAngleOperatorRC U V +
+        directedCosAngleOperatorRC U V * directedCosAngleOperatorRC U V =
       complexify U.starProjection := by
-  rw [sinAngleOperatorDirectedRC, cosAngleOperatorRC,
-    sinAngleOperatorDirectedC_sq_add_cosAngleOperatorC_sq,
+  rw [directedSinAngleOperatorRC, directedCosAngleOperatorRC,
+    directedSinAngleOperatorC_sq_add_directedCosAngleOperatorC_sq,
     starProjection_complexifySubmodule]
 
 /-- The directed sine and cosine operators commute for real subspaces. -/
-theorem commute_sinAngleOperatorDirectedRC_cosAngleOperatorRC
+theorem commute_directedSinAngleOperatorRC_directedCosAngleOperatorRC
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] :
-    Commute (sinAngleOperatorDirectedRC U V) (cosAngleOperatorRC U V) :=
-  commute_sinAngleOperatorDirectedC_cosAngleOperatorC _ _
+    Commute (directedSinAngleOperatorRC U V) (directedCosAngleOperatorRC U V) :=
+  commute_directedSinAngleOperatorC_directedCosAngleOperatorC _ _
 
 /-- The complexified double-angle sine satisfies the sharp available bound in
 terms of the original real directed gap. -/
-theorem norm_sinTwoAngleOperatorRC_le (U V : Submodule ℝ E)
+theorem norm_directedSinTwoAngleOperatorRC_le (U V : Submodule ℝ E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
-    ‖sinTwoAngleOperatorRC U V‖ ≤
-      2 * TauCeti.DavisKahan.directedGap U V := by
-  rw [sinTwoAngleOperatorRC]
-  have h := norm_sinTwoAngleOperatorC_le
+    ‖directedSinTwoAngleOperatorRC U V‖ ≤
+      2 * U.directedProjectionGap V := by
+  rw [directedSinTwoAngleOperatorRC]
+  have h := norm_directedSinTwoAngleOperatorC_le
     (complexifySubmodule U) (complexifySubmodule V)
-  change ‖sinTwoAngleOperatorC (complexifySubmodule U)
+  change ‖directedSinTwoAngleOperatorC (complexifySubmodule U)
       (complexifySubmodule V)‖ ≤
-    2 * TauCeti.DavisKahan.directedGap U V
-  change ‖sinTwoAngleOperatorC (complexifySubmodule U)
+    2 * U.directedProjectionGap V
+  change ‖directedSinTwoAngleOperatorC (complexifySubmodule U)
       (complexifySubmodule V)‖ ≤
-    2 * TauCeti.DavisKahan.directedGap (complexifySubmodule U)
+    2 * Submodule.directedProjectionGap (complexifySubmodule U)
       (complexifySubmodule V) at h
   rw [directedGap_complexifySubmodule] at h
   exact h
 
 /-- Defining tangent identity for acute real subspaces after complexification. -/
-theorem tanAngleOperatorRC_comp_cosAngleExtended
+theorem directedTanAngleOperatorRC_comp_cosAngleExtended
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection]
     (hacute : TauCeti.DavisKahan.IsUniformlyAcute U V) :
-    tanAngleOperatorRC U V hacute ∘L
+    directedTanAngleOperatorRC U V hacute ∘L
         cosAngleExtendedC (complexifySubmodule U) (complexifySubmodule V) =
-      sinAngleOperatorDirectedRC U V := by
-  exact tanAngleOperatorC_comp_cosAngleExtendedC
+      directedSinAngleOperatorRC U V := by
+  exact directedTanAngleOperatorC_comp_cosAngleExtendedC
     (complexifySubmodule U) (complexifySubmodule V)
     ((isUniformlyAcute_complexifySubmodule_iff U V).2 hacute)
 
 /-- Defining double-tangent identity below the real quarter-angle threshold. -/
-theorem tanTwoAngleOperatorRC_comp_cosTwoAngleExtended
+theorem directedTanTwoAngleOperatorRC_comp_cosTwoAngleExtended
     (U V : Submodule ℝ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection]
     (hquarter : TauCeti.DavisKahan.IsQuarterAcute U V) :
-    tanTwoAngleOperatorRC U V hquarter ∘L
+    directedTanTwoAngleOperatorRC U V hquarter ∘L
         cosTwoAngleExtendedC (complexifySubmodule U) (complexifySubmodule V) =
-      sinTwoAngleOperatorRC U V := by
-  exact tanTwoAngleOperatorC_comp_cosTwoAngleExtendedC
+      directedSinTwoAngleOperatorRC U V := by
+  exact directedTanTwoAngleOperatorC_comp_cosTwoAngleExtendedC
     (complexifySubmodule U) (complexifySubmodule V)
     ((isQuarterAcute_complexifySubmodule_iff U V).2 hquarter)
 
 end
 
 end Real
-end DavisKahanExt
+end DavisKahan.Angle
 end TauCeti

@@ -92,6 +92,7 @@ theorem closed_freeGraph
   D.traceModel.isClosed_ambientGraph_of_graphNorm_bound
     D.graphConstant_pos D.graph_lower_bound
 
+omit [CompleteSpace V] in
 /-- Density of the assembled free domain. -/
 theorem dense_freeDomain
     (D : BeamFoundationCompletionData (H := H) (V := V)) :

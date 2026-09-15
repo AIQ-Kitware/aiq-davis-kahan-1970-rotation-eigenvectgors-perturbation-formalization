@@ -6,6 +6,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
 import DavisKahan.OperatorIdeal.ComplexificationApproximation
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Source unitarily-invariant norms are preserved by real complexification
 

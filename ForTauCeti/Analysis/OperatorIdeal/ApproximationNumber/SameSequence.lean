@@ -8,6 +8,7 @@ module
 public import ForTauCeti.Analysis.InnerProductSpace.OperatorModulus
 public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.FiniteRestriction
 public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.KyFan
+public import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.ScalarTransport
 
 /-!
 # Operators with the same approximation-number sequence
@@ -109,12 +110,21 @@ theorem kyFanGauge_eq {A : E₁ →L[𝕜] F₁} {B : E₂ →L[𝕜] F₂}
 
 end HasSameApproximationNumbers
 
-section Complex
+section MinMax
+
+/-! ## Comparison through the min--max characterisation
+
+These three were stated over `ℂ` until 2026-09-03, because the min--max lower bound they use
+was available only there.  `ContinuousLinearMap.hasMinMaxLowerBound_rclike` proves it
+at every `RCLike` field, so they are stated at every `RCLike` field, and no capability class
+appears in any signature.  It is used in its *theorem* form rather than through the
+`HasMinMaxLowerBoundEverywhere` class because that class fixes one universe for both spaces
+and these statements are genuinely rectangular. -/
 
 variable {X : Type v₁} {Y : Type w₁} {Z : Type w₂}
-  [NormedAddCommGroup X] [InnerProductSpace ℂ X] [CompleteSpace X]
-  [NormedAddCommGroup Y] [InnerProductSpace ℂ Y] [CompleteSpace Y]
-  [NormedAddCommGroup Z] [InnerProductSpace ℂ Z] [CompleteSpace Z]
+  [NormedAddCommGroup X] [InnerProductSpace 𝕜 X] [CompleteSpace X]
+  [NormedAddCommGroup Y] [InnerProductSpace 𝕜 Y] [CompleteSpace Y]
+  [NormedAddCommGroup Z] [InnerProductSpace 𝕜 Z] [CompleteSpace Z]
 
 /-- **A pointwise norm bound is inherited by every approximation number.**
 
@@ -123,21 +133,23 @@ realized as a uniform lower modulus on an `(n+1)`-dimensional subspace, and the 
 estimate carries that same witness over to `B`.  It is rank-safe — no averaging of `A`
 against a second operator happens, so no rank doubling can occur. -/
 theorem approximationNumber_le_of_norm_apply_le
-    (A : X →L[ℂ] Y) (B : X →L[ℂ] Z) (h : ∀ x : X, ‖A x‖ ≤ ‖B x‖) (n : ℕ) :
+    (A : X →L[𝕜] Y) (B : X →L[𝕜] Z) (h : ∀ x : X, ‖A x‖ ≤ ‖B x‖) (n : ℕ) :
     A.approximationNumber n ≤ B.approximationNumber n := by
   by_contra hnot
   have hlt : B.approximationNumber n < A.approximationNumber n := lt_of_not_ge hnot
   have hB0 : 0 ≤ B.approximationNumber n := B.approximationNumber_nonneg n
+  have hmm : HasMinMaxLowerBound 𝕜 X Y := ContinuousLinearMap.hasMinMaxLowerBound_rclike 𝕜
+  have hmm' : HasMinMaxLowerBound 𝕜 X Z := ContinuousLinearMap.hasMinMaxLowerBound_rclike 𝕜
   obtain ⟨s, hrs, v, hv, hV⟩ :=
-    (A.lt_approximationNumber_iff_exists_finiteDimensional_lowerBound n hB0).mp hlt
+    (hmm.lt_approximationNumber_iff_exists_finiteDimensional_lowerBound A n hB0).mp hlt
   exact lt_irrefl _
-    ((B.lt_approximationNumber_iff_exists_finiteDimensional_lowerBound n hB0).mpr
+    ((hmm'.lt_approximationNumber_iff_exists_finiteDimensional_lowerBound B n hB0).mpr
       ⟨s, hrs, v, hv, fun x hx => (hV x hx).trans (h x)⟩)
 
 /-- Pointwise equality of norms determines the whole approximation-number sequence.  The two
 operators may have different targets, which is what the heterogeneous relation is for. -/
 theorem hasSameApproximationNumbers_of_norm_apply_eq
-    (A : X →L[ℂ] Y) (B : X →L[ℂ] Z) (h : ∀ x : X, ‖A x‖ = ‖B x‖) :
+    (A : X →L[𝕜] Y) (B : X →L[𝕜] Z) (h : ∀ x : X, ‖A x‖ = ‖B x‖) :
     A.HasSameApproximationNumbers B := fun n =>
   le_antisymm
     (approximationNumber_le_of_norm_apply_le A B (fun x => (h x).le) n)
@@ -145,11 +157,20 @@ theorem hasSameApproximationNumbers_of_norm_apply_eq
 
 /-- **An operator and its modulus have the same approximation numbers.**  The modulus acts
 on the source while the operator maps into the target, so this is genuinely the
-heterogeneous relation. -/
-theorem modulus_hasSameApproximationNumbers (T : X →L[ℂ] Y) :
+heterogeneous relation.
+
+Stated over `ℂ`, unlike the two above: the modulus needs a real functional calculus on the
+operator algebra, which at an abstract `RCLike` field is available only under the local
+instances of `ForTauCeti/Analysis/InnerProductSpace/OperatorRealAlgebra.lean`.  The general
+statement is `TauCeti.DavisKahan.Angle.modulus_hasSameApproximationNumbers_rclike`, which
+activates them. -/
+theorem modulus_hasSameApproximationNumbers {Y' : Type w₁}
+    [NormedAddCommGroup Y'] [InnerProductSpace ℂ Y'] [CompleteSpace Y']
+    {X' : Type v₁} [NormedAddCommGroup X'] [InnerProductSpace ℂ X'] [CompleteSpace X']
+    (T : X' →L[ℂ] Y') :
     T.modulus.HasSameApproximationNumbers T :=
   hasSameApproximationNumbers_of_norm_apply_eq _ _ T.norm_modulus_apply
 
-end Complex
+end MinMax
 
 end ContinuousLinearMap

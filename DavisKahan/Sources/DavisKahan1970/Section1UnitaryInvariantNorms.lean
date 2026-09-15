@@ -12,7 +12,7 @@ import Mathlib.Analysis.InnerProductSpace.ProdL2
 Equations (1.11)--(1.13).  The `ν`-norm `‖K‖_ν = κ₁ + ⋯ + κ_ν` of (1.11) is carried here by
 `kyFanApproximationGauge ν`, the sum of the first `ν` approximation numbers, which agrees
 with the sum of the `ν` largest singular values whenever the singular values exist and is
-defined for every bounded operator (`rectangularKyFanSum_eq_kyFanApproximationGauge`).
+defined for every bounded operator (`kyFanSum_eq_kyFanApproximationGauge`).
 
 The two equations this file supplies are
 

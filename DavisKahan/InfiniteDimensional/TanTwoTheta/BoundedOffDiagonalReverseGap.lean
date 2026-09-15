@@ -6,6 +6,8 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalOrderedGap
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Reverse ordered-gap estimate for bounded off-diagonal perturbations
 
@@ -22,6 +24,7 @@ are nontrivial.  Degenerate subspaces remain a separate final leaf.
 
 namespace TauCeti
 namespace DavisKahanExt
+
 
 open DavisKahan.Foundation
 
@@ -118,11 +121,11 @@ variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 the reverse ordered half-lines. -/
 theorem quarterAcuteAngularCoordinate_sharp_bound_of_reverse_spectral_halfLines
     (A H : E →L[ℂ] E)
-    (hA : IsSelfAdjointOperator A) (hH : IsSelfAdjointOperator H)
+    (hA : A.IsSymmetric) (hH : H.IsSymmetric)
     (U V : Submodule ℂ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces (A + H) V)
-    (hoff : IsOffDiagonal U H)
+    (hU : A.Reduces U) (hV : ContinuousLinearMap.Reduces (A + H) V)
+    (hoff : Submodule.IsOffDiagonal U H)
     {c d : ℝ} (hd : 0 < d)
     (hA0spec : spectrum ℝ (compressOperator U A) ⊆ Set.Ici (c + d))
     (hA1spec : spectrum ℝ (compressOperator Uᗮ A) ⊆ Set.Iic c)
@@ -133,7 +136,7 @@ theorem quarterAcuteAngularCoordinate_sharp_bound_of_reverse_spectral_halfLines
     (U.isComplete_coe_of_hasOrthogonalProjection).completeSpace_coe
   let : CompleteSpace (Uᗮ : Submodule ℂ E) :=
     (Uᗮ.isComplete_coe_of_hasOrthogonalProjection).completeSpace_coe
-  have hAH : IsSelfAdjointOperator (A + H) := by
+  have hAH : (A + H).IsSymmetric := by
     have h := hA.add hH
     rwa [← ContinuousLinearMap.toLinearMap_add] at h
   let B : BlockOperatorData (𝕜 := ℂ) (E0 := U) (E1 := Uᗮ) :=
@@ -185,11 +188,11 @@ theorem quarterAcuteAngularCoordinate_sharp_bound_of_reverse_spectral_halfLines
 /-- Sharp contractive Riccati inequality in the reverse ordered orientation. -/
 theorem quarterAcuteAngularCoordinate_sharp_bound_of_reverse_orderedSpectraSeparated
     (A H : E →L[ℂ] E)
-    (hA : IsSelfAdjointOperator A) (hH : IsSelfAdjointOperator H)
+    (hA : A.IsSymmetric) (hH : H.IsSymmetric)
     (U V : Submodule ℂ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] [Nontrivial U] [Nontrivial Uᗮ]
-    (hU : Reduces A U) (hV : Reduces (A + H) V)
-    (hoff : IsOffDiagonal U H)
+    (hU : A.Reduces U) (hV : ContinuousLinearMap.Reduces (A + H) V)
+    (hoff : Submodule.IsOffDiagonal U H)
     {d : ℝ} (hd : 0 < d)
     (hordered : OrderedSpectraSeparated A Uᗮ A U d)
     (hquarter : IsQuarterAcute U V) :
@@ -212,11 +215,11 @@ theorem quarterAcuteAngularCoordinate_sharp_bound_of_reverse_orderedSpectraSepar
 internal gap, assuming both coordinate spaces are nontrivial. -/
 theorem quarterAcuteAngularCoordinate_sharp_bound_of_orderedInternalGap_nontrivial
     (A H : E →L[ℂ] E)
-    (hA : IsSelfAdjointOperator A) (hH : IsSelfAdjointOperator H)
+    (hA : A.IsSymmetric) (hH : H.IsSymmetric)
     (U V : Submodule ℂ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] [Nontrivial U] [Nontrivial Uᗮ]
-    (hU : Reduces A U) (hV : Reduces (A + H) V)
-    (hoff : IsOffDiagonal U H)
+    (hU : A.Reduces U) (hV : ContinuousLinearMap.Reduces (A + H) V)
+    (hoff : Submodule.IsOffDiagonal U H)
     {d : ℝ} (hd : 0 < d) (hgap : OrderedInternalGap A U d)
     (hquarter : IsQuarterAcute U V) :
     d * ‖quarterAcuteAngularCoordinate U V hquarter‖ ≤

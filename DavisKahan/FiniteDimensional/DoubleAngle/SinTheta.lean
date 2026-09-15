@@ -25,7 +25,7 @@ To be re-authored per Mathlib's AI-contribution policy at PR time.
 -/
 
 import ForTauCeti.Analysis.InnerProductSpace.SinTheta.UnitarilyInvariant
-import ForTauCeti.Analysis.InnerProductSpace.RectangularUnitarilyInvariantSeminorm
+import ForTauCeti.Analysis.InnerProductSpace.UnitarilyInvariantSeminorm
 import ForTauCeti.Analysis.InnerProductSpace.AngleGeometry
 import ForTauCeti.Analysis.InnerProductSpace.Spectral.Gap
 import ForTauCeti.Analysis.InnerProductSpace.Spectral.Subspace
@@ -113,7 +113,7 @@ subspace `U` across whose splitting the quadratic form of `T` jumps from `≤ a`
 
 The right side is the *mirror defect* of `T` — how far `T` is from commuting
 with the reflection through `W`; no second operator is involved. -/
-theorem sin_two_theta_reflection_le (N : UnitarilyInvariantSeminorm 𝕜 E)
+theorem sin_two_theta_reflection_le (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (hT : T.IsSymmetric) {U W : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] [W.HasOrthogonalProjection]
     (hUinv : ∀ x ∈ U, T x ∈ U) {a b : ℝ} (hab : a < b)
@@ -212,7 +212,7 @@ subspace.  Then
 The operator `2 (Q ∘ P̂ ∘ P)` on the left has singular values `sin 2θᵢ`, so
 this is `‖sin 2Θ‖ ≤ 2 ‖S − T‖ / (b − a)` — no smallness of the perturbation,
 and no spectral-location constraint on `V`. -/
-theorem sin_two_theta_starProjection_le (N : UnitarilyInvariantSeminorm 𝕜 E)
+theorem sin_two_theta_starProjection_le (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (hT : T.IsSymmetric) (hS : S.IsSymmetric) {U V : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hUinv : ∀ x ∈ U, T x ∈ U) (hVinv : ∀ x ∈ V, S x ∈ V)
@@ -256,7 +256,7 @@ theorem sin_two_theta_starProjection_le (N : UnitarilyInvariantSeminorm 𝕜 E)
         ≤ N (V.reflection.toLinearMap ∘ₗ (T - S) ∘ₗ V.reflection.toLinearMap)
           + N (S - T) := N.add_le _ _
       _ = N (T - S) + N (S - T) := by
-          rw [N.invariant' V.reflection V.reflection (T - S)]
+          rw [N.invariant V.reflection V.reflection (T - S)]
       _ = 2 * N (S - T) := by
           rw [show T - S = -(S - T) by abel, N.apply_neg]
           ring
@@ -279,10 +279,11 @@ theorem frobenius_sin_two_theta_starProjection_le
     {a b : ℝ} (hab : a < b)
     (hUb : ∀ x ∈ U, b * ‖x‖ ^ 2 ≤ RCLike.re ⟪T x, x⟫_𝕜)
     (hUa : ∀ x ∈ Uᗮ, RCLike.re ⟪T x, x⟫_𝕜 ≤ a * ‖x‖ ^ 2) :
-    frobenius 𝕜 E ((Uᗮ.starProjection ∘L V.starProjection ∘L U.starProjection
+    frobenius (𝕜 := 𝕜) (E := E) (F := E) ((Uᗮ.starProjection ∘L V.starProjection ∘L U.starProjection
         : E →L[𝕜] E) : E →ₗ[𝕜] E)
-      ≤ frobenius 𝕜 E (S - T) / (b - a) :=
-  (frobenius 𝕜 E).sin_two_theta_starProjection_le hT hS hUinv hVinv hab hUb hUa
+      ≤ frobenius (𝕜 := 𝕜) (E := E) (F := E) (S - T) / (b - a) :=
+  (frobenius (𝕜 := 𝕜) (E := E) (F := E)).sin_two_theta_starProjection_le hT hS hUinv hVinv hab
+    hUb hUa
 
 /-! ### Spectral (eigenvalue-hypothesis) forms
 
@@ -304,7 +305,7 @@ variable {n : ℕ}
 `≤ a`) and `V` the `S`-eigenblock selected by `s'`,
 `N (Uᗮ.sP ∘ V.sP ∘ U.sP) ≤ N (S − T) / (b − a)` for every unitarily invariant
 norm `N`.  The left side is `N (½ sin 2Θ)` (see the module docstring). -/
-theorem sin_two_theta_starProjection_le_of_eigenvalues (N : UnitarilyInvariantSeminorm 𝕜 E)
+theorem sin_two_theta_starProjection_le_of_eigenvalues (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (hT : T.IsSymmetric) (hS : S.IsSymmetric) (hn : finrank 𝕜 E = n)
     {s s' : Finset (Fin n)} {a b : ℝ} (hab : a < b)
     (hb : ∀ i ∈ s, b ≤ hT.eigenvalues hn i)
@@ -326,7 +327,7 @@ theorem sin_two_theta_starProjection_le_of_eigenvalues (N : UnitarilyInvariantSe
 `sin_two_theta_starProjection_le_of_eigenvalues` but with an arbitrary subspace
 `W` in the middle and the sharper mirror-defect right side (no second operator):
 `2 N (Uᗮ.sP ∘ W.sP ∘ U.sP) ≤ N (J T J − T) / (b − a)`, `J = W.reflection`. -/
-theorem sin_two_theta_reflection_le_of_eigenvalues (N : UnitarilyInvariantSeminorm 𝕜 E)
+theorem sin_two_theta_reflection_le_of_eigenvalues (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (hT : T.IsSymmetric) (hn : finrank 𝕜 E = n) (W : Submodule 𝕜 E)
     [W.HasOrthogonalProjection] {s : Finset (Fin n)} {a b : ℝ} (hab : a < b)
     (hb : ∀ i ∈ s, b ≤ hT.eigenvalues hn i)
@@ -369,7 +370,7 @@ Since `2 cᵢ √(1 − cᵢ²) = sin 2θᵢ`, the left side is `N (½ sin 2Θ)`
 every-UI-norm analogue of the E2 op-norm identification
 `norm_orthogonal_starProjection_comp_starProjection`. -/
 theorem apply_orthogonal_starProjection_comp_starProjection_comp
-    (N : UnitarilyInvariantSeminorm 𝕜 E) {u v : Fin d → E}
+    (N : UnitarilyInvariantSeminorm 𝕜 E E) {u v : Fin d → E}
     (hu : Orthonormal 𝕜 u) (hv : Orthonormal 𝕜 v) :
     N ((((Submodule.span 𝕜 (Set.range u))ᗮ.starProjection ∘L
         (Submodule.span 𝕜 (Set.range v)).starProjection ∘L
@@ -420,7 +421,7 @@ theorem apply_orthogonal_starProjection_comp_starProjection_comp
       ContinuousLinearMap.coe_coe, Function.comp_apply, LinearMap.comp_apply]
   -- `M⋆ = P ∘ Ph ∘ Q`, hence `M⋆M = C − C∘C`.
   have hMadj : LinearMap.adjoint M = P ∘ₗ Ph ∘ₗ Q := by
-    simp only [hMcoe, LinearMap.adjoint_comp, LinearMap.adjoint_comp, hPadj, hPhadj, hQadj,
+    simp only [hMcoe, LinearMap.adjoint_comp, hPadj, hPhadj, hQadj,
       LinearMap.comp_assoc]
   have hMM : LinearMap.adjoint M ∘ₗ M = C - C ∘ₗ C := by
     rw [hMadj, hMcoe]
@@ -481,7 +482,7 @@ end UnitarilyInvariantSeminorm
 
 end TauCeti
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 
@@ -504,7 +505,7 @@ noncomputable def reflectionDefect (V : Submodule 𝕜 E)
 /-- The finite `sin 2 Theta` perturbation theorem in canonical
 angle-operator form, for every unitarily invariant norm. -/
 theorem sinTwoTheta_perturbation_le
-    (N : UnitarilyInvariantSeminorm 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     {A B : E →ₗ[𝕜] E} (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hU : IsInvariant A U) (hV : IsInvariant B V)
@@ -535,7 +536,7 @@ theorem sinTwoTheta_perturbation_le
 
 /-- The one-sided cross-block normalization of the `sin 2 Theta` theorem. -/
 theorem sinTwoTheta_cross_perturbation_le
-    (N : UnitarilyInvariantSeminorm 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     {A B : E →ₗ[𝕜] E} (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hU : IsInvariant A U) (hV : IsInvariant B V)
@@ -552,7 +553,7 @@ theorem sinTwoTheta_cross_perturbation_le
 /-- The mirror-defect form of the `sin 2 Theta` theorem.  It requires no
 second operator. -/
 theorem sinTwoTheta_reflectionDefect_le
-    (N : UnitarilyInvariantSeminorm 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric) {U V : Submodule 𝕜 E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hU : IsInvariant A U) {a b : ℝ} (hab : a < b)
@@ -577,7 +578,7 @@ theorem sinTwoTheta_reflectionDefect_le
 /-- The reflection defect is at most twice the perturbation when `V` reduces
 the second symmetric operator. -/
 theorem reflectionDefect_le_two_mul_perturbation
-    (N : UnitarilyInvariantSeminorm 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     {A B : E →ₗ[𝕜] E} (hB : B.IsSymmetric)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
     (hV : IsInvariant B V) :
@@ -631,20 +632,20 @@ theorem reflectionDefect_le_two_mul_perturbation
       ring
 
 /-- The canonical spectral-subspace `sin 2 Theta` theorem. -/
-theorem sinTwoTheta_spectralSubspace_le
-    (N : UnitarilyInvariantSeminorm 𝕜 E)
+theorem sinTwoTheta_pointSpectralSubspace_le
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     {A B : E →ₗ[𝕜] E} (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {Ω : Set ℝ} {a b : ℝ} (hab : a < b)
-    (hgap : TwoBlockFormGap A (spectralSubspace A Ω) a b) :
-    (b - a) * N (sinTwoAngleOperator (spectralSubspace A Ω)
-        (spectralSubspace B Ω)) ≤ 2 * N (B - A) := by
+    (hgap : TwoBlockFormGap A (pointSpectralSubspace A Ω) a b) :
+    (b - a) * N (sinTwoAngleOperator (pointSpectralSubspace A Ω)
+        (pointSpectralSubspace B Ω)) ≤ 2 * N (B - A) := by
   exact sinTwoTheta_perturbation_le N hA hB
-    (isInvariant_spectralSubspace A Ω) (isInvariant_spectralSubspace B Ω) hab hgap
+    (isInvariant_pointSpectralSubspace A Ω) (isInvariant_pointSpectralSubspace B Ω) hab hgap
 
 /-- The canonical angle-operator theorem already handles unequal finite ranks;
 unmatched directions are represented by the singular-value padding convention. -/
 theorem sinTwoTheta_perturbation_le_unequalFinrank
-    (N : UnitarilyInvariantSeminorm 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E)
     {A B : E →ₗ[𝕜] E} (hA : A.IsSymmetric) (hB : B.IsSymmetric)
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hU : IsInvariant A U) (hV : IsInvariant B V)
@@ -660,7 +661,7 @@ theorem opNorm_sinTwoTheta_le
     {a b : ℝ} (hab : a < b) (hgap : TwoBlockFormGap A U a b) :
     (b - a) * ‖(sinTwoAngleOperator U V).toContinuousLinearMap‖ ≤
       2 * ‖(B - A).toContinuousLinearMap‖ := by
-  exact sinTwoTheta_perturbation_le (UnitarilyInvariantSeminorm.opNorm 𝕜 E)
+  exact sinTwoTheta_perturbation_le (UnitarilyInvariantSeminorm.opNorm (𝕜 := 𝕜) (E := E) (F := E))
     hA hB hU hV hab hgap
 
 /-- Frobenius specialization of `sinTwoTheta_perturbation_le`. -/
@@ -669,9 +670,11 @@ theorem frobenius_sinTwoTheta_le
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection] (hU : IsInvariant A U) (hV : IsInvariant B V)
     {a b : ℝ} (hab : a < b) (hgap : TwoBlockFormGap A U a b) :
-    (b - a) * UnitarilyInvariantSeminorm.frobenius 𝕜 E (sinTwoAngleOperator U V) ≤
-      2 * UnitarilyInvariantSeminorm.frobenius 𝕜 E (B - A) := by
-  exact sinTwoTheta_perturbation_le (UnitarilyInvariantSeminorm.frobenius 𝕜 E)
+    (b - a) * UnitarilyInvariantSeminorm.frobenius (𝕜 := 𝕜) (E := E) (F := E)
+      (sinTwoAngleOperator U V) ≤
+      2 * UnitarilyInvariantSeminorm.frobenius (𝕜 := 𝕜) (E := E) (F := E) (B - A) := by
+  exact sinTwoTheta_perturbation_le (UnitarilyInvariantSeminorm.frobenius (𝕜 := 𝕜) (E := E) (F
+    := E))
     hA hB hU hV hab hgap
 
 /-- Ky Fan specialization of `sinTwoTheta_perturbation_le`. -/
@@ -681,14 +684,11 @@ theorem kyFan_sinTwoTheta_le
     [V.HasOrthogonalProjection] (hU : IsInvariant A U) (hV : IsInvariant B V)
     {a b : ℝ} (hab : a < b) (hgap : TwoBlockFormGap A U a b) (k : ℕ) :
     (b - a) * kyFanSum k (sinTwoAngleOperator U V) ≤ 2 * kyFanSum k (B - A) := by
-  let NK : UnitarilyInvariantSeminorm 𝕜 E :=
-    (RectangularUnitarilyInvariantSeminorm.kyFan
-      (𝕜 := 𝕜) (E := E) (F := E) k).toSquare
+  let NK : UnitarilyInvariantSeminorm 𝕜 E E :=
+    (UnitarilyInvariantSeminorm.kyFan
+      (𝕜 := 𝕜) (E := E) (F := E) k)
   have h := sinTwoTheta_perturbation_le NK hA hB hU hV hab hgap
-  simpa [NK, RectangularUnitarilyInvariantSeminorm.toSquare,
-    RectangularUnitarilyInvariantSeminorm.kyFan_apply,
-    RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum,
-    kyFanSum_eq_sum_fin] using h
+  simpa only [NK, UnitarilyInvariantSeminorm.kyFan_apply] using h
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

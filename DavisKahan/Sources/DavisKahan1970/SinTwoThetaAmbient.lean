@@ -3,7 +3,7 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, Claude Opus 5
 -/
-import DavisKahan.Geometry.Angle.PaperDoubleAngle
+import DavisKahan.Geometry.Angle.DoubleAngleFunctionalCalculus
 import DavisKahan.DoubleAngle.UnboundedIdeal
 import DavisKahan.BoundedOperator.TrialResidual
 import DavisKahan.InfiniteDimensional.DoubleAngleSpectrum
@@ -11,6 +11,11 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.Lemma61
 import DavisKahan.Sources.DavisKahan1970.SineTheta.ReflectedDefectDoubling
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNormLaws
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.HeterogeneousRepresentative
+
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # The whole-space half of the `sin 2Θ` theorem
@@ -36,7 +41,7 @@ geometric input is that the pair `(U, X U)` realises the *doubled* angle,
 `|P_{X U} - P_U| = sin 2Θ`,
 
 as an operator identity, proved in
-`DavisKahan/Geometry/Angle/PaperDoubleAngle.lean`.  Only the operator-norm form
+`DavisKahan/Geometry/Angle/DoubleAngleFunctionalCalculus.lean`.  Only the operator-norm form
 of that identification was previously available, which is not enough for an
 arbitrary unitarily invariant norm.
 
@@ -77,6 +82,7 @@ open TauCeti.DavisKahan.ExactSinTheta
 open TauCeti.DavisKahan
 
 open scoped InnerProductSpace
+open scoped TauCeti.CompleteSubspace
 
 noncomputable section
 
@@ -84,14 +90,6 @@ universe v
 
 variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
   [CompleteSpace E]
-
-/-- A subspace admitting an orthogonal projection inside a complete ambient
-space is itself complete.  `local instance` does not propagate through imports,
-so it is reinstalled here. -/
-local instance instCompleteSpaceCoeOfHasOrthogonalProjectionSinTwoTheta
-    {G : Type v} [NormedAddCommGroup G] [InnerProductSpace ℂ G] [CompleteSpace G]
-    (U : Submodule ℂ G) [U.HasOrthogonalProjection] : CompleteSpace U :=
-  (Submodule.isComplete_coe_of_hasOrthogonalProjection U).completeSpace_coe
 
 omit [CompleteSpace E] in
 /-- Equal subspaces have equal orthogonal-projection operators.  Keeping this
@@ -116,7 +114,7 @@ theorem sinTheta_spectrum_block_gauge
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hVspec : ∀ x ∈ spectrum ℝ (compressOperator Vᗮ B),
@@ -131,21 +129,21 @@ theorem sinTheta_spectrum_block_gauge
     (N.comp_mem _ _ hMem)).2
 
 /-- The scaled identity block, in coordinates. -/
-theorem paperBlockCompression_smul_one (Ω Γ : Submodule ℂ E)
+theorem blockCompression_smul_one (Ω Γ : Submodule ℂ E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection] (c : ℂ) :
-    paperBlockCompression Ω Γ (c • (1 : E →L[ℂ] E)) =
+    blockCompression Ω Γ (c • (1 : E →L[ℂ] E)) =
       c • (Ω.orthogonalProjectionOnto ∘L Γ.subtypeL) := by
-  rw [paperBlockCompression, Submodule.adjoint_subtypeL]
+  rw [blockCompression, Submodule.adjoint_subtypeL]
   ext x
   simp
 
 /-- A perturbation block, in coordinates. -/
-theorem paperBlockCompression_apply (Ω Γ : Submodule ℂ E)
+theorem blockCompression_apply (Ω Γ : Submodule ℂ E)
     [Ω.HasOrthogonalProjection] [Γ.HasOrthogonalProjection]
     (K : E →L[ℂ] E) :
-    paperBlockCompression Ω Γ K =
+    blockCompression Ω Γ K =
       Ω.orthogonalProjectionOnto ∘L K ∘L Γ.subtypeL := by
-  rw [paperBlockCompression, Submodule.adjoint_subtypeL]
+  rw [blockCompression, Submodule.adjoint_subtypeL]
 
 /-- **The sharp block estimate, ambient and at every Ky Fan level.**  This is the
 hypothesis shape Lemma 6.1 consumes. -/
@@ -153,15 +151,15 @@ theorem sinTheta_spectrum_block_all_kyFan
     {A B : E →L[ℂ] E} (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hVspec : ∀ x ∈ spectrum ℝ (compressOperator Vᗮ B),
       x ≤ a - d ∨ b + d ≤ x) :
     ∀ k : ℕ,
       kyFanApproximationGauge k
-          (paperProjectionBlock Vᗮ U (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E))) ≤
-        kyFanApproximationGauge k (paperProjectionBlock Vᗮ U (B - A)) := by
+          (projectionBlock Vᗮ U (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E))) ≤
+        kyFanApproximationGauge k (projectionBlock Vᗮ U (B - A)) := by
   intro k
   by_cases hk0 : k = 0
   · subst k
@@ -172,15 +170,15 @@ theorem sinTheta_spectrum_block_all_kyFan
       (KyFanDominantIdealFamily.kyFan (𝕜 := ℂ) k hk).toSymmetricOperatorIdealFamily
       hA hB hU hV hd hab hUspec hVspec
       (KyFanDominantIdealFamily.kyFan_mem (𝕜 := ℂ) k hk (B - A))
-    rw [KyFanDominantIdealFamily.toSymmetric_gaugeReal,
-      KyFanDominantIdealFamily.toSymmetric_gaugeReal,
+    rw [FanDominantIdealFamily.toSymmetric_gaugeReal,
+      FanDominantIdealFamily.toSymmetric_gaugeReal,
       KyFanDominantIdealFamily.kyFan_gauge,
       KyFanDominantIdealFamily.kyFan_gauge] at hraw
-    have hone := (paperProjectionBlock_same_compression Vᗮ U
+    have hone := (projectionBlock_same_compression Vᗮ U
       (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E))).kyFanApproximationGauge_eq k
     have hpert :=
-      (paperProjectionBlock_same_compression Vᗮ U (B - A)).kyFanApproximationGauge_eq k
-    rw [hone, hpert, paperBlockCompression_smul_one, paperBlockCompression_apply,
+      (projectionBlock_same_compression Vᗮ U (B - A)).kyFanApproximationGauge_eq k
+    rw [hone, hpert, blockCompression_smul_one, blockCompression_apply,
       kyFanApproximationGauge_smul, hdnorm]
     exact hraw
 
@@ -201,7 +199,7 @@ are coupled by Lemma 6.1 and contracted by Lemma 6.2 instead, which is the
 paper's argument for Proposition 6.1 and loses nothing. -/
 theorem symmetric_sinTheta_spectrum_all_kyFan
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
@@ -222,14 +220,14 @@ theorem symmetric_sinTheta_spectrum_all_kyFan
   have hreverse := sinTheta_spectrum_block_all_kyFan hB hA hV hU hd hab
     hVspec hUspec'
   -- the identity blocks, computed
-  have hid₁ : paperProjectionBlock Uᗮᗮ Vᗮ (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) =
+  have hid₁ : projectionBlock Uᗮᗮ Vᗮ (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) =
       ((d : ℝ) : ℂ) • (U.starProjection ∘L Vᗮ.starProjection) := by
-    simp only [hUperp, paperProjectionBlock]
+    simp only [hUperp, projectionBlock]
     ext x
     simp
-  have hid₂ : paperProjectionBlock Vᗮ U (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) =
+  have hid₂ : projectionBlock Vᗮ U (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) =
       ((d : ℝ) : ℂ) • (Vᗮ.starProjection ∘L U.starProjection) := by
-    simp only [paperProjectionBlock]
+    simp only [projectionBlock]
     ext x
     simp
   have hswap : U.starProjection ∘L Vᗮ.starProjection =
@@ -237,14 +235,14 @@ theorem symmetric_sinTheta_spectrum_all_kyFan
     rw [ContinuousLinearMap.adjoint_comp,
       (isSelfAdjoint_starProjection U).adjoint_eq,
       (isSelfAdjoint_starProjection Vᗮ).adjoint_eq]
-  have hcombine := paperLemma61_all_kyFan Uᗮ V
+  have hcombine := lemma61_all_kyFan Uᗮ V
     (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E))
     (B - A) (B - A)
     (fun j => by
       have h := hreverse j
-      have hblock : paperProjectionBlock Uᗮ V (A - B) =
-          -paperProjectionBlock Uᗮ V (B - A) := by
-        rw [paperProjectionBlock, paperProjectionBlock,
+      have hblock : projectionBlock Uᗮ V (A - B) =
+          -projectionBlock Uᗮ V (B - A) := by
+        rw [projectionBlock, projectionBlock,
           show A - B = -(B - A) from by abel]
         ext x
         simp
@@ -252,9 +250,9 @@ theorem symmetric_sinTheta_spectrum_all_kyFan
       exact h)
     (fun j => by
       have h := hforward j
-      have hblock : paperProjectionBlock Uᗮᗮ Vᗮ (B - A) =
-          (paperProjectionBlock Vᗮ U (B - A)).adjoint := by
-        simp only [hUperp, paperProjectionBlock]
+      have hblock : projectionBlock Uᗮᗮ Vᗮ (B - A) =
+          (projectionBlock Vᗮ U (B - A)).adjoint := by
+        simp only [hUperp, projectionBlock]
         rw [ContinuousLinearMap.adjoint_comp, ContinuousLinearMap.adjoint_comp,
           (isSelfAdjoint_starProjection U).adjoint_eq,
           (isSelfAdjoint_starProjection Vᗮ).adjoint_eq,
@@ -266,18 +264,18 @@ theorem symmetric_sinTheta_spectrum_all_kyFan
       exact h) k
   -- the two identity blocks add up to the cross sine sum
   have hcross :
-      paperProjectionBlock Uᗮ V (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) +
-          paperProjectionBlock Uᗮᗮ Vᗮ (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) =
-        ((d : ℝ) : ℂ) • paperCrossSineSum U V := by
+      projectionBlock Uᗮ V (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) +
+          projectionBlock Uᗮᗮ Vᗮ (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) =
+        ((d : ℝ) : ℂ) • crossSineSum U V := by
     simp only [hUperp]
     ext x
-    simp [paperProjectionBlock, paperCrossSineSum, smul_add]
+    simp [projectionBlock, crossSineSum, smul_add]
   rw [hcross] at hcombine
-  have hpinch := paperDiagonalPair_all_kyFan_le Uᗮ V (B - A) k
-  have hsine : kyFanApproximationGauge k (paperCrossSineSum U V) =
+  have hpinch := diagonalPair_all_kyFan_le Uᗮ V (B - A) k
+  have hsine : kyFanApproximationGauge k (crossSineSum U V) =
       kyFanApproximationGauge k
         ((V.starProjection - U.starProjection).modulus) := by
-    rw [(paperCrossSineSum_same_projectionDiff U V).kyFanApproximationGauge_eq k]
+    rw [(crossSineSum_same_projectionDiff U V).kyFanApproximationGauge_eq k]
     exact ((modulus_hasSameApproximationNumbers
       (V.starProjection - U.starProjection)).kyFanGauge_eq k).symm
   rw [kyFanApproximationGauge_smul, hdnorm, hsine] at hcombine
@@ -319,12 +317,12 @@ omit [U.HasOrthogonalProjection] in
 /-- The reflection displacement is bounded by twice the perturbation, at every
 Ky Fan level: `X A X - A = X H X - H` up to sign, and `X` is unitary. -/
 private theorem kyFan_reflectionDisplacement_le
-    (hV : Reduces B V) (k : ℕ) :
+    (hV : B.Reduces V) (k : ℕ) :
     kyFanApproximationGauge k (conjByIsometryEquiv V.reflection A - A) ≤
       2 * kyFanApproximationGauge k (B - A) := by
   have hdefect : conjByIsometryEquiv V.reflection A - A =
-      Submodule.reflectionOperator V ∘L (A - B) ∘L
-          Submodule.reflectionOperator V - (A - B) := by
+      V.reflectionOperator ∘L (A - B) ∘L
+          V.reflectionOperator - (A - B) := by
     rw [conjByReflection_sub_eq_reflectionDefect,
       reflectionDefect_eq_perturbationDefect A B V hV]
   have hAB : kyFanApproximationGauge k (A - B) =
@@ -332,29 +330,29 @@ private theorem kyFan_reflectionDisplacement_le
     rw [show A - B = -(B - A) from by abel, kyFanApproximationGauge_neg]
   have h0 : 0 ≤ kyFanApproximationGauge k (A - B) :=
     kyFanApproximationGauge_nonneg k _
-  have h1 : ‖(Submodule.reflectionOperator V : E →L[ℂ] E)‖ ≤ 1 := by
+  have h1 : ‖(V.reflectionOperator : E →L[ℂ] E)‖ ≤ 1 := by
     exact_mod_cast Submodule.norm_reflectionOperator_le_one V
   have hconj : kyFanApproximationGauge k
-      (Submodule.reflectionOperator V ∘L (A - B) ∘L
-        Submodule.reflectionOperator V) ≤
+      (V.reflectionOperator ∘L (A - B) ∘L
+        V.reflectionOperator) ≤
       kyFanApproximationGauge k (A - B) := by
     refine (kyFanApproximationGauge_comp_le k _ _ _).trans ?_
-    calc ‖(Submodule.reflectionOperator V : E →L[ℂ] E)‖ *
+    calc ‖(V.reflectionOperator : E →L[ℂ] E)‖ *
           kyFanApproximationGauge k (A - B) *
-          ‖(Submodule.reflectionOperator V : E →L[ℂ] E)‖
+          ‖(V.reflectionOperator : E →L[ℂ] E)‖
         ≤ 1 * kyFanApproximationGauge k (A - B) * 1 := by
           gcongr
       _ = kyFanApproximationGauge k (A - B) := by ring
   have hsplit : kyFanApproximationGauge k
-      (Submodule.reflectionOperator V ∘L (A - B) ∘L
-        Submodule.reflectionOperator V - (A - B)) ≤
+      (V.reflectionOperator ∘L (A - B) ∘L
+        V.reflectionOperator - (A - B)) ≤
       kyFanApproximationGauge k
-        (Submodule.reflectionOperator V ∘L (A - B) ∘L
-          Submodule.reflectionOperator V) +
+        (V.reflectionOperator ∘L (A - B) ∘L
+          V.reflectionOperator) +
         kyFanApproximationGauge k (A - B) := by
     have h := kyFanApproximationGauge_add_le k
-      (Submodule.reflectionOperator V ∘L (A - B) ∘L
-        Submodule.reflectionOperator V) (-(A - B))
+      (V.reflectionOperator ∘L (A - B) ∘L
+        V.reflectionOperator) (-(A - B))
     rwa [← sub_eq_add_neg, kyFanApproximationGauge_neg] at h
   rw [hdefect]
   rw [hAB] at hconj hsplit
@@ -364,13 +362,13 @@ private theorem kyFan_reflectionDisplacement_le
 Davis--Kahan 1970 at every finite Ky Fan gauge. -/
 theorem sinTwoTheta_ambient_bounded_kyFan_complex
     (hA : IsSelfAdjoint A) (_hB : IsSelfAdjoint B)
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
       x ≤ a - d ∨ b + d ≤ x) :
     ∀ k : ℕ,
-      d * kyFanApproximationGauge k (paperSinTwoAngleOperatorC U V) ≤
+      d * kyFanApproximationGauge k (sinTwoAngleOperatorC U V) ≤
         2 * kyFanApproximationGauge k (B - A) := by
   intro k
   have hkey := symmetric_sinTheta_spectrum_all_kyFan hA
@@ -378,7 +376,7 @@ theorem sinTwoTheta_ambient_bounded_kyFan_complex
       (hU.map_isometryEquiv V.reflection) hd hab hUspec hUspec'
       (by rw [reflected_spectra A U V]; exact hUspec)
       (by rw [reflected_spectra_orthogonal A U V]; exact hUspec') k
-  rw [← paperSinTwoAngleOperatorC_eq_modulus_starProjection_sub U V] at hkey
+  rw [← directedSinTwoAngleOperatorC_eq_modulus_starProjection_sub U V] at hkey
   exact hkey.trans (kyFan_reflectionDisplacement_le hV k)
 
 /-- **The sharp factor two for a reflection defect, at every Ky Fan gauge.**
@@ -421,7 +419,7 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U)
+    (hU : A.Reduces U)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
@@ -435,7 +433,7 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
   let D := conjByIsometryEquiv V.reflection A - A
   have hB : IsSelfAdjoint (conjByIsometryEquiv V.reflection A) :=
     isSelfAdjoint_conjByIsometryEquiv V.reflection hA
-  have hW : Reduces (conjByIsometryEquiv V.reflection A) W :=
+  have hW : ContinuousLinearMap.Reduces (conjByIsometryEquiv V.reflection A) W :=
     hU.map_isometryEquiv V.reflection
   have hWspec : spectrum ℝ (compressOperator W
       (conjByIsometryEquiv V.reflection A)) ⊆ Set.Icc a b := by
@@ -461,10 +459,10 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
       (isSelfAdjoint_starProjection
         (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E))).adjoint_eq,
       (isSelfAdjoint_starProjection U).adjoint_eq, hreflectedPerpProj]
-  have hleftBlock : paperProjectionBlock Wᗮ U
+  have hleftBlock : projectionBlock Wᗮ U
       (((d : ℝ) : ℂ) • (1 : E →L[ℂ] E)) =
       ((d : ℝ) : ℂ) • (sinTwoThetaIdealBlock U V).adjoint := by
-    rw [paperProjectionBlock, hsinAdj]
+    rw [projectionBlock, hsinAdj]
     ext x
     simp only [ContinuousLinearMap.comp_apply, smul_apply, one_apply_eq_self,
       map_smul]
@@ -472,7 +470,7 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
   rw [hleftBlock, kyFanApproximationGauge_smul,
     kyFanApproximationGauge_adjoint, hdnorm] at hraw
   have hblockDefect : kyFanApproximationGauge k
-      (paperProjectionBlock Wᗮ U D) ≤
+      (projectionBlock Wᗮ U D) ≤
       2 * kyFanApproximationGauge k
         (Vᗮ.starProjection ∘L A ∘L V.starProjection) := by
     have hperp : Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E) = Wᗮ :=
@@ -480,8 +478,8 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
     have h := kyFan_reflectedDefectBlock_le_two_mul_offDiagonalBlock hA U V k
     rwa [show (Uᗮ.map (V.reflection.toLinearEquiv : E →ₗ[ℂ] E)).starProjection ∘L
           (conjByIsometryEquiv V.reflection A - A) ∘L U.starProjection =
-        paperProjectionBlock Wᗮ U D by
-      unfold paperProjectionBlock
+        projectionBlock Wᗮ U D by
+      unfold projectionBlock
       rw [starProjection_eq_of_submodule_eq hperp]] at h
   have hX : IsometricEmbedding (V.subtypeL : V →L[ℂ] E) := fun x => rfl
   have hP : V.subtypeL ∘L V.subtypeL.adjoint = V.starProjection := by
@@ -542,7 +540,7 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_kyFan_complex
       _ = kyFanApproximationGauge k (residual A V.subtypeL M) := by simp
   calc
     d * kyFanApproximationGauge k (sinTwoThetaIdealBlock U V)
-        ≤ kyFanApproximationGauge k (paperProjectionBlock Wᗮ U D) := hraw
+        ≤ kyFanApproximationGauge k (projectionBlock Wᗮ U D) := hraw
     _ ≤ 2 * kyFanApproximationGauge k
         (Vᗮ.starProjection ∘L A ∘L V.starProjection) := hblockDefect
     _ ≤ 2 * kyFanApproximationGauge k (residual A V.subtypeL M) := by
@@ -563,7 +561,7 @@ theorem sinTwoTheta_directed_boundedResidual_blockRepresentative_symmetricNormin
     {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
     {U V : Submodule ℂ E}
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
-    (hU : Reduces A U)
+    (hU : A.Reduces U)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
@@ -606,18 +604,18 @@ theorem and equation (7.5) of Section 7. -/
 theorem sinTwoTheta_ambient_bounded_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (hA : IsSelfAdjoint A) (hB : IsSelfAdjoint B)
-    (hU : Reduces A U) (hV : Reduces B V)
+    (hU : A.Reduces U) (hV : B.Reduces V)
     {a b d : ℝ} (hd : 0 < d) (hab : a ≤ b)
     (hUspec : spectrum ℝ (compressOperator U A) ⊆ Set.Icc a b)
     (hUspec' : ∀ x ∈ spectrum ℝ (compressOperator Uᗮ A),
       x ≤ a - d ∨ b + d ≤ x)
     (hMem : N.Mem (B - A)) :
-    N.Mem (paperSinTwoAngleOperatorC U V) ∧
-      d * N.gauge (paperSinTwoAngleOperatorC U V) ≤
+    N.Mem (sinTwoAngleOperatorC U V) ∧
+      d * N.gauge (sinTwoAngleOperatorC U V) ≤
         2 * N.gauge (B - A) := by
   have htwo : ‖((2 : ℝ) : ℂ)‖ = 2 := by norm_num
   have hscaled : ∀ k : ℕ,
-      d * kyFanApproximationGauge k (paperSinTwoAngleOperatorC U V) ≤
+      d * kyFanApproximationGauge k (sinTwoAngleOperatorC U V) ≤
         kyFanApproximationGauge k (((2 : ℝ) : ℂ) • (B - A)) := by
     intro k
     rw [kyFanApproximationGauge_smul, htwo]

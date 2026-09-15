@@ -4,14 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 import DavisKahan.Sylvester.Spectrum
 import DavisKahan.DoubleAngle.KyFanOrthonormal
 import DavisKahan.OperatorIdeal.ApproximationNumbers.ScalarGeneric
 import DavisKahan.Sources.DavisKahan1970.Ideals.HilbertSchmidtFiniteRank
 import DavisKahan.OperatorIdeal.ApproximationNumbers.FiniteSourceSingularSystem
+import ForTauCeti.Analysis.InnerProductSpace.DiagonalOperator
 import ForTauCeti.Analysis.InnerProductSpace.Singular.Subspace
-import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder.Complex
+import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, Theorem 6.3 with finite trial coordinates
@@ -44,7 +49,7 @@ namespace TauCeti
 
 open TauCeti
 namespace DavisKahan
-namespace ExactTanTheta
+namespace TanTheta
 
 open ExactSinTheta
 open Module (finrank)
@@ -493,7 +498,7 @@ theorem orthonormal_theorem63ResidualWitness
               (yj - ((sigma_j : ℝ) : ℂ) • (v_j : H))) := by
           simp [theorem63ResidualWitness, S, sigma_j, v_j, yj, cj, hj]
         simp only [hwi, hwj, inner_smul_left, inner_smul_right,
-          hraw, mul_zero, mul_zero]
+          hraw, mul_zero]
 
 /-- Approximation-number formulation of the paper's instruction that
 `tan Θ₀` have singular values `tan θ_j`, where the directed sine singular
@@ -830,7 +835,7 @@ theorem theorem6_3_generalizedTanTheta_of_formBounds
       delta * N.gauge tanTheta0 ≤
         N.gauge (theorem63Residual T Z) := by
   exact mem_and_scaled_gauge_le_of_all_scaled_kyFan_le
-    N hdelta hResidual
+    N.toFanDominantIdealFamily hdelta hResidual
       (theorem6_3_all_kyFan_core T hT V Z hV hdelta
         hCompressionUpper hUnwantedLower tanTheta0 htan)
 
@@ -843,7 +848,7 @@ records the effective content of the paper's strict Hilbert-dimension
 assumption under its global separability convention.  The separate strict-rank
 hypothesis preserves that source condition explicitly; no symmetric acuteness
 is inferred from it. -/
-theorem theorem6_3_generalizedTanTheta_source_ideal
+theorem theorem6_3_generalizedTanTheta_ideal
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
     (V Z : Submodule ℂ H) [V.HasOrthogonalProjection]
@@ -867,19 +872,19 @@ theorem theorem6_3_generalizedTanTheta_source_ideal
   have hTsa : IsSelfAdjoint T :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hT
   have hMsa : IsSelfAdjoint (theorem63Compression T Z) := by
-    simpa [theorem63Compression, DavisKahanExt.compressOperator] using
-      DavisKahanExt.isSelfAdjoint_compressOperator hTsa Z
+    simpa [theorem63Compression, DavisKahan.Sylvester.compressOperator] using
+      DavisKahan.Sylvester.isSelfAdjoint_compressOperator hTsa Z
   have hCompressionUpper : ∀ z : Z,
       RCLike.re ⟪theorem63Compression T Z z, z⟫_ℂ ≤ alpha * ‖z‖ ^ 2 := by
     intro z
-    apply SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+    apply SpectralOrder.re_inner_le_of_spectrum_subset_Iic
       (theorem63Compression T Z) hMsa
     · intro r hr
       exact (hCompressionSpectrum hr).2
   have hUnwantedLower : ∀ y ∈ Vᗮ,
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ := by
     intro y hy
-    exact SpectralOrder.Complex.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
+    exact SpectralOrder.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
       hT (hV.orthogonalComplement).1 hUnwantedSpectrum hy
   exact theorem6_3_generalizedTanTheta_of_formBounds N T hT V Z hV
     hStrictDimension hdelta hCompressionUpper hUnwantedLower tanTheta0 htan
@@ -909,7 +914,7 @@ theorem theorem6_3_ideal_of_kyFan_core
       delta * N.gauge tanTheta0 ≤
         N.gauge residual :=
   ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le
-    N hdelta hResidual hcore
+    N.toFanDominantIdealFamily hdelta hResidual hcore
 
 /-! ### A directed tangent representative exists
 
@@ -1086,10 +1091,10 @@ theorem theorem6_3_all_kyFan_core_directedTangent
 
 /-- **Theorem 6.3 at ideal-gauge scope, unconditionally.**
 
-`theorem6_3_generalizedTanTheta_source_ideal` with the tangent representative
+`theorem6_3_generalizedTanTheta_ideal` with the tangent representative
 supplied rather than assumed.  Every hypothesis here is one Davis and Kahan
 state. -/
-theorem theorem6_3_generalizedTanTheta_source_ideal_directedTangent
+theorem theorem6_3_generalizedTanTheta_ideal_directedTangent
     (N : ExactSinTheta.KyFanDominantIdealFamily (𝕜 := ℂ))
     (T : H →L[ℂ] H) (hT : T.IsSymmetric)
     (hV : T.Reduces V)
@@ -1107,20 +1112,20 @@ theorem theorem6_3_generalizedTanTheta_source_ideal_directedTangent
   have hTsa : IsSelfAdjoint T :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hT
   have hMsa : IsSelfAdjoint (theorem63Compression T Z) := by
-    simpa [theorem63Compression, DavisKahanExt.compressOperator] using
-      DavisKahanExt.isSelfAdjoint_compressOperator hTsa Z
+    simpa [theorem63Compression, DavisKahan.Sylvester.compressOperator] using
+      DavisKahan.Sylvester.isSelfAdjoint_compressOperator hTsa Z
   have hCompressionUpper : ∀ z : Z,
       RCLike.re ⟪theorem63Compression T Z z, z⟫_ℂ ≤ alpha * ‖z‖ ^ 2 := by
     intro z
-    refine SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+    refine SpectralOrder.re_inner_le_of_spectrum_subset_Iic
       (theorem63Compression T Z) hMsa ?_ z
     intro r hr
     exact (hCompressionSpectrum hr).2
   have hUnwantedLower : ∀ y ∈ Vᗮ,
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ := fun y hy =>
-    SpectralOrder.Complex.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
+    SpectralOrder.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
       hT (hV.orthogonalComplement).1 hUnwantedSpectrum hy
-  exact theorem6_3_generalizedTanTheta_source_ideal N T hT V Z hV
+  exact theorem6_3_generalizedTanTheta_ideal N T hT V Z hV
     hStrictDimension hbetaalpha hdelta hCompressionSpectrum hUnwantedSpectrum
     (theorem63DirectedTangent Z V)
     (hasTheorem63DirectedTangentApproximationNumbers_theorem63DirectedTangent
@@ -1160,7 +1165,7 @@ theorem theorem6_3_generalizedTanTheta_of_formBounds_equalRank
     N.Mem (theorem63DirectedTangent Z V) ∧
       delta * N.gauge (theorem63DirectedTangent Z V) ≤
         N.gauge (theorem63Residual T Z) :=
-  ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N hdelta hResidual
+  ExactSinTheta.mem_and_scaled_gauge_le_of_all_scaled_kyFan_le N.toFanDominantIdealFamily hdelta hResidual
     (theorem6_3_all_kyFan_core_directedTangent Z V T hT hV hdelta
       hCompressionUpper hUnwantedLower)
 
@@ -1187,24 +1192,24 @@ theorem theorem6_3_generalizedTanTheta_equalRank_spectral
   have hTsa : IsSelfAdjoint T :=
     ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hT
   have hMsa : IsSelfAdjoint (theorem63Compression T Z) := by
-    simpa [theorem63Compression, DavisKahanExt.compressOperator] using
-      DavisKahanExt.isSelfAdjoint_compressOperator hTsa Z
+    simpa [theorem63Compression, DavisKahan.Sylvester.compressOperator] using
+      DavisKahan.Sylvester.isSelfAdjoint_compressOperator hTsa Z
   have hCompressionUpper : ∀ z : Z,
       RCLike.re ⟪theorem63Compression T Z z, z⟫_ℂ ≤ alpha * ‖z‖ ^ 2 := by
     intro z
-    refine SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+    refine SpectralOrder.re_inner_le_of_spectrum_subset_Iic
       (theorem63Compression T Z) hMsa ?_ z
     intro r hr
     exact (hCompressionSpectrum hr).2
   have hUnwantedLower : ∀ y ∈ Vᗮ,
       (alpha + delta) * ‖y‖ ^ 2 ≤ RCLike.re ⟪T y, y⟫_ℂ := fun y hy =>
-    SpectralOrder.Complex.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
+    SpectralOrder.le_re_inner_on_subspace_of_restriction_spectrum_subset_Ici
       hT (hV.orthogonalComplement).1 hUnwantedSpectrum hy
   exact theorem6_3_generalizedTanTheta_of_formBounds_equalRank Z V N T hT hV
     hdelta hCompressionUpper hUnwantedLower hResidual
 
 end DirectedTangentExistence
 
-end ExactTanTheta
+end TanTheta
 end DavisKahan
 end TauCeti

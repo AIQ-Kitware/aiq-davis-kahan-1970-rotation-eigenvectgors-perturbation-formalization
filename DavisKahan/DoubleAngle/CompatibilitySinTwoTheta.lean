@@ -3,7 +3,9 @@ Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
-import DavisKahan.BoundedOperator.Compat
+import ForTauCeti.Analysis.InnerProductSpace.BoundedOperator.Projector
+import ForTauCeti.Analysis.InnerProductSpace.Projection.Blocks
+import DavisKahan.BoundedOperator.Problem
 
 /-!
 # Infinite-dimensional double-angle residual embedding
@@ -37,8 +39,8 @@ noncomputable def sinTwoThetaEmbedding (U : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] (X : F →L[𝕜] E)
     [(LinearMap.range X.toLinearMap).HasOrthogonalProjection] : E →L[𝕜] E :=
   (2 : 𝕜) •
-    (complementaryProjection U ∘L
-      projection (LinearMap.range X.toLinearMap) ∘L projection U)
+    ((Uᗮ).starProjection ∘L
+      Submodule.starProjection (LinearMap.range X.toLinearMap) ∘L U.starProjection)
 
 /-- Unfolding identifies the trial-range construction with the ambient
 one-sided double-angle operator `2 P_{U^perp} P_V P_U`. -/
@@ -48,8 +50,8 @@ theorem sinTwoThetaEmbedding_eq_rangeAngle (U : Submodule 𝕜 E)
     [(LinearMap.range X.toLinearMap).HasOrthogonalProjection] :
     sinTwoThetaEmbedding U X =
       (2 : 𝕜) •
-        (complementaryProjection U ∘L
-          projection (LinearMap.range X.toLinearMap) ∘L projection U) :=
+        ((Uᗮ).starProjection ∘L
+          Submodule.starProjection (LinearMap.range X.toLinearMap) ∘L U.starProjection) :=
   rfl
 
 end DavisKahanExt

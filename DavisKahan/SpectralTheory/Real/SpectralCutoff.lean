@@ -6,6 +6,8 @@ Authors: Jon Crall, Claude Opus 5
 import DavisKahan.SpectralTheory.Real.SpectralRestriction
 import DavisKahan.SpectralTheory.SpectralCutoff
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The real spectral cutoff and its coherent cutoff interface
 

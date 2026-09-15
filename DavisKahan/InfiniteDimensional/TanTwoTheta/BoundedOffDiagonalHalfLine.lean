@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.InfiniteDimensional.TanTwoTheta.BoundedOffDiagonalEstimate
-import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder.Complex
+import ForTauCeti.Analysis.InnerProductSpace.SpectralOrder
 import DavisKahan.SpectralTheory.AbstractSpectrum
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Spectral half-line bridge for bounded off-diagonal tangent-two-theta
@@ -18,6 +20,7 @@ a center, including the degenerate-subspace cases and the reverse orientation.
 -/
 
 namespace TauCeti
+
 
 open TauCeti
 namespace DavisKahanExt
@@ -36,7 +39,7 @@ variable {E : Type v} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 /-- An upper spectral half-line for a compressed self-adjoint operator gives
 its centered quadratic-form upper bound. -/
 theorem compressOperator_upperFormBound_of_spectrum_subset_Iic
-    (A : E →L[ℂ] E) (hA : IsSelfAdjointOperator A)
+    (A : E →L[ℂ] E) (hA : A.IsSymmetric)
     (U : Submodule ℂ E) [U.HasOrthogonalProjection]
     {c : ℝ}
     (hspec : spectrum ℝ (compressOperator U A) ⊆ Set.Iic c) :
@@ -49,13 +52,13 @@ theorem compressOperator_upperFormBound_of_spectrum_subset_Iic
   have hcompress : IsSelfAdjoint (compressOperator U A) :=
     isSelfAdjoint_compressOperator hAsa U
   intro z
-  exact TauCeti.SpectralOrder.Complex.re_inner_le_of_spectrum_subset_Iic
+  exact TauCeti.SpectralOrder.re_inner_le_of_spectrum_subset_Iic
     (compressOperator U A) hcompress hspec z
 
 /-- A lower spectral half-line for a compressed self-adjoint operator gives
 its centered quadratic-form lower bound. -/
 theorem compressOperator_lowerFormBound_of_spectrum_subset_Ici
-    (A : E →L[ℂ] E) (hA : IsSelfAdjointOperator A)
+    (A : E →L[ℂ] E) (hA : A.IsSymmetric)
     (U : Submodule ℂ E) [U.HasOrthogonalProjection]
     {c : ℝ}
     (hspec : spectrum ℝ (compressOperator U A) ⊆ Set.Ici c) :
@@ -68,18 +71,18 @@ theorem compressOperator_lowerFormBound_of_spectrum_subset_Ici
   have hcompress : IsSelfAdjoint (compressOperator U A) :=
     isSelfAdjoint_compressOperator hAsa U
   intro z
-  exact TauCeti.SpectralOrder.Complex.le_re_inner_of_spectrum_subset_Ici
+  exact TauCeti.SpectralOrder.le_re_inner_of_spectrum_subset_Ici
     (compressOperator U A) hcompress hspec z
 
 /-- Sharp contractive Riccati inequality for a quarter-acute reducing graph
 when the two unperturbed compressed spectra lie in ordered half-lines. -/
 theorem quarterAcuteAngularCoordinate_sharp_bound_of_spectral_halfLines
     (A H : E →L[ℂ] E)
-    (hA : IsSelfAdjointOperator A) (hH : IsSelfAdjointOperator H)
+    (hA : A.IsSymmetric) (hH : H.IsSymmetric)
     (U V : Submodule ℂ E) [U.HasOrthogonalProjection]
     [V.HasOrthogonalProjection]
-    (hU : Reduces A U) (hV : Reduces (A + H) V)
-    (hoff : IsOffDiagonal U H)
+    (hU : A.Reduces U) (hV : ContinuousLinearMap.Reduces (A + H) V)
+    (hoff : Submodule.IsOffDiagonal U H)
     {c d : ℝ} (hd : 0 < d)
     (hA0spec : spectrum ℝ (compressOperator U A) ⊆ Set.Iic c)
     (hA1spec : spectrum ℝ (compressOperator Uᗮ A) ⊆ Set.Ici (c + d))

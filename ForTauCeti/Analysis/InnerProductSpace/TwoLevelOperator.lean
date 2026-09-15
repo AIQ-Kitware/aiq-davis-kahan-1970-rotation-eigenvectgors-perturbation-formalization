@@ -27,7 +27,7 @@ norm *is* an angle, with no coordinates in sight.
 
 * `TauCeti.eigenspace_twoLevelOperator`: the top eigenspace is `U` itself.
 * `TauCeti.le_of_hasEigenvalue_twoLevelOperator`: the spectrum lies below `b`.
-* `TauCeti.internalGap_twoLevelOperator`: `U` is separated from `Uᗮ` by `b - a`.
+* `TauCeti.pointInternalGap_twoLevelOperator`: `U` is separated from `Uᗮ` by `b - a`.
 * `TauCeti.twoLevelOperator_sub`: the perturbation is a scaled projector
   difference.
 -/
@@ -141,12 +141,18 @@ private theorem eq_of_smul_eq_smul_right {α β : 𝕜} {x : E} (hx : x ≠ 0)
 
 No `a < b` hypothesis: the separation is stated as the signed difference, which
 is the gap when `a < b` and a weaker true statement otherwise. -/
-theorem internalGap_twoLevelOperator :
-    InternalGap (twoLevelOperator a b U) U (b - a) := by
+theorem pointInternalGap_twoLevelOperator :
+    PointInternalGap (twoLevelOperator a b U) U (b - a) := by
+  have hU : IsInvariant (twoLevelOperator a b U) U := by
+    intro x hx
+    rw [twoLevelOperator_apply,
+      show projection U x = x from Submodule.starProjection_eq_self_iff.mpr hx]
+    exact U.add_mem (U.smul_mem _ hx) (U.smul_mem _ hx)
+  refine ⟨hU, ?_⟩
   intro lam μ hlam hμ
   -- On `U` the operator is multiplication by `b`.
   have hb : lam = b := by
-    obtain ⟨x, hxU, hx0, hxeq⟩ := mem_restrictedSpectrum_iff.mp hlam
+    obtain ⟨x, hxU, hx0, hxeq⟩ := mem_restrictedPointSpectrum_iff.mp hlam
     have hproj : projection U x = x := Submodule.starProjection_eq_self_iff.mpr hxU
     rw [twoLevelOperator_apply, hproj] at hxeq
     have hsm : ((b : ℝ) : 𝕜) • x = ((lam : ℝ) : 𝕜) • x := by
@@ -154,7 +160,7 @@ theorem internalGap_twoLevelOperator :
     exact_mod_cast (eq_of_smul_eq_smul_right hx0 hsm).symm
   -- On `Uᗮ` it is multiplication by `a`.
   have ha : μ = a := by
-    obtain ⟨x, hxU, hx0, hxeq⟩ := mem_restrictedSpectrum_iff.mp hμ
+    obtain ⟨x, hxU, hx0, hxeq⟩ := mem_restrictedPointSpectrum_iff.mp hμ
     have hproj : projection U x = 0 := by
       change U.starProjection x = 0
       rw [Submodule.starProjection_apply_eq_zero_iff]

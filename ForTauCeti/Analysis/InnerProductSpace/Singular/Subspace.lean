@@ -51,8 +51,6 @@ terms of `Â − A`.
   of squared singular values, `∑ᵢ σᵢ(A)² = ∑ₖ ‖A bₖ‖²`.
 * `TauCeti.eigenvalues_conj_unitary`: the sorted eigenvalues of a symmetric
   operator are invariant under unitary conjugation `S ↦ U S U⁻¹`.
-* `TauCeti.singularValues_adjoint`: the singular values of a square operator
-  and its adjoint coincide, `σ(A⋆) = σ(A)`.
 
 ## References
 
@@ -473,19 +471,6 @@ theorem eigenvalues_gram_adjoint (A : E →ₗ[𝕜] E) (hn : finrank 𝕜 E = n
   have hcong := eigenvalues_congr hAA A.adjoint.isSymmetric_adjoint_comp_self
     (isSymmetric_conj_unitary A.isSymmetric_adjoint_comp_self (choosePolarUnitary A)) hn
   rw [hcong, eigenvalues_conj_unitary A.isSymmetric_adjoint_comp_self hn (choosePolarUnitary A)]
-
-/-- **Singular values of the adjoint (square case).** For `A : E →ₗ[𝕜] E`,
-`σ(A⋆) = σ(A)`: both `A⋆A` and `A A⋆` have the same nonzero spectrum.  Absent
-from the pinned Mathlib; the symmetry underlying `cosPrincipalAngles`. -/
-theorem singularValues_adjoint (A : E →ₗ[𝕜] E) :
-    A.adjoint.singularValues = A.singularValues := by
-  obtain ⟨n, hn⟩ : ∃ n, finrank 𝕜 E = n := ⟨_, rfl⟩
-  have heig := eigenvalues_gram_adjoint A hn
-  ext i
-  rcases lt_or_ge i n with hi | hi
-  · rw [A.adjoint.singularValues_of_lt hn hi, A.singularValues_of_lt hn hi, heig]
-  · rw [A.adjoint.singularValues_of_finrank_le (by rw [hn]; exact hi),
-      A.singularValues_of_finrank_le (by rw [hn]; exact hi)]
 
 end Adjoint
 

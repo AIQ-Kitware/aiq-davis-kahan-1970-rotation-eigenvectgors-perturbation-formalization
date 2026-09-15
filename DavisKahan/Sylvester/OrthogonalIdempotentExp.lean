@@ -5,6 +5,7 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import DavisKahan.Sylvester.FiniteStepCalculus
 
+
 /-!
 # Exponentials of finite orthogonal projection decompositions
 
@@ -20,7 +21,9 @@ restated; names and namespace (`TauCeti.DavisKahanExt`) are unchanged.
 -/
 
 namespace TauCeti
-namespace DavisKahanExt
+namespace DavisKahan.Sylvester
+
+open TauCeti.DavisKahanExt
 
 open DavisKahan
 
@@ -200,5 +203,5 @@ theorem exp_finset_orthogonal_idempotents
           rw [hf.tsum_smul_const, ← hscalar, add_smul, one_smul]
 
 end
-end DavisKahanExt
+end DavisKahan.Sylvester
 end TauCeti

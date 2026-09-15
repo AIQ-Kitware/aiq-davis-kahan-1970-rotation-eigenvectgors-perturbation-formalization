@@ -5,13 +5,15 @@ Authors: Jon Crall, Claude Opus 5
 -/
 import DavisKahan.BoundedOperator.TrialResidual
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan 1970, Section 1: the residual and its block column
 
 Section 1 is almost all notation: the isometries `E₀, E₁` and `F₀, F₁` of (1.1), the block
 representations (1.2)--(1.3), the unitaries `V` of (1.4)--(1.7).  Those are definitions, and
 they are carried in this repository by the data records the theorems consume
-(`UnboundedSinThetaData`, `PaperTheorem61Data`), whose fields *are* the trial map, the
+(`UnboundedSinThetaData`, `Theorem61Data`), whose fields *are* the trial map, the
 compression and the residual.
 
 Section 1 does make three claims, and this file gives them the paper's numbering:
@@ -37,6 +39,7 @@ open scoped InnerProductSpace
 
 namespace TauCeti
 namespace DavisKahan1970
+
 
 universe u
 
@@ -79,12 +82,12 @@ theorem equation1_8_norm_sq_eq_diagonal_add_offDiagonal
     (A K : H →L[𝕜] H) (P : Submodule 𝕜 H) [P.HasOrthogonalProjection]
     (hPinv : ∀ x ∈ P, A x ∈ P) (u : P) :
     ‖DavisKahan.residual (A + K) P.subtypeL
-        (DavisKahanExt.compressOperator P A) u‖ ^ 2 =
+        (DavisKahan.Sylvester.compressOperator P A) u‖ ^ 2 =
       ‖P.starProjection (K (u : H))‖ ^ 2 + ‖Pᗮ.starProjection (K (u : H))‖ ^ 2 := by
   have hR := congrArg (fun T : P →L[𝕜] H => T u)
     (DavisKahan.BoundedOperator.residual_eq_comp_subtypeL A K P hPinv)
   have hRu : DavisKahan.residual (A + K) P.subtypeL
-      (DavisKahanExt.compressOperator P A) u = K (u : H) := hR
+      (DavisKahan.Sylvester.compressOperator P A) u = K (u : H) := hR
   rw [hRu]
   exact Submodule.norm_sq_eq_add_norm_sq_starProjection (K (u : H)) P
 
@@ -98,13 +101,13 @@ theorem equation1_8_norm_offDiagonal_le
     (hPinv : ∀ x ∈ P, A x ∈ P) (u : P) :
     ‖Pᗮ.starProjection (K (u : H))‖ ≤
         ‖DavisKahan.residual (A + K) P.subtypeL
-          (DavisKahanExt.compressOperator P A) u‖ ∧
+          (DavisKahan.Sylvester.compressOperator P A) u‖ ∧
       (‖Pᗮ.starProjection (K (u : H))‖ =
           ‖DavisKahan.residual (A + K) P.subtypeL
-            (DavisKahanExt.compressOperator P A) u‖ ↔
+            (DavisKahan.Sylvester.compressOperator P A) u‖ ↔
         P.starProjection (K (u : H)) = 0) := by
   set R := DavisKahan.residual (A + K) P.subtypeL
-    (DavisKahanExt.compressOperator P A) u with hRdef
+    (DavisKahan.Sylvester.compressOperator P A) u with hRdef
   have hsplit := equation1_8_norm_sq_eq_diagonal_add_offDiagonal A K P hPinv u
   have hle : ‖Pᗮ.starProjection (K (u : H))‖ ≤ ‖R‖ := by
     have hsq : ‖Pᗮ.starProjection (K (u : H))‖ ^ 2 ≤ ‖R‖ ^ 2 := by
@@ -136,11 +139,11 @@ from `R⋆R = H₀² + B⋆B`: choosing `H₀ = 0`, equivalently
 theorem equation1_8_residual_norm_minimized_by_rayleighQuotient
     (T : H →L[𝕜] H) (P : Submodule 𝕜 H) [P.HasOrthogonalProjection]
     (A₀ : P →L[𝕜] P) :
-    ‖DavisKahan.residual T P.subtypeL (DavisKahanExt.compressOperator P T)‖ ≤
+    ‖DavisKahan.residual T P.subtypeL (DavisKahan.Sylvester.compressOperator P T)‖ ≤
       ‖DavisKahan.residual T P.subtypeL A₀‖ := by
   let R := DavisKahan.residual T P.subtypeL A₀
   have hfactor :
-      DavisKahan.residual T P.subtypeL (DavisKahanExt.compressOperator P T) =
+      DavisKahan.residual T P.subtypeL (DavisKahan.Sylvester.compressOperator P T) =
         Pᗮ.starProjection ∘L R := by
     apply ContinuousLinearMap.ext
     intro u

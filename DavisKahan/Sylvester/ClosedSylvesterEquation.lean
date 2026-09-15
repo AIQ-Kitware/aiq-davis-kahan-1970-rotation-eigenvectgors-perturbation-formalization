@@ -4,7 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 -/
 import ForTauCeti.Analysis.OperatorIdeal.Family.OperatorNorm
-import DavisKahan.SpectralTheory.PartialMap.Basic
+import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Closed
+import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Constructions
+import DavisKahan.BoundedOperator.Problem
+import DavisKahan.SpectralTheory.AbstractSpectrum
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Sylvester
 import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 
@@ -19,7 +22,7 @@ stays in `DavisKahan.InfiniteDimensional.Core.UnboundedSpectral`.
 
 namespace TauCeti
 namespace DavisKahan
-namespace ExactSinTheta
+namespace Sylvester
 
 open scoped InnerProductSpace
 open scoped Topology
@@ -55,6 +58,6 @@ theorem equation_of_mem
 
 end SylvesterEquation
 
-end ExactSinTheta
+end Sylvester
 end DavisKahan
 end TauCeti

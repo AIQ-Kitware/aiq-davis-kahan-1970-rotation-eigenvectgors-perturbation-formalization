@@ -51,7 +51,7 @@ because `arccos (cos θ) = θ` is false outside `[0, π]`.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace
 open Module (finrank)
@@ -241,5 +241,5 @@ theorem vectorAngle_directRotation_eq_of_angleOperator_apply (hacute : IsAcute U
   have := Real.pi_pos
   linarith [hIcc.2]
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

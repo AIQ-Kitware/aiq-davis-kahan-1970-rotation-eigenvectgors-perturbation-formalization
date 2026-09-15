@@ -14,11 +14,11 @@ orthonormal families `u`, `v` of length `k`,
 
 `re (∑ i, ⟪u i, K (v i)⟫) ≤ kyFanApproximationGauge k K`.
 
-The finite principle (`re_sum_inner_map_le_rectangularKyFanSum`) requires both
+The finite principle (`re_sum_inner_map_le_kyFanSum`) requires both
 spaces finite-dimensional.  The proof here compresses `K` to the spans of the
 two families — a map between `k`-dimensional spaces — where the finite
 principle and the finite bridge
-`rectangularKyFanSum_eq_kyFanApproximationGauge` apply, and then transports
+`kyFanSum_eq_kyFanApproximationGauge` apply, and then transports
 back along the ideal inequality `approximationSingularValue_comp_le`, using
 that the orthogonal projection and the subspace inclusion are contractions.
 
@@ -83,17 +83,17 @@ theorem re_sum_inner_map_le_kyFanApproximationGauge
       Submodule.starProjection_eq_self_iff.mpr (humem i)]
   -- finite Ky Fan principle on the compression
   have hfin : RCLike.re (∑ i, ⟪u' i, K' (v' i)⟫_𝕜) ≤
-      RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum
+      TauCeti.kyFanSum
         k K'.toLinearMap :=
-    RectangularUnitarilyInvariantSeminorm.re_sum_inner_map_le_rectangularKyFanSum
+    TauCeti.re_sum_inner_map_le_kyFanSum
       hkle hu' hv'
   -- finite bridge to the approximation-number prefix
   have hK'id : K'.toLinearMap.toContinuousLinearMap = K' := by
     ext x; rfl
   have hbridge :
-      RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum
+      TauCeti.kyFanSum
         k K'.toLinearMap = kyFanApproximationGauge k K' := by
-    rw [rectangularKyFanSum_eq_kyFanApproximationGauge, hK'id]
+    rw [kyFanSum_eq_kyFanApproximationGauge, hK'id]
   -- the compression does not increase approximation numbers
   have hmono : kyFanApproximationGauge k K' ≤ kyFanApproximationGauge k K := by
     unfold kyFanApproximationGauge ContinuousLinearMap.kyFanGauge
@@ -116,7 +116,7 @@ theorem re_sum_inner_map_le_kyFanApproximationGauge
       = RCLike.re (∑ i, ⟪u' i, K' (v' i)⟫_𝕜) := by
         congr 1
         exact Finset.sum_congr rfl fun i _ => (hpair i).symm
-    _ ≤ RectangularUnitarilyInvariantSeminorm.rectangularKyFanSum
+    _ ≤ TauCeti.kyFanSum
           k K'.toLinearMap := hfin
     _ = kyFanApproximationGauge k K' := hbridge
     _ ≤ kyFanApproximationGauge k K := hmono
@@ -159,7 +159,7 @@ rephasing each member of the left orthonormal family by the sign of its
 coefficient keeps the family orthonormal.
 
 This is the approximation-number counterpart of
-`TauCeti.RectangularUnitarilyInvariantSeminorm.sum_abs_le_rectangularKyFanSum_of_orthonormal`,
+`TauCeti.sum_abs_le_kyFanSum_of_orthonormal`,
 and it is what a *branch-free* estimate consumes: the sign of the matched
 coefficient is dictated by the configuration, not chosen in advance. -/
 theorem sum_abs_le_kyFanApproximationGauge_of_orthonormal

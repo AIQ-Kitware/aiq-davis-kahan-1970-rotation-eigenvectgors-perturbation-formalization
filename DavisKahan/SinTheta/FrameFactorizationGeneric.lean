@@ -223,7 +223,7 @@ theorem sinThetaBlockOfPolarData_mem_and_gauge_eq_directed
 
 /-- Scalar-generic generalized complementary-block theorem once explicit polar
 data and a raw Sylvester estimate are supplied. -/
-theorem generalizedSinTheta_of_polarData_of_raw
+theorem generalizedSinTheta_of_polarData_of_sylvesterBound
     (N : TauCeti.SymmetricOperatorIdealFamily.{u, v} 𝕜)
     [N.toOperatorIdealFamily.IsComplete]
     {X : F →L[𝕜] E} {F₁ : G →L[𝕜] E} {C : G →L[𝕜] F}
@@ -245,7 +245,7 @@ theorem generalizedSinTheta_of_polarData_of_raw
     _ ≤ N.gaugeReal C := hRaw.2
 
 /-- Exact directed-angle version of the scalar-generic lower-frame transport. -/
-theorem generalizedSinTheta_exact_of_polarData_of_raw
+theorem generalizedSinTheta_exact_of_polarData_of_sylvesterBound
     (N : TauCeti.SymmetricOperatorIdealFamily.{u, v} 𝕜)
     [N.toOperatorIdealFamily.IsComplete]
     {X : F →L[𝕜] E} {F₀ : H →L[𝕜] E} {F₁ : G →L[𝕜] E}
@@ -258,7 +258,7 @@ theorem generalizedSinTheta_exact_of_polarData_of_raw
     N.Mem (directedSinThetaOperatorOfPolarData P F₀) ∧
       δ * ε * N.gaugeReal (directedSinThetaOperatorOfPolarData P F₀) ≤
         N.gaugeReal C := by
-  have hBlock := generalizedSinTheta_of_polarData_of_raw N P hδ hRaw
+  have hBlock := generalizedSinTheta_of_polarData_of_sylvesterBound N P hδ hRaw
   have hAngle := sinThetaBlockOfPolarData_mem_and_gauge_eq_directed
     N P F₀ F₁ hdecomp hBlock.1
   refine ⟨hAngle.1, ?_⟩

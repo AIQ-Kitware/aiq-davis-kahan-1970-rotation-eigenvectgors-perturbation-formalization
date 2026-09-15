@@ -6,6 +6,8 @@ Authors: Jon Crall, GPT 5.6 Thinking
 import DavisKahan.Riccati.BoundedReduction
 import DavisKahan.Sylvester.Spectrum
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Bounded Riccati estimates from an interval/exterior spectral gap
 
@@ -24,6 +26,7 @@ estimate.
 
 namespace TauCeti
 namespace DavisKahanExt
+
 
 open scoped InnerProductSpace
 

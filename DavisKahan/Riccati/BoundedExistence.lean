@@ -6,6 +6,9 @@ Authors: Jon Crall, GPT 5.6 Thinking
 import DavisKahan.Riccati.BoundedSharpEstimates
 import Mathlib.Topology.MetricSpace.Contracting
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Local bounded Riccati existence by contraction
 

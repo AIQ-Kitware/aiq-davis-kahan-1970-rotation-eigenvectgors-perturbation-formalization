@@ -8,6 +8,11 @@ import DavisKahan.Riccati.BoundedStability
 import DavisKahan.InfiniteDimensional.Riccati.BoundedSpectralEnclosure
 import DavisKahan.SpectralTheory.AbstractSpectrum
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Public bounded Riccati theory
 
@@ -43,7 +48,7 @@ when the angular operator solves the bounded Riccati equation. -/
 theorem graph_reduces_iff_solvesRiccati
     (H : BlockOperatorData (𝕜 := 𝕜) (E0 := E0) (E1 := E1))
     (X : E0 →L[𝕜] E1) :
-    Reduces (blockOperator H) (blockGraph X) ↔ SolvesRiccati H X :=
+    ContinuousLinearMap.Reduces (blockOperator H) (blockGraph X) ↔ SolvesRiccati H X :=
   blockGraph_reduces_iff_solvesRiccati H X
 
 section Complex
@@ -109,7 +114,7 @@ theorem blockDiagonalization_of_riccati
     {X : E0c →L[ℂ] E1c} (hX : SolvesRiccati H X) :
     ∃ W Winv : WithLp 2 (E0c × E1c) →L[ℂ] WithLp 2 (E0c × E1c),
       ∃ D0 : E0c →L[ℂ] E0c, ∃ D1 : E1c →L[ℂ] E1c,
-      IsUnitaryOperator W ∧ IsUnitaryOperator Winv ∧
+      TauCeti.LinearPMap.IsUnitaryOperator W ∧ TauCeti.LinearPMap.IsUnitaryOperator Winv ∧
       Winv ∘L W = ContinuousLinearMap.id ℂ (WithLp 2 (E0c × E1c)) ∧
       W ∘L Winv = ContinuousLinearMap.id ℂ (WithLp 2 (E0c × E1c)) ∧
       Winv ∘L blockOperator H ∘L W = blockDiagonalOperator D0 D1 :=

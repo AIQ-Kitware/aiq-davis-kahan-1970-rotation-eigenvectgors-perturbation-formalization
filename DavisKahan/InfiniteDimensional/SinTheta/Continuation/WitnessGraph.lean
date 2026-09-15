@@ -6,6 +6,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.Theorem
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.SelectedReduction
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Canonical graph of a spectral-continuation witness
 
@@ -22,6 +25,8 @@ from the ambient source spectral subspace to the direct-sum block model.
 
 namespace TauCeti
 namespace DavisKahanExt
+
+open TauCeti.DavisKahanExt
 
 open DavisKahan
 
@@ -60,7 +65,7 @@ theorem selectedSpectralSubspaces_isQuarterAcute_of_contour_bound
     IsQuarterAcute C.sourceSelectedSpectralSubspace
       C.targetSelectedSpectralSubspace := by
   let hself : ∀ t ∈ Set.Icc (0 : ℝ) 1,
-      IsSelfAdjointOperator (operatorPath A V t) :=
+      (operatorPath A V t).IsSymmetric :=
     fun t ht => (C.separating t ht).selfAdjoint
   let hs : MeasurableSet s := C.sourceSeparatingContour.measurable_selected
   have hidentify : ∀ t (ht : t ∈ Set.Icc (0 : ℝ) 1),
@@ -156,7 +161,7 @@ theorem selectedEndpointAngularOperator_graph_reduces
     (C : SpectralContinuationWitness A V s)
     (hsmall : selectedBranchProjectionLipschitzConstant
       C.contour V C.margin < Real.sqrt 2 / 2) :
-    Reduces (A + V)
+    ContinuousLinearMap.Reduces (A + V)
       (graphSubspace C.sourceSelectedSpectralSubspace
         (C.selectedEndpointAngularOperator hsmall)) := by
   rw [C.graphSubspace_selectedEndpointAngularOperator hsmall]
@@ -172,15 +177,17 @@ end WitnessSelectedGraph
 end DavisKahanExt
 end TauCeti
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan
+namespace SinTheta
+namespace Continuation
+
+open TauCeti.DavisKahanExt
 
 open DavisKahan
 
 open scoped InnerProductSpace Topology
 
-namespace ComplexContinuation
 
-open TauCeti.DavisKahanExt
 
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
   [CompleteSpace H]
@@ -208,7 +215,8 @@ theorem sinTwoTheta_acute_of_small_perturbation
   isUniformlyAcute_of_isQuarterAcute _ _
     (C.selectedSpectralSubspaces_isQuarterAcute_of_contour_bound hsmall)
 
-end ComplexContinuation
 
-end DavisKahanTheory
+end Continuation
+end SinTheta
+end DavisKahan
 end TauCeti

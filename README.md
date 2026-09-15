@@ -44,32 +44,17 @@ needs a unitarily invariant norm class and a spectral-subspace API that Mathlib 
 not have, and importing the local ones would put the whole development inside the
 trusted statement surface, which is exactly what a Challenge is supposed to avoid.
 
-The general theorems are easy to find in the included library. Davis and Kahan open
-with four unnumbered theorems, and
-`DavisKahan/Sources/DavisKahan1970/SectionTwo.lean` is the inventory of all four
-over both scalar fields:
+The general theorem surface is collected in
+`DavisKahan/Sources/DavisKahan1970/SectionTwo.lean`. It exposes scalar-generic
+`RCLike` endpoints for the four headline theorem families, including both the
+residual and whole-space forms where those are independently useful.
+`SectionTwoUsage.lean` exercises those endpoints from ordinary operator-theory
+hypotheses.
 
-```
-TauCeti.DavisKahan1970.SectionTwo.sinTheta       sinTheta_real
-TauCeti.DavisKahan1970.SectionTwo.tanTheta       tanTheta_real
-TauCeti.DavisKahan1970.SectionTwo.sinTwoTheta    sinTwoTheta_real
-TauCeti.DavisKahan1970.SectionTwo.tanTwoTheta    tanTwoTheta_real
-```
-
-Each states its result at that full scope in its own type — unbounded self-adjoint
-`LinearPMap` ambient operator, arbitrary Hilbert dimension, an arbitrary source
-unitarily invariant norm, and both printed conclusions. `SectionTwoUsage.lean`
-beside it calls each from ordinary operator-theory hypotheses. Read those to see
-what the paper actually claims; the entry compared here is the one corner of it
-that Mathlib's vocabulary can state.
-
-Two disclosures about the wider formalization, neither part of *this* entry:
-printed Proposition 4.4 of the paper is false, and the `DavisKahan` library carries
-a machine-checked counterexample satisfying its printed hypotheses together with the
-natural Q-norm repair; and the Section 2 ambient tan-Θ theorem is not locally
-self-contained, since its printed statement omits a crossed-defect condition the
-paper introduces later and then treats as standing.  The second of those **is** part
-of the Section 2 entry below, where it is set out in full.
+One disclosure about the wider formalization, outside this Palomar entry:
+printed Proposition 4.4 of the paper is false, and the `DavisKahan` library
+carries a machine-checked counterexample satisfying its printed hypotheses
+together with the natural Q-norm repair.
 
 ## Where this comes from
 
@@ -100,43 +85,29 @@ Mathlib and a pinned Tau Ceti, recorded in `lakefile.toml` and `lake-manifest.js
 
 | entry | what is compared |
 | --- | --- |
-| root (`comparator.json`) | the operator-norm sin-Θ bound described above: one theorem, finite dimensions, one norm |
-| `registry/dk-section-two/` | **the four unnumbered theorems Davis and Kahan open Section 2 with**, at the printed scope — arbitrary dimension, an unbounded self-adjoint ambient operator, an arbitrary unitarily invariant norm, half-infinite separating intervals, and a reducing rather than spectrally selected trial subspace |
+| root (`comparator.json`) | the focused operator-norm sin-Θ bound |
+| `registry/dk-section-two/` | the four headline Section 2 theorem families, exposed as five polished theorem declarations |
 
-The Section 2 entry is the paper's headline package: seven printed inequality
-clauses in all — `sin Θ`, and a directed and an ambient clause each for `tan Θ`,
-`sin 2Θ` and `tan 2Θ` — with the printed residual on the right and the printed
-constants one and two. The two tangent families additionally *conclude*, rather
-than assume, that no principal angle sits at the tangent's pole: Lean's
-`Real.tan` is total, so a pole would otherwise be silently valued at zero.
+The comprehensive Section 2 entry follows the source proof structure rather than
+forcing every printed display into an artificial wrapper type:
 
-Three qualifications in that entry are stated here, and again in its
-`formalization.yaml`, rather than left for a reader to find.
+* `sinTheta` -- the residual `sin Θ` theorem;
+* `tanTheta` -- the stronger residual `tan Θ` estimate; the paper derives its
+  whole-space estimate afterward from this bound and the block geometry;
+* `sinTwoTheta_directed` and `sinTwoTheta_ambient` -- both public `sin 2Θ`
+  conclusions, retained separately because they are genuinely distinct consequences;
+* `tanTwoTheta` -- the stronger residual `tan 2Θ` estimate; the paper states that
+  the whole-space estimate follows by Lemma 6.1.
 
-* **The ambient `tan Θ` clause carries one hypothesis the Section 2 display does
-  not print**: `CrossedDefectsEquivalent U V`, the constructive form of the
-  paper's condition (3.5).  (3.5) is introduced in Section 3, made standing there
-  for the rest of the paper, and used by the Section 6 proof of that clause, so
-  the hypothesis is imported from the paper's later scope rather than read off the
-  local statement.  It is not decoration: the inequality and the no-pole
-  conclusion are both proved from it, and without it there is an
-  infinite-dimensional configuration — nested half-spaces, of the kind the
-  Proposition 3.2 remark exhibits — in which every printed hypothesis holds, `‖H‖`
-  is finite, and the ambient tangent is unbounded.  The formalization reads the
-  printed theorem under the paper's own global semantics, in which Section 1
-  declares such results vacuous when a displayed norm fails to exist; under the
-  competing literal reading the printed clause would be false as transcribed and
-  the Lean statement would be its repair.  Either way the hypothesis is not in the
-  display, and this repository says so rather than claiming otherwise.  The other
-  six clauses state exactly the printed hypotheses.
-* The `sin 2Θ` directed clause takes a **bounded** trial compression. That is
-  what the Appendix to Section 6 supports: it relaxes the sine family to allow
-  *one* of the two exact blocks to be unbounded, reserves "both may be unbounded"
-  for the tangent theorem, and names no double-angle result at all.
-* A **doubled angle is presented by its own sine**, never by doubling the single
-  angle. `t ↦ sin 2t` is not monotone on `[0, π/2]`, so no indexwise map carries
-  the ordered singular values of `sin Θ` to those of `sin 2Θ`; principal angles
-  `75°` and `30°` already order the two sequences oppositely.
+This is intentionally five ordinary declarations, not four Prop-valued result
+records and not a long conjunction. In particular, the ambient `sin Θ` UIN
+estimate is not silently added: Davis and Kahan explicitly show that it does not
+follow under the single-gap hypotheses of their `sin Θ` theorem. A symmetric
+ambient `sin Θ` theorem requires the additional opposite gap.
+
+The doubled-angle sine is represented by its own operator rather than by
+indexwise doubling of the ordered single-angle sequence; `t ↦ sin 2t` is not
+monotone on `[0, π/2]`.
 
 ## Layout
 
@@ -157,7 +128,8 @@ DavisKahan/         the Davis--Kahan development, whose four Section 2 theorems
 ```
 
 `lake build` builds the root entry. `lake build ForTauCeti`, `lake build DavisKahan`
-and `lake build Palomar` build the libraries.
+and the concrete module targets build the entries, for example
+`lake build Palomar.DKSectionTwo.Challenge Palomar.DKSectionTwo.Solution`.
 
 ## Verifying locally
 

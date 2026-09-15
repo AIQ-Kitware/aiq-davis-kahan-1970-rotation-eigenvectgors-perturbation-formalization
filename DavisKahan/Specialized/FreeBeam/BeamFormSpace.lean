@@ -10,6 +10,8 @@ import ForTauCeti.MeasureTheory.IntervalSecondPrimitiveDeriv
 import Mathlib.Analysis.InnerProductSpace.ProdL2
 import Mathlib.Tactic
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # The concrete free-beam form space on `L²(0,1]`
 
@@ -41,6 +43,7 @@ namespace TauCeti
 namespace DavisKahan
 namespace FreeBeam
 namespace Model
+
 
 noncomputable section
 

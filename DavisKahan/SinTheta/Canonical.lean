@@ -7,6 +7,8 @@ import DavisKahan.SinTheta.Unbounded.IntervalExterior
 import DavisKahan.SinTheta.Unbounded.AllGap
 import DavisKahan.SinTheta.Unbounded.FormBoundedGap
 
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Source-shaped generalized and isometric problems over the form-bounded gap
 
@@ -43,6 +45,8 @@ spectral one is `ℂ`-only, so it also carries the real-scalar surface in
 namespace TauCeti
 namespace DavisKahan
 namespace ExactSinTheta
+
+
 
 section ComplexGeneralized
 
@@ -162,8 +166,8 @@ theorem result
         ≤ N.gauge P.data.residual :=
   by
     simpa only [UnboundedSinThetaData,
-      KyFanDominantIdealFamily.toSymmetric_mem,
-      KyFanDominantIdealFamily.toSymmetric_gaugeReal] using
+      FanDominantIdealFamily.toSymmetric_mem,
+      FanDominantIdealFamily.toSymmetric_gaugeReal] using
       generalizedSinTheta_unbounded_exact_of_intervalExteriorGap
         N.toSymmetricOperatorIdealFamily P.data P.exactMap
         P.ambient_selfAdjoint
@@ -188,8 +192,8 @@ theorem complementaryBlock_result
         ≤ N.gauge P.data.residual :=
   by
     simpa only [UnboundedSinThetaData,
-      KyFanDominantIdealFamily.toSymmetric_mem,
-      KyFanDominantIdealFamily.toSymmetric_gaugeReal] using
+      FanDominantIdealFamily.toSymmetric_mem,
+      FanDominantIdealFamily.toSymmetric_gaugeReal] using
       generalizedSinTheta_unbounded_of_intervalExteriorGap
         N.toSymmetricOperatorIdealFamily P.data
         P.ambient_selfAdjoint

@@ -14,6 +14,11 @@ import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.SingularValueTransport
 import DavisKahan.Sources.DavisKahan1970.SineTheta.Norms.UnitaryInvariantNorm
 import ForTauCeti.Analysis.InnerProductSpace.LinearPMap.Resolvent
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Literal Davis--Kahan 1970 Section 7 sine-double-angle surface
 
@@ -53,6 +58,7 @@ theorem; no new mathematics is introduced in this facade.
 
 namespace TauCeti
 namespace DavisKahan1970
+
 
 open DavisKahan.ExactSinTheta
 open DavisKahan
@@ -169,7 +175,7 @@ singular-value sequence of the canonical reflected overlap block. -/
 theorem sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_complex
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : DavisKahan.IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -180,7 +186,7 @@ theorem sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_complex
       (lam : ℂ) ∉ TauCeti.LinearPMap.spectrum
         (selfAdjointSpectralRestriction A hA Bᶜ hB.compl))
     (hEmem : N.Mem E)
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
+    (sinTwoTheta₀ : SinThetaRepresentative
       (sinTwoThetaIdealBlock
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
@@ -223,7 +229,7 @@ signature contains the hypothesis it states. -/
 theorem sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_unequalDimension_complex
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (E : H →L[ℂ] H) (hE : DavisKahan.IsSelfAdjointOperator E)
+    (E : H →L[ℂ] H) (hE : E.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -238,7 +244,7 @@ theorem sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_unequalDimens
       Module.rank ℂ (selfAdjointSpectralSubspace A hA B hB) <
         Module.rank ℂ (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
           (addBounded_isSelfAdjoint A hA E hE) S hS))
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
+    (sinTwoTheta₀ : SinThetaRepresentative
       (sinTwoThetaIdealBlock
         (selfAdjointSpectralSubspace A hA B hB)
         (selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A E)
@@ -257,7 +263,7 @@ controlled by the residual with constant one. -/
 theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_complex
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (R : H →L[ℂ] H) (hR : DavisKahan.IsSelfAdjointOperator R)
+    (R : H →L[ℂ] H) (hR : R.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
@@ -274,7 +280,7 @@ theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_complex
           ⟨V.reflectionOperator (x : H), hJdom x⟩ =
         V.reflectionOperator (A x))
     (hRmem : N.Mem R)
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
+    (sinTwoTheta₀ : SinThetaRepresentative
       (sinTwoThetaIdealBlock
         (selfAdjointSpectralSubspace A hA B hB) V)) :
     N.Mem sinTwoTheta₀.operator ∧
@@ -296,7 +302,7 @@ direct specialization of the stronger dimension-free Section 7 theorem. -/
 theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_unequalDimension_complex
     (N : KyFanDominantIdealFamily (𝕜 := ℂ))
     (A : H →ₗ.[ℂ] H) (hA : IsSelfAdjoint A)
-    (R : H →L[ℂ] H) (hR : DavisKahan.IsSelfAdjointOperator R)
+    (R : H →L[ℂ] H) (hR : R.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B)
     (V : Submodule ℂ H) [V.HasOrthogonalProjection]
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
@@ -315,7 +321,7 @@ theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_unequal
     (hRmem : N.Mem R)
     (_hStrictDimension :
       Module.rank ℂ (selfAdjointSpectralSubspace A hA B hB) < Module.rank ℂ V)
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
+    (sinTwoTheta₀ : SinThetaRepresentative
       (sinTwoThetaIdealBlock
         (selfAdjointSpectralSubspace A hA B hB) V)) :
     N.Mem sinTwoTheta₀.operator ∧
@@ -348,14 +354,14 @@ theorem sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
-    (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Er →L[ℝ] Er) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
       (realSelfAdjointSpectralRestriction A hA B hB)
       (realSelfAdjointSpectralRestriction A hA Bᶜ hB.compl) δ)
     (hEmem : N.Mem Eop)
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
+    (sinTwoTheta₀ : SinThetaRepresentative
       (sinTwoThetaIdealBlock
         (realSelfAdjointSpectralSubspace A hA B hB)
         (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
@@ -377,7 +383,7 @@ theorem sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_unequalDimens
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
-    (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Er →L[ℝ] Er) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -388,7 +394,7 @@ theorem sinTwoTheta_unbounded_perturbation_arbitraryRepresentative_unequalDimens
       Module.rank ℝ (realSelfAdjointSpectralSubspace A hA B hB) <
         Module.rank ℝ (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (addBounded_isSelfAdjoint A hA Eop hEop) S hS))
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
+    (sinTwoTheta₀ : SinThetaRepresentative
       (sinTwoThetaIdealBlock
         (realSelfAdjointSpectralSubspace A hA B hB)
         (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
@@ -408,7 +414,7 @@ theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_real
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
-    (R : Er →L[ℝ] Er) (hR : DavisKahan.IsSelfAdjointOperator R)
+    (R : Er →L[ℝ] Er) (hR : R.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B)
     (V : Submodule ℝ Er) [V.HasOrthogonalProjection]
     {δ : ℝ} (hδ : 0 < δ)
@@ -421,7 +427,7 @@ theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_real
           ⟨V.reflectionOperator (x : Er), hJdom x⟩ =
         V.reflectionOperator (A x))
     (hRmem : N.Mem R)
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
+    (sinTwoTheta₀ : SinThetaRepresentative
       (sinTwoThetaIdealBlock
         (realSelfAdjointSpectralSubspace A hA B hB) V)) :
     N.Mem sinTwoTheta₀.operator ∧
@@ -440,7 +446,7 @@ theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_unequal
     (N : KyFanDominantIdealFamily (𝕜 := ℝ))
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
-    (R : Er →L[ℝ] Er) (hR : DavisKahan.IsSelfAdjointOperator R)
+    (R : Er →L[ℝ] Er) (hR : R.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B)
     (V : Submodule ℝ Er) [V.HasOrthogonalProjection]
     {δ : ℝ} (hδ : 0 < δ)
@@ -455,7 +461,7 @@ theorem sinTwoTheta_unbounded_reflectionResidual_arbitraryRepresentative_unequal
     (hRmem : N.Mem R)
     (_hStrictDimension :
       Module.rank ℝ (realSelfAdjointSpectralSubspace A hA B hB) < Module.rank ℝ V)
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
+    (sinTwoTheta₀ : SinThetaRepresentative
       (sinTwoThetaIdealBlock
         (realSelfAdjointSpectralSubspace A hA B hB) V)) :
     N.Mem sinTwoTheta₀.operator ∧
@@ -486,7 +492,7 @@ theorem sinTwoTheta_directed_unboundedReflectionResidual_blockRepresentative_sym
     (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
-    (R : Er →L[ℝ] Er) (hR : DavisKahan.IsSelfAdjointOperator R)
+    (R : Er →L[ℝ] Er) (hR : R.IsSymmetric)
     (B : Set ℝ) (hB : MeasurableSet B)
     (V : Submodule ℝ Er) [V.HasOrthogonalProjection]
     {δ : ℝ} (hδ : 0 < δ)
@@ -522,7 +528,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricN
     (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
-    (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Er →L[ℝ] Er) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -562,7 +568,7 @@ form, stated on the angle operator itself.**
 `sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_real` concludes about
 `sinTwoThetaIdealBlock`, the overlap of the selected spectral subspace with the
 reflected complement, which is the proof's vehicle rather than the paper's
-object.  `DavisKahan.gauge_sinTwoAngleOperatorRC` moves it to `2 sin Θ cos Θ`
+object.  `DavisKahan.gauge_directedSinTwoAngleOperatorRC` moves it to `2 sin Θ cos Θ`
 for the real pair: the two have the same approximation singular values
 (`DavisKahan.approximationSingularValue_sinTwoThetaIdealBlock_real`), so every
 source unitarily invariant norm sees them identically.
@@ -570,33 +576,33 @@ source unitarily invariant norm sees them identically.
 The real mirror of `sinTwoTheta_directed_unbounded_addBounded_spectrumGap_symmetricNorming_complex`.  The angle
 is the *directed* double-angle sine of the real pair, read in the canonical
 complexification, which is where this development keeps the real double-angle
-operators; the ambient spelling `paperSinTwoAngleOperatorR` is a different
+operators; the ambient spelling `sinTwoAngleOperatorR` is a different
 operator, carrying each principal angle twice where the block carries it once,
 and no transport to it is claimed. -/
 theorem sinTwoTheta_directed_unbounded_addBounded_symmetricNorming_real
     (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
-    (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Er →L[ℝ] Er) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
       (realSelfAdjointSpectralRestriction A hA B hB)
       (realSelfAdjointSpectralRestriction A hA Bᶜ hB.compl) δ)
     (hEmem : N.Mem Eop) :
-    N.Mem (TauCeti.DavisKahanExt.Real.sinTwoAngleOperatorRC
+    N.Mem (TauCeti.DavisKahan.Angle.Real.directedSinTwoAngleOperatorRC
         (realSelfAdjointSpectralSubspace A hA B hB)
         (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ∧
-      δ * N.gauge (TauCeti.DavisKahanExt.Real.sinTwoAngleOperatorRC
+      δ * N.gauge (TauCeti.DavisKahan.Angle.Real.directedSinTwoAngleOperatorRC
         (realSelfAdjointSpectralSubspace A hA B hB)
         (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ≤
         2 * N.gauge Eop := by
   obtain ⟨hmem, hle⟩ := sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_real N A hA Eop hEop
     B S hB hS hδ hgap hEmem
-  refine ⟨(DavisKahan.mem_sinTwoAngleOperatorRC_iff _ _ N).mpr hmem, ?_⟩
-  rwa [DavisKahan.gauge_sinTwoAngleOperatorRC]
+  refine ⟨(DavisKahan.mem_directedSinTwoAngleOperatorRC_iff _ _ N).mpr hmem, ?_⟩
+  rwa [DavisKahan.gauge_directedSinTwoAngleOperatorRC]
 
 open DavisKahan DavisKahan.RealSpectralRestriction in
 /-- **Davis--Kahan 1970, the Section 8 unequal-dimension `sin 2Θ` extension, over
@@ -611,7 +617,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorm
     (N : SymmetricNormingFunction)
     (A : Er →ₗ.[ℝ] Er)
     (hA : IsSelfAdjoint A)
-    (Eop : Er →L[ℝ] Er) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Er →L[ℝ] Er) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -623,8 +629,8 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorm
         Module.rank ℝ (realSelfAdjointSpectralSubspace
           (TauCeti.LinearPMap.addBounded A Eop)
           (addBounded_isSelfAdjoint A hA Eop hEop) S hS))
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
-      (TauCeti.DavisKahanExt.Real.sinTwoAngleOperatorRC
+    (sinTwoTheta₀ : SinThetaRepresentative
+      (TauCeti.DavisKahan.Angle.Real.directedSinTwoAngleOperatorRC
         (realSelfAdjointSpectralSubspace A hA B hB)
         (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (addBounded_isSelfAdjoint A hA Eop hEop) S hS))) :
@@ -640,7 +646,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorm
     rw [hext]
     exact hmem
   · have hgauge : N.gauge sinTwoTheta₀.operator
-        = N.gauge (TauCeti.DavisKahanExt.Real.sinTwoAngleOperatorRC
+        = N.gauge (TauCeti.DavisKahan.Angle.Real.directedSinTwoAngleOperatorRC
             (realSelfAdjointSpectralSubspace A hA B hB)
             (realSelfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
               (addBounded_isSelfAdjoint A hA Eop hEop) S hS)) := by
@@ -700,7 +706,7 @@ The complex counterpart of `sinTwoTheta_directed_unbounded_addBounded_blockRepre
 theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_spectrumGap_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
-    (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Hc →L[ℂ] Hc) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -746,21 +752,21 @@ self-adjoint operator, stated on the angle operator itself.**
 reflected complement.  That block is the proof's vehicle, not the paper's object.
 `DavisKahan.sinTwoThetaIdealBlock_hasSameApproximationNumbers` shows the two have
 the same approximation numbers -- because
-`sinAngleOperatorDirectedC U (reflectedU U V) = sinTwoAngleOperatorC U V` exactly,
+`directedSinAngleOperatorC U (reflectedU U V) = directedSinTwoAngleOperatorC U V` exactly,
 as operators -- so every source unitarily invariant norm sees them identically,
 and this statement is the same theorem read on `2 sin Θ cos Θ`.
 
 Note that this is the *directed* double-angle operator.  The paper's ambient
-spelling `paperSinTwoAngleOperatorC U V` is
-`|R_V P_U R_V − P_U|` (`paperSinTwoAngleOperatorC_eq_modulus_reflect`), a
+spelling `sinTwoAngleOperatorC U V` is
+`|R_V P_U R_V − P_U|` (`directedSinTwoAngleOperatorC_eq_modulus_reflect`), a
 different operator: it agrees in operator norm
-(`norm_paperSinTwoAngleOperatorC_eq_norm_sinTwoAngleOperatorC`) but its
+(`norm_sinTwoAngleOperatorC_eq_norm_directedSinTwoAngleOperatorC`) but its
 approximation-number sequence is not identified with this one here, so the
 transport below is not claimed for it. -/
 theorem sinTwoTheta_directed_unbounded_addBounded_spectrumGap_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
-    (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Hc →L[ℂ] Hc) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
     (hBlow : TauCeti.LinearPMap.SemiboundedBelow
@@ -771,19 +777,19 @@ theorem sinTwoTheta_directed_unbounded_addBounded_spectrumGap_symmetricNorming_c
       (lam : ℂ) ∉ TauCeti.LinearPMap.spectrum
         (DavisKahan.selfAdjointSpectralRestriction A hA Bᶜ hB.compl))
     (hEmem : N.Mem Eop) :
-    N.Mem (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+    N.Mem (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperatorC
         (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
         (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ∧
-      δ * N.gauge (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+      δ * N.gauge (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperatorC
         (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
         (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ≤
         2 * N.gauge Eop := by
   obtain ⟨hmem, hle⟩ := sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_spectrumGap_symmetricNorming_complex N A hA Eop hEop B S hB hS
     hβα hδ hBlow hBhigh hBcomplSpec hEmem
-  refine ⟨(DavisKahan.mem_sinTwoAngleOperatorC_iff _ _ N).mpr hmem, ?_⟩
-  rwa [DavisKahan.gauge_sinTwoAngleOperatorC]
+  refine ⟨(DavisKahan.mem_directedSinTwoAngleOperatorC_iff _ _ N).mpr hmem, ?_⟩
+  rwa [DavisKahan.gauge_directedSinTwoAngleOperatorC]
 
 /-! ### The complex source norm at the full source gap
 
@@ -824,7 +830,7 @@ The complex counterpart of
 theorem sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
-    (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Hc →L[ℂ] Hc) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -867,23 +873,23 @@ same approximation numbers, so every source unitarily invariant norm sees them
 identically.
 
 This is the *directed* double-angle operator; the paper's ambient spelling
-`paperSinTwoAngleOperatorC U V` is a different operator, agreeing in operator
+`sinTwoAngleOperatorC U V` is a different operator, agreeing in operator
 norm but with no approximation-number identification claimed here. -/
 theorem sinTwoTheta_directed_unbounded_addBounded_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
-    (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Hc →L[ℂ] Hc) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
       (DavisKahan.selfAdjointSpectralRestriction A hA B hB)
       (DavisKahan.selfAdjointSpectralRestriction A hA Bᶜ hB.compl) δ)
     (hEmem : N.Mem Eop) :
-    N.Mem (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+    N.Mem (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperatorC
         (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
         (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ∧
-      δ * N.gauge (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+      δ * N.gauge (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperatorC
         (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
         (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) ≤
@@ -891,8 +897,8 @@ theorem sinTwoTheta_directed_unbounded_addBounded_symmetricNorming_complex
   obtain ⟨hmem, hle⟩ :=
     sinTwoTheta_directed_unbounded_addBounded_blockRepresentative_symmetricNorming_complex
       N A hA Eop hEop B S hB hS hδ hgap hEmem
-  refine ⟨(DavisKahan.mem_sinTwoAngleOperatorC_iff _ _ N).mpr hmem, ?_⟩
-  rwa [DavisKahan.gauge_sinTwoAngleOperatorC]
+  refine ⟨(DavisKahan.mem_directedSinTwoAngleOperatorC_iff _ _ N).mpr hmem, ?_⟩
+  rwa [DavisKahan.gauge_directedSinTwoAngleOperatorC]
 
 /-! ### The Section 8 unequal-dimension extension, at this result's certified scope
 
@@ -928,7 +934,7 @@ strictly smaller dimension than the selected spectral subspace of `A + E`. -/
 theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorming_complex
     (N : SymmetricNormingFunction)
     (A : Hc →ₗ.[ℂ] Hc) (hA : IsSelfAdjoint A)
-    (Eop : Hc →L[ℂ] Hc) (hEop : DavisKahan.IsSelfAdjointOperator Eop)
+    (Eop : Hc →L[ℂ] Hc) (hEop : Eop.IsSymmetric)
     (B S : Set ℝ) (hB : MeasurableSet B) (hS : MeasurableSet S)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
@@ -940,8 +946,8 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorm
         Module.rank ℂ (DavisKahan.selfAdjointSpectralSubspace
           (TauCeti.LinearPMap.addBounded A Eop)
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS))
-    (sinTwoTheta₀ : PaperSinThetaRepresentative
-      (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+    (sinTwoTheta₀ : SinThetaRepresentative
+      (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperatorC
         (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
         (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
           (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS))) :
@@ -956,7 +962,7 @@ theorem sinTwoTheta_directed_unbounded_addBounded_unequalDimension_symmetricNorm
   · show N.extendedGauge sinTwoTheta₀.operator ≠ ⊤
     rw [hext]; exact hmem
   · have hgauge : N.gauge sinTwoTheta₀.operator
-        = N.gauge (TauCeti.DavisKahanExt.sinTwoAngleOperatorC
+        = N.gauge (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperatorC
             (DavisKahan.selfAdjointSpectralSubspace A hA B hB)
             (DavisKahan.selfAdjointSpectralSubspace (TauCeti.LinearPMap.addBounded A Eop)
               (DavisKahan.addBounded_isSelfAdjoint A hA Eop hEop) S hS)) := by

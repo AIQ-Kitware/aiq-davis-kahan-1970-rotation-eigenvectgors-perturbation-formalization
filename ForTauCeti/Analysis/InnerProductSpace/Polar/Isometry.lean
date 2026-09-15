@@ -84,9 +84,9 @@ bounded-below case is separated out here because it needs no
 polar-decomposition theory at all: `Ring.inverse` plus the pointwise isometry
 `‖|M| x‖ = ‖M x‖` suffice.
 
-Complex scalars are required because Mathlib registers the continuous functional
-calculus on Hilbert-space operators only over `ℂ`; see
-`ForTauCeti/Analysis/InnerProductSpace/OperatorModulus.lean`.
+The modulus itself is available over every `RCLike` field.  This quantitative
+near-isometry layer remains over `ℂ`: its proof uses Mathlib's isometric real
+continuous functional calculus on the complex operator algebra.
 
 ## References
 
@@ -273,7 +273,8 @@ theorem norm_sub_polarIsometryOfIsUnitModulus_le {M : E →L[ℂ] F} (hM : IsUni
 
 /-- The polar isometry of a bounded-below operator, bundled as a
 `LinearIsometry`. -/
-noncomputable def polarLinearIsometry {M : E →L[ℂ] F} (hM : IsUnit M.modulus) : E →ₗᵢ[ℂ] F where
+noncomputable def polarLinearIsometry {M : E →L[ℂ] F} (hM : IsUnit M.modulus) :
+    E →ₗᵢ[ℂ] F where
   toLinearMap := M.polarIsometryOfIsUnitModulus
   norm_map' := norm_polarIsometryOfIsUnitModulus_apply hM
 

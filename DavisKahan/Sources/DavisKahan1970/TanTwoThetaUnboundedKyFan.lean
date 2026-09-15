@@ -74,9 +74,10 @@ a consequence of the eigenvector relation together with `C² + S² = 1`.
 namespace TauCeti
 namespace DavisKahan1970
 
+open TauCeti.DavisKahan.ExactSinTheta
+
 open scoped InnerProductSpace BigOperators
 
-open TauCeti.DavisKahan.ExactSinTheta
 
 noncomputable section
 
@@ -538,7 +539,8 @@ theorem mem_and_gauge_le_of_doubleAngleEigenbasis
     (hT : IsDoubleAngleEigenbasis A U Z T) (hBmem : N.Mem B) :
     N.Mem ((((b - a) / 2 : ℝ) : ℂ) • T) ∧
       N.gauge ((((b - a) / 2 : ℝ) : ℂ) • T) ≤ N.gauge B := by
-  refine mem_and_gauge_le_of_all_kyFanApproximationGauge_le N hBmem fun k => ?_
+  refine mem_and_gauge_le_of_all_kyFanApproximationGauge_le
+    N.toFanDominantIdealFamily hBmem fun k => ?_
   rw [kyFanApproximationGauge_smul, Complex.norm_real, Real.norm_eq_abs,
     abs_of_nonneg (by linarith : (0 : ℝ) ≤ (b - a) / 2)]
   have h := gap_mul_kyFan_le_two_mul_kyFan_of_doubleAngleEigenbasis hred hB hZsa
@@ -1505,7 +1507,8 @@ theorem mem_and_gauge_le_of_compressedDoubleAngleEigenbasis
     (hT : IsCompressedDoubleAngleEigenbasis A U Z T) (hBmem : N.Mem B) :
     N.Mem ((((b - a) / 2 : ℝ) : ℂ) • T) ∧
       N.gauge ((((b - a) / 2 : ℝ) : ℂ) • T) ≤ N.gauge B := by
-  refine mem_and_gauge_le_of_all_kyFanApproximationGauge_le N hBmem fun k => ?_
+  refine mem_and_gauge_le_of_all_kyFanApproximationGauge_le
+    N.toFanDominantIdealFamily hBmem fun k => ?_
   rw [kyFanApproximationGauge_smul, Complex.norm_real, Real.norm_eq_abs,
     abs_of_nonneg (by linarith : (0 : ℝ) ≤ (b - a) / 2)]
   have h := gap_mul_kyFan_le_two_mul_kyFan_of_compressedDoubleAngleEigenbasis
@@ -1891,7 +1894,7 @@ free variable by the genuine tangent and then measures exactly what the clause
 asks for.
 
 The genuine object is fixed by the same defining identity the bounded theory
-uses (`tanTwoAngleOperatorC_comp_cosTwoAngleExtendedC`): a **double-angle
+uses (`directedTanTwoAngleOperatorC_comp_cosTwoAngleExtendedC`): a **double-angle
 tangent** is an operator `T` with `T (C x) = S x` on the trial subspace, for
 `C = cos 2Θ₀` and `S = sin 2Θ₀` the even and odd blocks of `Z` relative to
 `𝔛₀ ⊕ 𝔛₁`.  Such a `T` exists **unconditionally** in the Davis--Kahan setting:
@@ -1926,7 +1929,7 @@ hypothesis exact rather than hiding it in a free operator.
 /-- `T` is a **double-angle tangent** for the reflection `Z` relative to the trial
 subspace `U`: composing it with the even block `C = cos 2Θ₀` returns the odd
 block `S = sin 2Θ₀` there.  This is the reflection-picture analogue of
-`tanTwoAngleOperatorC_comp_cosTwoAngleExtendedC`, and it is what makes an
+`directedTanTwoAngleOperatorC_comp_cosTwoAngleExtendedC`, and it is what makes an
 operator *the* `tan 2Θ₀` rather than a free variable. -/
 def IsDoubleAngleTangent (U : Submodule ℂ H) [U.HasOrthogonalProjection]
     (Z T : H →L[ℂ] H) : Prop :=

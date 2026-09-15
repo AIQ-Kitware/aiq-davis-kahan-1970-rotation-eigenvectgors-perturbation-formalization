@@ -8,6 +8,11 @@ import DavisKahan.Sources.DavisKahan1970.Section8.Theorem81MajorizationReal
 import ForTauCeti.Analysis.InnerProductSpace.AngleGeometry
 import ForTauCeti.Analysis.OperatorIdeal.ApproximationNumber.Examples
 
+open TauCeti.DavisKahan.Angle
+
+
+open TauCeti.DavisKahan.Sylvester
+
 /-!
 # Davis--Kahan 1970, Theorem 8.1(ii)--(iii): the source dictionary
 
@@ -67,9 +72,9 @@ at `TauCeti.FiniteSymmetricGauge.revPerm`.
 
 ## The source-facing statements
 
-`theorem8_1_upperApproximationRepulsion_angle_source` and its lower companion
+`theorem8_1_upperApproximationRepulsion_angle` and its lower companion
 state part (ii) with the printed factor written as a principal cosine.
-`theorem8_1_upperSymmetricGaugeRepulsion_angle_source` and its lower companion
+`theorem8_1_upperSymmetricGaugeRepulsion_angle` and its lower companion
 state part (iii) with the printed right-hand side `(λ_i - α) cos²θ_i`, quantified
 over **every** symmetric gauge -- not the operator norm, not the Frobenius norm,
 not Ky Fan `k` alone.
@@ -297,7 +302,7 @@ variable {alpha delta : ℝ}
 
 which is the printed `α_k - α ≤ ‖C₁‖₁² (λ_k - α)` with `‖C₁‖₁` rewritten as the
 largest principal cosine of the pair `(Pᗮ, Qᗮ)`. -/
-theorem theorem8_1_upperApproximationRepulsion_angle_source [FiniteDimensional ℂ H]
+theorem theorem8_1_upperApproximationRepulsion_angle [FiniteDimensional ℂ H]
     (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
     (hAP : ∀ x ∈ P, A x ∈ P)
@@ -313,11 +318,11 @@ theorem theorem8_1_upperApproximationRepulsion_angle_source [FiniteDimensional �
           (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
             (hA.add hK)) alpha) alpha).approximationNumber n := by
   rw [← norm_cosineBlock_eq_principalCosines_zero]
-  exact theorem8_1_upperApproximationRepulsion_source A K P hdelta hA hK hAP hPlow
+  exact theorem8_1_upperApproximationRepulsion A K P hdelta hA hK hAP hPlow
     hPhigh hKP hKPperp n
 
 /-- **Theorem 8.1(ii), lower block, with the printed factor as a cosine.** -/
-theorem theorem8_1_lowerApproximationRepulsion_angle_source [FiniteDimensional ℂ H]
+theorem theorem8_1_lowerApproximationRepulsion_angle [FiniteDimensional ℂ H]
     (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
     (hAP : ∀ x ∈ P, A x ∈ P)
@@ -333,7 +338,7 @@ theorem theorem8_1_lowerApproximationRepulsion_angle_source [FiniteDimensional �
           (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
             (hA.add hK)) alpha) alpha delta).approximationNumber n := by
   rw [← norm_lowerCosineBlock_eq_principalCosines_zero]
-  exact theorem8_1_lowerApproximationRepulsion_source A K P hdelta hA hK hAP hPlow
+  exact theorem8_1_lowerApproximationRepulsion A K P hdelta hA hK hAP hPlow
     hPhigh hKP hKPperp n
 
 /-! ### 5. Part (iii) with the printed angle sequence -/
@@ -344,9 +349,9 @@ theorem theorem8_1_lowerApproximationRepulsion_angle_source [FiniteDimensional �
 
 for **every** symmetric gauge `Φ`, with `cos θ_i` the principal cosines of the
 pair `(Pᗮ, Qᗮ)` -- the singular values of the printed `C₁`, by equation (1.16).
-Indices run decreasingly; see `theorem8_1_upperSymmetricGaugeRepulsion_angle_rev_source`
+Indices run decreasingly; see `theorem8_1_upperSymmetricGaugeRepulsion_angle_rev`
 for the printed increasing reading. -/
-theorem theorem8_1_upperSymmetricGaugeRepulsion_angle_source [FiniteDimensional ℂ H]
+theorem theorem8_1_upperSymmetricGaugeRepulsion_angle [FiniteDimensional ℂ H]
     (Phi : FiniteSymmetricGauge (finrank ℂ H))
     (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -380,13 +385,13 @@ theorem theorem8_1_upperSymmetricGaugeRepulsion_angle_source [FiniteDimensional 
     funext i
     rw [approximationNumber_cosineBlock_eq_principalCosines]
   rw [hrw]
-  exact theorem8_1_upperSymmetricGaugeRepulsion_source Phi A K P hdelta hA hK hAP
+  exact theorem8_1_upperSymmetricGaugeRepulsion Phi A K P hdelta hA hK hAP
     hPlow hPhigh hKP hKPperp
 
 /-- **Theorem 8.1(iii), lower block, printed form.**  The printed "with a
 similar relation for `Λ₀`", for every symmetric gauge, with the principal
 cosines of `(P, Q)`. -/
-theorem theorem8_1_lowerSymmetricGaugeRepulsion_angle_source [FiniteDimensional ℂ H]
+theorem theorem8_1_lowerSymmetricGaugeRepulsion_angle [FiniteDimensional ℂ H]
     (Phi : FiniteSymmetricGauge (finrank ℂ H))
     (hdelta : 0 < delta)
     (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
@@ -420,7 +425,7 @@ theorem theorem8_1_lowerSymmetricGaugeRepulsion_angle_source [FiniteDimensional 
     funext i
     rw [approximationNumber_lowerCosineBlock_eq_principalCosines]
   rw [hrw]
-  exact theorem8_1_lowerSymmetricGaugeRepulsion_source Phi A K P hdelta hA hK hAP
+  exact theorem8_1_lowerSymmetricGaugeRepulsion Phi A K P hdelta hA hK hAP
     hPlow hPhigh hKP hKPperp
 
 /-! ### 6. The printed increasing index, by a global reindex
@@ -433,7 +438,7 @@ follow from the decreasing statements by permutation invariance alone. -/
 
 /-- **Theorem 8.1(iii), upper block, in the paper's index order.**  Both sides
 are reindexed by `Fin.rev` together. -/
-theorem theorem8_1_upperSymmetricGaugeRepulsion_angle_rev_source
+theorem theorem8_1_upperSymmetricGaugeRepulsion_angle_rev
     [FiniteDimensional ℂ H]
     (Phi : FiniteSymmetricGauge (finrank ℂ H))
     (hdelta : 0 < delta)
@@ -482,11 +487,11 @@ theorem theorem8_1_upperSymmetricGaugeRepulsion_angle_rev_source
             (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
               (hA.add hK)) alpha)ᗮ (i : ℕ) ^ 2) ∘
         (FiniteSymmetricGauge.revPerm (finrank ℂ H)) from rfl, hL, hR]
-  exact theorem8_1_upperSymmetricGaugeRepulsion_angle_source A K P Phi hdelta hA hK
+  exact theorem8_1_upperSymmetricGaugeRepulsion_angle A K P Phi hdelta hA hK
     hAP hPlow hPhigh hKP hKPperp
 
 /-- **Theorem 8.1(iii), lower block, in the paper's index order.** -/
-theorem theorem8_1_lowerSymmetricGaugeRepulsion_angle_rev_source
+theorem theorem8_1_lowerSymmetricGaugeRepulsion_angle_rev
     [FiniteDimensional ℂ H]
     (Phi : FiniteSymmetricGauge (finrank ℂ H))
     (hdelta : 0 < delta)
@@ -535,7 +540,7 @@ theorem theorem8_1_lowerSymmetricGaugeRepulsion_angle_rev_source
             (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp
               (hA.add hK)) alpha) (i : ℕ) ^ 2) ∘
         (FiniteSymmetricGauge.revPerm (finrank ℂ H)) from rfl, hL, hR]
-  exact theorem8_1_lowerSymmetricGaugeRepulsion_angle_source A K P Phi hdelta hA hK
+  exact theorem8_1_lowerSymmetricGaugeRepulsion_angle A K P Phi hdelta hA hK
     hAP hPlow hPhigh hKP hKPperp
 
 end Source
@@ -574,7 +579,7 @@ factor as a cosine.**
 
   `α_k - α ≤ cos²θ_max · (λ_k - α)`,
 
-the real sibling of `theorem8_1_upperApproximationRepulsion_angle_source`: the
+the real sibling of `theorem8_1_upperApproximationRepulsion_angle`: the
 printed `α_k - α ≤ ‖C₁‖₁² (λ_k - α)` with `‖C₁‖₁` rewritten as the largest
 principal cosine of the pair `(Pᗮ, Qᗮ)`, `Q` the real canonical low branch. -/
 theorem theorem8_1_upperApproximationRepulsion_angle_real [FiniteDimensional ℝ E]
@@ -599,7 +604,7 @@ theorem theorem8_1_upperApproximationRepulsion_angle_real [FiniteDimensional ℝ
 
 /-- **Theorem 8.1(ii), lower block, over a REAL Hilbert space, with the printed
 factor as a cosine.**  The real sibling of
-`theorem8_1_lowerApproximationRepulsion_angle_source`. -/
+`theorem8_1_lowerApproximationRepulsion_angle`. -/
 theorem theorem8_1_lowerApproximationRepulsion_angle_real [FiniteDimensional ℝ E]
     (A K : E →L[ℝ] E) (P : Submodule ℝ E) [P.HasOrthogonalProjection]
     {alpha delta : ℝ} (hdelta : 0 < delta)
@@ -847,10 +852,10 @@ omit [CompleteSpace H] in
 theorem maximalAngle_le_pi_div_six_iff (U V : Submodule 𝕜 H)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     DavisKahanExt.maximalAngle U V ≤ Real.pi / 6 ↔
-      subspaceGap U V ≤ 1 / 2 := by
+      U.projectionGap V ≤ 1 / 2 := by
   have hmem : Real.pi / 6 ∈ Set.Ico (-(Real.pi / 2)) (Real.pi / 2) :=
     ⟨by linarith [Real.pi_pos], by linarith [Real.pi_pos]⟩
-  show Real.arcsin (subspaceGap U V) ≤ Real.pi / 6 ↔ _
+  show Real.arcsin (U.projectionGap V) ≤ Real.pi / 6 ↔ _
   rw [Real.arcsin_le_iff_le_sin' hmem, Real.sin_pi_div_six]
 
 end OpeningIllustration

@@ -24,7 +24,7 @@ directions and the spectrum of `I - R`) and `PrincipalPlanes.Variational`
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 open Module (finrank)
@@ -736,5 +736,5 @@ theorem principalPlaneChord_sq
   rw [principalPlaneChord, Real.sq_sqrt]
   have := principalPlaneCosine_le_one U V i
   linarith
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

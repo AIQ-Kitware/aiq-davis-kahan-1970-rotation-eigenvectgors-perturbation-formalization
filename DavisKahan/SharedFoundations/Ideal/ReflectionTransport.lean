@@ -52,8 +52,8 @@ omit [CompleteSpace E] in
 theorem reflection_left_twoWay
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
     (T : E →L[𝕜] E) :
-    reflectionOperator V ∘L (reflectionOperator V ∘L T) = T := by
-  rw [← ContinuousLinearMap.comp_assoc, reflectionOperator_involutive,
+    V.reflectionOperator ∘L (V.reflectionOperator ∘L T) = T := by
+  rw [← ContinuousLinearMap.comp_assoc, Submodule.reflectionOperator_involutive,
     ContinuousLinearMap.id_comp]
 
 omit [CompleteSpace E] in
@@ -61,8 +61,8 @@ omit [CompleteSpace E] in
 theorem reflection_right_twoWay
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
     (T : E →L[𝕜] E) :
-    (T ∘L reflectionOperator V) ∘L reflectionOperator V = T := by
-  rw [ContinuousLinearMap.comp_assoc, reflectionOperator_involutive,
+    (T ∘L V.reflectionOperator) ∘L V.reflectionOperator = T := by
+  rw [ContinuousLinearMap.comp_assoc, Submodule.reflectionOperator_involutive,
     ContinuousLinearMap.comp_id]
 
 /-- Ideal membership is invariant under left reflection. -/
@@ -71,13 +71,13 @@ theorem SymmetricOperatorIdealFamily.mem_reflection_comp_iff
     [N.toOperatorIdealFamily.IsComplete]
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
     (T : E →L[𝕜] E) :
-    N.Mem (reflectionOperator V ∘L T) ↔ N.Mem T := by
+    N.Mem (V.reflectionOperator ∘L T) ↔ N.Mem T := by
   constructor
   · intro h
     rw [← reflection_left_twoWay V T]
-    exact N.comp_left_mem (reflectionOperator V) h
+    exact N.comp_left_mem (V.reflectionOperator) h
   · intro h
-    exact N.comp_left_mem (reflectionOperator V) h
+    exact N.comp_left_mem (V.reflectionOperator) h
 
 /-- The ideal gauge is invariant under left reflection. -/
 theorem SymmetricOperatorIdealFamily.gauge_reflection_comp
@@ -85,20 +85,20 @@ theorem SymmetricOperatorIdealFamily.gauge_reflection_comp
     [N.toOperatorIdealFamily.IsComplete]
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
     {T : E →L[𝕜] E} (hT : N.Mem T) :
-    N.gaugeReal (reflectionOperator V ∘L T) = N.gaugeReal T := by
-  have hRT : N.Mem (reflectionOperator V ∘L T) :=
-    N.comp_left_mem (reflectionOperator V) hT
+    N.gaugeReal (V.reflectionOperator ∘L T) = N.gaugeReal T := by
+  have hRT : N.Mem (V.reflectionOperator ∘L T) :=
+    N.comp_left_mem (V.reflectionOperator) hT
   apply le_antisymm
-  · exact N.gaugeReal_comp_left_le (reflectionOperator V) hT
-      (norm_reflectionOperator_le_one V)
+  · exact N.gaugeReal_comp_left_le (V.reflectionOperator) hT
+      (Submodule.norm_reflectionOperator_le_one V)
   · calc
       N.gaugeReal T =
-          N.gaugeReal (reflectionOperator V ∘L (reflectionOperator V ∘L T)) :=
+          N.gaugeReal (V.reflectionOperator ∘L (V.reflectionOperator ∘L T)) :=
         congrArg (fun S : E →L[𝕜] E => N.gaugeReal S)
           (reflection_left_twoWay V T).symm
-      _ ≤ N.gaugeReal (reflectionOperator V ∘L T) :=
-        N.gaugeReal_comp_left_le (reflectionOperator V) hRT
-          (norm_reflectionOperator_le_one V)
+      _ ≤ N.gaugeReal (V.reflectionOperator ∘L T) :=
+        N.gaugeReal_comp_left_le (V.reflectionOperator) hRT
+          (Submodule.norm_reflectionOperator_le_one V)
 
 /-- Ideal membership is invariant under right reflection. -/
 theorem SymmetricOperatorIdealFamily.mem_comp_reflection_iff
@@ -106,13 +106,13 @@ theorem SymmetricOperatorIdealFamily.mem_comp_reflection_iff
     [N.toOperatorIdealFamily.IsComplete]
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
     (T : E →L[𝕜] E) :
-    N.Mem (T ∘L reflectionOperator V) ↔ N.Mem T := by
+    N.Mem (T ∘L V.reflectionOperator) ↔ N.Mem T := by
   constructor
   · intro h
     rw [← reflection_right_twoWay V T]
-    exact N.comp_right_mem (reflectionOperator V) h
+    exact N.comp_right_mem (V.reflectionOperator) h
   · intro h
-    exact N.comp_right_mem (reflectionOperator V) h
+    exact N.comp_right_mem (V.reflectionOperator) h
 
 /-- The ideal gauge is invariant under right reflection. -/
 theorem SymmetricOperatorIdealFamily.gauge_comp_reflection
@@ -120,34 +120,34 @@ theorem SymmetricOperatorIdealFamily.gauge_comp_reflection
     [N.toOperatorIdealFamily.IsComplete]
     (V : Submodule 𝕜 E) [V.HasOrthogonalProjection]
     {T : E →L[𝕜] E} (hT : N.Mem T) :
-    N.gaugeReal (T ∘L reflectionOperator V) = N.gaugeReal T := by
-  have hTR : N.Mem (T ∘L reflectionOperator V) :=
-    N.comp_right_mem (reflectionOperator V) hT
+    N.gaugeReal (T ∘L V.reflectionOperator) = N.gaugeReal T := by
+  have hTR : N.Mem (T ∘L V.reflectionOperator) :=
+    N.comp_right_mem (V.reflectionOperator) hT
   apply le_antisymm
-  · exact N.gaugeReal_comp_right_le (reflectionOperator V) hT
-      (norm_reflectionOperator_le_one V)
+  · exact N.gaugeReal_comp_right_le (V.reflectionOperator) hT
+      (Submodule.norm_reflectionOperator_le_one V)
   · calc
       N.gaugeReal T =
-          N.gaugeReal ((T ∘L reflectionOperator V) ∘L reflectionOperator V) :=
+          N.gaugeReal ((T ∘L V.reflectionOperator) ∘L V.reflectionOperator) :=
         congrArg (fun S : E →L[𝕜] E => N.gaugeReal S)
           (reflection_right_twoWay V T).symm
-      _ ≤ N.gaugeReal (T ∘L reflectionOperator V) :=
-        N.gaugeReal_comp_right_le (reflectionOperator V) hTR
-          (norm_reflectionOperator_le_one V)
+      _ ≤ N.gaugeReal (T ∘L V.reflectionOperator) :=
+        N.gaugeReal_comp_right_le (V.reflectionOperator) hTR
+          (Submodule.norm_reflectionOperator_le_one V)
 
 /-- Exact operator identity behind the directed ideal double-angle theorem. -/
 theorem directedSinBlock_reflected_eq_reflection_comp_sinTwo
     (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] :
     directedSinBlock U (reflectedSubspace V U) =
-      reflectionOperator V ∘L sinTwoAngleOperator U V := by
+      V.reflectionOperator ∘L sinTwoAngleOperator U V := by
   unfold directedSinBlock
   rw [starProjection_orthogonal_reflectedSubspace]
   have hassoc :
-      (reflectionOperator V ∘L Uᗮ.starProjection ∘L reflectionOperator V) ∘L
+      (V.reflectionOperator ∘L Uᗮ.starProjection ∘L V.reflectionOperator) ∘L
           U.starProjection =
-        reflectionOperator V ∘L
-          (Uᗮ.starProjection ∘L reflectionOperator V ∘L U.starProjection) := by
+        V.reflectionOperator ∘L
+          (Uᗮ.starProjection ∘L V.reflectionOperator ∘L U.starProjection) := by
     ext x
     rfl
   rw [hassoc, complementary_comp_reflection_comp_projection]
@@ -181,7 +181,7 @@ theorem DavisKahanExt.SymmetricNormIdeal.directed_reflected_mem_and_gauge_eq
       I.gauge (directedSinBlock U (reflectedSubspace V U)) =
         I.gauge (sinTwoAngleOperator U V) := by
   let J : E →L[𝕜] E := ContinuousLinearMap.id 𝕜 E
-  let R : E →L[𝕜] E := reflectionOperator V
+  let R : E →L[𝕜] E := V.reflectionOperator
   have hforward : directedSinBlock U (reflectedSubspace V U) =
       R ∘L sinTwoAngleOperator U V ∘L J := by
     rw [ContinuousLinearMap.comp_id]
@@ -190,9 +190,9 @@ theorem DavisKahanExt.SymmetricNormIdeal.directed_reflected_mem_and_gauge_eq
       R ∘L directedSinBlock U (reflectedSubspace V U) ∘L J := by
     rw [ContinuousLinearMap.comp_id,
       directedSinBlock_reflected_eq_reflection_comp_sinTwo,
-      ← ContinuousLinearMap.comp_assoc, reflectionOperator_involutive,
+      ← ContinuousLinearMap.comp_assoc, Submodule.reflectionOperator_involutive,
       ContinuousLinearMap.id_comp]
-  have hR : ‖R‖ ≤ 1 := norm_reflectionOperator_le_one V
+  have hR : ‖R‖ ≤ 1 := Submodule.norm_reflectionOperator_le_one V
   have hJ : ‖J‖ ≤ 1 := ContinuousLinearMap.norm_id_le
   exact SymmetricNormIdeal.mem_iff_and_gauge_eq_of_twoWayContractions I
     hback hforward hR hJ hR hJ hT

@@ -7,6 +7,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Sol, OpenAI GPT-5.6 Thinking, Claude Opus 5
 import DavisKahan.Geometry.Halmos.BilateralShiftExample
 import DavisKahan.Geometry.Polar.Section3Nonacute
 import ForTauCeti.Analysis.InnerProductSpace.RealContinuousFunctionalCalculus
+import ForTauCeti.Analysis.RCLike.ScalarTransportFunctionalCalculus
+
+open TauCeti.DavisKahan.Sylvester
 
 /-!
 # Davis--Kahan 1970, Proposition 3.2 and its Remark
@@ -46,6 +49,7 @@ open scoped InnerProductSpace
 namespace TauCeti
 namespace DavisKahan1970
 
+
 open TauCeti.DavisKahan
 
 universe u
@@ -57,8 +61,16 @@ variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
   [CompleteSpace H]
 variable (U V : Submodule 𝕜 H) [U.HasOrthogonalProjection]
   [V.HasOrthogonalProjection]
-variable [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint]
+/-! The real functional calculus on `H →L[𝕜] H`, and the two scalar-action facts Mathlib
+pairs it with, are theorems at every `RCLike` field
+(`ContinuousLinearMap.continuousFunctionalCalculusReal`), so they are activated here rather
+than quantified over.  Until 2026-09-04 they were section `variable`s, and every theorem in
+this section therefore asked its caller for three instances that instance search finds.  They
+are `local instance 100` rather than global because a global `Algebra ℝ (E →L[𝕜] E)` makes
+Lean's `•` elaborator drop an author-written `((r : ℝ) : 𝕜) •` coercion. -/
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+
 
 /-- **Davis--Kahan 1970, Proposition 3.2.**
 
@@ -66,7 +78,7 @@ A nonacute direct rotation exists exactly when the crossed defect spaces have
 equal Hilbert dimension, expressed constructively by a linear isometric
 equivalence. -/
 theorem proposition3_2_exists_iff_crossedDefectsEquivalent :
-    (∃ T : H →L[𝕜] H, IsPaperDirectRotation U V T) ↔
+    (∃ T : H →L[𝕜] H, IsDirectRotation U V T) ↔
       CrossedDefectsEquivalent U V :=
   TauCeti.DavisKahan.proposition3_2_completed U V
 
@@ -80,7 +92,7 @@ theorem proposition3_2_parameterized_nonuniqueness
     ∃ build :
         (halmosSourceDefect U V ≃ₗᵢ[𝕜] halmosTargetDefect U V) →
           (H →L[𝕜] H),
-      (∀ J, IsPaperDirectRotation U V (build J)) ∧
+      (∀ J, IsDirectRotation U V (build J)) ∧
       Function.Injective build :=
   TauCeti.DavisKahan.proposition3_2_parameterization_completed U V hdefect
 
@@ -102,7 +114,7 @@ enough to refute uniqueness. -/
 theorem proposition3_2_not_unique
     (hdefect : CrossedDefectsEquivalent U V) (hnonacute : ¬ TauCeti.IsAcute U V) :
     ∃ T₁ T₂ : H →L[𝕜] H,
-      IsPaperDirectRotation U V T₁ ∧ IsPaperDirectRotation U V T₂ ∧ T₁ ≠ T₂ := by
+      IsDirectRotation U V T₁ ∧ IsDirectRotation U V T₂ ∧ T₁ ≠ T₂ := by
   obtain ⟨build, hbuild, hinj⟩ :=
     proposition3_2_parameterized_nonuniqueness U V hdefect
   obtain ⟨J⟩ := hdefect
@@ -129,7 +141,7 @@ theorem proposition3_2_not_unique
 /-- **Proposition 3.2's nonuniqueness in literal `∃!` form.** -/
 theorem proposition3_2_not_existsUnique
     (hdefect : CrossedDefectsEquivalent U V) (hnonacute : ¬ TauCeti.IsAcute U V) :
-    ¬ ∃! T : H →L[𝕜] H, IsPaperDirectRotation U V T := by
+    ¬ ∃! T : H →L[𝕜] H, IsDirectRotation U V T := by
   rintro ⟨T, _, huniq⟩
   obtain ⟨T₁, T₂, h₁, h₂, hne⟩ := proposition3_2_not_unique U V hdefect hnonacute
   exact hne ((huniq T₁ h₁).trans (huniq T₂ h₂).symm)
@@ -140,12 +152,12 @@ The proof of the proposition records a property of every direct rotation on the
 two crossed defect spaces: applying the rotation twice gives minus the original
 vector.  No acuteness or finite-dimensional hypothesis is added. -/
 theorem proposition3_2_crossing_square_minus_one
-    (T : H →L[𝕜] H) (hT : IsPaperDirectRotation U V T) :
+    (T : H →L[𝕜] H) (hT : IsDirectRotation U V T) :
     (∀ x : halmosSourceDefect U V, T (T (x : H)) = -(x : H)) ∧
       (∀ y : halmosTargetDefect U V, T (T (y : H)) = -(y : H)) := by
   refine ⟨fun x => ?_, fun y => ?_⟩
-  · exact TauCeti.DavisKahan.paperDirectRotation_sq_apply_sourceDefect U V T hT x.property
-  · exact TauCeti.DavisKahan.paperDirectRotation_sq_apply_targetDefect U V T hT y.property
+  · exact TauCeti.DavisKahan.directRotation_sq_apply_sourceDefect U V T hT x.property
+  · exact TauCeti.DavisKahan.directRotation_sq_apply_targetDefect U V T hT y.property
 
 end NonacuteExistence
 
@@ -177,8 +189,9 @@ section Remark
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
   [CompleteSpace H]
-variable [Algebra ℝ (H →L[𝕜] H)] [IsScalarTower ℝ 𝕜 (H →L[𝕜] H)]
-  [ContinuousFunctionalCalculus ℝ (H →L[𝕜] H) IsSelfAdjoint]
+attribute [local instance 100] ContinuousLinearMap.realAlgebra
+  ContinuousLinearMap.realIsScalarTower ContinuousLinearMap.continuousFunctionalCalculusReal
+
 
 /-- **Davis--Kahan 1970, the Remark after Proposition 3.2.**
 
@@ -191,8 +204,8 @@ This is the source's own separation of (1.5) from (3.5). -/
 theorem remark3_2_bilateralShift_separates_dimensionHypotheses
     (b : HilbertBasis ℤ 𝕜 H) :
     (bilateralShiftL b ∈ unitary (H →L[𝕜] H) ∧
-        bilateralShiftL b * DavisKahan.projection (coordinateHalfSpace b 0) =
-          DavisKahan.projection (coordinateHalfSpace b 1) * bilateralShiftL b) ∧
+        bilateralShiftL b * Submodule.starProjection (coordinateHalfSpace b 0) =
+          Submodule.starProjection (coordinateHalfSpace b 1) * bilateralShiftL b) ∧
       (Nonempty (coordinateHalfSpace b 0 ≃ₗᵢ[𝕜] coordinateHalfSpace b 1) ∧
         Nonempty ((coordinateHalfSpace b 0)ᗮ ≃ₗᵢ[𝕜]
           (coordinateHalfSpace b 1)ᗮ)) ∧
@@ -201,7 +214,7 @@ theorem remark3_2_bilateralShift_separates_dimensionHypotheses
       halmosTargetDefect (coordinateHalfSpace b 0)
           (coordinateHalfSpace b 1) = ⊥ ∧
       ¬ ∃ T : H →L[𝕜] H,
-        IsPaperDirectRotation (coordinateHalfSpace b 0)
+        IsDirectRotation (coordinateHalfSpace b 0)
           (coordinateHalfSpace b 1) T := by
   refine ⟨⟨bilateralShiftL_mem_unitary b, ?_⟩, ?_,
     halmosSourceDefect_coordinateHalfSpace_ne_bot b,
@@ -251,7 +264,7 @@ direct rotation of the pair exists exactly when the two crossed intersections
 admit a linear isometric equivalence, which is the cardinal-free form of the
 paper's equal-dimension condition (3.5). -/
 theorem proposition3_2_exists_iff_crossedDefectsEquivalent_real :
-    (∃ T : E →L[ℝ] E, IsPaperDirectRotation U V T) ↔
+    (∃ T : E →L[ℝ] E, IsDirectRotation U V T) ↔
       CrossedDefectsEquivalent U V :=
   proposition3_2_exists_iff_crossedDefectsEquivalent U V
 
@@ -264,7 +277,7 @@ theorem proposition3_2_parameterized_nonuniqueness_real
     ∃ build :
         (halmosSourceDefect U V ≃ₗᵢ[ℝ] halmosTargetDefect U V) →
           (E →L[ℝ] E),
-      (∀ J, IsPaperDirectRotation U V (build J)) ∧
+      (∀ J, IsDirectRotation U V (build J)) ∧
       Function.Injective build :=
   proposition3_2_parameterized_nonuniqueness U V hdefect
 
@@ -278,7 +291,7 @@ theorem proposition3_2_not_unique_real
     (hdefect : CrossedDefectsEquivalent U V)
     (hnonacute : ¬ TauCeti.IsAcute U V) :
     ∃ T₁ T₂ : E →L[ℝ] E,
-      IsPaperDirectRotation U V T₁ ∧ IsPaperDirectRotation U V T₂ ∧
+      IsDirectRotation U V T₁ ∧ IsDirectRotation U V T₂ ∧
         T₁ ≠ T₂ :=
   proposition3_2_not_unique U V hdefect hnonacute
 
@@ -289,7 +302,7 @@ The `𝕜 = ℝ` instance of `proposition3_2_not_existsUnique`. -/
 theorem proposition3_2_not_existsUnique_real
     (hdefect : CrossedDefectsEquivalent U V)
     (hnonacute : ¬ TauCeti.IsAcute U V) :
-    ¬ ∃! T : E →L[ℝ] E, IsPaperDirectRotation U V T :=
+    ¬ ∃! T : E →L[ℝ] E, IsDirectRotation U V T :=
   proposition3_2_not_existsUnique U V hdefect hnonacute
 
 /-- **Davis--Kahan 1970, the Remark after Proposition 3.2, over a real Hilbert
@@ -302,8 +315,8 @@ zero, so (3.5) fails and the pair admits no direct rotation. -/
 theorem remark3_2_bilateralShift_separates_dimensionHypotheses_real
     (b : HilbertBasis ℤ ℝ E) :
     (bilateralShiftL b ∈ unitary (E →L[ℝ] E) ∧
-        bilateralShiftL b * DavisKahan.projection (coordinateHalfSpace b 0) =
-          DavisKahan.projection (coordinateHalfSpace b 1) * bilateralShiftL b) ∧
+        bilateralShiftL b * Submodule.starProjection (coordinateHalfSpace b 0) =
+          Submodule.starProjection (coordinateHalfSpace b 1) * bilateralShiftL b) ∧
       (Nonempty (coordinateHalfSpace b 0 ≃ₗᵢ[ℝ] coordinateHalfSpace b 1) ∧
         Nonempty ((coordinateHalfSpace b 0)ᗮ ≃ₗᵢ[ℝ]
           (coordinateHalfSpace b 1)ᗮ)) ∧
@@ -312,7 +325,7 @@ theorem remark3_2_bilateralShift_separates_dimensionHypotheses_real
       halmosTargetDefect (coordinateHalfSpace b 0)
           (coordinateHalfSpace b 1) = ⊥ ∧
       ¬ ∃ T : E →L[ℝ] E,
-        IsPaperDirectRotation (coordinateHalfSpace b 0)
+        IsDirectRotation (coordinateHalfSpace b 0)
           (coordinateHalfSpace b 1) T :=
   remark3_2_bilateralShift_separates_dimensionHypotheses b
 

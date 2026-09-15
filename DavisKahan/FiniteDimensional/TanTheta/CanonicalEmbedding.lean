@@ -11,7 +11,7 @@ import DavisKahan.FiniteDimensional.Residual.AngleEmbeddings
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 open Module (finrank)
@@ -24,7 +24,7 @@ variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace 𝕜 F]
 
 /-- Canonical directed-tangent specialization of the paper theorem. -/
 theorem tanThetaEmbedding_ritzResidual_le
-    (N : RectangularUnitarilyInvariantSeminorm 𝕜 F E)
+    (N : UnitarilyInvariantSeminorm 𝕜 F E)
     {A : E →ₗ[𝕜] E} (hA : A.IsSymmetric)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : IsInvariant A U)
     (X : F →ₗᵢ[𝕜] E) {β α δ : ℝ} (hβα : β ≤ α) (hδ : 0 < δ)
@@ -39,5 +39,5 @@ theorem tanThetaEmbedding_ritzResidual_le
     (tanThetaEmbedding U X) htan
 
 
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

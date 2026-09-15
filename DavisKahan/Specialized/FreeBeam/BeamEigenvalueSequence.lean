@@ -7,6 +7,9 @@ import DavisKahan.Specialized.FreeBeam.BeamSection9
 import ForTauCeti.MeasureTheory.LpInfiniteDimensional
 import ForTauCeti.Order.DiscreteEnumeration
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # The free beam's eigenvalues are an unbounded increasing sequence
 

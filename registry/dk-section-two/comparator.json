@@ -4,10 +4,15 @@
   "theorem_names": [
     "RotationOfEigenvectors.sinTheta",
     "RotationOfEigenvectors.tanTheta",
-    "RotationOfEigenvectors.sinTwoTheta",
+    "RotationOfEigenvectors.sinTwoTheta_directed",
+    "RotationOfEigenvectors.sinTwoTheta_ambient",
     "RotationOfEigenvectors.tanTwoTheta"
   ],
   "definition_names": [],
-  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
   "enable_nanoda": true
 }

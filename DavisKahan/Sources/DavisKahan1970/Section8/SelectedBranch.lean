@@ -7,6 +7,9 @@ Authors: Jon Crall, OpenAI GPT-5.6 Thinking
 import DavisKahan.InfiniteDimensional.SinTheta.Continuation.WitnessGraph
 import DavisKahan.InfiniteDimensional.Riccati.ContinuationWitnessOrientedBlocks
 
+open TauCeti.DavisKahan.Angle
+
+
 /-!
 # Davis--Kahan 1970, Section 8: the continuation-selected branch
 
@@ -49,11 +52,11 @@ variable {A V : H →L[ℂ] H} {s : Set ℝ}
 structure SelectedBranchConclusion
     (C : SpectralContinuationWitness A V s) : Prop where
   /-- The endpoint selected spectral subspace reduces `A + V`. -/
-  target_reduces : Reduces (A + V) C.targetSelectedSpectralSubspace
+  target_reduces : ContinuousLinearMap.Reduces (A + V) C.targetSelectedSpectralSubspace
   /-- The source and target selected spectral subspaces are connected by a
   unitary intertwining their orthogonal projections. -/
   unitary_transport : ∃ W : H →L[ℂ] H,
-    IsUnitaryOperator W ∧
+    TauCeti.LinearPMap.IsUnitaryOperator W ∧
       W ∘L C.sourceSelectedSpectralSubspace.starProjection =
         C.targetSelectedSpectralSubspace.starProjection ∘L W
   /-- The selected endpoint is on the strict quarter-acute branch. -/

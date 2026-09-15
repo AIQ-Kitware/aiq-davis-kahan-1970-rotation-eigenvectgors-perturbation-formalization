@@ -40,7 +40,7 @@ variable {H : Type v} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
   [CompleteSpace H]
 
 /-- A spectral point of a self-adjoint operator is its own real part. -/
-theorem coe_reCoord (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+theorem coe_reCoord (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (w : spectrum ℂ A) :
     ((TauCeti.BorelCalculus.reCoord w : ℝ) : ℂ) = (w : ℂ) := by
   have hAsa : IsSelfAdjoint A := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr hA
@@ -55,7 +55,7 @@ theorem coe_reCoord (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
 /-- The genuine Spectra projection-valued measure of a bounded self-adjoint
 operator. -/
 noncomputable def boundedSelfAdjointSpectralPVM
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A) :
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric) :
     TauCeti.ProjValMeasure H :=
   TauCeti.BorelCalculus.boundedPVM
     ((ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric).mpr hA)
@@ -63,7 +63,7 @@ noncomputable def boundedSelfAdjointSpectralPVM
 /-- The genuine measurable spectral projection of a bounded self-adjoint
 operator. -/
 noncomputable def boundedSelfAdjointSpectralProjection
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) : H →L[ℂ] H :=
   (boundedSelfAdjointSpectralPVM A hA).proj s hs
 
@@ -76,14 +76,14 @@ API is therefore kept local here rather than shared with
 `DavisKahan.SpectralTheory.PVMSubspace`, which has moved to
 `TauCeti.ProjValMeasure`. -/
 noncomputable def boundedSelfAdjointSpectralSubspace
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) : Submodule ℂ H :=
   (boundedSelfAdjointSpectralProjection A hA s hs).range
 
 /-- The selected bounded spectral range has the canonical orthogonal
 projection supplied by the underlying PVM projection. -/
 noncomputable instance boundedSelfAdjointSpectralSubspace_hasOrthogonalProjection
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) :
     (boundedSelfAdjointSpectralSubspace A hA s hs).HasOrthogonalProjection := by
   change (boundedSelfAdjointSpectralProjection A hA s hs).range.HasOrthogonalProjection
@@ -94,7 +94,7 @@ noncomputable instance boundedSelfAdjointSpectralSubspace_hasOrthogonalProjectio
 /-- **The bounded spectral projection is the continuous functional calculus of
 any continuous symbol agreeing with the indicator on the spectrum.** -/
 theorem boundedSelfAdjointSpectralProjection_eq_cfcL_of_agrees
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) (g : C(spectrum ℂ A, ℂ))
     (hg : ∀ w : spectrum ℂ A,
       g w = (TauCeti.BorelCalculus.reCoord ⁻¹' s).indicator (fun _ => (1 : ℂ)) w) :
@@ -105,7 +105,7 @@ theorem boundedSelfAdjointSpectralProjection_eq_cfcL_of_agrees
 /-- The selected spectral subspace is exactly the range of its spectral
 projection. -/
 @[simp] theorem boundedSelfAdjointSpectralSubspace_eq_range
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) :
     boundedSelfAdjointSpectralSubspace A hA s hs =
       (boundedSelfAdjointSpectralProjection A hA s hs).range :=
@@ -114,7 +114,7 @@ projection. -/
 /-- The genuine bounded spectral projection is the Mathlib star projection
 onto its selected spectral range. -/
 theorem boundedSelfAdjointSpectralProjection_eq_starProjection
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) :
     boundedSelfAdjointSpectralProjection A hA s hs =
       (boundedSelfAdjointSpectralSubspace A hA s hs).starProjection := by
@@ -140,7 +140,7 @@ theorem boundedSelfAdjointSpectralProjection_eq_starProjection
 /-- Every genuine bounded spectral projection is an orthogonal projection in
 the continuation-facing predicate. -/
 theorem boundedSelfAdjointSpectralProjection_isOrthogonalProjection
-    (A : H →L[ℂ] H) (hA : IsSelfAdjointOperator A)
+    (A : H →L[ℂ] H) (hA : A.IsSymmetric)
     (s : Set ℝ) (hs : MeasurableSet s) :
     IsOrthogonalProjection
       (boundedSelfAdjointSpectralProjection A hA s hs) := by

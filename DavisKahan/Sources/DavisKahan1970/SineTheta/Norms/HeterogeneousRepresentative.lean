@@ -25,7 +25,7 @@ universe u v
 namespace SameApproximationSingularSequence
 
 /-- Equal complete singular data gives equal source prefix gauges. -/
-theorem paperPrefixGauge_eq
+theorem prefixGauge_eq
     {𝕜 : Type u} [RCLike 𝕜]
     {E₁ F₁ E₂ F₂ : Type v}
     [NormedAddCommGroup E₁] [InnerProductSpace 𝕜 E₁] [CompleteSpace E₁]
@@ -56,7 +56,7 @@ theorem normingExtendedGauge_eq
   unfold SymmetricNormingFunction.extendedGauge
   apply iSup_congr
   intro n
-  rw [h.paperPrefixGauge_eq N n]
+  rw [h.prefixGauge_eq N n]
 
 /-- Equal complete singular data gives equivalent membership and equal source
 norms, even across different coordinate spaces. -/
@@ -77,7 +77,7 @@ theorem normingMem_iff_and_gauge_eq
 
 end SameApproximationSingularSequence
 
-namespace PaperSinThetaRepresentativeAcross
+namespace SinThetaRepresentativeAcross
 
 /-- Source norm membership and value transport across arbitrary coordinate
 spaces. -/
@@ -89,12 +89,12 @@ theorem normingMem_iff_and_gauge_eq
     [NormedAddCommGroup E₀] [InnerProductSpace 𝕜 E₀] [CompleteSpace E₀]
     [NormedAddCommGroup F₀] [InnerProductSpace 𝕜 F₀] [CompleteSpace F₀]
     (N : SymmetricNormingFunction) {canonical : E →L[𝕜] F}
-    (S : PaperSinThetaRepresentativeAcross (E₀ := E₀) (F₀ := F₀) canonical) :
+    (S : SinThetaRepresentativeAcross (E₀ := E₀) (F₀ := F₀) canonical) :
     (N.Mem S.operator ↔ N.Mem canonical) ∧
       N.gauge S.operator = N.gauge canonical :=
   S.same_singular_sequence.normingMem_iff_and_gauge_eq N
 
-end PaperSinThetaRepresentativeAcross
+end SinThetaRepresentativeAcross
 
 end ExactSinTheta
 end DavisKahan

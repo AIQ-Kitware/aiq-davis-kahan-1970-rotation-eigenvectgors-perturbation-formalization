@@ -70,24 +70,6 @@ variable {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpac
 
 namespace UnitarilyInvariantSeminorm
 
-/-- **The operator norm is a unitarily invariant norm.**  The witnessing
-instance: two-sided unitary invariance is precisely
-`opNorm_comp_linearIsometryEquiv` / `opNorm_linearIsometryEquiv_comp`.  Its
-existence shows the `UnitarilyInvariantSeminorm` structure is inhabited, so the
-part-III theorem below is not vacuous. -/
-@[expose]
-noncomputable def opNorm (𝕜 E : Type*) [RCLike 𝕜] [NormedAddCommGroup E]
-    [InnerProductSpace 𝕜 E] [FiniteDimensional 𝕜 E] : UnitarilyInvariantSeminorm 𝕜 E where
-  toFun A := ‖LinearMap.toContinuousLinearMap A‖
-  add_le' A B := by rw [map_add]; exact norm_add_le _ _
-  smul' a A := by rw [map_smul]; exact norm_smul a _
-  invariant' U V A := by
-    have hcomp : LinearMap.toContinuousLinearMap (U.toLinearMap ∘ₗ A ∘ₗ V.toLinearMap)
-        = (U : E →L[𝕜] E) ∘L LinearMap.toContinuousLinearMap A ∘L (V : E →L[𝕜] E) := by
-      ext x; simp
-    rw [hcomp]
-    simp
-
 /-- **The part-III Davis–Kahan sin-Θ theorem, every unitarily invariant norm.**
 Let `T, S` be symmetric, `U` a `T`-invariant subspace with quadratic form
 `≥ (c + g) ‖·‖²`, and `V` an `S`-invariant subspace with form `≤ c ‖·‖²`.  Then
@@ -95,7 +77,7 @@ for every unitarily invariant norm `N` and every `g > 0`,
 `N (V.starProjection ∘ U.starProjection) ≤ N (S − T) / g`.  The left side is
 `N (sin Θ)`, so this is the part-III `‖sin Θ‖ ≤ ‖S − T‖ / g` in every unitarily
 invariant norm; Frobenius and operator norm are the instances. -/
-theorem apply_starProjection_comp_starProjection_le (N : UnitarilyInvariantSeminorm 𝕜 E)
+theorem apply_starProjection_comp_starProjection_le (N : UnitarilyInvariantSeminorm 𝕜 E E)
     (hT : T.IsSymmetric) (hS : S.IsSymmetric)
     {U V : Submodule 𝕜 E} [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hUinv : ∀ x ∈ U, T x ∈ U) (hVinv : ∀ x ∈ V, S x ∈ V)
@@ -172,9 +154,11 @@ theorem frobenius_starProjection_comp_starProjection_le
     {c g : ℝ} (hg : 0 < g)
     (hU : ∀ x ∈ U, (c + g) * ‖x‖ ^ 2 ≤ RCLike.re ⟪T x, x⟫_𝕜)
     (hV : ∀ x ∈ V, RCLike.re ⟪S x, x⟫_𝕜 ≤ c * ‖x‖ ^ 2) :
-    frobenius 𝕜 E ((V.starProjection ∘L U.starProjection : E →L[𝕜] E) : E →ₗ[𝕜] E)
-      ≤ frobenius 𝕜 E (S - T) / g :=
-  (frobenius 𝕜 E).apply_starProjection_comp_starProjection_le hT hS hUinv hVinv hg hU hV
+    frobenius (𝕜 := 𝕜) (E := E) (F := E) ((V.starProjection ∘L U.starProjection : E →L[𝕜] E) :
+      E →ₗ[𝕜] E)
+      ≤ frobenius (𝕜 := 𝕜) (E := E) (F := E) (S - T) / g :=
+  (frobenius (𝕜 := 𝕜) (E := E) (F := E)).apply_starProjection_comp_starProjection_le hT hS
+    hUinv hVinv hg hU hV
 
 end UnitarilyInvariantSeminorm
 

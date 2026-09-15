@@ -24,7 +24,7 @@ multiplicity spaces are mixed by the competitor; it is not reintroduced.
 -/
 
 namespace TauCeti
-namespace DavisKahanTheory
+namespace DavisKahan.FiniteDimensional
 
 open scoped InnerProductSpace BigOperators
 open Module (finrank)
@@ -169,7 +169,7 @@ theorem directRotation_unique (U V : Submodule 𝕜 E)
 /-- Davis--Kahan Proposition 4.3: the direct rotation minimizes every UI norm
 of the positive displacement square. -/
 theorem directRotation_minimizes_displacementSquare_uiNorm
-    (N : UnitarilyInvariantSeminorm 𝕜 E) (U V : Submodule 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E) (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsAcute U V) (W : E ≃ₗᵢ[𝕜] E)
     (hmap : U.map W.toLinearMap = V) :
@@ -192,7 +192,7 @@ equivalent to the quantitative `TauCeti.DavisKahan.IsUniformlyAcute` by
 `TauCeti.isAcute_iff_projectionGap_lt_one`; the earlier reference here was to
 `DavisKahan.FiniteDimensional.IsAcute`, a name that has never existed. -/
 theorem directRotation_minimizes_restrictedDisplacement_uiNorm
-    (N : UnitarilyInvariantSeminorm 𝕜 E) (U V : Submodule 𝕜 E)
+    (N : UnitarilyInvariantSeminorm 𝕜 E E) (U V : Submodule 𝕜 E)
     [U.HasOrthogonalProjection] [V.HasOrthogonalProjection]
     (hacute : IsAcute U V) (W : E ≃ₗᵢ[𝕜] E)
     (hmap : U.map W.toLinearMap = V) :
@@ -210,9 +210,9 @@ theorem directRotation_minimizes_max_displacement
     ‖((directRotation U V hacute).toLinearMap - LinearMap.id).toContinuousLinearMap‖ ≤
       ‖(W.toLinearMap - LinearMap.id).toContinuousLinearMap‖ := by
   have h := directRotation_minimizes_displacementSquare_uiNorm
-    (UnitarilyInvariantSeminorm.opNorm 𝕜 E) U V hacute W hmap
+    (UnitarilyInvariantSeminorm.opNorm (𝕜 := 𝕜) (E := E) (F := E)) U V hacute W hmap
   have key : ∀ X : E →ₗ[𝕜] E,
-      UnitarilyInvariantSeminorm.opNorm 𝕜 E (displacementSquare X) =
+      UnitarilyInvariantSeminorm.opNorm (𝕜 := 𝕜) (E := E) (F := E) (displacementSquare X) =
         ‖(X - LinearMap.id).toContinuousLinearMap‖ ^ 2 := by
     intro X
     have : CompleteSpace E := FiniteDimensional.complete 𝕜 E
@@ -251,9 +251,9 @@ theorem directRotation_minimizes_sum_sq_basis_angles
   let R := (directRotation U V hacute).toLinearMap
   let AR := LinearMap.id - R
   let AW := LinearMap.id - W.toLinearMap
-  let N : UnitarilyInvariantSeminorm 𝕜 E :=
-    (RectangularUnitarilyInvariantSeminorm.nuclear
-      (𝕜 := 𝕜) (E := E) (F := E)).toSquare
+  let N : UnitarilyInvariantSeminorm 𝕜 E E :=
+    (UnitarilyInvariantSeminorm.nuclear
+      (𝕜 := 𝕜) (E := E) (F := E))
   have h := directRotation_minimizes_displacementSquare_uiNorm
     N U V hacute W hmap
   have hdispR : displacementSquare R = AR.adjoint ∘ₗ AR := by
@@ -264,12 +264,12 @@ theorem directRotation_minimizes_sum_sq_basis_angles
     ext x
     simp [displacementSquare, AW, map_sub,
       LinearMap.comp_apply]
-  change RectangularUnitarilyInvariantSeminorm.nuclear (displacementSquare R) ≤
-    RectangularUnitarilyInvariantSeminorm.nuclear
+  change UnitarilyInvariantSeminorm.nuclear (displacementSquare R) ≤
+    UnitarilyInvariantSeminorm.nuclear
       (displacementSquare W.toLinearMap) at h
   rw [hdispR, hdispW,
-    RectangularUnitarilyInvariantSeminorm.nuclear_adjoint_comp_self_eq_sum_sq_norm AR b,
-    RectangularUnitarilyInvariantSeminorm.nuclear_adjoint_comp_self_eq_sum_sq_norm AW b] at h
+    UnitarilyInvariantSeminorm.nuclear_adjoint_comp_self_eq_sum_sq_norm AR b,
+    UnitarilyInvariantSeminorm.nuclear_adjoint_comp_self_eq_sum_sq_norm AW b] at h
   have h' : (∑ i, ‖b i - directRotation U V hacute (b i)‖ ^ 2)
       ≤ ∑ i, ‖b i - W (b i)‖ ^ 2 := h
   simpa [norm_sub_rev] using h'
@@ -779,5 +779,5 @@ theorem angleComplexStructure_comp_self (U V : Submodule 𝕜 E)
     _ = -(A * A) * (G * G) := by rw [hD2]
     _ = -(A * A * (G * G)) := by noncomm_ring
     _ = -(A * G) := by rw [hproj]
-end DavisKahanTheory
+end DavisKahan.FiniteDimensional
 end TauCeti

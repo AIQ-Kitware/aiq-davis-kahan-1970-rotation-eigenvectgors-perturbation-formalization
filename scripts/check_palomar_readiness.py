@@ -33,11 +33,9 @@ only Lean core and the allowlisted Mathlib/Tau Ceti/CSLib closure; one stray
 `import ForTauCeti.…` five modules deep is invisible to a reader and fatal to a
 submission.
 
-Both submission layouts are handled. Palomar's ordinary layout puts one
-`comparator.json` at the repository root; a repository carrying several entries
-puts one per directory under `registry/`, each with its own `formalization.yaml`
-beside it, and selects both paths explicitly at submission time. Entries are
-discovered in whichever shape is present.
+Entry discovery is intentionally generic, but this repository uses one explicit
+registry entry at `registry/dk-section-two/`.  A root-level Comparator or metadata
+file would be a stale second submission surface and should not be present.
 
 **This script does not check Palomar's metadata schema itself.** Palomar's own
 verifier is the authority for that, it moves, and a hand-written second copy of
@@ -50,7 +48,7 @@ Axiom closure needs Lean and is behind `--with-axioms`, which shells out to
 
 Usage:
     python3 scripts/check_palomar_readiness.py
-    python3 scripts/check_palomar_readiness.py --entry yws-symmetric
+    python3 scripts/check_palomar_readiness.py --entry dk-section-two
     python3 scripts/check_palomar_readiness.py --with-axioms
 """
 from __future__ import annotations
@@ -116,6 +114,13 @@ def git(*args: str) -> str:
 # ---------------------------------------------------------------- repository
 
 def check_repository(rep: Report) -> None:
+    # This repository intentionally has one explicit registry entry.  These files
+    # belonged to an older, separate root submission and must not silently return.
+    for stale in ("Challenge.lean", "Solution.lean", "comparator.json",
+                  "formalization.yaml", "Palomar.lean"):
+        if (ROOT / stale).exists():
+            rep.fail(f"stale root submission surface is present: {stale}")
+
     if (ROOT / ".gitmodules").exists():
         rep.fail(".gitmodules exists; Palomar rejects a repository with submodules")
     gitlinks = [ln.split("\t")[-1] for ln in git("ls-files", "-s").splitlines()
@@ -388,11 +393,11 @@ def check_entry(rep: Report, cfg_path: pathlib.Path, *, with_axioms: bool) -> No
     # skeleton is not a finding -- warning about it trained readers to ignore this
     # checker's output.
     entry_meta = cfg_path.parent / "formalization.yaml"
-    if entry_meta.exists() and entry_meta != ROOT / "formalization.yaml":
+    if entry_meta.exists():
         check_metadata(rep, entry_meta)
         rep.note(f"{entry}: metadata at {rel(entry_meta)}, selected with this config")
     else:
-        rep.note(f"{entry}: uses the root formalization.yaml")
+        rep.fail(f"{entry}: no formalization.yaml beside the Comparator config")
 
     if with_axioms:
         check_axioms(rep, entry, cfg)
@@ -459,23 +464,14 @@ def main(argv: list[str] | None = None) -> int:
     rep = Report()
     check_repository(rep)
     check_lake(rep, minimum)
-    root_meta = ROOT / "formalization.yaml"
-    if root_meta.exists():
-        check_metadata(rep, root_meta)
-    else:
-        rep.fail("no root formalization.yaml")
-
     configs = sorted(ENTRY_DIR.glob("*/comparator.json"))
-    root_cfg = ROOT / "comparator.json"
-    if root_cfg.exists():
-        configs.insert(0, root_cfg)
     if args.entry:
         configs = [c for c in configs if entry_name(c) == args.entry]
         if not configs:
             print(f"no such entry: {args.entry}", file=sys.stderr)
             return 2
     if not configs:
-        rep.warn("no comparator.json at the root and none under registry/*/")
+        rep.fail("no comparator.json under registry/*/")
     for cfg in configs:
         check_entry(rep, cfg, with_axioms=args.with_axioms)
 

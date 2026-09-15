@@ -1,63 +1,159 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
 version: v0.4
+
 project:
-  name: 'Davis-Kahan 1970: four Section 2 theorem families'
-  description: 'Machine-checked Palomar presentation of the four headline Davis-Kahan Section 2 theorem families at the source''s Hilbert-space scope. The comparator exposes five ordinary theorem declarations: sin-Theta; the stronger residual tan-Theta estimate; the residual and whole-space sin-2-Theta estimates; and the stronger residual tan-2-Theta estimate. The redundant whole-space tangent clauses are not separately compared because the paper derives them after the residual bounds. No artificial Prop-valued result wrappers or long conjunctions are used.'
+  name: 'Davis-Kahan 1970: the four Section 2 rotation-of-eigenvectors theorem families'
+  description: >-
+    Machine-checked Lean 4 presentation of the four headline theorem families in
+    Section 2 of Davis and Kahan (1970): sin-Theta, tan-Theta, sin-2-Theta, and
+    tan-2-Theta. The Palomar Comparator exposes five nonredundant declarations:
+    the residual sin-Theta estimate, the residual tan-Theta estimate, both the
+    residual and whole-space sin-2-Theta estimates, and the residual tan-2-Theta
+    estimate. The statements cover arbitrary Hilbert dimension and are generic
+    over RCLike scalars. Their norm quantifier is presented in the Challenge by a
+    dimension-coherent symmetric norming function; the included formalization
+    proves via Fan dominance that the corresponding inequalities yield the
+    source-facing universal unitarily invariant norm estimates.
   authors:
-  - Jon Crall
-  - Edward Wang
+    - Jon Crall
+    - Edward Wang
   license: Apache-2.0
   responsible_maintainers:
-  - Jon Crall
+    - Jon Crall
+
 classification:
   arxiv:
-  - math.FA
-  - math.NA
+    - math.FA
+    - math.NA
   msc2020:
-  - 47A55
-  - 47A15
-  - 15A42
-  - 65F15
+    - 47A55
+    - 47A15
+    - 15A42
+    - 65F15
+
 sources:
-- title: The rotation of eigenvectors by a perturbation. III
-  authors:
-  - Chandler Davis
-  - William M. Kahan
-  id: doi:10.1137/0707001
-  type: paper
-  location: SIAM Journal on Numerical Analysis 7(1), 1970, 1-46
-  relationship: formalizes
-  note: The challenge follows the four unnumbered theorem families in Section 2. For sin-Theta it compares the printed residual estimate delta ||sin Theta_0|| <= ||R||; the paper explicitly notes that the corresponding whole-space UIN estimate does not follow from that one-gap hypothesis and gives a counterexample. For tan-Theta it compares the residual estimate delta ||tan Theta_0|| <= ||R||, after which the source proof derives the whole-space estimate from the two-corner geometry. For sin-2-Theta both residual and whole-space estimates are compared because the source proof obtains them as distinct public consequences of a stronger reflection argument. For tan-2-Theta it compares the residual estimate delta ||tan 2Theta_0|| <= 2||R||; the source explicitly states that the whole-space estimate follows by Lemma 6.1. The doubled-angle sine is represented directly rather than by indexwise doubling of ordered principal angles.
-  author_endorsement: not-contacted
+  - title: The rotation of eigenvectors by a perturbation. III
+    authors:
+      - Chandler Davis
+      - William M. Kahan
+    id: doi:10.1137/0707001
+    type: paper
+    location: SIAM Journal on Numerical Analysis 7(1), 1970, 1-46
+    relationship: formalizes
+    note: >-
+      The compared declarations present the four unnumbered theorem families from
+      Section 2 as five nonredundant inequalities. For sin-Theta the Challenge
+      compares the printed residual estimate; the paper explicitly shows that the
+      analogous whole-space UIN estimate does not follow from the one-gap
+      hypotheses. For tan-Theta the residual estimate is compared; the source proof
+      then derives the whole-space estimate from the common two-corner geometry.
+      Both sin-2-Theta clauses are compared because they are distinct consequences.
+      For tan-2-Theta the residual estimate is compared; the source states that the
+      whole-space estimate follows by Lemma 6.1. The Challenge uses a
+      symmetric-norming presentation of the norm quantifier. This is not literally
+      the entire infinite-dimensional UIN type, but the included development proves
+      the relevant quantifier equivalence for these inequalities through Ky Fan
+      dominance and provides source-facing where-defined/NormalizedUIN endpoints.
+    author_endorsement: not-contacted
+
+related_formalizations:
+  - id: AIQ-Kitware/aiq-dkps-formalization
+    relationship: builds-on
+    note: >-
+      Authoritative development and audit history. The proof-library snapshot used
+      for this standalone submission extraction was refreshed from parent commit
+      446aea238d960b6799768114ca3577b0bc0c2765. This repository commits and builds
+      the extracted proof source itself; it is not a thin Comparator-only wrapper.
+
 status:
-  scope: 'Compared here: five polished declarations representing the four Section 2 theorem families -- sinTheta, tanTheta (residual form), sinTwoTheta_directed, sinTwoTheta_ambient, and tanTwoTheta (residual form) -- over arbitrary RCLike scalar fields and arbitrary Hilbert dimension, with the source constants and right-hand sides. The rest of the 1970 paper remains in the included DavisKahan library but is outside this comparator entry.'
+  scope: >-
+    Compared here are five declarations: sinTheta; tanTheta in the stronger
+    residual form; sinTwoTheta_directed; sinTwoTheta_ambient; and tanTwoTheta in
+    the stronger residual form. The Challenge is Mathlib-only and defines the
+    source vocabulary it needs locally. The statements are generic over RCLike and
+    arbitrary Hilbert dimension and use unbounded partial maps where the source
+    scope requires them. Whole-space tan-Theta and tan-2-Theta endpoints, the
+    source-facing normalized/where-defined UIN facades, and the rest of the 1970
+    paper are proved in the included DavisKahan library but are not separate
+    Comparator declarations in this entry. The entry makes no claim that every
+    result of the 1970 paper is selected by Comparator.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []
+
 automation:
   methods:
-  - method: agent
-    models:
-    - claude-opus-5
-    - claude-opus-4-8
-    - claude-fable-5
-    - gpt-5.6-terra
-    - gpt-5.6-sol
-    framework: Claude Code
-    tool_setup: Agents worked directly in the authoritative repository with the Lean toolchain, running `lake build` and that repository's gate suite; the libraries here are the extraction of the result. Model attribution is recorded per declaration in the module provenance headers carried into this repository, and per commit in Co-Authored-By trailers and in the measured token ledger, both of which stay in the authoritative repository along with the gate suite.
-    cost:
-      wall_time: not tracked as elapsed time; the ledger records 44657 assistant turns across 1591 accounted commits
-      spend_usd: subscription-based; not tracked per commit
-      hardware: API-only
-    prompting_notes: 'Work was directed by task, not by prompt template: a scope decision from the maintainer, then autonomous proof and audit work against the source censuses. Adversarial review prompts are checked in under `dev/` and are part of the audit record.'
-  - method: manual
-    framework: n/a
-    tool_setup: The human maintainer set scope and priorities, ran builds and audits, inspected theorem interfaces, coordinated subject-matter discussion with the applied-paper authors, adjudicated source-fidelity questions, accepted or rejected proposed repairs, and decided repository policy.
-  spend_usd: subscription-based; not tracked
-  notes: This is a heavily agent-authored formalization with human direction and review. The Lean kernel is the proof checker, and it checks the libraries here exactly as it checks them upstream. The mechanical gates that additionally audit dependency layering, axiom closure, census consistency and comparator statement equality run in the authoritative repository and are deliberately not duplicated here. Those checks do not establish that a Lean statement says what a paper says, which is why every source paper carries a separate clause-by-clause semantic review, also maintained there.
+    - method: agent
+      models:
+        - claude-opus-5
+        - claude-opus-4-8
+        - claude-fable-5
+      framework: Claude Code
+      tool_setup: >-
+        Claude agents worked in the authoritative development repository with the
+        Lean toolchain available, running focused builds and repository audit
+        tooling. The resulting proof-library source is copied into this standalone
+        submission extraction.
+      prompting_notes: >-
+        Work was directed by theorem/source-census tasks and adversarial review
+        prompts rather than one fixed prompt template. Source correspondence and
+        proof architecture were repeatedly reviewed separately from compilation.
+    - method: agent
+      models:
+        - gpt-5.6-sol
+        - gpt-5.6-terra
+      framework: ChatGPT
+      tool_setup: >-
+        OpenAI models were used for adversarial source review, theorem-interface
+        design, scalar-generic API work, Palomar statement/metadata review, and
+        direct filesystem overlays. The human maintainer ran the authoritative
+        Lean builds and returned compiler diagnostics for iterative correction.
+      prompting_notes: >-
+        The Palomar pass compared the public Challenge against the original-paper
+        transcription and the compiling parent API, including a hostile review of
+        the directed/ambient distinction and the unitarily-invariant-norm boundary.
+    - method: manual
+      framework: n/a
+      tool_setup: >-
+        The human maintainer chose scope and priorities, supplied and checked the
+        source transcription, ran builds and verification commands, adjudicated
+        source-fidelity questions, reviewed public theorem interfaces, and decides
+        what commit is published and submitted.
+  spend_usd: subscription-based; not tracked per commit
+  notes: >-
+    This is a heavily agent-assisted formalization with human direction and review.
+    AI systems are credited here rather than as human authors. Lean's kernel checks
+    the proofs; source correspondence is tracked separately through the source
+    census, result ledger, and repeated adversarial semantic reviews in the
+    authoritative development repository.
+
 fidelity:
-  divergences: 'No conclusion is weakened. The comparator intentionally omits the separately displayed whole-space tan-Theta and tan-2-Theta clauses because the source proofs derive those from the stronger residual estimates plus the theorem context; this is a presentation choice, not a mathematical weakening. Both sin-2-Theta clauses remain separate because neither printed clause is merely the other with a larger right-hand side. The sin-Theta entry is residual-only, matching the source theorem: Davis and Kahan explicitly give a counterexample to the ambient UIN estimate under only the one-gap sin-Theta hypotheses.'
+  divergences: >-
+    The Challenge's SymmetricNormingFunction is a canonical presentation of the
+    source norm quantifier, not literally the entire class of infinite-dimensional
+    unitarily invariant norms as a Lean type. The included development formally
+    proves that the estimates quantified over all symmetric norming functions are
+    equivalent, via Ky Fan/Fan dominance, to the corresponding source-facing UIN
+    estimates; source-facing where-defined and NormalizedUnitaryInvariantNorm
+    endpoints are included in the library. The Challenge also generalizes the
+    scalar parameter to arbitrary RCLike. Whole-space tan-Theta and tan-2-Theta
+    clauses are not separately selected by Comparator because the source derives
+    them after the residual bounds under the common theorem setup; their formal
+    endpoints remain in the library. The one-gap sin-Theta entry intentionally has
+    no ambient UIN clause, matching the source counterexample and subsequent
+    separate symmetric sin-Theta proposition.
+
 review:
   status: self-assessed
   reviewers:
-  - Jon Crall
-  notes: The comparator surface was audited against the modernized transcription of the original 1970 paper and against the compiling parent formalization. The public entry uses five ordinary theorem declarations rather than Prop-valued packaging structures. Kernel verification is provided by building the Challenge and Solution modules; source-semantic review remains distinct from compiler verification.
+    - Jon Crall
+  notes: >-
+    No external peer review is claimed. The selected Challenge and Solution modules
+    have been kernel-built successfully at the pinned toolchain. The standalone
+    repository has a static Palomar readiness checker and a verifier that builds all
+    declared libraries and, when Comparator and NanoDa are installed, runs the real
+    exporter and independent kernel check. The theorem selection and informal
+    account were audited against a modernized transcription of the original 1970
+    paper, including the source's counterexample to an ambient one-gap sin-Theta
+    UIN bound. Compiler verification and source-semantic fidelity are treated as
+    separate review axes.

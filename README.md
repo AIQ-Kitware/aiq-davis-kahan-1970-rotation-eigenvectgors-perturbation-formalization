@@ -1,162 +1,169 @@
-# Davis–Kahan 1970: the operator-norm sin-Θ theorem, in Lean 4
+# Davis–Kahan 1970 Section 2 theorems — Lean 4 / Palomar submission
 
-A machine-checked proof of the operator-norm sin-Θ theorem of Chandler Davis and
-W. M. Kahan, *The rotation of eigenvectors by a perturbation. III*, SIAM Journal on
-Numerical Analysis 7(1), 1970, 1–46, <https://doi.org/10.1137/0707001>.
+This repository is a self-contained Palomar submission extraction for the four
+headline theorem families from Section 2 of Chandler Davis and W. M. Kahan,
+*The rotation of eigenvectors by a perturbation. III*, SIAM Journal on Numerical
+Analysis 7(1), 1970, 1–46, DOI 10.1137/0707001.
 
-## The result
+The selected Comparator entry is:
 
-Let `T` and `S` be symmetric operators on a finite-dimensional inner product space
-over `ℝ` or `ℂ`. Let `U` be `T`-invariant with the quadratic form of `T` at or
-above `c + g` on it, and `V` be `S`-invariant with the form of `S` at or below `c`
-on it — so `U` and `V` sit on opposite sides of a spectral gap of width `g > 0`. If
-`‖S − T‖ ≤ ε`, then
+```text
+registry/dk-section-two/comparator.json
+```
 
-  `‖P_V ∘ P_U‖ ≤ ε / g`
+It compares five ordinary theorem declarations in
+`Palomar/DKSectionTwo/Challenge.lean` against matching proofs in
+`Palomar/DKSectionTwo/Solution.lean`:
 
-for the orthogonal projections `P_U`, `P_V`. The left side is `‖sin Θ‖`, the
-largest sine of a principal angle between the two subspaces.
+* `RotationOfEigenvectors.sinTheta`
+* `RotationOfEigenvectors.tanTheta`
+* `RotationOfEigenvectors.sinTwoTheta_directed`
+* `RotationOfEigenvectors.sinTwoTheta_ambient`
+* `RotationOfEigenvectors.tanTwoTheta`
+
+There is deliberately **no second root-level Palomar entry**.  The repository has
+one submission surface, one Comparator configuration, and one
+`formalization.yaml` for that surface.
+
+## What the result says
+
+Davis and Kahan study how much invariant subspaces can rotate under a Hermitian
+perturbation.  Their four Section 2 theorem families bound trigonometric
+functions of the principal angles between the original and perturbed subspaces
+in terms of a spectral gap and either a trial residual or the perturbation
+itself.
+
+The Palomar entry exposes the nonredundant polished conclusions as follows:
+
+* **sin Θ:** `δ · N(sin Θ₀) ≤ N(R)`;
+* **tan Θ:** `δ · N(tan Θ₀) ≤ N(R)`, together with the theorem's pole exclusion;
+* **sin 2Θ, residual:** `δ · N(sin 2Θ₀) ≤ 2 N(R)`;
+* **sin 2Θ, whole-space:** `δ · N(sin 2Θ) ≤ 2 N(H)`;
+* **tan 2Θ:** `δ · N(tan 2Θ₀) ≤ 2 N(R)`, again with pole exclusion.
+
+The paper also displays whole-space tan Θ and tan 2Θ inequalities.  They are not
+separate Comparator declarations here because the source proofs derive them
+after the residual estimates from the common block geometry; the included
+`DavisKahan` library contains the ambient endpoints as well.  By contrast both
+sin 2Θ conclusions are retained because they are genuinely distinct public
+consequences.  The ordinary one-gap sin Θ theorem has no corresponding ambient
+unitarily-invariant-norm conclusion: Davis and Kahan explicitly give a
+counterexample and then state a separate symmetric sin Θ result under a second
+gap.
 
 ## Why it matters
 
-This is the estimate that makes computed invariant subspaces trustworthy: it turns
-a bound on an operator *residual* into a bound on a subspace *angle*, which is what
-an eigenvalue computation actually needs. It is standard equipment in numerical
-linear algebra and operator theory, and its statistical descendants — most directly
-the Yu–Wang–Samworth variant — are cited across spectral methods.
+These are foundational spectral-subspace perturbation estimates.  They turn
+spectral separation plus a perturbation or residual bound into quantitative
+control of invariant-subspace error.  That mechanism underlies eigenvector and
+eigenspace perturbation theory in numerical linear algebra, operator theory,
+and many later statistical and data-analysis variants of Davis–Kahan.
 
-Three features are worth naming. The bound is dimension-free: only `ε` and `g`
-appear on the right. The separation hypothesis is one-sided and stated by quadratic
-forms, which is how the theorem is used — one needs no access to the spectra
-themselves. And `U` and `V` need not be spectral subspaces of any particular
-eigenvalue set; invariance plus the form separation suffices.
+The formalization is infinite-dimensional and permits the unbounded
+self-adjoint/partial-map setting represented in the paper and its Appendix.  The
+Palomar statements are scalar-generic over Mathlib's `RCLike` abstraction, so
+the same declarations cover the real and complex cases.
 
-## Fidelity
+## The norm quantifier
 
-This entry formalizes the operator-norm form with no added hypothesis and no
-weakened conclusion.
+The paper quantifies over arbitrary normalized unitarily invariant norms.  The
+Mathlib-only Challenge represents that quantifier by a dimension-coherent
+`SymmetricNormingFunction` built from finite-dimensional two-sided unitarily
+invariant seminorms and extended through approximation singular values.
 
-It is deliberately narrower than the paper. Davis and Kahan state their results for
-a separable Hilbert space, unbounded self-adjoint operators, and arbitrary
-unitarily invariant norms, and the `DavisKahan` library included here formalizes them at that
-scope. That general statement cannot be written in a Palomar Challenge today: it
-needs a unitarily invariant norm class and a spectral-subspace API that Mathlib does
-not have, and importing the local ones would put the whole development inside the
-trusted statement surface, which is exactly what a Challenge is supposed to avoid.
+That Lean type is **not literally the entire infinite-dimensional UIN class**.
+For example, the included development discusses Fan-dominant UIN norms that are
+not generated by a symmetric gauge.  What makes the Challenge presentation
+source-faithful at the level of these inequalities is a formalized Fan-dominance
+bridge: simultaneous bounds for all symmetric norming functions are equivalent
+to the corresponding Ky Fan majorization statements, which imply the estimates
+for the source-facing where-defined UIN abstraction.  The relevant development
+includes `symmetricNorming_iff_kyFanDominant` and source-facing
+`NormalizedUnitaryInvariantNorm` / where-defined endpoints.
 
-The general theorem surface is collected in
-`DavisKahan/Sources/DavisKahan1970/SectionTwo.lean`. It exposes scalar-generic
-`RCLike` endpoints for the four headline theorem families, including both the
-residual and whole-space forms where those are independently useful.
-`SectionTwoUsage.lean` exercises those endpoints from ordinary operator-theory
-hypotheses.
+This distinction is recorded explicitly in
+`registry/dk-section-two/formalization.yaml`.  The Challenge does not claim that
+`SymmetricNormingFunction` and the full UIN class are definitionally the same
+object.
 
-One disclosure about the wider formalization, outside this Palomar entry:
-printed Proposition 4.4 of the paper is false, and the `DavisKahan` library
-carries a machine-checked counterexample satisfying its printed hypotheses
-together with the natural Q-norm repair.
+## Fidelity and scope
 
-## Where this comes from
+The five compared declarations are a compact Palomar presentation of the four
+headline Section 2 theorem families, not a claim that this Comparator entry
+covers every proposition in the 1970 paper.  The included `DavisKahan` library
+contains the wider development, including source-facing UIN endpoints, ambient
+tangent forms, direct-rotation results, later sections, sharpness results, and a
+machine-checked counterexample to printed Proposition 4.4 together with its
+repair.  Those are outside this Comparator entry.
 
-This repository is an **extraction**, not a fork with a life of its own.
-[`AIQ-Kitware/aiq-dkps-formalization`](https://github.com/AIQ-Kitware/aiq-dkps-formalization)
-is authoritative: mathematics is developed, reviewed and audited there, and this
-repository is a snapshot of the `ForTauCeti` and `DavisKahan` packages taken from it, without the surrounding history and
-without the packages that are not needed here. It exists so the entry can be read,
-built and checked on its own, and so a reader is not asked to clone a much larger
-multi-paper development to see one theorem's proof.
+The Challenge is intentionally self-contained against Mathlib rather than
+importing the local proof library into the statement surface.  Every local
+notion used by a compared theorem has a mathematical docstring there.  The
+Solution adapts those local definitions to the corresponding declarations in
+the extracted proof libraries.
 
-The practical consequence: **send changes upstream.** A fix made here and not made
-there is lost at the next extraction. When the upstream packages move, this snapshot
-is refreshed from them.
+## Provenance
 
-What is deliberately *not* extracted: the source-order census, the distilled source
-specification, the semantic-audit apparatus and the gate scripts. Those track coverage
-of the whole 1970 paper and are maintenance machinery for the authoritative repository;
-duplicating them here would create a second copy to keep honest. Accordingly **this
-repository makes no completion claim about the paper** -- it presents a proved theorem
-and the development it lives in.
+The development and audit history are maintained in
+[`AIQ-Kitware/aiq-dkps-formalization`](https://github.com/AIQ-Kitware/aiq-dkps-formalization).
+This repository is a submission extraction: it commits the `ForTauCeti` and
+`DavisKahan` proof source needed by the Solution and builds that source directly,
+so it is not merely a Comparator shim around an external checkout.  The parent
+repository remains the maintenance origin; fixes should be made there and then
+refreshed into this extraction.
 
-The extraction is a copy of the package directories, so every module keeps its
-upstream path, namespace and provenance header. The libraries build against a pinned
-Mathlib and a pinned Tau Ceti, recorded in `lakefile.toml` and `lake-manifest.json`.
+The proof-library snapshot used to prepare this submission was taken from parent
+commit `446aea238d960b6799768114ca3577b0bc0c2765`.  Palomar-specific Challenge,
+Solution, metadata, and verification files are maintained in this standalone
+repository.
 
-## Two entries
+## Repository layout
 
-| entry | what is compared |
-| --- | --- |
-| root (`comparator.json`) | the focused operator-norm sin-Θ bound |
-| `registry/dk-section-two/` | the four headline Section 2 theorem families, exposed as five polished theorem declarations |
-
-The comprehensive Section 2 entry follows the source proof structure rather than
-forcing every printed display into an artificial wrapper type:
-
-* `sinTheta` -- the residual `sin Θ` theorem;
-* `tanTheta` -- the stronger residual `tan Θ` estimate; the paper derives its
-  whole-space estimate afterward from this bound and the block geometry;
-* `sinTwoTheta_directed` and `sinTwoTheta_ambient` -- both public `sin 2Θ`
-  conclusions, retained separately because they are genuinely distinct consequences;
-* `tanTwoTheta` -- the stronger residual `tan 2Θ` estimate; the paper states that
-  the whole-space estimate follows by Lemma 6.1.
-
-This is intentionally five ordinary declarations, not four Prop-valued result
-records and not a long conjunction. In particular, the ambient `sin Θ` UIN
-estimate is not silently added: Davis and Kahan explicitly show that it does not
-follow under the single-gap hypotheses of their `sin Θ` theorem. A symmetric
-ambient `sin Θ` theorem requires the additional opposite gap.
-
-The doubled-angle sine is represented by its own operator rather than by
-indexwise doubling of the ordered single-angle sequence; `t ↦ sin 2t` is not
-monotone on `[0, π/2]`.
-
-## Layout
-
-```
-Challenge.lean      the root Palomar statement, against Mathlib alone, with a
-                    deliberate statement-side hole
-Solution.lean       the same declaration, supplied from the libraries below
-comparator.json     what Comparator compares there, and the permitted axioms
-formalization.yaml  registry metadata for the root entry
-Palomar/            one directory per additional entry:
-  DKSectionTwo/     Challenge.lean and Solution.lean for the Section 2 entry
-registry/           one directory per additional entry, with its comparator.json
-                    and its formalization.yaml
-ForTauCeti/         reusable mathematics, in its final `TauCeti.*` namespaces
-DavisKahan/         the Davis--Kahan development, whose four Section 2 theorems
-                    are inventoried in
-                    DavisKahan/Sources/DavisKahan1970/SectionTwo.lean
+```text
+Palomar/DKSectionTwo/Challenge.lean  small Mathlib-only statement surface
+Palomar/DKSectionTwo/Solution.lean   matching proofs from the libraries below
+registry/dk-section-two/
+  comparator.json                   Comparator declaration list
+  formalization.yaml                Palomar/formalization.yaml metadata
+ForTauCeti/                          reusable supporting mathematics
+DavisKahan/                          Davis–Kahan formalization
+DavisKahan.lean
+ForTauCeti.lean
+lakefile.toml
+lake-manifest.json
+lean-toolchain
+LICENSE
+scripts/check_palomar_readiness.py
+scripts/verify_palomar.sh
 ```
 
-`lake build` builds the root entry. `lake build ForTauCeti`, `lake build DavisKahan`
-and the concrete module targets build the entries, for example
-`lake build Palomar.DKSectionTwo.Challenge Palomar.DKSectionTwo.Solution`.
+## Local verification
 
-## Verifying locally
+The intended local preflight is:
 
 ```bash
-python3 scripts/check_palomar_readiness.py        # static preflight, seconds
-scripts/verify_palomar.sh                         # + build + Comparator + NanoDa
-scripts/verify_palomar.sh --fake-landrun          # if landrun is unavailable
+lake build Palomar.DKSectionTwo.Challenge
+lake build Palomar.DKSectionTwo.Solution
+python3 scripts/check_palomar_readiness.py
+scripts/verify_palomar.sh --static-only
 ```
 
-The preflight checks what can be checked without Lean: no submodules, no LFS
-pointers, no committed build artifacts, one root licence, every dependency pinned
-to a credential-free GitHub URL at a full SHA, the metadata shape, the Comparator
-configuration keys, and — the one that matters — that the Challenge's *transitive*
-import closure reaches no module in this repository. `verify_palomar.sh` then
-builds every declared library, including the `Challenge` library that the default
-build deliberately excludes because it carries statement-side holes, and runs the
-real Comparator with the independent NanoDa kernel.
+The static-only verifier confirms repository shape and kernel builds but, as it
+prints, is **not** a Comparator pass.  Before submission, when Comparator,
+`lean4export`, and NanoDa are available at the pinned Lean version, run:
 
-Both scripts live here rather than upstream because they ask whether *this*
-repository verifies. That is not a question the development repository can answer
-about itself.
+```bash
+scripts/verify_palomar.sh
+```
 
-That is local verification only. It is not Palomar verification, not acceptance,
-and not registration.
+The submission form should use:
 
-## Status
+```text
+project directory:          repository root
+Comparator configuration:  registry/dk-section-two/comparator.json
+formalization metadata:     registry/dk-section-two/formalization.yaml
+```
 
-Preparation. Nothing here claims registration, acceptance, or peer review by the
-Palomar Registry.
-
+A Palomar submission must pin the final public Git commit by its full
+40-character SHA.  Local verification is not Palomar verification, acceptance,
+or registration.

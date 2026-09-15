@@ -3,7 +3,7 @@ version = "0.1.0"
 # The Palomar entry is what this repository exists to present, so it is the only
 # default target. The extracted libraries build on demand: `lake build ForTauCeti`,
 # `lake build DavisKahan`.
-defaultTargets = ["Solution"]
+defaultTargets = ["Palomar"]
 
 [leanOptions]
 pp.unicode.fun = true
@@ -37,17 +37,8 @@ leanOptions = { warningAsError = true, weak.linter.mathlibStandardSet = true, we
 [[lean_lib]]
 name = "DavisKahan"
 
-# The Palomar entry. `Challenge` states the theorem against Mathlib alone and
-# contains a deliberate statement-side hole; `Solution` supplies the same
-# declaration from the libraries above. Comparator checks that the two agree.
-[[lean_lib]]
-name = "Challenge"
-
-[[lean_lib]]
-name = "Solution"
-
-# The Section 2 Palomar entry. `Palomar/DKSectionTwo/Challenge.lean` presents the
-# four headline theorem families as five polished theorem declarations against
+# The single Palomar entry. `Palomar/DKSectionTwo/Challenge.lean` presents the
+# four headline Section 2 theorem families as five polished declarations against
 # Mathlib alone; `Palomar/DKSectionTwo/Solution.lean` proves exactly those declarations
 # from the extracted libraries. Comparator checks that the theorem types agree.
 [[lean_lib]]

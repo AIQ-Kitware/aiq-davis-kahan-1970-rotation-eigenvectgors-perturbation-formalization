@@ -11,8 +11,7 @@
 #
 # Usage:
 #   scripts/verify_palomar.sh                    # every entry
-#   scripts/verify_palomar.sh yws-symmetric      # one entry, by directory name
-#   scripts/verify_palomar.sh root               # the root comparator.json
+#   scripts/verify_palomar.sh dk-section-two    # the selected entry
 #   scripts/verify_palomar.sh --static-only      # skip the exporter
 #   scripts/verify_palomar.sh --fake-landrun     # no landrun available
 #
@@ -54,18 +53,13 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-# Entry discovery covers both submission layouts: Palomar's ordinary one, with a
-# single `comparator.json` at the repository root, and the multi-entry one, with
-# `registry/<entry>/comparator.json` selected explicitly at submission time.
+# Entry discovery remains generic, but this repository intentionally uses only
+# `registry/dk-section-two/comparator.json`; there is no stale root entry.
 config_for() {
-    case "$1" in
-        root) echo "comparator.json" ;;
-        *)    echo "registry/$1/comparator.json" ;;
-    esac
+    echo "registry/$1/comparator.json"
 }
 
 if [[ ${#ENTRIES[@]} -eq 0 ]]; then
-    [[ -f comparator.json ]] && ENTRIES+=("root")
     if [[ -d registry ]]; then
         while IFS= read -r cfg; do
             ENTRIES+=("$(basename "$(dirname "$cfg")")")
@@ -74,7 +68,7 @@ if [[ ${#ENTRIES[@]} -eq 0 ]]; then
 fi
 
 if [[ ${#ENTRIES[@]} -eq 0 ]]; then
-    echo "no comparator.json at the root and none under registry/*/" >&2
+    echo "no comparator.json under registry/*/" >&2
     exit 2
 fi
 

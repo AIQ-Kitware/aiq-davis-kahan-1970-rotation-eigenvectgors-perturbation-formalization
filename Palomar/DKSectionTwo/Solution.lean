@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Kitware, Inc. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Jon Crall, Claude Opus 5
+Authors: Jon Crall
 -/
 import DavisKahan.Sources.DavisKahan1970.SectionTwo
 
@@ -780,7 +780,7 @@ theorem sinTheta (N : SymmetricNormingFunction)
 
 /-- **The `tan Θ` theorem, in its stronger residual form.** -/
 theorem tanTheta (N : SymmetricNormingFunction)
-    {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
+    {A : E →ₗ.[𝕜] E} (_hA : IsSelfAdjoint A)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : Reduces A V)
     {α δ : ℝ} (hδ : 0 < δ)
     (hunwanted : SemiboundedBelow (block A Vᗮ hV.orthogonal) (α + δ))
@@ -894,7 +894,7 @@ theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
 theorem tanTwoTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
-    (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)
+    (H : E →L[𝕜] E) (_hH : IsSelfAdjoint H)
     (hoffdiag₀ : U.starProjection ∘L H ∘L U.starProjection = 0)
     (hoffdiag₁ : Uᗮ.starProjection ∘L H ∘L Uᗮ.starProjection = 0)
     {α δ : ℝ} (hδ : 0 < δ)

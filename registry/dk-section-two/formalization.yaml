@@ -47,7 +47,7 @@ sources:
       analogous whole-space UIN estimate does not follow from the one-gap
       hypotheses. For tan-Theta the residual estimate is compared; the source proof
       then derives the whole-space estimate from the common two-corner geometry.
-      Both sin-2-Theta clauses are compared because they are distinct consequences.
+      Both sin-2-Theta clauses are compared because they are distinct consequences; the ambient clause uses the printed gap on the two perturbed A+H blocks relative to the perturbed reducing subspace.
       For tan-2-Theta the residual estimate is compared; the source states that the
       whole-space estimate follows by Lemma 6.1. The Challenge uses a
       symmetric-norming presentation of the norm quantifier. This is not literally
@@ -79,7 +79,27 @@ status:
     result of the 1970 paper is selected by Comparator.
   sorry_count: 0
   sorry_in_definitions: 0
-  axioms: []
+  main_results:
+    - declaration: RotationOfEigenvectors.sinTheta
+      file: Palomar/DKSectionTwo/Solution.lean
+      sorry_count: 0
+      comparator_config: registry/dk-section-two/comparator.json
+    - declaration: RotationOfEigenvectors.tanTheta
+      file: Palomar/DKSectionTwo/Solution.lean
+      sorry_count: 0
+      comparator_config: registry/dk-section-two/comparator.json
+    - declaration: RotationOfEigenvectors.sinTwoTheta_directed
+      file: Palomar/DKSectionTwo/Solution.lean
+      sorry_count: 0
+      comparator_config: registry/dk-section-two/comparator.json
+    - declaration: RotationOfEigenvectors.sinTwoTheta_ambient
+      file: Palomar/DKSectionTwo/Solution.lean
+      sorry_count: 0
+      comparator_config: registry/dk-section-two/comparator.json
+    - declaration: RotationOfEigenvectors.tanTwoTheta
+      file: Palomar/DKSectionTwo/Solution.lean
+      sorry_count: 0
+      comparator_config: registry/dk-section-two/comparator.json
 
 automation:
   methods:
@@ -157,3 +177,64 @@ review:
     paper, including the source's counterexample to an ambient one-gap sin-Theta
     UIN bound. Compiler verification and source-semantic fidelity are treated as
     separate review axes.
+
+
+alignment:
+  namespace: RotationOfEigenvectors
+  statements:
+    - source: Davis--Kahan 1970, Section 2, sin Theta theorem (residual conclusion)
+      lean: RotationOfEigenvectors.sinTheta
+      module: Palomar.DKSectionTwo.Solution
+      status: adapted
+      note: >-
+        The Challenge states the printed residual estimate at the unbounded
+        RCLike scope. Its SymmetricNormingFunction quantifier is the canonical
+        symmetric-norming presentation; the included Fan-dominance development
+        supplies the bridge to the source-facing universal UIN formulation.
+        The included source-facing alias is
+        TauCeti.DavisKahan1970.SectionTwo.sinTheta.
+    - source: Davis--Kahan 1970, Section 2, tan Theta theorem (residual conclusion)
+      lean: RotationOfEigenvectors.tanTheta
+      module: Palomar.DKSectionTwo.Solution
+      status: adapted
+      note: >-
+        This is the stronger residual/directed conclusion together with tangent
+        pole exclusion. The paper subsequently derives its whole-space tangent
+        inequality from the common block geometry. The Challenge uses the same
+        symmetric-norming/Fan-dominance presentation of the UIN quantifier.
+        The corresponding included source API is
+        TauCeti.DavisKahan1970.SectionTwo.tanTheta_directed.
+    - source: Davis--Kahan 1970, Section 2, sin 2Theta theorem (residual conclusion)
+      lean: RotationOfEigenvectors.sinTwoTheta_directed
+      module: Palomar.DKSectionTwo.Solution
+      status: adapted
+      note: >-
+        The Challenge uses the ideal-block representative directedDoubleSine.
+        The included development proves that it carries the source directed
+        double-angle singular sequence, so every symmetric-norming value agrees.
+        Fan dominance supplies the source-facing UIN bridge. The corresponding
+        included source API is
+        TauCeti.DavisKahan1970.SectionTwo.sinTwoTheta_directed.
+    - source: Davis--Kahan 1970, Section 2, sin 2Theta theorem (whole-space conclusion)
+      lean: RotationOfEigenvectors.sinTwoTheta_ambient
+      module: Palomar.DKSectionTwo.Solution
+      status: adapted
+      note: >-
+        This declaration uses the printed operator roles: U reduces A, V reduces
+        A+H, and the gap is on the two V-blocks of A+H (Lambda_0, Lambda_1).
+        ambientDoubleSine is the reflected-projector representative; the included
+        generic theorem proves it has the same complete approximation-number
+        sequence as the paper's ambient functional-calculus sin 2Theta operator.
+        Fan dominance supplies the source-facing UIN bridge. The canonical
+        perturbed-gap source API is
+        TauCeti.DavisKahan1970.SectionTwo.sinTwoTheta_ambient.
+    - source: Davis--Kahan 1970, Section 2, tan 2Theta theorem (residual conclusion)
+      lean: RotationOfEigenvectors.tanTwoTheta
+      module: Palomar.DKSectionTwo.Solution
+      status: adapted
+      note: >-
+        This is the residual/directed conclusion with branch-free tangent
+        definedness. The source states that the whole-space estimate follows by
+        Lemma 6.1. The Challenge uses the same symmetric-norming/Fan-dominance
+        presentation of the UIN quantifier. The corresponding included source
+        API is TauCeti.DavisKahan1970.SectionTwo.tanTwoTheta_directed.

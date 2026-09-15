@@ -511,17 +511,26 @@ theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
       δ * N.norm (directedDoubleSine U V) ≤ 2 * N.norm D.residual := by
   sorry
 
-/-- **The whole-space clause of the `sin 2Θ` theorem.**  Unlike the tangent
-families, this is retained as a separate public statement rather than being
-presented as a corollary of the residual clause. -/
+/-- **The whole-space clause of the `sin 2Θ` theorem, with the printed
+operator roles.**  `U` reduces the unperturbed operator `A`, while `V` reduces
+`A + H`; the spectral gap is on the two `V`-blocks of the *perturbed* operator,
+the source's `Λ₀, Λ₁`.  The explicit reflected-projector representative
+`ambientDoubleSine U V` has the same complete singular-value sequence as the
+paper's functional-calculus `sin 2Θ`, so every symmetric-norming value agrees.
+Unlike the tangent families, this whole-space conclusion is retained as a
+separate public statement rather than presented as a corollary of the residual
+clause. -/
 theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
-    {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ)
     (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
-    (hV : Reduces (addBounded A H) V) (hHmem : N.Finite H) :
+    (hV : Reduces (addBounded A H) V)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hgap : SylvesterGap
+      (block (addBounded A H) V hV)
+      (block (addBounded A H) Vᗮ hV.orthogonal) δ)
+    (hHmem : N.Finite H) :
     N.Finite (ambientDoubleSine U V) ∧
       δ * N.norm (ambientDoubleSine U V) ≤ 2 * N.norm H := by
   sorry

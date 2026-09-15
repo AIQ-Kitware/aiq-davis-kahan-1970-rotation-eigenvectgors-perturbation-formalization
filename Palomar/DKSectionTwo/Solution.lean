@@ -850,44 +850,53 @@ theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
   rw [N.norm_eq, N.norm_eq]
   exact hsrc.2
 
-/-- **The whole-space clause of the `sin 2Θ` theorem.** -/
+/-- **The whole-space clause of the `sin 2Θ` theorem, with the printed
+operator roles.** -/
 theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
-    {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ)
     (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
-    (hV : Reduces (addBounded A H) V) (hHmem : N.Finite H) :
+    (hV : Reduces (addBounded A H) V)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hgap : SylvesterGap
+      (block (addBounded A H) V hV)
+      (block (addBounded A H) Vᗮ hV.orthogonal) δ)
+    (hHmem : N.Finite H) :
     N.Finite (ambientDoubleSine U V) ∧
       δ * N.norm (ambientDoubleSine U V) ≤ 2 * N.norm H := by
   have hUred : TauCeti.LinearPMap.ReducesSubspace A U := (reduces_iff A U).1 hU
-  have hRI := reflectionIntertwines_of_reduces hV
-  have hHsym : H.IsSymmetric := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hH
-  have hgap' : FormBoundedSylvesterGap
-      (TauCeti.LinearPMap.reducingRestriction A U hUred)
-      (TauCeti.LinearPMap.reducingRestriction A Uᗮ hUred.orthogonal) δ := by
-    rw [block_eq A U hU, block_eq A Uᗮ hU.orthogonal] at hgap
+  have hVredLocal : TauCeti.LinearPMap.ReducesSubspace (addBounded A H) V :=
+    (reduces_iff (addBounded A H) V).1 hV
+  have hVred : TauCeti.LinearPMap.ReducesSubspace
+      (TauCeti.LinearPMap.addBounded A H) V := by
+    simpa only [addBounded_eq] using hVredLocal
+  have hgapLocal : FormBoundedSylvesterGap
+      (TauCeti.LinearPMap.reducingRestriction (addBounded A H) V hVredLocal)
+      (TauCeti.LinearPMap.reducingRestriction
+        (addBounded A H) Vᗮ hVredLocal.orthogonal) δ := by
+    rw [← block_eq (addBounded A H) V hV,
+      ← block_eq (addBounded A H) Vᗮ hV.orthogonal]
     exact (sylvesterGap_iff _ _ _).1 hgap
+  have hgap' : FormBoundedSylvesterGap
+      (TauCeti.LinearPMap.reducingRestriction
+        (TauCeti.LinearPMap.addBounded A H) V hVred)
+      (TauCeti.LinearPMap.reducingRestriction
+        (TauCeti.LinearPMap.addBounded A H) Vᗮ hVred.orthogonal) δ := by
+    simpa only [addBounded_eq] using hgapLocal
+  have hHsym : H.IsSymmetric := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hH
   have hsrc :=
-    TauCeti.DavisKahan1970.sinTwoTheta_ambient_reflection_projectorDifference_symmetricNorming
-      N.toSourceNorm hA H hHsym hUred hRI.mapsDomain (by
-        intro x
-        have hc := hRI.commutes x
-        have hD : TauCeti.DavisKahan.reflectionPerturbation V H
-              (V.reflectionOperator ((x : E))) =
-            H (V.reflectionOperator ((x : E))) - V.reflectionOperator (H ((x : E))) := by
-          show H _ - TauCeti.DavisKahan.boundedUnitaryConjugate V.reflection H _ = _
-          rw [TauCeti.DavisKahan.boundedUnitaryConjugate_apply, V.reflection_symm]
-          change H (V.reflection ((x : E))) -
-            V.reflection (H (V.reflection (V.reflection ((x : E))))) = _
-          rw [Submodule.reflection_reflection]
-          rfl
-        rw [TauCeti.LinearPMap.addBounded_apply, hD, ← add_sub_assoc]
-        exact sub_eq_iff_eq_add.mpr hc)
-      hδ hgap' ((N.finite_iff H).1 hHmem)
-  refine ⟨(N.finite_iff _).2 hsrc.1, ?_⟩
+    _root_.TauCeti.DavisKahan1970.sinTwoTheta_ambient_unbounded_perturbedGap_symmetricNorming_rclike
+      N.toSourceNorm hA H hHsym hUred hVred hδ hgap'
+      ((N.finite_iff H).1 hHmem)
+  have hsame :=
+    _root_.TauCeti.DavisKahan.Angle.sinTwoAngleOperator_hasSameApproximationNumbers
+      (𝕜 := 𝕜) U V
+  obtain ⟨hiff, hgauge⟩ :=
+    SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N.toSourceNorm hsame
+  refine ⟨(N.finite_iff _).2 (hiff.mp hsrc.1), ?_⟩
   rw [N.norm_eq, N.norm_eq]
+  rw [← hgauge]
   exact hsrc.2
 
 /-- **The `tan 2Θ` theorem, in its stronger residual form.** -/

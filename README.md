@@ -38,7 +38,7 @@ The Palomar entry exposes the nonredundant polished conclusions as follows:
 * **sin Θ:** `δ · N(sin Θ₀) ≤ N(R)`;
 * **tan Θ:** `δ · N(tan Θ₀) ≤ N(R)`, together with the theorem's pole exclusion;
 * **sin 2Θ, residual:** `δ · N(sin 2Θ₀) ≤ 2 N(R)`;
-* **sin 2Θ, whole-space:** `δ · N(sin 2Θ) ≤ 2 N(H)`;
+* **sin 2Θ, whole-space:** `δ · N(sin 2Θ) ≤ 2 N(H)`, with the spectral gap on the two perturbed `A + H` blocks relative to the reducing subspace `V` (the source's `Λ₀, Λ₁`);
 * **tan 2Θ:** `δ · N(tan 2Θ₀) ≤ 2 N(R)`, again with pole exclusion.
 
 The paper also displays whole-space tan Θ and tan 2Θ inequalities.  They are not
@@ -46,7 +46,9 @@ separate Comparator declarations here because the source proofs derive them
 after the residual estimates from the common block geometry; the included
 `DavisKahan` library contains the ambient endpoints as well.  By contrast both
 sin 2Θ conclusions are retained because they are genuinely distinct public
-consequences.  The ordinary one-gap sin Θ theorem has no corresponding ambient
+consequences.  In particular, the whole-space `sin 2Θ` declaration uses the
+printed operator roles: its gap is on the two `A + H` blocks relative to `V`,
+not on the unperturbed `A` blocks relative to `U`.  The ordinary one-gap sin Θ theorem has no corresponding ambient
 unitarily-invariant-norm conclusion: Davis and Kahan explicitly give a
 counterexample and then state a separate symmetric sin Θ result under a second
 gap.
@@ -101,6 +103,16 @@ importing the local proof library into the statement surface.  Every local
 notion used by a compared theorem has a mathematical docstring there.  The
 Solution adapts those local definitions to the corresponding declarations in
 the extracted proof libraries.
+
+
+## Axiom audit
+
+Comparator is configured to permit only `propext`, `Quot.sound`, and
+`Classical.choice`, the complete axiom set Palomar allows in Comparator
+configurations.  Before the final public commit is pinned, the five selected
+Solution declarations should also be checked with Lean's `#print axioms`;
+`formalization.yaml` should record the actual union reported by Lean rather
+than assuming that every permitted axiom is used or that none is used.
 
 ## Provenance
 

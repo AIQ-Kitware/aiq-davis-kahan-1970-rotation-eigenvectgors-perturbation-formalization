@@ -35,11 +35,18 @@ itself.
 
 The Palomar entry exposes the nonredundant polished conclusions as follows:
 
-* **sin Θ:** `δ · N(sin Θ₀) ≤ N(R)`;
+* **sin Θ:** `δ · N(sin Θ₀) ≤ N(R)`, at the source's where-defined norm boundary;
 * **tan Θ:** `δ · N(tan Θ₀) ≤ N(R)`, together with the theorem's pole exclusion;
-* **sin 2Θ, residual:** `δ · N(sin 2Θ₀) ≤ 2 N(R)`;
+* **sin 2Θ, residual:** `δ · N(sin 2Θ₀) ≤ 2 N(R)`, for self-adjoint `A` and perturbed `T` on a common domain, with only the residual extension required bounded;
 * **sin 2Θ, whole-space:** `δ · N(sin 2Θ) ≤ 2 N(H)`, with the spectral gap on the two perturbed `A + H` blocks relative to the reducing subspace `V` (the source's `Λ₀, Λ₁`);
 * **tan 2Θ:** `δ · N(tan 2Θ₀) ≤ 2 N(R)`, again with pole exclusion.
+
+The three sine declarations state the numerical inequality where both displayed
+norms are finite.  This mirrors the source-facing partial-norm API and avoids
+turning the stronger membership-transfer facts proved by the implementation into
+part of the advertised Davis--Kahan statement.  The directed `sin 2Θ` clause
+uses the common-domain formulation: the trial restriction itself need not be
+bounded and there is no globally bounded perturbation assumption in that clause.
 
 The paper also displays whole-space tan Θ and tan 2Θ inequalities.  They are not
 separate Comparator declarations here because the source proofs derive them
@@ -61,7 +68,8 @@ control of invariant-subspace error.  That mechanism underlies eigenvector and
 eigenspace perturbation theory in numerical linear algebra, operator theory,
 and many later statistical and data-analysis variants of Davis–Kahan.
 
-The formalization is infinite-dimensional and permits the unbounded
+The formalization permits finite- and infinite-dimensional separable Hilbert
+spaces, matching the paper's standing convention, and supports the unbounded
 self-adjoint/partial-map setting represented in the paper and its Appendix.  The
 Palomar statements are scalar-generic over Mathlib's `RCLike` abstraction, so
 the same declarations cover the real and complex cases.
@@ -92,7 +100,10 @@ object.
 
 The five compared declarations are a compact Palomar presentation of the four
 headline Section 2 theorem families, not a claim that this Comparator entry
-covers every proposition in the 1970 paper.  The included `DavisKahan` library
+covers every proposition in the 1970 paper.  They retain the paper's standing
+separability convention.  In particular, the directed `sin 2Θ` declaration is
+the accepted common-domain form from the parent source audit rather than the
+older bounded-trial specialization.  The included `DavisKahan` library
 contains the wider development, including source-facing UIN endpoints, ambient
 tangent forms, direct-rotation results, later sections, sharpness results, and a
 machine-checked counterexample to printed Proposition 4.4 together with its
@@ -104,16 +115,6 @@ notion used by a compared theorem has a mathematical docstring there.  The
 Solution adapts those local definitions to the corresponding declarations in
 the extracted proof libraries.
 
-
-## Axiom audit
-
-Comparator is configured to permit only `propext`, `Quot.sound`, and
-`Classical.choice`, the complete axiom set Palomar allows in Comparator
-configurations.  Before the final public commit is pinned, the five selected
-Solution declarations should also be checked with Lean's `#print axioms`;
-`formalization.yaml` should record the actual union reported by Lean rather
-than assuming that every permitted axiom is used or that none is used.
-
 ## Provenance
 
 The development and audit history are maintained in
@@ -124,10 +125,11 @@ so it is not merely a Comparator shim around an external checkout.  The parent
 repository remains the maintenance origin; fixes should be made there and then
 refreshed into this extraction.
 
-The proof-library snapshot used to prepare this submission was taken from parent
-commit `446aea238d960b6799768114ca3577b0bc0c2765`.  Palomar-specific Challenge,
-Solution, metadata, and verification files are maintained in this standalone
-repository.
+The accepted common-domain `sin 2Θ` source module and the source-facing Section
+Two inventory were refreshed from parent commit
+`9fe59f6b02482111e5be6a2b812edd011990fda5`.  The standalone repository commits
+the extracted proof source it builds; Palomar-specific Challenge, Solution,
+metadata, and verification files are maintained here.
 
 ## Repository layout
 

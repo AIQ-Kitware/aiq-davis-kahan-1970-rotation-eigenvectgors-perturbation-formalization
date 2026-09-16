@@ -13,6 +13,7 @@ import DavisKahan.Sources.DavisKahan1970.SinTwoThetaUnboundedDirectedResidual
 import DavisKahan.Sources.DavisKahan1970.SinTwoThetaUnboundedDirectedResidualReal
 import DavisKahan.Sources.DavisKahan1970.SinTwoThetaDirectedAngle
 import DavisKahan.Sources.DavisKahan1970.SinTwoThetaDirectedRCLike
+import DavisKahan.Sources.DavisKahan1970.SinTwoThetaCommonDomain
 import DavisKahan.Sources.DavisKahan1970.TanThetaDirectedUnbounded
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedAmbientExact
 import DavisKahan.Sources.DavisKahan1970.TanTwoThetaUnboundedExactReal
@@ -176,16 +177,19 @@ alias tanTheta_real := tanTheta_ambient_unboundedRitz_definedTangent_symmetricNo
 
 /-- **Davis--Kahan 1970, the complete `sin 2Θ` theorem, scalar-generic over `RCLike`.**
 
-This is the short source-facing API selected by the ledger.  It carries both boxed Section 2
-conclusions under the shared setup: `P` reduces `A`, `Q` reduces `A + H`, the gap is on the
-two `Q`-blocks of `A + H`, and the trial residual is `(A + H)E₀ - E₀A₀`.  The norm
-inequalities are asserted where the displayed norms are defined. -/
-alias sinTwoTheta := DavisKahan1970.sinTwoTheta_unbounded_perturbedGap_whereDefinedUIN_rclike
+This is the short source-facing API selected by the ledger. `A` and the perturbed operator
+`T` are self-adjoint partial maps on the same domain. `P` reduces `A`, `Q` reduces `T`, and
+the gap is on the two `Q`-blocks of `T`. The directed branch locally quantifies only a
+bounded extension of the trial residual on the common domain; the ambient branch separately
+quantifies a bounded symmetric perturbation `H` with `T = A + H`. Thus neither branch
+inherits assumptions belonging only to the other. The norm inequalities are asserted where
+the displayed norms are defined. -/
+alias sinTwoTheta := DavisKahan1970.sinTwoTheta_commonDomain_whereDefinedUIN_rclike
 
-/-- Scalar-generic directed clause `δ N(sin 2Θ₀) ≤ 2 N(R)` at an arbitrary reducing
-subspace, with the ledger-selected where-defined norm boundary. -/
+/-- Scalar-generic directed clause `δ N(sin 2Θ₀) ≤ 2 N(R)` at the source common-domain
+scope, with no bounded trial compression or globally bounded perturbation hypothesis. -/
 alias sinTwoTheta_directed :=
-  DavisKahan1970.sinTwoTheta_directed_unboundedResidual_reducing_whereDefinedUIN_rclike
+  DavisKahan1970.sinTwoTheta_directed_commonDomain_whereDefinedUIN_rclike
 
 /-- **Davis--Kahan 1970, the `sin 2Θ` theorem, over `ℂ` -- the DIRECTED clause.**
 
@@ -265,12 +269,19 @@ on `sinTwoThetaIdealBlock U V` -- a one-sided block, not an angle.  That theorem
 the proof's own statement and is retained;
 `Angle.sinTwoThetaIdealBlock_hasSameApproximationNumbers_trialSide` is what carries
 it to the angle, and it is a theorem rather than a rewriting, because it composes
-the block correspondence with the order swap. -/
+the block correspondence with the order swap.
+
+The fixed-field theorem retained under this name predates the common-domain endpoint
+and requires the whole trial subspace to lie in the operator domain. It is therefore a
+valid specialization, not the canonical source-scope witness; use
+`sinTwoTheta_directed` when the Appendix common-domain scope matters. -/
 alias sinTwoTheta_directed_complex :=
   sinTwoTheta_directed_unboundedResidual_whereDefinedUIN_complex
 
 /-- **`sin 2Θ`, directed clause, over `ℝ`**, on the paper's own trial-side directed
-double-angle sine. -/
+double-angle sine. This is the real fixed-field specialization of
+`sinTwoTheta_directed_complex`; use scalar-generic `sinTwoTheta_directed` for the
+accepted common-domain source scope. -/
 alias sinTwoTheta_directed_real :=
   sinTwoTheta_directed_unboundedResidual_whereDefinedUIN_real
 

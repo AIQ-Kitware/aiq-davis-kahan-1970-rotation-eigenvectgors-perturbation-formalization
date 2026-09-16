@@ -465,22 +465,23 @@ section Theorems
 variable {𝕜 : Type u} [RCLike 𝕜]
 variable {E F G K : Type v}
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
+  [TopologicalSpace.SeparableSpace E]
   [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
   [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
   [NormedAddCommGroup K] [InnerProductSpace 𝕜 K] [CompleteSpace K]
 
-/-- **The `sin Θ` theorem.**  Under the source gap hypothesis,
-`δ ‖sin Θ₀‖ ≤ ‖R‖` for every symmetric norming function in the presentation
-above; Fan dominance promotes these simultaneous estimates to the source's
-universal unitarily invariant norm quantifier. -/
+/-- **The `sin Θ` theorem.**  At the source's where-defined norm boundary,
+both displayed norms are finite and `δ ‖sin Θ₀‖ ≤ ‖R‖`.  The Challenge uses
+the symmetric-norming presentation of the UIN quantifier; Fan dominance supplies
+the source-facing universal formulation. -/
 theorem sinTheta (N : SymmetricNormingFunction)
     {A : E →ₗ.[𝕜] E} {A₀ : F →ₗ.[𝕜] F} {Λ₁ : G →ₗ.[𝕜] G}
     {E₀ : F →L[𝕜] E} {F₀ : K →L[𝕜] E} {F₁ : G →L[𝕜] E} {R : F →L[𝕜] E}
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
     (hres : IsTrialResidual A A₀ E₀ R) (hdec : IsExactDecomposition A Λ₁ F₀ F₁)
-    {δ : ℝ} (hδ : 0 < δ) (hgap : SylvesterGap A₀ Λ₁ δ) (hR : N.Finite R) :
-    N.Finite (directedSine E₀ F₀) ∧
-      δ * N.norm (directedSine E₀ F₀) ≤ N.norm R := by
+    {δ : ℝ} (hδ : 0 < δ) (hgap : SylvesterGap A₀ Λ₁ δ)
+    (hSin : N.Finite (directedSine E₀ F₀)) (hR : N.Finite R) :
+    δ * N.norm (directedSine E₀ F₀) ≤ N.norm R := by
   sorry
 
 /-- **The `tan Θ` theorem, in its stronger residual form.**  The source proves
@@ -499,16 +500,25 @@ theorem tanTheta (N : SymmetricNormingFunction)
       δ * N.seqNorm (tanSeq (directedSineBlock U V)) ≤ N.norm D.residual := by
   sorry
 
-/-- **The residual clause of the `sin 2Θ` theorem.** -/
+/-- **The residual clause of the `sin 2Θ` theorem, at the source common-domain
+scope.**  `A` and the perturbed operator `T` are self-adjoint on the same domain;
+`U` reduces `A`, `V` reduces `T`, and the spectral gap is on the two `V`-blocks
+of `T` (the source's `Λ₀, Λ₁`).  Only the residual extension `R` is required to
+be bounded.  `directedDoubleSine V U` is the ideal-block representative of the
+paper's trial-side `sin 2Θ₀`, and both displayed norms are assumed finite. -/
 theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
-    {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
+    {A T : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A) (hT : IsSelfAdjoint T)
+    (hdom : T.domain = A.domain)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
+    {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : Reduces T V)
+    (R : U →L[𝕜] E)
+    (hres : ∀ u : U, ∀ hu : (u : E) ∈ T.domain,
+      T ⟨(u : E), hu⟩ =
+        A ⟨(u : E), by rw [← hdom]; exact hu⟩ + R u)
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SylvesterGap (block A U hU) (block A Uᗮ hU.orthogonal) δ)
-    {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
-    (D : BoundedTrialBlock A V) (hR : N.Finite D.residual) :
-    N.Finite (directedDoubleSine U V) ∧
-      δ * N.norm (directedDoubleSine U V) ≤ 2 * N.norm D.residual := by
+    (hgap : SylvesterGap (block T V hV) (block T Vᗮ hV.orthogonal) δ)
+    (hAngle : N.Finite (directedDoubleSine V U)) (hR : N.Finite R) :
+    δ * N.norm (directedDoubleSine V U) ≤ 2 * N.norm R := by
   sorry
 
 /-- **The whole-space clause of the `sin 2Θ` theorem, with the printed
@@ -530,9 +540,8 @@ theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
     (hgap : SylvesterGap
       (block (addBounded A H) V hV)
       (block (addBounded A H) Vᗮ hV.orthogonal) δ)
-    (hHmem : N.Finite H) :
-    N.Finite (ambientDoubleSine U V) ∧
-      δ * N.norm (ambientDoubleSine U V) ≤ 2 * N.norm H := by
+    (hAngle : N.Finite (ambientDoubleSine U V)) (hHmem : N.Finite H) :
+    δ * N.norm (ambientDoubleSine U V) ≤ 2 * N.norm H := by
   sorry
 
 /-- **The `tan 2Θ` theorem, in its stronger residual form.**  The paper proves

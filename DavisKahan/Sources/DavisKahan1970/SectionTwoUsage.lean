@@ -84,38 +84,38 @@ variable {H : Type v₁}
   [TopologicalSpace.SeparableSpace H]
 
 /-- The complete scalar-generic Section 2 `sin 2Θ` entry point from ordinary
-reducing-subspace data.
+reducing-subspace data at the source common-domain scope.
 
-`P` reduces the unperturbed operator, `Q` reduces the perturbed operator, and the
-same perturbed `Q`-block gap drives both the directed residual and ambient
-perturbation conclusions.  This example intentionally calls only the public
+`P` reduces the unperturbed operator `A`, `Q` reduces the perturbed operator `T`, and
+`A` and `T` have the same domain. The directed branch introduces only its bounded
+residual extension; the ambient branch independently introduces a bounded symmetric
+perturbation realizing `T = A + H`. This example intentionally calls only the public
 `SectionTwo.sinTwoTheta` alias. -/
 theorem sinTwoTheta_from_shared_reducing_setup
     (N : NormalizedSymmetricOperatorIdealFamily.{u₁, v₁} 𝕜)
-    {A : H →ₗ.[𝕜] H} (hA : IsSelfAdjoint A)
-    (Hop : H →L[𝕜] H) (hHop : Hop.IsSymmetric)
+    {A T : H →ₗ.[𝕜] H} (hA : IsSelfAdjoint A) (hT : IsSelfAdjoint T)
+    (hdom : T.domain = A.domain)
     {P Q : Submodule 𝕜 H} [P.HasOrthogonalProjection] [Q.HasOrthogonalProjection]
     (hPred : TauCeti.LinearPMap.ReducesSubspace A P)
-    (hQred : TauCeti.LinearPMap.ReducesSubspace
-      (TauCeti.LinearPMap.addBounded A Hop) Q)
-    {M : P →L[𝕜] P} {R : P →L[𝕜] H}
-    (hPdom : ∀ p : P, (p : H) ∈ (TauCeti.LinearPMap.addBounded A Hop).domain)
-    (hres : ∀ p : P,
-      (TauCeti.LinearPMap.addBounded A Hop) ⟨(p : H), hPdom p⟩ =
-        R p + ((M p : P) : H))
+    (hQred : TauCeti.LinearPMap.ReducesSubspace T Q)
     {δ : ℝ} (hδ : 0 < δ)
     (hgap : FormBoundedSylvesterGap
-      (TauCeti.LinearPMap.reducingRestriction
-        (TauCeti.LinearPMap.addBounded A Hop) Q hQred)
-      (TauCeti.LinearPMap.reducingRestriction
-        (TauCeti.LinearPMap.addBounded A Hop) Qᗮ hQred.orthogonal) δ) :
-    (N.Mem (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperator P Q) →
+      (TauCeti.LinearPMap.reducingRestriction T Q hQred)
+      (TauCeti.LinearPMap.reducingRestriction T Qᗮ hQred.orthogonal) δ) :
+    (∀ R : P →L[𝕜] H,
+      (∀ p : P, ∀ hp : (p : H) ∈ T.domain,
+        T ⟨(p : H), hp⟩ = A ⟨(p : H), by rw [← hdom]; exact hp⟩ + R p) →
+      N.Mem (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperator P Q) →
       N.Mem R →
-        δ * N.gaugeReal (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperator P Q) ≤ 2 * N.gaugeReal R) ∧
-    (N.Mem (TauCeti.DavisKahan.Angle.sinTwoAngleOperator P Q) →
+        δ * N.gaugeReal (TauCeti.DavisKahan.Angle.directedSinTwoAngleOperator P Q) ≤
+          2 * N.gaugeReal R) ∧
+    (∀ Hop : H →L[𝕜] H, Hop.IsSymmetric →
+      T = TauCeti.LinearPMap.addBounded A Hop →
+      N.Mem (TauCeti.DavisKahan.Angle.sinTwoAngleOperator P Q) →
       N.Mem Hop →
-        δ * N.gaugeReal (TauCeti.DavisKahan.Angle.sinTwoAngleOperator P Q) ≤ 2 * N.gaugeReal Hop) := by
-  exact SectionTwo.sinTwoTheta N hA Hop hHop hPred hQred hPdom hres hδ hgap
+        δ * N.gaugeReal (TauCeti.DavisKahan.Angle.sinTwoAngleOperator P Q) ≤
+          2 * N.gaugeReal Hop) := by
+  exact SectionTwo.sinTwoTheta N hA hT hdom hPred hQred hδ hgap
 
 end SinTwoThetaRCLike
 

@@ -33,12 +33,12 @@ functions of the principal angles between the original and perturbed subspaces
 in terms of a spectral gap and either a trial residual or the perturbation
 itself.
 
-The Palomar entry exposes the nonredundant polished conclusions as follows:
+The Palomar entry exposes the following selected source-facing clauses:
 
 * **sin Θ:** `δ · N(sin Θ₀) ≤ N(R)`, at the source's where-defined norm boundary;
 * **tan Θ:** `δ · N(tan Θ₀) ≤ N(R)`, together with the theorem's pole exclusion;
-* **sin 2Θ, residual:** `δ · N(sin 2Θ₀) ≤ 2 N(R)`, for self-adjoint `A` and perturbed `T` on a common domain, with only the residual extension required bounded;
-* **sin 2Θ, whole-space:** `δ · N(sin 2Θ) ≤ 2 N(H)`, with the spectral gap on the two perturbed `A + H` blocks relative to the reducing subspace `V` (the source's `Λ₀, Λ₁`);
+* **sin 2Θ, residual:** `δ · N(sin 2Θ₀) ≤ 2 N(R)`, for self-adjoint `A` and perturbed `T` on a common domain, with only the residual extension required bounded and with the printed oriented `Λ₀`/`Λ₁` gap;
+* **sin 2Θ, whole-space:** `δ · N(sin 2Θ) ≤ 2 N(H)`, with the printed oriented spectral gap on the two perturbed `A + H` blocks relative to the reducing subspace `V` (the source's `Λ₀, Λ₁`);
 * **tan 2Θ:** `δ · N(tan 2Θ₀) ≤ 2 N(R)`, again with pole exclusion.
 
 The three sine declarations state the numerical inequality where both displayed
@@ -69,10 +69,19 @@ eigenspace perturbation theory in numerical linear algebra, operator theory,
 and many later statistical and data-analysis variants of Davis–Kahan.
 
 The formalization permits finite- and infinite-dimensional separable Hilbert
-spaces, matching the paper's standing convention, and supports the unbounded
-self-adjoint/partial-map setting represented in the paper and its Appendix.  The
-Palomar statements are scalar-generic over Mathlib's `RCLike` abstraction, so
-the same declarations cover the real and complex cases.
+spaces, matching the paper's standing ambient-space convention, and supports the
+unbounded self-adjoint/partial-map setting represented in the paper and its
+Appendix.  The Palomar statements are scalar-generic over Mathlib's `RCLike`
+abstraction, so the same declarations cover the real and complex cases.
+
+At the level of the *relative dimensions of the compared subspaces*, the Lean
+statements are deliberately more general than the standing Section 1 setup: the
+projection/angle representatives do not impose the matching-dimension equations
+used there to construct a whole-space direct rotation.  The paper later says the
+`sin 2Θ` theorem can be extended to `dim X(E₀) < dim X(F₀)`, while explicitly
+noting that no corresponding `tan 2Θ` extension was known.  This dimension-free
+scope is therefore recorded as a formal strengthening/adaptation, not described
+as literally printed scope.
 
 ## The norm quantifier
 
@@ -103,7 +112,12 @@ headline Section 2 theorem families, not a claim that this Comparator entry
 covers every proposition in the 1970 paper.  They retain the paper's standing
 separability convention.  In particular, the directed `sin 2Θ` declaration is
 the accepted common-domain form from the parent source audit rather than the
-older bounded-trial specialization.  The included `DavisKahan` library
+older bounded-trial specialization.  Both `sin 2Θ` declarations use a dedicated
+`SinTwoThetaGap` at the Challenge boundary: `Λ₀` is the inside block and `Λ₁`
+the exterior block, with only the lower half-line extension printed after the
+Section 2 statements.  The broader symmetric `SylvesterGap` remains an internal
+proof tool and the public gap for the printed `sin Θ` alternatives.  The included
+`DavisKahan` library
 contains the wider development, including source-facing UIN endpoints, ambient
 tangent forms, direct-rotation results, later sections, sharpness results, and a
 machine-checked counterexample to printed Proposition 4.4 together with its

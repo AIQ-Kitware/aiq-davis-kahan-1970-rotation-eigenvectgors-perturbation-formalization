@@ -300,6 +300,20 @@ inductive SylvesterGap (A : E →ₗ.[𝕜] E) (B : F →ₗ.[𝕜] F) (δ : ℝ
   | leftBelowRightAbove (c : ℝ)
       (hA : SemiboundedAbove A c) (hB : SemiboundedBelow B (c + δ))
 
+/-- **The oriented separation printed in the `sin 2Θ` theorem.**
+The first block is the source's `Λ₀` and the second is `Λ₁`: for a finite
+interval, `Λ₀` lies inside `[β, α]` while `Λ₁` lies outside the enlarged open
+interval `(β - δ, α + δ)`.  The second constructor is exactly the lower
+half-line extension stated immediately after the four Section 2 theorems.  This
+is intentionally narrower than `SylvesterGap`, whose interval constructor is
+symmetric and is appropriate for the printed `sin Θ` theorem. -/
+inductive SinTwoThetaGap (A : E →ₗ.[𝕜] E) (B : F →ₗ.[𝕜] F) (δ : ℝ) : Prop where
+  | intervalExterior {β α : ℝ} (hβα : β ≤ α)
+      (hA : realSpectrum A ⊆ Set.Icc β α)
+      (hB : realSpectrum B ⊆ {x | x ≤ β - δ ∨ α + δ ≤ x})
+  | leftBelowRightAbove (c : ℝ)
+      (hA : SemiboundedAbove A c) (hB : SemiboundedBelow B (c + δ))
+
 end Separation
 
 /-! ## 5. Reducing subspaces and their blocks
@@ -444,10 +458,10 @@ end Angles
 
 /-! ## 7. The four theorem families of Section 2
 
-Davis and Kahan open Section 2 with four named theorem families.  For this
-Palomar entry we compare the strongest polished conclusion from each family,
-except for `sin 2Θ`, whose residual and whole-space estimates are genuinely
-distinct public conclusions in the source proof.
+Davis and Kahan open Section 2 with four named theorem families.  This
+Palomar entry selects source-facing clauses from those families; for `sin 2Θ`,
+the residual and whole-space estimates are retained as separate declarations
+because they are distinct public conclusions in the source statement.
 
 * `sin Θ`: the residual estimate `δ ‖sin Θ₀‖ ≤ ‖R‖`.
 * `tan Θ`: the residual estimate `δ ‖tan Θ₀‖ ≤ ‖R‖`; the paper derives the
@@ -465,7 +479,6 @@ section Theorems
 variable {𝕜 : Type u} [RCLike 𝕜]
 variable {E F G K : Type v}
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
-  [TopologicalSpace.SeparableSpace E]
   [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
   [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
   [NormedAddCommGroup K] [InnerProductSpace 𝕜 K] [CompleteSpace K]
@@ -475,12 +488,13 @@ both displayed norms are finite and `δ ‖sin Θ₀‖ ≤ ‖R‖`.  The Chall
 the symmetric-norming presentation of the UIN quantifier; Fan dominance supplies
 the source-facing universal formulation. -/
 theorem sinTheta (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A : E →ₗ.[𝕜] E} {A₀ : F →ₗ.[𝕜] F} {Λ₁ : G →ₗ.[𝕜] G}
     {E₀ : F →L[𝕜] E} {F₀ : K →L[𝕜] E} {F₁ : G →L[𝕜] E} {R : F →L[𝕜] E}
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
     (hres : IsTrialResidual A A₀ E₀ R) (hdec : IsExactDecomposition A Λ₁ F₀ F₁)
     {δ : ℝ} (hδ : 0 < δ) (hgap : SylvesterGap A₀ Λ₁ δ)
-    (hSin : N.Finite (directedSine E₀ F₀)) (hR : N.Finite R) :
+    (_hSin : N.Finite (directedSine E₀ F₀)) (hR : N.Finite R) :
     δ * N.norm (directedSine E₀ F₀) ≤ N.norm R := by
   sorry
 
@@ -488,6 +502,7 @@ theorem sinTheta (N : SymmetricNormingFunction)
 this estimate first; its whole-space perturbation estimate is then derived from
 it using the two-corner geometry. -/
 theorem tanTheta (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A : E →ₗ.[𝕜] E} (_hA : IsSelfAdjoint A)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : Reduces A V)
     {α δ : ℝ} (hδ : 0 < δ)
@@ -507,6 +522,7 @@ of `T` (the source's `Λ₀, Λ₁`).  Only the residual extension `R` is requir
 be bounded.  `directedDoubleSine V U` is the ideal-block representative of the
 paper's trial-side `sin 2Θ₀`, and both displayed norms are assumed finite. -/
 theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A T : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A) (hT : IsSelfAdjoint T)
     (hdom : T.domain = A.domain)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
@@ -516,8 +532,8 @@ theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
       T ⟨(u : E), hu⟩ =
         A ⟨(u : E), by rw [← hdom]; exact hu⟩ + R u)
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SylvesterGap (block T V hV) (block T Vᗮ hV.orthogonal) δ)
-    (hAngle : N.Finite (directedDoubleSine V U)) (hR : N.Finite R) :
+    (hgap : SinTwoThetaGap (block T V hV) (block T Vᗮ hV.orthogonal) δ)
+    (_hAngle : N.Finite (directedDoubleSine V U)) (hR : N.Finite R) :
     δ * N.norm (directedDoubleSine V U) ≤ 2 * N.norm R := by
   sorry
 
@@ -531,22 +547,24 @@ Unlike the tangent families, this whole-space conclusion is retained as a
 separate public statement rather than presented as a corollary of the residual
 clause. -/
 theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
     (hV : Reduces (addBounded A H) V)
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SylvesterGap
+    (hgap : SinTwoThetaGap
       (block (addBounded A H) V hV)
       (block (addBounded A H) Vᗮ hV.orthogonal) δ)
-    (hAngle : N.Finite (ambientDoubleSine U V)) (hHmem : N.Finite H) :
+    (_hAngle : N.Finite (ambientDoubleSine U V)) (hHmem : N.Finite H) :
     δ * N.norm (ambientDoubleSine U V) ≤ 2 * N.norm H := by
   sorry
 
 /-- **The `tan 2Θ` theorem, in its stronger residual form.**  The paper proves
 this estimate and then states that the whole-space estimate follows by Lemma 6.1. -/
 theorem tanTwoTheta (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[𝕜] E) (_hH : IsSelfAdjoint H)

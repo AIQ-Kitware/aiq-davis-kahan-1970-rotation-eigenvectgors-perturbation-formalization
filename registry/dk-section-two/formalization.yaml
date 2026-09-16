@@ -6,12 +6,13 @@ project:
   description: >-
     Machine-checked Lean 4 presentation of the four headline theorem families in
     Section 2 of Davis and Kahan (1970): sin-Theta, tan-Theta, sin-2-Theta, and
-    tan-2-Theta. The Palomar Comparator exposes five nonredundant declarations:
-    the residual sin-Theta estimate, the residual tan-Theta estimate, both the
-    residual and whole-space sin-2-Theta estimates, and the residual tan-2-Theta
-    estimate. The statements retain the paper's standing separable Hilbert-space
-    scope, allow finite or infinite dimension, and are generic over RCLike scalars
-    to cover the real and complex cases. Their norm quantifier is presented in the
+    tan-2-Theta. The Palomar Comparator exposes five selected source-facing
+    declarations: the residual sin-Theta estimate, the residual tan-Theta estimate,
+    both the residual and whole-space sin-2-Theta estimates, and the residual
+    tan-2-Theta estimate. The statements retain the paper's standing separable
+    ambient Hilbert-space scope, permit finite or infinite ambient dimension, and
+    are generic over RCLike scalars to cover the real and complex cases. Their norm
+    quantifier is presented in the
     Challenge by a dimension-coherent symmetric norming function; the included
     formalization proves via Fan dominance that the corresponding inequalities
     yield the source-facing universal unitarily invariant norm estimates.
@@ -40,31 +41,36 @@ sources:
     id: doi:10.1137/0707001
     type: paper
     location: >-
-      Section 1 standing notation and separability convention; Section 2 four
-      unnumbered theorem statements and the unbounded-operator paragraph that
-      immediately follows them
+      Section 1 standing notation, separability, and subspace-dimension setup;
+      Section 2 four unnumbered theorem statements and the unbounded-operator
+      paragraph immediately following them; Appendix to Section 6 for the
+      common-domain bounded-residual extension; Section 7 for the double-angle
+      proofs; Section 8 for the explicit unequal-dimension sin-2-Theta extension
+      and the statement that no corresponding tan-2-Theta extension was known
     relationship: formalizes
     note: >-
-      The compared declarations present the four unnumbered theorem families from
-      Section 2 as five nonredundant inequalities. For sin-Theta the Challenge
-      compares the printed residual estimate and uses the source-facing
-      where-defined norm boundary; the paper explicitly shows that the analogous
-      whole-space UIN estimate does not follow from the one-gap hypotheses. For
-      tan-Theta the residual estimate is compared; the source proof then derives
-      the whole-space estimate from the common two-corner geometry. Both
-      sin-2-Theta clauses are compared because they are distinct conclusions. In
-      the directed clause, A and the perturbed operator T are self-adjoint on a
-      common domain, the trial subspace reduces A, the comparison subspace reduces
-      T, the gap is on the two T-blocks (Lambda_0, Lambda_1), and only the residual
-      extension is required bounded. In the ambient clause T is A+H for a bounded
-      self-adjoint H and the same printed perturbed-block gap is used. For
+      The compared declarations select five source-facing clauses from the four
+      unnumbered theorem families in Section 2. For sin-Theta the Challenge compares
+      the printed residual estimate and uses the source-facing where-defined norm
+      boundary; the paper explicitly shows that the analogous whole-space UIN
+      estimate does not follow from the one-gap hypotheses. For tan-Theta the
+      residual estimate is compared; the source proof then derives the whole-space
+      estimate from the common two-corner geometry. Both sin-2-Theta clauses are
+      compared because they are distinct conclusions. Their public gap predicate is
+      deliberately oriented as printed: Lambda_0 is inside [beta, alpha] and
+      Lambda_1 is outside (beta-delta, alpha+delta), with the lower half-line
+      extension Lambda_0 <= alpha and Lambda_1 >= alpha+delta that the paragraph
+      after the four statements explicitly authorizes. In the directed clause, A
+      and the perturbed operator T are self-adjoint on a common domain, U reduces A,
+      V reduces T, and only the residual extension is required bounded; Appendix 6
+      supplies the common-domain/bounded-extension mechanism and Section 7 supplies
+      the double-angle proof. In the ambient clause T is A+H for a bounded
+      self-adjoint H and the same oriented perturbed-block gap is used. For
       tan-2-Theta the residual estimate is compared; the source states that the
-      whole-space estimate follows by Lemma 6.1. The Challenge's SylvesterGap also
-      includes the half-line variants explicitly authorized by the paragraph after
-      the four theorem statements. The Challenge uses a symmetric-norming
-      presentation of the norm quantifier. This is not literally the entire
-      infinite-dimensional UIN type, but the included development proves the
-      relevant quantifier equivalence for these inequalities through Ky Fan/Fan
+      whole-space estimate follows by Lemma 6.1. The Challenge uses a
+      symmetric-norming presentation of the norm quantifier. This is not literally
+      the entire infinite-dimensional UIN type, but the included development proves
+      the relevant quantifier equivalence for these inequalities through Ky Fan/Fan
       dominance and provides source-facing where-defined endpoints.
     author_endorsement: not-contacted
 
@@ -87,7 +93,10 @@ status:
     Challenge is Mathlib-only and defines the source vocabulary it needs locally.
     The statements are generic over RCLike, retain the paper's standing
     separability convention, and use unbounded partial maps where the source scope
-    requires them. The three sine declarations expose the source-facing
+    requires them. Their subspace/angle formulation does not impose the matching
+    relative-dimension equations from the paper's standing Section 1 direct-rotation
+    setup; that deliberate strengthening is disclosed under fidelity.divergences.
+    The three sine declarations expose the source-facing
     where-defined norm boundary rather than adding ideal-membership transfer to the
     public conclusion. The directed sin-2-Theta declaration does not assume a
     bounded trial compression or a globally bounded perturbation: it assumes only
@@ -176,9 +185,18 @@ fidelity:
     equivalent, via Ky Fan/Fan dominance, to the corresponding source-facing UIN
     estimates. The Challenge uses RCLike to package the paper's real and complex
     cases in one theorem, while retaining the paper's standing separable
-    Hilbert-space convention. SylvesterGap packages the printed interval/exterior
-    separation together with the half-line extensions explicitly allowed just
-    after the Section 2 statements. For sin-Theta and both sin-2-Theta clauses the
+    Hilbert-space convention. SylvesterGap is used where the source permits the
+    symmetric interval/exterior alternatives (notably sin-Theta). The two
+    sin-2-Theta declarations instead use SinTwoThetaGap, which fixes the printed
+    orientation Lambda_0-inside/Lambda_1-outside and includes only the lower
+    half-line extension explicitly stated after the Section 2 theorems; the
+    Solution forgets that orientation only when entering the stronger internal
+    Sylvester-gap API. The public statements also do not impose the paper's Section
+    1 equalities between the relative dimensions of the compared subspaces. This
+    is a genuine formal strengthening/adaptation: Section 8 explicitly extends the
+    sin-2-Theta theorem to dim X(E_0) < dim X(F_0), while saying that no
+    corresponding tan-2-Theta extension was known. For sin-Theta and both
+    sin-2-Theta clauses the
     public Challenge uses the source-facing where-defined boundary: finiteness of
     both displayed norms is assumed and only the numerical inequality is
     concluded, even though stronger implementation theorems can transfer ideal
@@ -244,16 +262,18 @@ alignment:
       module: Palomar.DKSectionTwo.Solution
       status: adapted
       note: >-
-        This declaration now has the source common-domain shape. A and the perturbed
+        This declaration has the source common-domain shape. A and the perturbed
         operator T are self-adjoint on the same domain; U reduces A, V reduces T;
-        the gap is on the two V-blocks of T, corresponding to Lambda_0 and
-        Lambda_1; and R is only a bounded extension of the residual (T-A)|_U on
-        that common domain. There is no bounded trial compression and no globally
-        bounded perturbation hypothesis in this directed clause. Both displayed
-        norms are assumed finite. directedDoubleSine V U is the ideal-block
-        representative of the paper's trial-side sin 2Theta_0; the included
-        development proves equality of the complete approximation-number sequence.
-        The canonical included source API is
+        SinTwoThetaGap fixes the printed orientation on the two V-blocks of T,
+        corresponding to Lambda_0 inside and Lambda_1 outside; and R is only a
+        bounded extension of the residual (T-A)|_U on that common domain. There is
+        no bounded trial compression and no globally bounded perturbation hypothesis
+        in this directed clause. Both displayed norms are assumed finite.
+        directedDoubleSine V U is the ideal-block representative of the paper's
+        trial-side sin 2Theta_0; the included development proves equality of the
+        complete approximation-number sequence. The declaration does not impose
+        the Section 1 matching-relative-dimension equations; that strengthening is
+        disclosed in fidelity.divergences. The canonical included source API is
         TauCeti.DavisKahan1970.SectionTwo.sinTwoTheta_directed.
     - source: Davis--Kahan 1970, Section 2, sin 2Theta theorem (whole-space conclusion)
       lean: RotationOfEigenvectors.sinTwoTheta_ambient
@@ -261,9 +281,11 @@ alignment:
       status: adapted
       note: >-
         This declaration uses the printed operator roles: U reduces A, V reduces
-        A+H, and the gap is on the two V-blocks of A+H (Lambda_0, Lambda_1). H is
-        bounded and self-adjoint, exactly the clause-local boundedness needed for
-        the ambient inference. Both displayed norms are assumed finite, matching
+        A+H, and SinTwoThetaGap puts Lambda_0 (the V-block) inside the source
+        interval and Lambda_1 (the orthogonal block) outside the enlarged interval,
+        with the printed lower half-line extension. H is bounded and self-adjoint,
+        exactly the clause-local boundedness needed for the ambient inference. Both
+        displayed norms are assumed finite, matching
         the source-facing where-defined endpoint. ambientDoubleSine is the
         reflected-projector representative; the included generic theorem proves it
         has the same complete approximation-number sequence as the paper's ambient
@@ -275,9 +297,13 @@ alignment:
       status: adapted
       note: >-
         This is the residual/directed conclusion with branch-free tangent
-        definedness, at the paper's standing separable scope. Its one-sided block
-        gap is the half-line form explicitly allowed after the Section 2 theorem
-        statements, and the two diagonal-zero hypotheses are the source's H_0=0
-        and H_1=0. The source states that the whole-space estimate follows by
-        Lemma 6.1. The corresponding included source API is
+        definedness, at the paper's standing separable ambient-space scope. Its
+        one-sided block gap is the half-line form explicitly allowed after the
+        Section 2 theorem statements, and the two diagonal-zero hypotheses are the
+        source's H_0=0 and H_1=0. The Lean statement does not impose the standing
+        Section 1 matching-relative-dimension equations; this is a formal
+        strengthening, and Section 8 explicitly says no corresponding unequal-
+        dimension extension of the tan-2-Theta theorem was known. The source states
+        that the whole-space estimate follows by Lemma 6.1. The corresponding
+        included source API is
         TauCeti.DavisKahan1970.SectionTwo.tanTwoTheta_directed.

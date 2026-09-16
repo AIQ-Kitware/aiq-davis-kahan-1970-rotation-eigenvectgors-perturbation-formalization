@@ -288,6 +288,20 @@ inductive SylvesterGap (A : E →ₗ.[𝕜] E) (B : F →ₗ.[𝕜] F) (δ : ℝ
   | leftBelowRightAbove (c : ℝ)
       (hA : SemiboundedAbove A c) (hB : SemiboundedBelow B (c + δ))
 
+/-- **The oriented separation printed in the `sin 2Θ` theorem.**
+The first block is the source's `Λ₀` and the second is `Λ₁`: for a finite
+interval, `Λ₀` lies inside `[β, α]` while `Λ₁` lies outside the enlarged open
+interval `(β - δ, α + δ)`.  The second constructor is exactly the lower
+half-line extension stated immediately after the four Section 2 theorems.  This
+is intentionally narrower than `SylvesterGap`, whose interval constructor is
+symmetric and is appropriate for the printed `sin Θ` theorem. -/
+inductive SinTwoThetaGap (A : E →ₗ.[𝕜] E) (B : F →ₗ.[𝕜] F) (δ : ℝ) : Prop where
+  | intervalExterior {β α : ℝ} (hβα : β ≤ α)
+      (hA : realSpectrum A ⊆ Set.Icc β α)
+      (hB : realSpectrum B ⊆ {x | x ≤ β - δ ∨ α + δ ≤ x})
+  | leftBelowRightAbove (c : ℝ)
+      (hA : SemiboundedAbove A c) (hB : SemiboundedBelow B (c + δ))
+
 end Separation
 
 /-! ## 5. Reducing subspaces and their blocks
@@ -634,6 +648,18 @@ theorem sylvesterGap_iff (A : E →ₗ.[𝕜] E) (B : F →ₗ.[𝕜] F) (δ : �
     · exact .leftBelowRightAbove c ((semiboundedAbove_iff _ _).2 hA)
         ((semiboundedBelow_iff _ _).2 hB)
 
+omit [CompleteSpace E] [CompleteSpace F] in
+/-- Forget the source-facing orientation of the `sin 2Θ` gap when entering the
+more general internal Sylvester-gap API. -/
+theorem SinTwoThetaGap.toSylvesterGap {A : E →ₗ.[𝕜] E} {B : F →ₗ.[𝕜] F} {δ : ℝ} :
+    SinTwoThetaGap A B δ → SylvesterGap A B δ := by
+  intro h
+  cases h with
+  | intervalExterior hβα hA hB =>
+      exact .intervalExterior hβα (Or.inl ⟨hA, hB⟩)
+  | leftBelowRightAbove c hA hB =>
+      exact .leftBelowRightAbove c hA hB
+
 end VocabularyBridge
 
 section ReducingBridge
@@ -755,19 +781,19 @@ section Theorems
 variable {𝕜 : Type u} [RCLike 𝕜]
 variable {E F G K : Type v}
   [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
-  [TopologicalSpace.SeparableSpace E]
   [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
   [NormedAddCommGroup G] [InnerProductSpace 𝕜 G] [CompleteSpace G]
   [NormedAddCommGroup K] [InnerProductSpace 𝕜 K] [CompleteSpace K]
 
 /-- **The `sin Θ` theorem, at the source where-defined norm boundary.** -/
 theorem sinTheta (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A : E →ₗ.[𝕜] E} {A₀ : F →ₗ.[𝕜] F} {Λ₁ : G →ₗ.[𝕜] G}
     {E₀ : F →L[𝕜] E} {F₀ : K →L[𝕜] E} {F₁ : G →L[𝕜] E} {R : F →L[𝕜] E}
     (hA : IsSelfAdjoint A) (hA₀ : IsSelfAdjoint A₀) (hΛ₁ : IsSelfAdjoint Λ₁)
     (hres : IsTrialResidual A A₀ E₀ R) (hdec : IsExactDecomposition A Λ₁ F₀ F₁)
     {δ : ℝ} (hδ : 0 < δ) (hgap : SylvesterGap A₀ Λ₁ δ)
-    (hSin : N.Finite (directedSine E₀ F₀)) (hR : N.Finite R) :
+    (_hSin : N.Finite (directedSine E₀ F₀)) (hR : N.Finite R) :
     δ * N.norm (directedSine E₀ F₀) ≤ N.norm R := by
   have hsrc :=
     _root_.TauCeti.DavisKahan1970.sinTheta_unbounded_formGap_symmetricNorming_rclike
@@ -780,6 +806,7 @@ theorem sinTheta (N : SymmetricNormingFunction)
 
 /-- **The `tan Θ` theorem, in its stronger residual form.** -/
 theorem tanTheta (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A : E →ₗ.[𝕜] E} (_hA : IsSelfAdjoint A)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection] (hV : Reduces A V)
     {α δ : ℝ} (hδ : 0 < δ)
@@ -825,6 +852,7 @@ theorem tanTheta (N : SymmetricNormingFunction)
 /-- **The residual clause of the `sin 2Θ` theorem, at the source common-domain
 scope.** -/
 theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A T : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A) (hT : IsSelfAdjoint T)
     (hdom : T.domain = A.domain)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
@@ -834,8 +862,8 @@ theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
       T ⟨(u : E), hu⟩ =
         A ⟨(u : E), by rw [← hdom]; exact hu⟩ + R u)
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SylvesterGap (block T V hV) (block T Vᗮ hV.orthogonal) δ)
-    (hAngle : N.Finite (directedDoubleSine V U)) (hR : N.Finite R) :
+    (hgap : SinTwoThetaGap (block T V hV) (block T Vᗮ hV.orthogonal) δ)
+    (_hAngle : N.Finite (directedDoubleSine V U)) (hR : N.Finite R) :
     δ * N.norm (directedDoubleSine V U) ≤ 2 * N.norm R := by
   have hUred : TauCeti.LinearPMap.ReducesSubspace A U := (reduces_iff A U).1 hU
   have hVred : TauCeti.LinearPMap.ReducesSubspace T V := (reduces_iff T V).1 hV
@@ -843,35 +871,55 @@ theorem sinTwoTheta_directed (N : SymmetricNormingFunction)
       (TauCeti.LinearPMap.reducingRestriction T V hVred)
       (TauCeti.LinearPMap.reducingRestriction T Vᗮ hVred.orthogonal) δ := by
     rw [← block_eq T V hV, ← block_eq T Vᗮ hV.orthogonal]
-    exact (sylvesterGap_iff _ _ _).1 hgap
+    exact (sylvesterGap_iff _ _ _).1 hgap.toSylvesterGap
   have hky : ∀ k : ℕ,
       δ * kyFanApproximationGauge k (TauCeti.DavisKahan.sinTwoThetaIdealBlock V U) ≤
         2 * kyFanApproximationGauge k R :=
     _root_.TauCeti.DavisKahan1970.sinTwoTheta_commonDomain_block_kyFan
       hA hT hdom hUred hVred R hres hδ hgap'
-  have hhalf : ∀ k : ℕ,
-      (δ / 2) * kyFanApproximationGauge k (TauCeti.DavisKahan.sinTwoThetaIdealBlock V U) ≤
-        kyFanApproximationGauge k R := by
+  -- Fan dominance compares operators with a common source and target.  The
+  -- residual is naturally defined only on `U`, so extend it by zero on `Uᗮ`.
+  -- This preserves every approximation singular value and hence the source norm.
+  let R0 : E →L[𝕜] E := R ∘L U.subtypeL.adjoint
+  have hsameR : SameApproximationSingularSequence R0 R :=
+    TauCeti.DavisKahan.ExactSinTheta.sameApproximationSingularValues_extendDomainByZero U R
+  obtain ⟨hmemR, hgaugeR⟩ :=
+    SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N.toSourceNorm hsameR
+  have hRsrc : N.toSourceNorm.Mem R := (N.finite_iff R).1 hR
+  have hR0src : N.toSourceNorm.Mem R0 := hmemR.mpr hRsrc
+  have htwo : ‖(2 : 𝕜)‖ = 2 := by simp
+  have hscaled : ∀ k : ℕ,
+      δ * kyFanApproximationGauge k (TauCeti.DavisKahan.sinTwoThetaIdealBlock V U) ≤
+        kyFanApproximationGauge k ((2 : 𝕜) • R0) := by
     intro k
-    nlinarith [hky k]
-  have hsrc := N.toSourceNorm.mul_gauge_le_of_all_mul_kyFan_le
-    (by nlinarith : 0 < δ / 2) ((N.finite_iff R).1 hR) hhalf
+    rw [kyFanApproximationGauge_smul, htwo, hsameR.kyFanApproximationGauge_eq k]
+    exact hky k
+  have hMem2 : N.toSourceNorm.Mem ((2 : 𝕜) • R0) := by
+    intro htop
+    rw [N.toSourceNorm.extendedGauge_smul, htwo] at htop
+    rcases ENNReal.mul_eq_top.mp htop with ⟨_, h⟩ | ⟨h, _⟩
+    · exact hR0src h
+    · exact absurd h (by simp)
+  obtain ⟨_, hle⟩ := N.toSourceNorm.mul_gauge_le_of_all_mul_kyFan_le
+    hδ hMem2 hscaled
+  rw [N.toSourceNorm.gauge_smul _ hR0src, htwo, hgaugeR] at hle
   rw [directedDoubleSine_eq, N.norm_eq, N.norm_eq]
-  nlinarith [hsrc.2]
+  exact hle
 
 /-- **The whole-space clause of the `sin 2Θ` theorem, with the printed
 operator roles.** -/
 theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[𝕜] E) (hH : IsSelfAdjoint H)
     {V : Submodule 𝕜 E} [V.HasOrthogonalProjection]
     (hV : Reduces (addBounded A H) V)
     {δ : ℝ} (hδ : 0 < δ)
-    (hgap : SylvesterGap
+    (hgap : SinTwoThetaGap
       (block (addBounded A H) V hV)
       (block (addBounded A H) Vᗮ hV.orthogonal) δ)
-    (hAngle : N.Finite (ambientDoubleSine U V)) (hHmem : N.Finite H) :
+    (_hAngle : N.Finite (ambientDoubleSine U V)) (hHmem : N.Finite H) :
     δ * N.norm (ambientDoubleSine U V) ≤ 2 * N.norm H := by
   have hUred : TauCeti.LinearPMap.ReducesSubspace A U := (reduces_iff A U).1 hU
   have hVredLocal : TauCeti.LinearPMap.ReducesSubspace (addBounded A H) V :=
@@ -885,7 +933,7 @@ theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
         (addBounded A H) Vᗮ hVredLocal.orthogonal) δ := by
     rw [← block_eq (addBounded A H) V hV,
       ← block_eq (addBounded A H) Vᗮ hV.orthogonal]
-    exact (sylvesterGap_iff _ _ _).1 hgap
+    exact (sylvesterGap_iff _ _ _).1 hgap.toSylvesterGap
   have hgap' : FormBoundedSylvesterGap
       (TauCeti.LinearPMap.reducingRestriction
         (TauCeti.LinearPMap.addBounded A H) V hVred)
@@ -900,7 +948,7 @@ theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
   have hsame :=
     _root_.TauCeti.DavisKahan.Angle.sinTwoAngleOperator_hasSameApproximationNumbers
       (𝕜 := 𝕜) U V
-  obtain ⟨hiff, hgauge⟩ :=
+  obtain ⟨_, hgauge⟩ :=
     SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N.toSourceNorm hsame
   rw [N.norm_eq, N.norm_eq]
   change δ * N.toSourceNorm.gauge
@@ -911,6 +959,7 @@ theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
 
 /-- **The `tan 2Θ` theorem, in its stronger residual form.** -/
 theorem tanTwoTheta (N : SymmetricNormingFunction)
+    [TopologicalSpace.SeparableSpace E]
     {A : E →ₗ.[𝕜] E} (hA : IsSelfAdjoint A)
     {U : Submodule 𝕜 E} [U.HasOrthogonalProjection] (hU : Reduces A U)
     (H : E →L[𝕜] E) (_hH : IsSelfAdjoint H)

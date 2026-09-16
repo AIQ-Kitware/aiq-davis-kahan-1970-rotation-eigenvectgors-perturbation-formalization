@@ -10,8 +10,7 @@
 # copy until 2026-08-30; it is no longer a submission and no longer needs one.
 #
 # Usage:
-#   scripts/verify_palomar.sh                    # every entry
-#   scripts/verify_palomar.sh dk-section-two    # the selected entry
+#   scripts/verify_palomar.sh                    # ordinary root entry
 #   scripts/verify_palomar.sh --static-only      # skip the exporter
 #   scripts/verify_palomar.sh --fake-landrun     # no landrun available
 #
@@ -20,8 +19,8 @@
 #   1. static preflight   scripts/check_palomar_readiness.py -- submodules, LFS,
 #                         artifacts, licence, manifest pins, metadata shape,
 #                         comparator keys, Challenge sizes and import closure
-#   2. build              every Challenge and Solution module selected by a
-#                         registry Comparator configuration. Building the named
+#   2. build              root Challenge and Solution modules selected by the
+#                         conventional root comparator.json. Building the named
 #                         modules is intentional: there is no aggregate
 #                         `Palomar.lean`, because Challenge and Solution repeat
 #                         the same declaration names in separate environments.
@@ -67,28 +66,24 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-# Entry discovery remains generic, but this repository intentionally uses only
-# `registry/dk-section-two/comparator.json`; there is no stale root entry.
+# Palomar's ordinary layout has one root Comparator configuration.
 config_for() {
-    echo "registry/$1/comparator.json"
+    [[ "$1" == "root" ]] || return 1
+    echo "comparator.json"
 }
 
 if [[ ${#ENTRIES[@]} -eq 0 ]]; then
-    if [[ -d registry ]]; then
-        while IFS= read -r cfg; do
-            ENTRIES+=("$(basename "$(dirname "$cfg")")")
-        done < <(find registry -mindepth 2 -maxdepth 2 -name comparator.json | sort)
-    fi
-fi
-
-if [[ ${#ENTRIES[@]} -eq 0 ]]; then
-    echo "no comparator.json under registry/*/" >&2
+    ENTRIES=("root")
+elif [[ ${#ENTRIES[@]} -ne 1 || "${ENTRIES[0]}" != "root" ]]; then
+    echo "ordinary single-entry layout accepts only the optional entry name 'root'" >&2
     exit 2
 fi
 
-# Build the exact modules Comparator will read. Do not build a synthetic
-# `Palomar` root: this repository intentionally has no `Palomar.lean`, and the
-# readiness checker rejects one as a stale aggregate submission surface.
+[[ -f comparator.json ]] || { echo "no root comparator.json" >&2; exit 2; }
+
+# Build the exact root modules Comparator will read. Do not build a synthetic
+# `Palomar` root: Challenge and Solution deliberately repeat declaration names in
+# separate environments.
 BUILD_TARGETS=()
 for entry in "${ENTRIES[@]}"; do
     cfg="$(config_for "$entry")"
@@ -114,7 +109,7 @@ echo "build: ${BUILD_TARGETS[*]:-<none selected>}"
 echo "======================================================================"
 BUILD_OK=1
 if [[ ${#BUILD_TARGETS[@]} -eq 0 ]]; then
-    echo "no Challenge/Solution modules selected by registry configs" >&2
+    echo "no Challenge/Solution modules selected by comparator.json" >&2
     BUILD_OK=0
 else
     lake build "${BUILD_TARGETS[@]}" || BUILD_OK=0
@@ -136,7 +131,7 @@ for entry in "${ENTRIES[@]}"; do
     [[ $BUILD_OK -eq 1 ]] || echo "--- build FAILED above; later stages are not meaningful"
 
     echo "--- 1/3 static preflight"
-    python3 scripts/check_palomar_readiness.py --entry "$entry" || ok=0
+    python3 scripts/check_palomar_readiness.py --entry root || ok=0
 
     echo "--- 2/3 build: done above"
 

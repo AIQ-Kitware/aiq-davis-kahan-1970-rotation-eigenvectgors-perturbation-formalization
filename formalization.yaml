@@ -109,25 +109,25 @@ status:
   sorry_in_definitions: 0
   main_results:
     - declaration: RotationOfEigenvectors.sinTheta
-      file: Palomar/DKSectionTwo/Solution.lean
+      file: Solution.lean
       sorry_count: 0
-      comparator_config: registry/dk-section-two/comparator.json
+      comparator_config: comparator.json
     - declaration: RotationOfEigenvectors.tanTheta
-      file: Palomar/DKSectionTwo/Solution.lean
+      file: Solution.lean
       sorry_count: 0
-      comparator_config: registry/dk-section-two/comparator.json
+      comparator_config: comparator.json
     - declaration: RotationOfEigenvectors.sinTwoTheta_directed
-      file: Palomar/DKSectionTwo/Solution.lean
+      file: Solution.lean
       sorry_count: 0
-      comparator_config: registry/dk-section-two/comparator.json
+      comparator_config: comparator.json
     - declaration: RotationOfEigenvectors.sinTwoTheta_ambient
-      file: Palomar/DKSectionTwo/Solution.lean
+      file: Solution.lean
       sorry_count: 0
-      comparator_config: registry/dk-section-two/comparator.json
+      comparator_config: comparator.json
     - declaration: RotationOfEigenvectors.tanTwoTheta
-      file: Palomar/DKSectionTwo/Solution.lean
+      file: Solution.lean
       sorry_count: 0
-      comparator_config: registry/dk-section-two/comparator.json
+      comparator_config: comparator.json
 
 automation:
   methods:

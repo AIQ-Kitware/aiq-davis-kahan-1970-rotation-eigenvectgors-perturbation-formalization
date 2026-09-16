@@ -5,15 +5,11 @@ headline theorem families from Section 2 of Chandler Davis and W. M. Kahan,
 *The rotation of eigenvectors by a perturbation. III*, SIAM Journal on Numerical
 Analysis 7(1), 1970, 1–46, DOI 10.1137/0707001.
 
-The selected Comparator entry is:
-
-```text
-registry/dk-section-two/comparator.json
-```
-
-It compares five ordinary theorem declarations in
-`Palomar/DKSectionTwo/Challenge.lean` against matching proofs in
-`Palomar/DKSectionTwo/Solution.lean`:
+This repository follows Palomar's ordinary single-project layout. The submission
+surface is the conventional root `Challenge.lean`, `Solution.lean`,
+`comparator.json`, and `formalization.yaml`. Comparator compares five ordinary
+theorem declarations in `Challenge.lean` against matching proofs in
+`Solution.lean`:
 
 * `RotationOfEigenvectors.sinTheta`
 * `RotationOfEigenvectors.tanTheta`
@@ -21,9 +17,8 @@ It compares five ordinary theorem declarations in
 * `RotationOfEigenvectors.sinTwoTheta_ambient`
 * `RotationOfEigenvectors.tanTwoTheta`
 
-There is deliberately **no second root-level Palomar entry**.  The repository has
-one submission surface, one Comparator configuration, and one
-`formalization.yaml` for that surface.
+There is one submission surface and one Comparator configuration. No project or
+metadata path override is needed on the Palomar submission form.
 
 ## What the result says
 
@@ -101,7 +96,7 @@ includes `symmetricNorming_iff_kyFanDominant` and source-facing
 `NormalizedUnitaryInvariantNorm` / where-defined endpoints.
 
 This distinction is recorded explicitly in
-`registry/dk-section-two/formalization.yaml`.  The Challenge does not claim that
+`formalization.yaml`.  The Challenge does not claim that
 `SymmetricNormingFunction` and the full UIN class are definitionally the same
 object.
 
@@ -147,14 +142,18 @@ metadata, and verification files are maintained here.
 
 ## Repository layout
 
+The submission-facing files use the ordinary Palomar template layout:
+
 ```text
-Palomar/DKSectionTwo/Challenge.lean  small Mathlib-only statement surface
-Palomar/DKSectionTwo/Solution.lean   matching proofs from the libraries below
-registry/dk-section-two/
-  comparator.json                   Comparator declaration list
-  formalization.yaml                Palomar/formalization.yaml metadata
-ForTauCeti/                          reusable supporting mathematics
-DavisKahan/                          Davis–Kahan formalization
+Challenge.lean                       small Mathlib-only statement surface
+Solution.lean                        matching proofs from the libraries below
+comparator.json                      Comparator declaration list
+formalization.yaml                   Palomar/formalization.yaml metadata
+Palomar/DKSectionTwo/SolutionPrelude.lean
+                                      Solution-only Mathlib prelude used to keep
+                                      Comparator helper constants identical
+ForTauCeti/                           reusable supporting mathematics
+DavisKahan/                           Davis–Kahan formalization
 DavisKahan.lean
 ForTauCeti.lean
 lakefile.toml
@@ -165,16 +164,22 @@ scripts/check_palomar_readiness.py
 scripts/verify_palomar.sh
 ```
 
+`SolutionPrelude.lean` is not a second submission surface and is never imported
+by `Challenge.lean`; it exists only because Comparator compares non-target helper
+constants definitionally across the Challenge and Solution environments.
+
 ## Local verification
 
 The intended local preflight is:
 
 ```bash
-lake build Palomar.DKSectionTwo.Challenge
-lake build Palomar.DKSectionTwo.Solution
+lake build
 python3 scripts/check_palomar_readiness.py
 scripts/verify_palomar.sh --static-only
 ```
+
+Because the root `Challenge` and `Solution` libraries are default Lake targets,
+plain `lake build` checks the proof development and the submission surface.
 
 The static-only verifier confirms repository shape and kernel builds but, as it
 prints, is **not** a Comparator pass.  Before submission, when Comparator,
@@ -184,12 +189,12 @@ prints, is **not** a Comparator pass.  Before submission, when Comparator,
 scripts/verify_palomar.sh
 ```
 
-The submission form should use:
+The submission form can use Palomar's defaults:
 
 ```text
-project directory:          repository root
-Comparator configuration:  registry/dk-section-two/comparator.json
-formalization metadata:     registry/dk-section-two/formalization.yaml
+project directory:          repository root / leave blank
+Comparator configuration:  comparator.json
+formalization metadata:     formalization.yaml / leave override blank
 ```
 
 A Palomar submission must pin the final public Git commit by its full

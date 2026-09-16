@@ -4,7 +4,7 @@ version = "0.1.0"
 # Challenge/Solution modules are built explicitly from their Comparator config;
 # there is intentionally no aggregate `Palomar.lean` because the two modules
 # repeat the same declaration names in separate environments.
-defaultTargets = ["DavisKahan"]
+defaultTargets = ["DavisKahan", "Challenge", "Solution"]
 
 [leanOptions]
 pp.unicode.fun = true
@@ -38,10 +38,20 @@ leanOptions = { warningAsError = true, weak.linter.mathlibStandardSet = true, we
 [[lean_lib]]
 name = "DavisKahan"
 
-# The single Palomar entry. `Palomar/DKSectionTwo/Challenge.lean` presents the
-# four headline Section 2 theorem families as five polished declarations against
-# Mathlib alone; `Palomar/DKSectionTwo/Solution.lean` proves exactly those declarations
-# from the extracted libraries. Comparator checks that the theorem types agree.
+# Palomar's ordinary submission surface lives at the repository root, matching
+# the official template. `Challenge.lean` is the Mathlib-only statement surface
+# and `Solution.lean` supplies the proofs.
+[[lean_lib]]
+name = "Challenge"
+roots = ["Challenge"]
+
+[[lean_lib]]
+name = "Solution"
+roots = ["Solution"]
+
+# Solution-only support. This module re-elaborates the Challenge vocabulary in a
+# Mathlib-only environment so Comparator sees identical helper constants. It is
+# deliberately not imported by Challenge.lean.
 [[lean_lib]]
 name = "Palomar"
 globs = ["Palomar.*"]

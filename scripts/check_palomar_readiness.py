@@ -33,9 +33,10 @@ only Lean core and the allowlisted Mathlib/Tau Ceti/CSLib closure; one stray
 `import ForTauCeti.…` five modules deep is invisible to a reader and fatal to a
 submission.
 
-Entry discovery is intentionally generic, but this repository uses one explicit
-registry entry at `registry/dk-section-two/`.  A root-level Comparator or metadata
-file would be a stale second submission surface and should not be present.
+This repository intentionally uses Palomar's ordinary single-entry layout:
+`Challenge.lean`, `Solution.lean`, `comparator.json`, and `formalization.yaml` live
+at the project root.  The checker rejects additional Comparator configurations so
+the repository cannot silently grow a second submission surface.
 
 **This script does not check Palomar's metadata schema itself.** Palomar's own
 verifier is the authority for that, it moves, and a hand-written second copy of
@@ -48,7 +49,7 @@ Axiom closure needs Lean and is behind `--with-axioms`, which shells out to
 
 Usage:
     python3 scripts/check_palomar_readiness.py
-    python3 scripts/check_palomar_readiness.py --entry dk-section-two
+    python3 scripts/check_palomar_readiness.py --entry root
     python3 scripts/check_palomar_readiness.py --with-axioms
 """
 from __future__ import annotations
@@ -61,10 +62,6 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-#: A multi-entry repository keeps one directory per entry here. A repository
-#: using Palomar's ordinary layout has no such directory and one root config.
-ENTRY_DIR = ROOT / "registry"
-
 #: From PalomarSubmission/toolchains.json, read 2026-08-28. Override with
 #: --min-toolchain when Palomar raises it; this is a snapshot, not an authority.
 MIN_TOOLCHAIN = (4, 28, 0)
@@ -114,12 +111,19 @@ def git(*args: str) -> str:
 # ---------------------------------------------------------------- repository
 
 def check_repository(rep: Report) -> None:
-    # This repository intentionally has one explicit registry entry.  These files
-    # belonged to an older, separate root submission and must not silently return.
-    for stale in ("Challenge.lean", "Solution.lean", "comparator.json",
-                  "formalization.yaml", "Palomar.lean"):
-        if (ROOT / stale).exists():
-            rep.fail(f"stale root submission surface is present: {stale}")
+    # Palomar's ordinary layout puts the complete submission surface at root.
+    for required in ("Challenge.lean", "Solution.lean", "comparator.json",
+                     "formalization.yaml"):
+        if not (ROOT / required).is_file():
+            rep.fail(f"ordinary root submission file is missing: {required}")
+    if (ROOT / "Palomar.lean").exists():
+        rep.fail("stale aggregate submission module is present: Palomar.lean")
+
+    configs = [p for p in ROOT.rglob("comparator.json")
+               if ".git" not in p.parts and ".lake" not in p.parts]
+    extras = [rel(p) for p in configs if p != ROOT / "comparator.json"]
+    for path in extras:
+        rep.fail(f"extra Comparator configuration defeats the ordinary single-entry layout: {path}")
 
     if (ROOT / ".gitmodules").exists():
         rep.fail(".gitmodules exists; Palomar rejects a repository with submodules")
@@ -352,24 +356,30 @@ def check_solution_prelude(rep: Report, entry: str, challenge_module: str,
     """Keep duplicated Comparator vocabulary byte-for-byte source aligned.
 
     Comparator compares every non-target constant in the theorem statement by
-    exported `ConstantInfo`, not merely by source spelling.  This entry therefore
+    exported `ConstantInfo`, not merely by source spelling. This entry therefore
     elaborates the public vocabulary twice under the same Mathlib-only import
     environment: once at the front of Challenge.lean and once in a Solution-only
-    `SolutionPrelude.lean`.  Challenge cannot import that project-local prelude,
+    `SolutionPrelude` module. Challenge cannot import that project-local prelude,
     because Palomar forbids project source in the Challenge import closure.
 
-    This source-level tripwire catches accidental drift before the exporter does.
+    The prelude may live in a support namespace; the ordinary submission files
+    themselves remain root `Challenge.lean` and `Solution.lean`.
     """
     challenge = local_source_for(challenge_module)
     solution = local_source_for(solution_module)
     if challenge is None or solution is None:
         return
 
-    prelude = solution.with_name("SolutionPrelude.lean")
-    if not prelude.is_file():
-        rep.fail(f"{entry}: missing {rel(prelude)}; Solution must elaborate the "
-                 "Challenge vocabulary in a Mathlib-only prelude")
+    solution_text = solution.read_text()
+    prelude_modules = [m for m in IMPORT_RE.findall(solution_text)
+                       if m == "SolutionPrelude" or m.endswith(".SolutionPrelude")]
+    local_preludes = [(m, local_source_for(m)) for m in prelude_modules]
+    local_preludes = [(m, src) for m, src in local_preludes if src is not None]
+    if len(local_preludes) != 1:
+        rep.fail(f"{entry}: Solution must import exactly one local Mathlib-only "
+                 f"SolutionPrelude; found {[m for m, _ in local_preludes]}")
         return
+    imported_module, prelude = local_preludes[0]
 
     marker = "/-! ## 7. The four theorem families of Section 2"
     challenge_text = challenge.read_text()
@@ -386,22 +396,13 @@ def check_solution_prelude(rep: Report, entry: str, challenge_module: str,
                  "RotationOfEigenvectors")
         return
     prelude_prefix = prelude_text[:-len(suffix)].rstrip()
-
     if challenge_prefix != prelude_prefix:
         rep.fail(f"{entry}: {rel(prelude)} drifted from the Challenge definition "
                  "prefix; Comparator may reject transitive constants")
         return
 
-    solution_text = solution.read_text()
-    expected_import = f"import {solution_module.rsplit('.', 1)[0]}.SolutionPrelude"
-    if expected_import not in solution_text:
-        rep.fail(f"{entry}: Solution does not import its Mathlib-only "
-                 "SolutionPrelude")
-        return
-
-    rep.note(f"{entry}: SolutionPrelude exactly matches the Challenge definition "
+    rep.note(f"{entry}: {imported_module} exactly matches the Challenge definition "
              "prefix")
-
 
 def entry_name(cfg_path: pathlib.Path) -> str:
     """The entry's label: its directory under `registry/`, or `root`."""
@@ -442,18 +443,12 @@ def check_entry(rep: Report, cfg_path: pathlib.Path, *, with_axioms: bool) -> No
 
     check_solution_prelude(rep, entry, cfg["challenge_module"], cfg["solution_module"])
 
-    # An entry carries its metadata one of three ways. Preferred: a per-entry
-    # `formalization.yaml` beside the config, which a submission selects
-    # explicitly alongside the Comparator path -- that is how two entries over the
-    # same paper record different source relationships. Otherwise the extracted
-    # entry repository's ROOT file describes it (readiness §5.0), or, in the
-    # superseded thin-wrapper design, a skeleton under `wrapper/`. Absence of a
-    # skeleton is not a finding -- warning about it trained readers to ignore this
-    # checker's output.
+    # In the ordinary layout formalization.yaml sits beside comparator.json at
+    # the project root, so the submission form needs no metadata override.
     entry_meta = cfg_path.parent / "formalization.yaml"
     if entry_meta.exists():
         check_metadata(rep, entry_meta)
-        rep.note(f"{entry}: metadata at {rel(entry_meta)}, selected with this config")
+        rep.note(f"{entry}: metadata at {rel(entry_meta)} (ordinary root layout)")
     else:
         rep.fail(f"{entry}: no formalization.yaml beside the Comparator config")
 
@@ -504,7 +499,8 @@ def rel(p: pathlib.Path) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--entry", default=None, help="check only this registry/<entry>")
+    ap.add_argument("--entry", default=None,
+                    help="compatibility selector; the ordinary layout has only 'root'")
     ap.add_argument("--with-axioms", action="store_true",
                     help="also run `lake env lean` to audit each solution's axiom closure")
     ap.add_argument("--min-toolchain", default=None,
@@ -522,14 +518,12 @@ def main(argv: list[str] | None = None) -> int:
     rep = Report()
     check_repository(rep)
     check_lake(rep, minimum)
-    configs = sorted(ENTRY_DIR.glob("*/comparator.json"))
-    if args.entry:
-        configs = [c for c in configs if entry_name(c) == args.entry]
-        if not configs:
-            print(f"no such entry: {args.entry}", file=sys.stderr)
-            return 2
+    configs = [ROOT / "comparator.json"] if (ROOT / "comparator.json").is_file() else []
+    if args.entry and args.entry != "root":
+        print(f"no such entry in ordinary single-entry layout: {args.entry}", file=sys.stderr)
+        return 2
     if not configs:
-        rep.fail("no comparator.json under registry/*/")
+        rep.fail("no root comparator.json")
     for cfg in configs:
         check_entry(rep, cfg, with_axioms=args.with_axioms)
 

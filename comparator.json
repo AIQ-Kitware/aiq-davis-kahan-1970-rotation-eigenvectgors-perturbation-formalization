@@ -1,6 +1,6 @@
 {
-  "challenge_module": "Palomar.DKSectionTwo.Challenge",
-  "solution_module": "Palomar.DKSectionTwo.Solution",
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
   "theorem_names": [
     "RotationOfEigenvectors.sinTheta",
     "RotationOfEigenvectors.tanTheta",

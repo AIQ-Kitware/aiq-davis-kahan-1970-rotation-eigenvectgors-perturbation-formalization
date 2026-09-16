@@ -161,6 +161,7 @@ lake-manifest.json
 lean-toolchain
 LICENSE
 scripts/check_palomar_readiness.py
+scripts/build_verification_tools.sh
 scripts/verify_palomar.sh
 ```
 
@@ -182,8 +183,25 @@ Because the root `Challenge` and `Solution` libraries are default Lake targets,
 plain `lake build` checks the proof development and the submission surface.
 
 The static-only verifier confirms repository shape and kernel builds but, as it
-prints, is **not** a Comparator pass.  Before submission, when Comparator,
-`lean4export`, and NanoDa are available at the pinned Lean version, run:
+prints, is **not** a Comparator pass.  Build the pinned Comparator, `lean4export`,
+NanoDa, and Landrun bundle once with:
+
+```bash
+scripts/build_verification_tools.sh
+```
+
+The builder keeps the reproducible dated bundle (currently
+`~/.cache/palomar-tools-20260916`) and, only after all four tools build
+successfully, updates `~/.cache/palomar-tools-latest` to point at it.  Here
+`latest` means the most recently installed **pinned Palomar bundle**, not an
+unpinned upstream release.  `scripts/verify_palomar.sh` automatically discovers
+that stable pointer and also recognizes older dated bundles if the pointer has
+not been created yet.  An explicit caller `PATH` still takes precedence;
+`PALOMAR_TOOLS_BIN` can name another tool directory, and
+`PALOMAR_TOOLS_CACHE_PARENT` can move the cache root.  No shell-profile edit is
+required.
+
+Before submission, run the full mechanical reproduction:
 
 ```bash
 scripts/verify_palomar.sh

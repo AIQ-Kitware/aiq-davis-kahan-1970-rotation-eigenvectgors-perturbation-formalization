@@ -27,7 +27,9 @@
 #   3. comparator+NanoDa  the real exporter and the independent kernel; ground truth
 #
 # Stage 3 needs `comparator`, `lean4export`, `nanoda_bin`, and (unless
-# --fake-landrun is used) `landrun`. Build them against the Lean in
+# --fake-landrun is used) `landrun`. If they are not already on PATH, this
+# script discovers the stable cache installed by build_verification_tools.sh and
+# then the newest legacy dated cache. Build them against the Lean in
 # `lean-toolchain`. Current Palomar verifier pins observed 2026-09-16 are:
 #
 #   comparator   575674928e239f5bc452aab72d1dd7b0f1326494
@@ -49,6 +51,41 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
+
+# Prefer an explicit caller PATH. If one or more verification tools are absent,
+# augment it from the stable cache pointer maintained by
+# scripts/build_verification_tools.sh. For backward compatibility with bundles
+# created before that pointer existed, fall back to the newest dated bundle.
+add_cached_palomar_tools_to_path() {
+    local candidate
+    local cache_parent="${PALOMAR_TOOLS_CACHE_PARENT:-$HOME/.cache}"
+    local -a candidates=()
+    local -a dated=()
+
+    [[ -n "${PALOMAR_TOOLS_BIN:-}" ]] && candidates+=("$PALOMAR_TOOLS_BIN")
+    candidates+=("$cache_parent/palomar-tools-latest/bin")
+
+    shopt -s nullglob
+    dated=("$cache_parent"/palomar-tools-[0-9]*/bin)
+    shopt -u nullglob
+    if [[ ${#dated[@]} -gt 0 ]]; then
+        while IFS= read -r candidate; do
+            candidates+=("$candidate")
+        done < <(printf '%s\n' "${dated[@]}" | sort -r)
+    fi
+
+    for candidate in "${candidates[@]}"; do
+        [[ -d "$candidate" ]] || continue
+        if [[ -x "$candidate/comparator" && -x "$candidate/lean4export" \
+            && -x "$candidate/nanoda_bin" && -x "$candidate/landrun" ]]; then
+            PATH="$PATH:$candidate"
+            export PATH
+            echo "    added cached Palomar tools to PATH: $candidate"
+            return 0
+        fi
+    done
+    return 1
+}
 
 ENTRIES=()
 STATIC_ONLY=0
@@ -140,20 +177,31 @@ for entry in "${ENTRIES[@]}"; do
         echo "    Not a pass. The exporter is ground truth and did not run."
     else
         echo "--- 3/3 comparator + NanoDa"
+        if ! command -v comparator >/dev/null 2>&1 \
+            || ! command -v lean4export >/dev/null 2>&1 \
+            || ! command -v nanoda_bin >/dev/null 2>&1 \
+            || { [[ $FAKE_LANDRUN -eq 0 && -z "${COMPARATOR_LANDRUN:-}" ]] \
+                && ! command -v landrun >/dev/null 2>&1; }; then
+            add_cached_palomar_tools_to_path || true
+        fi
         if ! command -v comparator >/dev/null 2>&1; then
-            echo "    comparator is not on PATH; see the header of this script."
+            echo "    comparator was not found on PATH or in a cached Palomar tool bundle."
+            echo "    Run scripts/build_verification_tools.sh."
             ok=0
         elif ! command -v lean4export >/dev/null 2>&1; then
-            echo "    lean4export is not on PATH; see the header of this script."
+            echo "    lean4export was not found on PATH or in a cached Palomar tool bundle."
+            echo "    Run scripts/build_verification_tools.sh."
             ok=0
         elif ! command -v nanoda_bin >/dev/null 2>&1; then
-            echo "    nanoda_bin is not on PATH. NanoDa is the second, independent"
-            echo "    kernel and is a check, not a convenience; refusing to report a"
-            echo "    pass without it. See the header of this script."
+            echo "    nanoda_bin was not found on PATH or in a cached Palomar tool bundle."
+            echo "    NanoDa is the second, independent kernel and is a check, not a"
+            echo "    convenience; refusing to report a pass without it."
+            echo "    Run scripts/build_verification_tools.sh."
             ok=0
         elif [[ $FAKE_LANDRUN -eq 0 && -z "${COMPARATOR_LANDRUN:-}" ]] \
             && ! command -v landrun >/dev/null 2>&1; then
-            echo "    landrun is not on PATH. Install it or pass --fake-landrun."
+            echo "    landrun was not found on PATH or in a cached Palomar tool bundle."
+            echo "    Run scripts/build_verification_tools.sh or pass --fake-landrun."
             ok=0
         else
             if [[ $FAKE_LANDRUN -eq 1 && -z "${COMPARATOR_LANDRUN:-}" ]]; then

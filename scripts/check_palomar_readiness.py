@@ -347,6 +347,62 @@ def challenge_closure(rep: Report, entry: str, module: str) -> None:
 
 # ---------------------------------------------------------------- comparator
 
+def check_solution_prelude(rep: Report, entry: str, challenge_module: str,
+                           solution_module: str) -> None:
+    """Keep duplicated Comparator vocabulary byte-for-byte source aligned.
+
+    Comparator compares every non-target constant in the theorem statement by
+    exported `ConstantInfo`, not merely by source spelling.  This entry therefore
+    elaborates the public vocabulary twice under the same Mathlib-only import
+    environment: once at the front of Challenge.lean and once in a Solution-only
+    `SolutionPrelude.lean`.  Challenge cannot import that project-local prelude,
+    because Palomar forbids project source in the Challenge import closure.
+
+    This source-level tripwire catches accidental drift before the exporter does.
+    """
+    challenge = local_source_for(challenge_module)
+    solution = local_source_for(solution_module)
+    if challenge is None or solution is None:
+        return
+
+    prelude = solution.with_name("SolutionPrelude.lean")
+    if not prelude.is_file():
+        rep.fail(f"{entry}: missing {rel(prelude)}; Solution must elaborate the "
+                 "Challenge vocabulary in a Mathlib-only prelude")
+        return
+
+    marker = "/-! ## 7. The four theorem families of Section 2"
+    challenge_text = challenge.read_text()
+    if marker not in challenge_text:
+        rep.fail(f"{entry}: Challenge theorem-section marker changed; cannot verify "
+                 "SolutionPrelude alignment")
+        return
+    challenge_prefix = challenge_text.split(marker, 1)[0].rstrip()
+
+    prelude_text = prelude.read_text().rstrip()
+    suffix = "\nend RotationOfEigenvectors"
+    if not prelude_text.endswith(suffix):
+        rep.fail(f"{entry}: {rel(prelude)} must end by closing "
+                 "RotationOfEigenvectors")
+        return
+    prelude_prefix = prelude_text[:-len(suffix)].rstrip()
+
+    if challenge_prefix != prelude_prefix:
+        rep.fail(f"{entry}: {rel(prelude)} drifted from the Challenge definition "
+                 "prefix; Comparator may reject transitive constants")
+        return
+
+    solution_text = solution.read_text()
+    expected_import = f"import {solution_module.rsplit('.', 1)[0]}.SolutionPrelude"
+    if expected_import not in solution_text:
+        rep.fail(f"{entry}: Solution does not import its Mathlib-only "
+                 "SolutionPrelude")
+        return
+
+    rep.note(f"{entry}: SolutionPrelude exactly matches the Challenge definition "
+             "prefix")
+
+
 def entry_name(cfg_path: pathlib.Path) -> str:
     """The entry's label: its directory under `registry/`, or `root`."""
     return "root" if cfg_path.parent == ROOT else cfg_path.parent.name
@@ -383,6 +439,8 @@ def check_entry(rep: Report, cfg_path: pathlib.Path, *, with_axioms: bool) -> No
 
     if local_source_for(cfg["challenge_module"]) is not None:
         challenge_closure(rep, entry, cfg["challenge_module"])
+
+    check_solution_prelude(rep, entry, cfg["challenge_module"], cfg["solution_module"])
 
     # An entry carries its metadata one of three ways. Preferred: a per-entry
     # `formalization.yaml` beside the config, which a submission selects

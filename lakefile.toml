@@ -1,9 +1,10 @@
 name = "dk_1970_formalization"
 version = "0.1.0"
-# The Palomar entry is what this repository exists to present, so it is the only
-# default target. The extracted libraries build on demand: `lake build ForTauCeti`,
-# `lake build DavisKahan`.
-defaultTargets = ["Palomar"]
+# The ordinary default build is the extracted Davis--Kahan mathematics. Palomar
+# Challenge/Solution modules are built explicitly from their Comparator config;
+# there is intentionally no aggregate `Palomar.lean` because the two modules
+# repeat the same declaration names in separate environments.
+defaultTargets = ["DavisKahan"]
 
 [leanOptions]
 pp.unicode.fun = true

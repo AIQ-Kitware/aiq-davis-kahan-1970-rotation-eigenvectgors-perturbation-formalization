@@ -20,9 +20,11 @@
 #   1. static preflight   scripts/check_palomar_readiness.py -- submodules, LFS,
 #                         artifacts, licence, manifest pins, metadata shape,
 #                         comparator keys, Challenge sizes and import closure
-#   2. build              every `lean_lib` the lakefile declares, so the Challenge
-#                         modules with their deliberate statement-side holes are
-#                         built too, not only the default targets
+#   2. build              every Challenge and Solution module selected by a
+#                         registry Comparator configuration. Building the named
+#                         modules is intentional: there is no aggregate
+#                         `Palomar.lean`, because Challenge and Solution repeat
+#                         the same declaration names in separate environments.
 #   3. comparator+NanoDa  the real exporter and the independent kernel; ground truth
 #
 # Stage 3 needs `comparator`, `lean4export` and `nanoda_bin`. Install them from
@@ -72,21 +74,39 @@ if [[ ${#ENTRIES[@]} -eq 0 ]]; then
     exit 2
 fi
 
-# Every declared library, not just `defaultTargets`: a Challenge library is
-# deliberately excluded from the default build because it carries holes, and it is
-# exactly the thing that must compile before the exporter can read it.
-LIBS=()
-while IFS= read -r lib; do LIBS+=("$lib"); done < <(
-    awk '/^\[\[lean_lib\]\]/{f=1;next} f && /^name[[:space:]]*=/{gsub(/[^"]*"/,"",$0);gsub(/".*/,"",$0);print;f=0}' lakefile.toml
-)
+# Build the exact modules Comparator will read. Do not build a synthetic
+# `Palomar` root: this repository intentionally has no `Palomar.lean`, and the
+# readiness checker rejects one as a stale aggregate submission surface.
+BUILD_TARGETS=()
+for entry in "${ENTRIES[@]}"; do
+    cfg="$(config_for "$entry")"
+    [[ -f "$cfg" ]] || continue
+    while IFS= read -r module; do
+        [[ -n "$module" ]] && BUILD_TARGETS+=("$module")
+    done < <(python3 - "$cfg" <<'JSONPY'
+import json
+import pathlib
+import sys
+
+cfg = json.loads(pathlib.Path(sys.argv[1]).read_text())
+for key in ("challenge_module", "solution_module"):
+    module = cfg.get(key)
+    if isinstance(module, str) and module:
+        print(module)
+JSONPY
+    )
+done
 
 echo "======================================================================"
-echo "build: ${LIBS[*]:-<none declared>}"
+echo "build: ${BUILD_TARGETS[*]:-<none selected>}"
 echo "======================================================================"
 BUILD_OK=1
-for lib in ${LIBS[@]+"${LIBS[@]}"}; do
-    lake build "$lib" || BUILD_OK=0
-done
+if [[ ${#BUILD_TARGETS[@]} -eq 0 ]]; then
+    echo "no Challenge/Solution modules selected by registry configs" >&2
+    BUILD_OK=0
+else
+    lake build "${BUILD_TARGETS[@]}" || BUILD_OK=0
+fi
 
 FAILED=()
 for entry in "${ENTRIES[@]}"; do

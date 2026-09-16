@@ -896,6 +896,9 @@ theorem sinTwoTheta_ambient (N : SymmetricNormingFunction)
     SameApproximationSingularSequence.normingMem_iff_and_gauge_eq N.toSourceNorm hsame
   refine ⟨(N.finite_iff _).2 (hiff.mp hsrc.1), ?_⟩
   rw [N.norm_eq, N.norm_eq]
+  change δ * N.toSourceNorm.gauge
+      ((U.map (V.reflection.toLinearEquiv : E →ₗ[𝕜] E)).starProjection - U.starProjection) ≤
+    2 * N.toSourceNorm.gauge H
   rw [← hgauge]
   exact hsrc.2
 
